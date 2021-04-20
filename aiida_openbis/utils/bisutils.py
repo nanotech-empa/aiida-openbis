@@ -145,9 +145,12 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     for reac in reactions:
         allobj[reac['reactant']].add_children(allobj[reac['product']])
         allobj[reac['reactant']].save()
-        allobj[reac['product']].props['molproduct.yield'] = reac['yield']
-        allobj[reac['product']].props['molproduct.length'] = reac['length']
-        allobj[reac['product']].props['molproduct.temperature'] = reac['temperature']
+        if reac['yield']:
+            allobj[reac['product']].props['molproduct.yield'] = reac['yield']
+        if reac['length']:
+            allobj[reac['product']].props['molproduct.length'] = reac['length']
+        if reac['temperature']:
+            allobj[reac['product']].props['molproduct.temperature'] = reac['temperature']
         allobj[reac['product']].save()
     session.logout()
     return not session.is_session_active()
