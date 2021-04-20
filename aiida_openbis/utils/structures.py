@@ -53,7 +53,6 @@ class OpenbisMolWidget(ipw.VBox):
             return
         bisdata = bisutils.log_in()
         mols = bisutils.get_molecules(session=bisdata)
-        print(mols)
         bisutils.log_out(session=bisdata)
         self.smiles = ipw.Dropdown(options=[(mol[0], mol[2]) for mol in mols])
         self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")

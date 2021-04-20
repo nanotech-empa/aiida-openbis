@@ -3,6 +3,9 @@ from aiida.orm import load_node
 import tempfile
 import shutil
 
+from rdkit import Chem  # pylint: disable=(import-error)
+from rdkit.Chem import AllChem  # pylint: disable=(import-error)
+
 
 def log_in(
     bisurl='openbis-empa-lab205.labnotebook.ch/openbis/webapp/eln-lims/',
@@ -88,16 +91,35 @@ def new_molecule(session=None, name=None, molid=None, smile=None, attachment=Non
     if attachment:
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=attachment)
         rawds.save()
+    tmpl = Chem.MolFromSmiles(smile)
+    AllChem.Compute2DCoords(tmpl)
+    img = Chem.Draw.MolToImage(tmpl)
+    tmpdir = tempfile.mkdtemp()
+    file_path = tmpdir + "/" + 'struc.png'
+    img.save(file_path)
+    preview = session.new_dataset(type='ELN_PREVIEW', object=obj, file=file_path)
+    preview.save()
+
     return obj
 
 
-def new_product(session=None, name=None, molid=None, smile=None):
+def new_product(session=None, name=None, smile=None):
     """Function  to create in openBIS a new MOLPRODUCT object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLPRODUCT')
     obj.props['$name'] = name
-    obj.props['molecule.smile'] = smile
-    obj.props['molecule.id'] = molid
+    obj.props['molproduct.smile'] = smile
+    obj.props['molproduct.yield'] = 100
+    obj.props['molproduct.length'] = 10
+    obj.props['molproduct.temperature_k'] = 450
     obj.save()
+    tmpl = Chem.MolFromSmiles(smile)
+    AllChem.Compute2DCoords(tmpl)
+    img = Chem.Draw.MolToImage(tmpl)
+    tmpdir = tempfile.mkdtemp()
+    file_path = tmpdir + "/" + 'struc.png'
+    img.save(file_path)
+    preview = session.new_dataset(type='ELN_PREVIEW', object=obj, file=file_path)
+    preview.save()
     return obj
 
 
