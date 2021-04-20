@@ -2,6 +2,7 @@ from pybis import Openbis
 from aiida.orm import load_node
 import tempfile
 import shutil
+from aiida.common import NotExistent
 
 from rdkit import Chem  # pylint: disable=(import-error)
 from rdkit.Chem import AllChem  # pylint: disable=(import-error)
@@ -86,7 +87,8 @@ def new_molecule(session=None, name=None, molid=None, smile=None, attachment=Non
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
     obj.props['$name'] = name
     obj.props['molecule.smile'] = smile
-    obj.props['molecule.id'] = molid
+    if molid:
+        obj.props['molecule.id'] = molid
     obj.save()
     if attachment:
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=attachment)
@@ -146,15 +148,14 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
 
 def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'):
     """Function to export to openBIS results from an AiiDA geo opt workflow."""
-    #if pk:
-    #    try:
-    #        node = load_node(pk)
-    #    except:
-    #        return False
+    if pk:
+        try:
+            node = load_node(pk)
+        except NotExistent:
+            return False
     # Open openBIS session.
     session = log_in()
     # Create the new sstructure data openBIS object.
-    node = load_node(pk)
     asegeo = node.outputs.output_structure.get_ase()
 
     newSD = new_optimized_geo(session=session, structure=asegeo)
