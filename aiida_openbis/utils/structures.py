@@ -1,21 +1,21 @@
 import numpy as np
-from scipy.stats import mode
-import re
 
-from IPython.display import clear_output
 import ipywidgets as ipw
 #import nglview
 
 from traitlets import Instance, default
 
 from ase import Atoms
-from ase.data import covalent_radii, chemical_symbols
-from ase.neighborlist import NeighborList
-import ase.neighborlist
+from ase.data import chemical_symbols
 
 from sklearn.decomposition import PCA
 
 from aiida_openbis.utils import bisutils
+
+from openbabel import pybel as pb
+from openbabel import openbabel as ob
+from rdkit import Chem  # pylint: disable=(import-error)
+from rdkit.Chem import AllChem  # pylint: disable=(import-error)
 
 
 class OpenbisMolWidget(ipw.VBox):
@@ -34,18 +34,21 @@ class OpenbisMolWidget(ipw.VBox):
             from openbabel import openbabel  # noqa: F401
         except ImportError:
             super().__init__([
-                ipw.HTML("The SmilesWidget requires the OpenBabel library, "
-                         "but the library was not found.")
+                ipw.HTML(
+                    "The SmilesWidget requires the OpenBabel library, "
+                    "but the library was not found."
+                )
             ])
             return
         try:
-            a = 1
-            #from rdkit import Chem  # noqa: F401
-            #from rdkit.Chem import AllChem  # noqa: F401
+            from rdkit import Chem  # noqa: F401
+            from rdkit.Chem import AllChem  # noqa: F401
         except ImportError:
             super().__init__([
-                ipw.HTML("The SmilesWidget requires the rdkit library, "
-                         "but the library was not found.")
+                ipw.HTML(
+                    "The SmilesWidget requires the rdkit library, "
+                    "but the library was not found."
+                )
             ])
             return
         bisdata = bisutils.log_in()
@@ -53,8 +56,7 @@ class OpenbisMolWidget(ipw.VBox):
         print(mols)
         bisutils.log_out(session=bisdata)
         self.smiles = ipw.Dropdown(options=[(mol[0], mol[2]) for mol in mols])
-        self.create_structure_btn = ipw.Button(description="Generate molecule",
-                                               button_style="info")
+        self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")
         self.create_structure_btn.on_click(self._on_button_pressed)
         self.output = ipw.HTML("")
 
@@ -72,8 +74,6 @@ class OpenbisMolWidget(ipw.VBox):
 
     def _pybel_opt(self, smile, steps):
         """Optimize a molecule using force field and pybel (needed for complex SMILES)."""
-        from openbabel import pybel as pb
-        from openbabel import openbabel as ob
 
         obconversion = ob.OBConversion()
         obconversion.SetInFormat("smi")
@@ -96,8 +96,6 @@ class OpenbisMolWidget(ipw.VBox):
 
     def _rdkit_opt(self, smile, steps):
         """Optimize a molecule using force field and rdkit (needed for complex SMILES)."""
-        from rdkit import Chem
-        from rdkit.Chem import AllChem
 
         smile = smile.replace("[", "").replace("]", "")
         mol = Chem.MolFromSmiles(smile)
@@ -113,8 +111,7 @@ class OpenbisMolWidget(ipw.VBox):
     def mol_from_smiles(self, smile, steps=10000):
         """Convert SMILES to ase structure try rdkit then pybel"""
         try:
-            #return self._rdkit_opt(smile, steps)
-            return self._pybel_opt(smile, steps)
+            return self._rdkit_opt(smile, steps)
         except ValueError:
             return self._pybel_opt(smile, steps)
 
@@ -126,7 +123,8 @@ class OpenbisMolWidget(ipw.VBox):
             return
 
         self.output.value = "Screening possible conformers {}".format(
-            self.SPINNER)  # font-size:20em;
+            self.SPINNER
+        )  # font-size:20em;
         self.structure = self.mol_from_smiles(self.smiles.value)
         self.output.value = ""
 
