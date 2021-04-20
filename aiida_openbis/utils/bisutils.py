@@ -105,14 +105,17 @@ def new_molecule(session=None, name=None, molid=None, smile=None, attachment=Non
     return obj
 
 
-def new_product(session=None, name=None, smile=None):
+def new_product(session=None, name=None, smile=None, theyield=None, length=None, temperature=None):  # pylint: disable=(too-many-arguments)
     """Function  to create in openBIS a new MOLPRODUCT object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLPRODUCT')
     obj.props['$name'] = name
     obj.props['molproduct.smile'] = smile
-    obj.props['molproduct.yield'] = 100
-    obj.props['molproduct.length'] = 10
-    obj.props['molproduct.temperature_k'] = 450
+    if theyield:
+        obj.props['molproduct.yield'] = theyield
+    if length:
+        obj.props['molproduct.length'] = length
+    if temperature:
+        obj.props['molproduct.temperature'] = temperature
     obj.save()
     tmpl = Chem.MolFromSmiles(smile)
     AllChem.Compute2DCoords(tmpl)
@@ -142,6 +145,10 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     for reac in reactions:
         allobj[reac['reactant']].add_children(allobj[reac['product']])
         allobj[reac['reactant']].save()
+        allobj[reac['product']].props['molproduct.yield'] = reac['yield']
+        allobj[reac['product']].props['molproduct.length'] = reac['length']
+        allobj[reac['product']].props['molproduct.temperature'] = reac['temperature']
+        allobj[reac['product']].save()
     session.logout()
     return not session.is_session_active()
 
