@@ -145,7 +145,10 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     for reac in reactions:
         print('adding ', reac['product'], ' id ', allobj[reac['product']].permId)
         print('as child of ', reac['reactant'], ' id ', allobj[reac['reactant']].permId)
-        allobj[reac['reactant']].add_children(allobj[reac['product']].permId)
+        print('parent is saved ', allobj[reac['reactant']].is_new)
+        print('parent is saved ', allobj[reac['product']].is_new)
+        #allobj[reac['reactant']].save()
+        allobj[reac['reactant']].add_children(allobj[reac['product']])
         allobj[reac['reactant']].save()
         if reac['yield']:
             allobj[reac['product']].props['molproduct.yield'] = reac['yield']
