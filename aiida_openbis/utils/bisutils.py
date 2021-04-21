@@ -143,6 +143,8 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
             allobj[mol['name']] = new_product(session=session, name=mol['name'], smile=mol['smile'])
 
     for reac in reactions:
+        print('adding ', reac['product'], ' id ', allobj[reac['product']].permId)
+        print('as child of ', reac['reactant'], ' id ', allobj[reac['reactant']].permId)
         allobj[reac['reactant']].add_children(allobj[reac['product']])
         allobj[reac['reactant']].save()
         if reac['yield']:
