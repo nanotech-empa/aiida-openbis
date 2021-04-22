@@ -137,26 +137,30 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         if mol['name'] in allm:
             allobj[mol['name']] = new_molecule(
                 session=session, name=mol['name'], smile=mol['smile'], attachment=attachment
-            )
+            ).permId
 
         else:
-            allobj[mol['name']] = new_product(session=session, name=mol['name'], smile=mol['smile'])
+            allobj[mol['name']] = new_product(session=session, name=mol['name'], smile=mol['smile']).permId
 
     for reac in reactions:
-        print('adding ', reac['product'], ' id ', allobj[reac['product']].permId)
-        print('as child of ', reac['reactant'], ' id ', allobj[reac['reactant']].permId)
-        print('parent is saved ', allobj[reac['reactant']].is_new)
-        print('parent is saved ', allobj[reac['product']].is_new)
+        print('adding ', reac['product'], ' id ', allobj[reac['product']])
+        print('as child of ', reac['reactant'], ' id ', allobj[reac['reactant']])
+        #print('parent is new ', allobj[reac['reactant']].is_new)
+        #print('parent is new ', allobj[reac['product']].is_new)
+        reactant = session.get_object(allobj[reac['reactant']])
+        product = session.get_object(allobj[reac['product']])
         #allobj[reac['reactant']].save()
-        allobj[reac['reactant']].add_children(allobj[reac['product']])
-        allobj[reac['reactant']].save()
+        #allobj[reac['reactant']].add_children(allobj[reac['product']])
+        #allobj[reac['reactant']].save()
         if reac['yield']:
-            allobj[reac['product']].props['molproduct.yield'] = reac['yield']
+            product.props['molproduct.yield'] = reac['yield']
         if reac['length']:
-            allobj[reac['product']].props['molproduct.length'] = reac['length']
+            product.props['molproduct.length'] = reac['length']
         if reac['temperature']:
-            allobj[reac['product']].props['molproduct.temperature'] = reac['temperature']
-        allobj[reac['product']].save()
+            product.props['molproduct.temperature'] = reac['temperature']
+        product.save()
+        reactant.add_children(product)
+        reactant.save()
     session.logout()
     return not session.is_session_active()
 
