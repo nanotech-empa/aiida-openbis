@@ -62,6 +62,18 @@ def get_molecules(session=None):
     return result
 
 
+def new_chem_sketch(session=None, attachment=None):
+    if not attachment:
+        return False
+    obj = session.new_object(collection='/MATERIALS/SAMPLES/CHEMSKETCH', type='CHEMSKETCH')
+    obj.props['chemsketch.description'] = 'Chemical sketch of ....'
+    obj.save()
+    if attachment:
+        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=attachment)
+        rawds.save()
+    return obj
+
+
 def new_optimized_geo(session=None, structure=None):
     """Function to export to openBIS an optimized geometry."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/COMPUTEDGEO', type='STRUCTUREDATA')
@@ -82,7 +94,7 @@ def new_optimized_geo(session=None, structure=None):
     return obj
 
 
-def new_molecule(session=None, name=None, molid=None, smile=None, attachment=None):
+def new_molecule(session=None, name=None, molid=None, smile=None):
     """Function  to create in openBIS a new MOLECULE object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
     obj.props['$name'] = name
@@ -90,9 +102,6 @@ def new_molecule(session=None, name=None, molid=None, smile=None, attachment=Non
     if molid:
         obj.props['molecule.id'] = molid
     obj.save()
-    if attachment:
-        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=attachment)
-        rawds.save()
     tmpl = Chem.MolFromSmiles(smile)
     AllChem.Compute2DCoords(tmpl)
     img = Chem.Draw.MolToImage(tmpl)
@@ -130,28 +139,27 @@ def new_product(session=None, name=None, smile=None, theyield=None, length=None,
 
 def new_reaction_products(reactions=None, molecules=None, attachment=None):
     """Function  to create in openBIS objects from a cdxml reaction."""
+    if not attachment:
+        return False
+
     session = log_in()
+    cdxml = new_chem_sketch(session=session, attachment=attachment).permId
+
     allm = set(m['name'] for m in molecules) - set(p['product'] for p in reactions)
     allobj = {}
     for mol in molecules:
         if mol['name'] in allm:
-            allobj[mol['name']] = new_molecule(
-                session=session, name=mol['name'], smile=mol['smile'], attachment=attachment
-            ).permId
+            allobj[mol['name']
+                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile']).permId
 
         else:
-            allobj[mol['name']] = new_product(session=session, name=mol['name'], smile=mol['smile']).permId
+            allobj[mol['name']
+                   ] = new_product(session=session, name=mol['name'], smile=mol['smile']).permId
 
     for reac in reactions:
-        print('adding ', reac['product'], ' id ', allobj[reac['product']])
-        print('as child of ', reac['reactant'], ' id ', allobj[reac['reactant']])
-        #print('parent is new ', allobj[reac['reactant']].is_new)
-        #print('parent is new ', allobj[reac['product']].is_new)
         reactant = session.get_object(allobj[reac['reactant']])
         product = session.get_object(allobj[reac['product']])
-        #allobj[reac['reactant']].save()
-        #allobj[reac['reactant']].add_children(allobj[reac['product']])
-        #allobj[reac['reactant']].save()
+        cdxml = session.get_object(cdxml)
         if reac['yield']:
             product.props['molproduct.yield'] = reac['yield']
         if reac['length']:
@@ -159,6 +167,10 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         if reac['temperature']:
             product.props['molproduct.temperature'] = reac['temperature']
         product.save()
+        cdxml.add_children(reactant)
+        cdxml.save()
+        cdxml.add_children(product)
+        cdxml.save()
         reactant.add_children(product)
         reactant.save()
     session.logout()
