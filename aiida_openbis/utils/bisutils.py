@@ -168,12 +168,12 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         if reac['temperature']:
             product.props['molproduct.temperature'] = reac['temperature']
         product.save()
-        cdxml.add_children(reactant)
-        cdxml.save()
         cdxml.add_children(product)
         cdxml.save()
         reactant.add_children(product)
         reactant.save()
+        cdxml.add_children(reactant)
+        cdxml.save()
     session.logout()
     return not session.is_session_active()
 
