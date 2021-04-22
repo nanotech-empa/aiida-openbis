@@ -143,7 +143,8 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         return False
 
     session = log_in()
-    cdxml = new_chem_sketch(session=session, attachment=attachment).permId
+    cdxmlid = new_chem_sketch(session=session, attachment=attachment).permId
+    print(cdxmlid)
 
     allm = set(m['name'] for m in molecules) - set(p['product'] for p in reactions)
     allobj = {}
@@ -159,7 +160,7 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     for reac in reactions:
         reactant = session.get_object(allobj[reac['reactant']])
         product = session.get_object(allobj[reac['product']])
-        cdxml = session.get_object(cdxml)
+        cdxml = session.get_object(cdxmlid)
         if reac['yield']:
             product.props['molproduct.yield'] = reac['yield']
         if reac['length']:
