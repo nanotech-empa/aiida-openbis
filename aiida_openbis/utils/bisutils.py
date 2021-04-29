@@ -94,7 +94,7 @@ def new_optimized_geo(session=None, structure=None):
     return obj
 
 
-def new_molecule(session=None, name=None, molid=None, smile=None):
+def new_molecule(session=None, name=None, molid=None, smile=None,cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
     obj.props['$name'] = name
@@ -110,11 +110,18 @@ def new_molecule(session=None, name=None, molid=None, smile=None):
     img.save(file_path)
     preview = session.new_dataset(type='ELN_PREVIEW', object=obj, file=file_path)
     preview.save()
+    if cdxml:
+        tmpdir = tempfile.mkdtemp()
+        file_path = tmpdir + "/" + 'sketch.cdxml'
+        with open(file_path, 'w') as f:
+            f.write(cdxml)
+        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
+        rawds.save()    
 
     return obj
 
 
-def new_product(session=None, name=None, smile=None, theyield=None, length=None, temperature=None):  # pylint: disable=(too-many-arguments)
+def new_product(session=None, name=None, smile=None, cdxml=None, theyield=None, length=None, temperature=None):  # pylint: disable=(too-many-arguments)
     """Function  to create in openBIS a new MOLPRODUCT object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLPRODUCT')
     obj.props['$name'] = name
@@ -134,6 +141,13 @@ def new_product(session=None, name=None, smile=None, theyield=None, length=None,
     img.save(file_path)
     preview = session.new_dataset(type='ELN_PREVIEW', object=obj, file=file_path)
     preview.save()
+    if cdxml:
+        tmpdir = tempfile.mkdtemp()
+        file_path = tmpdir + "/" + 'sketch.cdxml'
+        with open(file_path, 'w') as f:
+            f.write(cdxml)
+        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
+        rawds.save()        
     return obj
 
 
@@ -144,18 +158,18 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
 
     session = log_in()
     cdxmlid = new_chem_sketch(session=session, attachment=attachment).permId
-    print(cdxmlid)
 
     allm = set(m['name'] for m in molecules) - set(p['product'] for p in reactions)
     allobj = {}
     for mol in molecules:
+        the_cdxml=molecules[mol['name']]['cdxml']
         if mol['name'] in allm:
             allobj[mol['name']
-                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile']).permId
+                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile'],cdxml=the_cdxml).permId
 
         else:
             allobj[mol['name']
-                   ] = new_product(session=session, name=mol['name'], smile=mol['smile']).permId
+                   ] = new_product(session=session, name=mol['name'], smile=mol['smile'],cdxml=the_cdxml).permId
 
     for reac in reactions:
         reactant = session.get_object(allobj[reac['reactant']])
@@ -172,6 +186,10 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         cdxml.save()
         reactant.add_children(product)
         reactant.save()
+        # The reaction .cdxml is children of precursor molecules.
+        if reactant['name'] in allm:
+            reactant.add_children(cdxml)
+            reactant.save()
         cdxml.add_children(reactant)
         cdxml.save()
     session.logout()
