@@ -186,7 +186,7 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         reactant.add_children(product)
         reactant.save()
         # The reaction .cdxml is children of precursor molecules.
-        if reactant['name'] in allm:
+        if reac['name'] in allm:
             reactant.add_children(cdxml)
             reactant.save()
         cdxml.add_children(reactant)
