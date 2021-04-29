@@ -162,14 +162,13 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     allm = set(m['name'] for m in molecules) - set(p['product'] for p in reactions)
     allobj = {}
     for mol in molecules:
-        the_cdxml=molecules[mol['name']]['cdxml']
         if mol['name'] in allm:
             allobj[mol['name']
-                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile'],cdxml=the_cdxml).permId
+                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile'],cdxml=mol['cdxml']).permId
 
         else:
             allobj[mol['name']
-                   ] = new_product(session=session, name=mol['name'], smile=mol['smile'],cdxml=the_cdxml).permId
+                   ] = new_product(session=session, name=mol['name'], smile=mol['smile'],cdxml=mol['cdxml']).permId
 
     for reac in reactions:
         reactant = session.get_object(allobj[reac['reactant']])
