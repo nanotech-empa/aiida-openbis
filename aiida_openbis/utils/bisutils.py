@@ -189,8 +189,10 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         if reac['reactant'] in allm:
             reactant.add_children(cdxml)
             reactant.save()
-        cdxml.add_children(reactant)
-        cdxml.save()
+        # Product molecules are children of the reaction .cdxml
+        else:
+            cdxml.add_children(reactant)
+            cdxml.save()
     session.logout()
     return not session.is_session_active()
 
