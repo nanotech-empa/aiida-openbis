@@ -57,7 +57,7 @@ def get_molecules(session=None):
     result = []
     if session and session.is_session_active():
         available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [(mol.props['$name'], mol.props['molecule.id'], mol.props['molecule.smile'])
+        result = [(mol.props['$name'], mol.permId, mol.props['molecule.smile'])
                   for mol in available_molecules]
     return result
 
@@ -74,10 +74,14 @@ def new_chem_sketch(session=None, attachment=None):
     return obj
 
 
-def new_optimized_geo(session=None, structure=None):
+def new_optimized_geo(session=None, pk=None):
     """Function to export to openBIS an optimized geometry."""
+    node = load_node(pk)
+    structure = node.get_ase()
     obj = session.new_object(collection='/MATERIALS/SAMPLES/COMPUTEDGEO', type='STRUCTUREDATA')
     obj.props['structuredata.info'] = 'Optimized geometry'
+    obj.props['structuredata.pk'] = pk
+    obj.props['structuredata.uuid'] = node.uuid
     obj.save()
     if structure:
         tmpdir = tempfile.mkdtemp()
@@ -94,7 +98,12 @@ def new_optimized_geo(session=None, structure=None):
     return obj
 
 
-def new_molecule(session=None, name=None, molid=None, smile=None,cdxml=None):
+def get_opt_geo_ids(session=None):
+    return [(obj.permId, obj.props['structuredata.uuid'])
+            for obj in session.get_objects(collection='/MATERIALS/SAMPLES/COMPUTEDGEO')]
+
+
+def new_molecule(session=None, name=None, molid=None, smile=None, cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
     obj.props['$name'] = name
@@ -116,12 +125,20 @@ def new_molecule(session=None, name=None, molid=None, smile=None,cdxml=None):
         with open(file_path, 'w') as f:
             f.write(cdxml)
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
-        rawds.save()    
+        rawds.save()
 
     return obj
 
 
-def new_product(session=None, name=None, smile=None, cdxml=None, theyield=None, length=None, temperature=None):  # pylint: disable=(too-many-arguments)
+def new_product(
+    session=None,
+    name=None,
+    smile=None,
+    cdxml=None,
+    theyield=None,
+    length=None,
+    temperature=None
+):  # pylint: disable=(too-many-arguments)
     """Function  to create in openBIS a new MOLPRODUCT object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLPRODUCT')
     obj.props['$name'] = name
@@ -147,7 +164,7 @@ def new_product(session=None, name=None, smile=None, cdxml=None, theyield=None, 
         with open(file_path, 'w') as f:
             f.write(cdxml)
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
-        rawds.save()        
+        rawds.save()
     return obj
 
 
@@ -163,12 +180,14 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     allobj = {}
     for mol in molecules:
         if mol['name'] in allm:
-            allobj[mol['name']
-                   ] = new_molecule(session=session, name=mol['name'], smile=mol['smile'],cdxml=mol['cdxml']).permId
+            allobj[mol['name']] = new_molecule(
+                session=session, name=mol['name'], smile=mol['smile'], cdxml=mol['cdxml']
+            ).permId
 
         else:
-            allobj[mol['name']
-                   ] = new_product(session=session, name=mol['name'], smile=mol['smile'],cdxml=mol['cdxml']).permId
+            allobj[mol['name']] = new_product(
+                session=session, name=mol['name'], smile=mol['smile'], cdxml=mol['cdxml']
+            ).permId
 
     for reac in reactions:
         reactant = session.get_object(allobj[reac['reactant']])
@@ -207,9 +226,9 @@ def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGUL
     # Open openBIS session.
     session = log_in()
     # Create the new sstructure data openBIS object.
-    asegeo = node.outputs.output_structure.get_ase()
+    structure_pk = node.outputs.output_structure.pk
 
-    newSD = new_optimized_geo(session=session, structure=asegeo)
+    newSD = new_optimized_geo(session=session, pk=structure_pk)
     newgeoopt = session.new_object(collection=collection, type='AIIDALAB_GEO_OPT')
     newgeoopt.add_children(newSD)
     newgeoopt.add_parents('/MATERIALS/ORGANIZATION/PER1')
@@ -224,6 +243,71 @@ def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGUL
     newgeoopt.props['aiidalab_geo_opt.outdict'] = str(dict(node.outputs.output_parameters))
     newgeoopt.save()
 
+    # Close openBIS session
+    session.logout()
+    return True
+
+
+def aiidalab_spm(
+    zipfile=None, pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
+):
+    """Function to export to openBIS STM sets from an AiiDAlab SPM workflow."""
+    if pk:
+        try:
+            node = load_node(pk)
+        except NotExistent:
+            return False
+    # Open openBIS session.
+    session = log_in()
+    newspm = session.new_object(collection=collection, type='AIIDALAB_SPM')
+    url = 'https://aiidalab.materialscloud.org/user/' + node.user.email
+    # search parent geometry and add as parent
+    #structure_uuid = node.inputs.structure.uuid
+    #the_geo =...
+    #newspm.add_parents(the_geo)
+    # identify user and add as parent
+    the_user = '/MATERIALS/ORGANIZATION/PER1'
+    newspm.add_parents(the_user)
+    newspm.props['start_date'] = node.ctime.strftime("%Y-%m-%d %H:%M:%S")
+    newspm.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
+    newspm.props['aiidalab_spm.description'] = node.description
+    newspm.props['aiidalab_spm.pk'] = node.pk
+    newspm.props['aiidalab_spm.uuid'] = node.uuid
+    newspm.props['aiidalab_spm.url'] = url
+    newspm.props['aiidalab_spm.outdict'] = str(dict(node.outputs.output_parameters))
+    newspm.props['aiidalab_spm.notes'] = 'Notes:'
+    newspm.save()
+    # Attach zipfile.
+    rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
+    rawds.props['$name'] = 'Igor_files'
+    rawds.props['notes'] = 'Zip file containing raw data in .igor and .txt format'
+    rawds.save()
+
+    # Gallery of STM images
+    xmlstring = '<?xml version="1.0" encoding="UTF-8"?>\n<html><head>Images</head><body>'
+    thezip = zipfile.ZipFile(zipfile, 'r')
+    # Parse through the files.
+    for filename in thezip.namelist():
+        if filename.endswith('.png'):
+            # New image.
+            xmlstring += '<figure class="image image-style-align-left image_resized" style="width:10.0%;">'
+            xmlstring += '<img src="/openbis/openbis/file-service/eln-lims/27/c1/7f/27c17f6d-31c3-4b9a-9a98-2f804e19bc93/spm.jpg" />'
+            # Figure caption.
+            xmlstring += '<figcaption>Parameters: '
+            xmlstring += filename.replace('.png', '')
+            xmlstring += '</figcaption></figure>'
+
+            content = thezip.open(filename).read()
+            file_path = tempfile.mkdtemp() + "/" + 'filename'
+            with open(file_path, 'wb') as newf:
+                newf.write(content)
+                rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
+                rawds.props['$name'] = filename.replace('.png', '')
+                rawds.props['notes'] = 'SPM png file'
+                rawds.save()
+    xmlstring += '</body></html>'
+    newspm.props['aiidalab_spm.images'] = xmlstring
+    newspm.save()
     # Close openBIS session
     session.logout()
     return True
