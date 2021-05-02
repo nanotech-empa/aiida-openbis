@@ -277,7 +277,7 @@ def aiidalab_spm(
     newspm.props['aiidalab_spm.pk'] = node.pk
     newspm.props['aiidalab_spm.uuid'] = node.uuid
     newspm.props['aiidalab_spm.url'] = 'https://aiidalab.materialscloud.org/user/' + node.user.email
-    newspm.props['aiidalab_spm.outdict'] = str(dict(node.outputs.output_parameters))
+    newspm.props['aiidalab_spm.outdict'] = 'Outputs:'
     newspm.props['aiidalab_spm.notes'] = 'Notes:'
     newspm.save()
     # search parent geometry and add as parent
