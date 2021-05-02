@@ -216,7 +216,9 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     return not session.is_session_active()
 
 
-def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'):
+def aiidalab_geo_opt(
+    session=None, pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
+):
     """Function to export to openBIS results from an AiiDA geo opt workflow."""
     if pk:
         try:
@@ -224,7 +226,10 @@ def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGUL
         except NotExistent:
             return False
     # Open openBIS session.
-    session = log_in()
+    close_at_end = False
+    if session is None:
+        session = log_in()
+        close_at_end = True
     # Create the new sstructure data openBIS object.
     structure_pk = node.outputs.output_structure.pk
 
@@ -244,8 +249,10 @@ def aiidalab_geo_opt(pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGUL
     newgeoopt.save()
 
     # Close openBIS session
-    session.logout()
-    return True
+    info = [newSD.permId, newgeoopt.permId]
+    if close_at_end:
+        session.logout()
+    return info
 
 
 def aiidalab_spm(
@@ -260,23 +267,36 @@ def aiidalab_spm(
     # Open openBIS session.
     session = log_in()
     newspm = session.new_object(collection=collection, type='AIIDALAB_SPM')
-    url = 'https://aiidalab.materialscloud.org/user/' + node.user.email
-    # search parent geometry and add as parent
-    #structure_uuid = node.inputs.structure.uuid
-    #the_geo =...
+
     #newspm.add_parents(the_geo)
     # identify user and add as parent
-    the_user = '/MATERIALS/ORGANIZATION/PER1'
-    newspm.add_parents(the_user)
+    newspm.add_parents('/MATERIALS/ORGANIZATION/PER1')
     newspm.props['start_date'] = node.ctime.strftime("%Y-%m-%d %H:%M:%S")
     newspm.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
     newspm.props['aiidalab_spm.description'] = node.description
     newspm.props['aiidalab_spm.pk'] = node.pk
     newspm.props['aiidalab_spm.uuid'] = node.uuid
-    newspm.props['aiidalab_spm.url'] = url
+    newspm.props['aiidalab_spm.url'] = 'https://aiidalab.materialscloud.org/user/' + node.user.email
     newspm.props['aiidalab_spm.outdict'] = str(dict(node.outputs.output_parameters))
     newspm.props['aiidalab_spm.notes'] = 'Notes:'
     newspm.save()
+    # search parent geometry and add as parent
+    # if not present check if originated from geo_opt and add geo_opt
+    structure_uuid = node.inputs.structure.uuid
+    available_geos = get_opt_geo_ids(session=session)
+    try:
+        idn = [a[1] for a in available_geos].index(structure_uuid)
+        structure_permId = available_geos[idn][0]
+    except ValueError:
+        try:
+            structure_permId = aiidalab_geo_opt(
+                session=session, pk=node.inputs.structure.creator.caller.pk
+            )[0]
+        except (AttributeError, ValueError):
+            structure_permId = None
+    if structure_permId:
+        newspm.add_parents(structure_permId)
+        newspm.save()
     # Attach zipfile.
     rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
     rawds.props['$name'] = 'Igor_files'
@@ -297,10 +317,8 @@ def aiidalab_spm(
             xmlstring += filename.replace('.png', '')
             xmlstring += '</figcaption></figure>'
 
-            content = thezip.open(filename).read()
-            file_path = tempfile.mkdtemp() + "/" + 'filename'
-            with open(file_path, 'wb') as newf:
-                newf.write(content)
+            with open(tempfile.mkdtemp() + "/" + 'filename', 'wb') as newf:
+                newf.write(thezip.open(filename).read())
                 rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
                 rawds.props['$name'] = filename.replace('.png', '')
                 rawds.props['notes'] = 'SPM png file'
