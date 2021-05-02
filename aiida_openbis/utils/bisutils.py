@@ -1,6 +1,7 @@
 from pybis import Openbis
 from aiida.orm import load_node
 import tempfile
+import zipfile
 import shutil
 from aiida.common import NotExistent
 
@@ -256,8 +257,10 @@ def aiidalab_geo_opt(
 
 
 def aiidalab_spm(
-    zipfile=None, pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
-):
+    zip_path=None,
+    pk=None,
+    collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
+):  # pylint: disable=(too-many-locals)
     """Function to export to openBIS STM sets from an AiiDAlab SPM workflow."""
     if pk:
         try:
@@ -298,14 +301,14 @@ def aiidalab_spm(
         newspm.add_parents(structure_permId)
         newspm.save()
     # Attach zipfile.
-    rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
+    rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zip_path)
     rawds.props['$name'] = 'Igor_files'
     rawds.props['notes'] = 'Zip file containing raw data in .igor and .txt format'
     rawds.save()
 
     # Gallery of STM images
     xmlstring = '<?xml version="1.0" encoding="UTF-8"?>\n<html><head>Images</head><body>'
-    thezip = zipfile.ZipFile(zipfile, 'r')
+    thezip = zipfile.ZipFile(zip_path, 'r')
     # Parse through the files.
     for filename in thezip.namelist():
         if filename.endswith('.png'):
@@ -317,9 +320,10 @@ def aiidalab_spm(
             xmlstring += filename.replace('.png', '')
             xmlstring += '</figcaption></figure>'
 
-            with open(tempfile.mkdtemp() + "/" + 'filename', 'wb') as newf:
+            pngfile = tempfile.mkdtemp() + "/" + 'filename'
+            with open(pngfile, 'wb') as newf:
                 newf.write(thezip.open(filename).read())
-                rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=zipfile)
+                rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=pngfile)
                 rawds.props['$name'] = filename.replace('.png', '')
                 rawds.props['notes'] = 'SPM png file'
                 rawds.save()
