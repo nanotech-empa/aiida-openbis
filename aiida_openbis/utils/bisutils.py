@@ -15,8 +15,10 @@ def log_in(
     bispasswd='openbisempa'
 ):
     """Function to login to openBIS."""
-    session = Openbis(bisurl)
-    session.login(bisuser, bispasswd, save_token=True)
+    if Openbis(bisurl).is_session_active():
+        session = Openbis(bisurl)
+    else:
+        session = Openbis(bisurl).login(bisuser, bispasswd, save_token=True)
     return session
 
 
@@ -217,6 +219,20 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
     return not session.is_session_active()
 
 
+def is_from_openbis(pk=None):
+    permId = False
+    if pk:
+        try:
+            node = load_node(pk)
+        except NotExistent:
+            return False
+        try:
+            permId = node.extras['eln']['sample_uuid']
+        except KeyError:
+            permId = False
+    return permId
+
+
 def aiidalab_geo_opt(
     session=None, pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
 ):
@@ -233,7 +249,10 @@ def aiidalab_geo_opt(
         close_at_end = True
     # Create the new sstructure data openBIS object.
     structure_pk = node.outputs.output_structure.pk
-
+    # Check if the input workchain input structure originated from openBIS and gets permId
+    bis_parent_permId = is_from_openbis(
+        pk=node.inputs.cp2k__file__input_xyz.creator.inputs.structure.pk
+    )
     newSD = new_optimized_geo(session=session, pk=structure_pk)
     newgeoopt = session.new_object(collection=collection, type='AIIDALAB_GEO_OPT')
     newgeoopt.add_children(newSD)
@@ -248,6 +267,9 @@ def aiidalab_geo_opt(
     ] = 'https://aiidalab.materialscloud.org/user/carlo.pignedoli@empa.ch/apps/apps/home/start.ipynb?'
     newgeoopt.props['aiidalab_geo_opt.outdict'] = str(dict(node.outputs.output_parameters))
     newgeoopt.save()
+    if bis_parent_permId:
+        newgeoopt.add_parents(bis_parent_permId)
+        newgeoopt.save()
 
     # Close openBIS session
     info = [newSD.permId, newgeoopt.permId]
