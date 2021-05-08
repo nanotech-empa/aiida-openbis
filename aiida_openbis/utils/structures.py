@@ -9,7 +9,7 @@ from ase import Atoms
 from ase.data import chemical_symbols
 
 from sklearn.decomposition import PCA
-
+from aiida import orm
 from aiida_openbis.utils import bisutils
 
 from openbabel import pybel as pb
@@ -21,7 +21,7 @@ from rdkit.Chem import AllChem  # pylint: disable=(import-error)
 class OpenbisMolWidget(ipw.VBox):
     """Conver SMILES into 3D structure."""
 
-    structure = Instance(Atoms, allow_none=True)
+    structure = Instance(orm.Node, allow_none=True)
 
     SPINNER = """<i class="fa fa-spinner fa-pulse" style="color:red;" ></i>"""
 
@@ -54,7 +54,7 @@ class OpenbisMolWidget(ipw.VBox):
         bisdata = bisutils.log_in()
         mols = bisutils.get_molecules(session=bisdata)
         bisutils.log_out(session=bisdata)
-        self.smiles = ipw.Dropdown(options=[(mol[0], mol[2]) for mol in mols])
+        self.smiles = ipw.Dropdown(options=[(mol[0], {'permId': mol[1], 'smile':mol[2]}) for mol in mols])
         self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")
         self.create_structure_btn.on_click(self._on_button_pressed)
         self.output = ipw.HTML("")
@@ -124,7 +124,17 @@ class OpenbisMolWidget(ipw.VBox):
         self.output.value = "Screening possible conformers {}".format(
             self.SPINNER
         )  # font-size:20em;
-        self.structure = self.mol_from_smiles(self.smiles.value)
+
+        eln_info = {
+            "eln_instance": "https://openbis-empa-lab205.labnotebook.ch/",
+            "eln_type": "OpenBIS",
+            "sample_uuid": self.smiles.value['permId'],
+            "spectrum_type": "molecule",
+            "file_name": self.smiles.label,
+        }
+
+        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.smiles.value['smile']))
+        self.structure.set_extra("eln", eln_info)
         self.output.value = ""
 
     @default("structure")
