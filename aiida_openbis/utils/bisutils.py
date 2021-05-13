@@ -15,10 +15,11 @@ def log_in(
     bispasswd='openbisempa'
 ):
     """Function to login to openBIS."""
-    if Openbis(bisurl).is_session_active():
+    if Openbis(bisurl).is_token_valid():
         session = Openbis(bisurl)
     else:
-        session = Openbis(bisurl).login(bisuser, bispasswd, save_token=True)
+        Openbis(bisurl).login(bisuser, bispasswd, save_token=True)
+        session = Openbis(bisurl)
     return session
 
 
