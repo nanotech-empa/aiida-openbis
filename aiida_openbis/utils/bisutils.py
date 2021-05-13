@@ -335,7 +335,7 @@ def aiidalab_spm(
     # Parse through the files.
     for filename in thezip.namelist():
         if filename.endswith('.png'):
-            pngfile = tempfile.mkdtemp() + "/" + 'filename'
+            pngfile = tempfile.mkdtemp() + "/" + filename
             # save the image as raw_dataset
             with open(pngfile, 'wb') as newf:
                 newf.write(thezip.open(filename).read())
