@@ -335,21 +335,23 @@ def aiidalab_spm(
     # Parse through the files.
     for filename in thezip.namelist():
         if filename.endswith('.png'):
-            # New image.
-            xmlstring += '<figure class="image image-style-align-left image_resized" style="width:10.0%;">'
-            xmlstring += '<img src="/openbis/openbis/file-service/eln-lims/27/c1/7f/27c17f6d-31c3-4b9a-9a98-2f804e19bc93/spm.jpg" />'
-            # Figure caption.
-            xmlstring += '<figcaption>Parameters: '
-            xmlstring += filename.replace('.png', '')
-            xmlstring += '</figcaption></figure>'
-
             pngfile = tempfile.mkdtemp() + "/" + 'filename'
+            # save the image as raw_dataset
             with open(pngfile, 'wb') as newf:
                 newf.write(thezip.open(filename).read())
                 rawds = session.new_dataset(type='RAW_DATA', object=newspm, file=pngfile)
                 rawds.props['$name'] = filename.replace('.png', '')
                 rawds.props['notes'] = 'SPM png file'
                 rawds.save()
+            img_url = 'https://openbis-empa-lab205.labnotebook.ch/datastore_server/'
+            img_url += str(rawds.permId) + '/' + list(rawds.file_links.keys())[0]
+            # New image.
+            xmlstring += '<figure class="image image-style-align-left image_resized" style="width:50.0%;">'
+            xmlstring += '<img src="' + img_url + '">'
+            # Figure caption.
+            xmlstring += '<figcaption>Parameters: '
+            xmlstring += filename.replace('.png', '')
+            xmlstring += '</figcaption></figure>'
     xmlstring += '</body></html>'
     newspm.props['aiidalab_spm.images'] = xmlstring
     newspm.save()
