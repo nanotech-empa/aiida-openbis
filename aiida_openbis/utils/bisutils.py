@@ -65,6 +65,15 @@ def get_molecules(session=None):
                   for mol in available_molecules]
     return result
 
+def get_precursors(session=None):
+    """Function to retrieve from openBIS objects in Molecules collection."""
+    result = []
+    if session and session.is_session_active():
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/PRECURSORS').get_samples()
+        result = [( mol.permId,mol.props['molecule.number'],mol.props['molecule.batch'],mol.props['molecule.acronym'], mol.props['molecule.smile'])
+                  for mol in available_molecules]
+    return result 
+
 
 def new_chem_sketch(session=None, attachment=None):
     if not attachment:
@@ -130,6 +139,83 @@ def new_molecule(session=None, name=None, molid=None, smile=None, cdxml=None):
             f.write(cdxml)
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
         rawds.save()
+
+    return obj
+
+def new_molecule_precursor(
+    session=None, 
+    number=None, 
+    batch=None,
+    acronym=None,
+    iupac=None,
+    chemformula=None,
+    smile=None,
+    cas=None,
+    evaporationt=None,
+    hazardous=None,
+    azardousdescription=None,
+    fridge=None,
+    nolight=None,
+    dry=None,
+    nooxygen=None,
+    otherstorage=None,
+    specifyotherstorage=None,
+    supplier=None,
+    synthesizedby=None,
+    supplierownname=None,
+    amount=None,
+    receivingdate=None,
+    cdxml=None,
+    addcomments=None,
+    filestoupload=None
+):
+    """Function  to create in openBIS a new MOLECULE object."""
+    session = log_in()
+    obj = session.new_object(collection='/MATERIALS/MOLECULES/PRECURSORS', type='MOLECULE') 
+    obj.props['molecule.number'] =    number               
+    obj.props['molecule.batch'] =    batch               
+    obj.props['molecule.acronym'] =    acronym             
+    obj.props['molecule.iupac'] =    iupac               
+    obj.props['molecule.chemformula'] =    chemformula         
+    obj.props['molecule.smile'] =    smile               
+    obj.props['molecule.cas'] =    cas                 
+    obj.props['molecule.evaporationt'] =    evaporationt        
+    obj.props['molecule.hazardous'] =    hazardous           
+    obj.props['molecule.azardousdescription'] =    azardousdescription 
+    obj.props['molecule.fridge'] =    fridge              
+    obj.props['molecule.nolight'] =    nolight             
+    obj.props['molecule.dry'] =    dry                 
+    obj.props['molecule.nooxygen'] =    nooxygen            
+    obj.props['molecule.otherstorage'] =    otherstorage        
+    obj.props['molecule.specifyotherstorage'] =    specifyotherstorage 
+    obj.props['molecule.supplier'] =    supplier            
+    obj.props['molecule.synthesizedby'] =    synthesizedby       
+    obj.props['molecule.supplierownname'] =    supplierownname     
+    obj.props['molecule.amount'] =    str(amount)             
+    obj.props['molecule.receivingdate'] =    receivingdate  
+    obj.props['molecule.addcomments'] =    addcomments
+    
+    obj.save()
+    tmpl = Chem.MolFromSmiles(smile)
+    AllChem.Compute2DCoords(tmpl)
+    img = Chem.Draw.MolToImage(tmpl)
+    tmpdir = tempfile.mkdtemp()
+    file_path = tmpdir + "/" + 'struc.png'
+    img.save(file_path)
+    print('uploading molecule preview')
+    preview = session.new_dataset(type='ELN_PREVIEW', object=obj, file=file_path)
+    preview.save()
+    if cdxml:
+        tmpdir = tempfile.mkdtemp()
+        file_path = tmpdir + "/" + 'sketch.cdxml'
+        with open(file_path, 'w') as f:
+            f.write(cdxml)
+        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=file_path)
+        rawds.save()
+    for addfile in filestoupload:
+        print('uploading ', addfile)
+        rawds = session.new_dataset(type='RAW_DATA', object=obj, file=addfile)
+        rawds.save()        
 
     return obj
 
