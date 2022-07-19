@@ -54,7 +54,7 @@ class OpenbisMolWidget(ipw.VBox):
         bisdata = bisutils.log_in()
         mols = bisutils.get_precursors(session=bisdata)
         bisutils.log_out(session=bisdata)
-        self.smiles = ipw.Dropdown(options=[(str(mol[1])+str(mol[2]), {'permId': mol[0], 'smile':mol[4]}) for mol in mols])
+        self.smiles = ipw.Dropdown(options=[(str(mol[1])+str(mol[2]), {'permId': mol[0], 'smiles':mol[3]}) for mol in mols])
         self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")
         self.create_structure_btn.on_click(self._on_button_pressed)
         self.output = ipw.HTML("")
@@ -133,7 +133,7 @@ class OpenbisMolWidget(ipw.VBox):
             "file_name": self.smiles.label,
         }
 
-        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.smiles.value['smile']))
+        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.smiles.value['smiles']))
         self.structure.set_extra("eln", eln_info)
         self.output.value = ""
 

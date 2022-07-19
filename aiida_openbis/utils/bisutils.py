@@ -10,16 +10,16 @@ from rdkit.Chem import AllChem  # pylint: disable=(import-error)
 
 
 def log_in(
-    bisurl='openbis-empa-lab205.labnotebook.ch/openbis/webapp/eln-lims/',
-    bisuser='cpignedoli',
-    bispasswd='openbisempa'
+    bisurl='openbis',
+    bisuser='admin',
+    bispasswd='changeit'
 ):
     """Function to login to openBIS."""
-    if Openbis(bisurl).is_token_valid():
-        session = Openbis(bisurl)
+    if Openbis(bisurl, verify_certificates=False).is_token_valid():
+        session = Openbis(bisurl, verify_certificates=False)
     else:
-        Openbis(bisurl).login(bisuser, bispasswd, save_token=True)
-        session = Openbis(bisurl)
+        Openbis(bisurl, verify_certificates=False).login(bisuser, bispasswd, save_token=True)
+        session = Openbis(bisurl, verify_certificates=False)
     return session
 
 
@@ -61,7 +61,7 @@ def get_molecules(session=None):
     result = []
     if session and session.is_session_active():
         available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [(mol.props['$name'], mol.permId, mol.props['molecule.smile'])
+        result = [(mol.props['$name'], mol.permId, mol.props['smiles'])
                   for mol in available_molecules]
     return result
 
@@ -69,8 +69,8 @@ def get_precursors(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/MOLECULES/PRECURSORS').get_samples()
-        result = [( mol.permId,mol.props['molecule.number'],mol.props['molecule.batch'],mol.props['molecule.acronym'], mol.props['molecule.smile'])
+        available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
+        result = [( mol.permId, mol.props['name'], mol.props['id'], mol.props['smiles'])
                   for mol in available_molecules]
     return result 
 
@@ -79,7 +79,7 @@ def new_chem_sketch(session=None, attachment=None):
     if not attachment:
         return False
     obj = session.new_object(collection='/MATERIALS/SAMPLES/CHEMSKETCH', type='CHEMSKETCH')
-    obj.props['chemsketch.description'] = 'Chemical sketch of ....'
+    obj.props['description'] = 'Chemical sketch of ....'
     obj.save()
     if attachment:
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=attachment)
@@ -92,9 +92,8 @@ def new_optimized_geo(session=None, pk=None):
     node = load_node(pk)
     structure = node.get_ase()
     obj = session.new_object(collection='/MATERIALS/SAMPLES/COMPUTEDGEO', type='STRUCTUREDATA')
-    obj.props['structuredata.info'] = 'Optimized geometry'
-    obj.props['structuredata.pk'] = pk
-    obj.props['structuredata.uuid'] = node.uuid
+    obj.props['description'] = 'Optimized geometry'
+    obj.props['aiida.uuid'] = node.uuid
     obj.save()
     if structure:
         tmpdir = tempfile.mkdtemp()
@@ -119,10 +118,10 @@ def get_opt_geo_ids(session=None):
 def new_molecule(session=None, name=None, molid=None, smile=None, cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
-    obj.props['$name'] = name
-    obj.props['molecule.smile'] = smile
+    obj.props['name'] = name
+    obj.props['smiles'] = smile
     if molid:
-        obj.props['molecule.id'] = molid
+        obj.props['id'] = molid
     obj.save()
     tmpl = Chem.MolFromSmiles(smile)
     AllChem.Compute2DCoords(tmpl)
@@ -229,16 +228,16 @@ def new_product(
     length=None,
     temperature=None
 ):  # pylint: disable=(too-many-arguments)
-    """Function  to create in openBIS a new MOLPRODUCT object."""
-    obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLPRODUCT')
-    obj.props['$name'] = name
-    obj.props['molproduct.smile'] = smile
+    """Function  to create in openBIS a new PRODUCT object."""
+    obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='PRODUCT')
+    obj.props['name'] = name
+    obj.props['smiles'] = smile
     if theyield:
-        obj.props['molproduct.yield'] = theyield
+        obj.props['yield'] = theyield
     if length:
-        obj.props['molproduct.length'] = length
+        obj.props['length'] = length
     if temperature:
-        obj.props['molproduct.temperature'] = temperature
+        obj.props['temperature'] = temperature
     obj.save()
     tmpl = Chem.MolFromSmiles(smile)
     AllChem.Compute2DCoords(tmpl)
@@ -265,7 +264,6 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
 
     session = log_in()
     cdxmlid = new_chem_sketch(session=session, attachment=attachment).permId
-
     allm = set(m['name'] for m in molecules) - set(p['product'] for p in reactions)
     allobj = {}
     for mol in molecules:
@@ -284,11 +282,11 @@ def new_reaction_products(reactions=None, molecules=None, attachment=None):
         product = session.get_object(allobj[reac['product']])
         cdxml = session.get_object(cdxmlid)
         if reac['yield']:
-            product.props['molproduct.yield'] = reac['yield']
+            product.props['yield'] = reac['yield']
         if reac['length']:
-            product.props['molproduct.length'] = reac['length']
+            product.props['length'] = reac['length']
         if reac['temperature']:
-            product.props['molproduct.temperature'] = reac['temperature']
+            product.props['temperature'] = reac['temperature']
         product.save()
         cdxml.add_children(product)
         cdxml.save()
@@ -346,13 +344,11 @@ def aiidalab_geo_opt(
     newgeoopt.add_parents('/MATERIALS/ORGANIZATION/PER1')
     newgeoopt.props['start_date'] = node.ctime.strftime("%Y-%m-%d %H:%M:%S")
     newgeoopt.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
-    newgeoopt.props['aiidalab_geo_opt.description'] = node.description
-    newgeoopt.props['aiidalab_geo_opt.pk'] = node.pk
-    newgeoopt.props['aiidalab_geo_opt.uuid'] = node.uuid
+    newgeoopt.props['description'] = node.description
+    newgeoopt.props['aiida.uuid'] = node.uuid
     newgeoopt.props[
-        'aiidalab_geo_opt.url'
-    ] = 'https://aiidalab.materialscloud.org/user/carlo.pignedoli@empa.ch/apps/apps/home/start.ipynb?'
-    newgeoopt.props['aiidalab_geo_opt.outdict'] = str(dict(node.outputs.output_parameters))
+        'aiida.server_url'
+    ] = 'http://127.0.0.1:8888/apps/apps/home/start.ipynb'
     newgeoopt.save()
     if bis_parent_permId:
         newgeoopt.add_parents(bis_parent_permId)
@@ -368,7 +364,7 @@ def aiidalab_geo_opt(
 def aiidalab_spm(
     zip_path=None,
     pk=None,
-    collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
+    collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'
 ):  # pylint: disable=(too-many-locals)
     """Function to export to openBIS STM sets from an AiiDAlab SPM workflow."""
     if pk:
@@ -382,15 +378,13 @@ def aiidalab_spm(
 
     #newspm.add_parents(the_geo)
     # identify user and add as parent
-    newspm.add_parents('/MATERIALS/ORGANIZATION/PER1')
+    #newspm.add_parents('/MATERIALS/ORGANIZATION/PER1')
     newspm.props['start_date'] = node.ctime.strftime("%Y-%m-%d %H:%M:%S")
     newspm.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
-    newspm.props['aiidalab_spm.description'] = node.description
-    newspm.props['aiidalab_spm.pk'] = node.pk
-    newspm.props['aiidalab_spm.uuid'] = node.uuid
-    newspm.props['aiidalab_spm.url'] = 'https://aiidalab.materialscloud.org/user/' + node.user.email
-    newspm.props['aiidalab_spm.outdict'] = 'Outputs:'
-    newspm.props['aiidalab_spm.notes'] = 'Notes:'
+    newspm.props['description'] = node.description
+    newspm.props['aiida.uuid'] = node.uuid
+    newspm.props['aiida.server_url'] = 'https://aiidalab.materialscloud.org/user/' + node.user.email
+    newspm.props['aiida.notes'] = 'Notes:'
     newspm.save()
     # search parent geometry and add as parent
     # if not present check if originated from geo_opt and add geo_opt
@@ -429,7 +423,7 @@ def aiidalab_spm(
                 rawds.props['$name'] = filename.replace('.png', '')
                 rawds.props['notes'] = 'SPM png file'
                 rawds.save()
-            img_url = 'https://openbis-empa-lab205.labnotebook.ch/datastore_server/'
+            img_url = 'https://localhost:8443/datastore_server/'
             img_url += str(rawds.permId) + '/' + list(rawds.file_links.keys())[0]
             # New image.
             xmlstring += '<figure class="image image-style-align-left image_resized" style="width:50.0%;">'
@@ -439,7 +433,7 @@ def aiidalab_spm(
             xmlstring += filename.replace('.png', '')
             xmlstring += '</figcaption></figure>'
     xmlstring += '</body></html>'
-    newspm.props['aiidalab_spm.images'] = xmlstring
+    newspm.props['images'] = xmlstring
     newspm.save()
     # Close openBIS session
     session.logout()

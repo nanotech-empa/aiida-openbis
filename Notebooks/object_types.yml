@@ -1,0 +1,254 @@
+property_types:
+  description:  # Will be set as 'code'
+    label: description # Human-readable name
+    description: Description of the object
+    dataType: VARCHAR
+    managedInternally: false
+  name:
+    label: Name
+    description: Name of the object
+    dataType: VARCHAR
+    managedInternally: false
+  smiles:
+    label: SMILES
+    description: One line notation for describing the structure of a molecule.
+    dataType: VARCHAR
+    managedInternally: false
+  id:
+    label: ID
+    description: identifier
+    dataType: VARCHAR
+    managedInternally: false
+  yield:
+    label: yield
+    description: Yield
+    dataType: VARCHAR
+    managedInternally: false
+  length:
+    label: length
+    description: Length of the molecule
+    dataType: VARCHAR
+    managedInternally: false
+  temperature:
+    label: temperature
+    description: Temperature
+    dataType: VARCHAR
+    managedInternally: false
+  aiida.uuid:
+    label: AiiDA UUID
+    description: UUID of the object in the AiiDA database
+    dataType: VARCHAR
+    managedInternally: false
+  aiida.notes:
+    label: AiiDA Notes
+    description: Notes about the object
+    dataType: VARCHAR
+    managedInternally: false
+  aiida.server_url:
+    label: AiiDA Server URL
+    description: URL of the AiiDA server
+    dataType: VARCHAR
+    managedInternally: false
+  xml.image:
+    label: XML Image
+    description: XML image
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+
+object_types:
+  chemsketch:
+    generatedCodePrefix: CSK
+    sections:
+      general_information:
+        - description
+  molecule:
+    generatedCodePrefix: MOL
+    sections:
+      general_information:
+        - name
+        - smiles
+        - id
+  product:
+    generatedCodePrefix: MOP
+    sections:
+      general_information:
+        - name
+        - smiles
+        - yield
+        - length
+        - temperature
+  aiidalab_spm:
+    generatedCodePrefix: SPM
+    sections:
+      general_information:
+        - start_date
+        - end_date
+        - description
+        - aiida.uuid
+        - aiida.server_url
+        - aiida.notes
+        - xml.image
+  structuredata:
+    generatedCodePrefix: SDT
+    sections:
+      general_information:
+        - description
+        - aiida.uuid
+  aiidalab_geo_opt:
+    generatedCodePrefix: AGO
+    sections:
+      general_information:
+        - start_date
+        - end_date
+        - description
+        - aiida.uuid
+        - aiida.server_url
+# polecule:
+#   code: POL
+#   sections:
+#     General information:
+#       id:
+#       - ID
+#       - ID of the molecule
+#       - VARCHAR
+#       - true
+#       - 1
+#       number:
+#       - Number
+#       - Number of the molecule
+#       - INTEGER
+#       - true
+#       - 2
+#       batch:
+#       - Batch
+#       - e.g. a
+#       - VARCHAR
+#       - true
+#       - 3
+#       acronym:
+#       - Acronym
+#       - e.g. DBBA
+#       - VARCHAR
+#       - true
+#       - 4
+#       iupac:
+#       - IUPAC
+#       - IPUCAC code
+#       - VARCHAR
+#       - true
+#       - 5
+#     Structure:
+#       formula:
+#       - Chemical formula
+#       - e.g. C2H2
+#       - VARCHAR
+#       - false
+#       - 1
+#       smiles:
+#       - SMILES
+#       - e.g. C-C
+#       - VARCHAR
+#       - true
+#       - 2
+#       cas:
+#       - CAS
+#       - CAS number e.g. 538-58-9
+#       - VARCHAR
+#       - false
+#       - 3
+#     Properties:
+#       evaporation_t:
+#       - Evaporation T(C)
+#       - Evaporation temperature in Celsius
+#       - REAL
+#       - false
+#       - 1
+#       hazardous:
+#       - Check if Hazardous
+#       - boolean for hazardous molecules
+#       - BOOLEAN
+#       - true
+#       - 2
+#       hazard_type:
+#       - Type of hazard
+#       - describe type of hazard
+#       - VARCHAR
+#       - false
+#       - 3
+#     Storage Conditions:
+#       store_fridge:
+#       - Check if firdge required
+#       - boolean for fridge storage
+#       - BOOLEAN
+#       - false
+#       - 1
+#       store_no_light:
+#       - Check if no light required
+#       - boolean for fridge storage
+#       - BOOLEAN
+#       - false
+#       - 2
+#       store_dry:
+#       - Check if dry storage required
+#       - boolean for fridge storage
+#       - BOOLEAN
+#       - false
+#       - 3
+#       store_no_co2:
+#       - Check if NO CO2 storage required
+#       - boolean for fridge storage
+#       - BOOLEAN
+#       - false
+#       - 4
+#       store_other:
+#       - Check if other storage requirements
+#       - boolean for fridge storage
+#       - BOOLEAN
+#       - false
+#       - 5
+#       store_other_description:
+#       - Other storage condition
+#       - specify other storage conditions
+#       - VARCHAR
+#       - false
+#       - 6
+#     Supplier information:
+#       supplier:
+#       - Name of supplier
+#       - Name of supplier
+#       - VARCHAR
+#       - false
+#       - 1
+#       synthesized_by:
+#       - Synthesized by
+#       - who synthesized the molecule
+#       - VARCHAR
+#       - false
+#       - 2
+#       supplier_own_name:
+#       - Supplier own name
+#       - supplier own name
+#       - VARCHAR
+#       - false
+#       - 3
+#       amount_mg:
+#       - Amount (mg)
+#       - amount in (mg)
+#       - REAL
+#       - false
+#       - 4
+#       receiving_date:
+#       - Receiving date
+#       - receiving date
+#       - TIMESTAMP
+#       - false
+#       - 5      
+#     Additional information:
+#       add_comments:
+#       - Additional comments
+#       - Write additional comments
+#       - MULTILINE_VARCHAR
+#       - false
+#       - 1
