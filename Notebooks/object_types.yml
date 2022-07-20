@@ -1,9 +1,4 @@
 property_types:
-  description:  # Will be set as 'code'
-    label: description # Human-readable name
-    description: Description of the object
-    dataType: VARCHAR
-    managedInternally: false
   name:
     label: Name
     description: Name of the object
@@ -70,7 +65,7 @@ object_types:
         - name
         - smiles
         - id
-  product:
+  molecule_product:
     generatedCodePrefix: MOP
     sections:
       general_information:

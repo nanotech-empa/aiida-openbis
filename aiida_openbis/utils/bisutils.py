@@ -61,7 +61,7 @@ def get_molecules(session=None):
     result = []
     if session and session.is_session_active():
         available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [(mol.props['$name'], mol.permId, mol.props['smiles'])
+        result = [(mol.props['name'], mol.permId, mol.props['smiles'])
                   for mol in available_molecules]
     return result
 
@@ -111,7 +111,7 @@ def new_optimized_geo(session=None, pk=None):
 
 
 def get_opt_geo_ids(session=None):
-    return [(obj.permId, obj.props['structuredata.uuid'])
+    return [(obj.permId, obj.props['aiida.uuid'])
             for obj in session.get_objects(collection='/MATERIALS/SAMPLES/COMPUTEDGEO')]
 
 
@@ -229,7 +229,7 @@ def new_product(
     temperature=None
 ):  # pylint: disable=(too-many-arguments)
     """Function  to create in openBIS a new PRODUCT object."""
-    obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='PRODUCT')
+    obj = session.new_object(collection='/MATERIALS/SAMPLES/PRODUCTS', type='MOLECULE_PRODUCT')
     obj.props['name'] = name
     obj.props['smiles'] = smile
     if theyield:
@@ -319,7 +319,7 @@ def is_from_openbis(pk=None):
 
 
 def aiidalab_geo_opt(
-    session=None, pk=None, collection='/SPIN_CHAIN/TRIANGULENE_BASED/TRIANGULENE_BASED_EXP_2'
+    session=None, pk=None, collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'
 ):
     """Function to export to openBIS results from an AiiDA geo opt workflow."""
     if pk:
@@ -341,7 +341,7 @@ def aiidalab_geo_opt(
     newSD = new_optimized_geo(session=session, pk=structure_pk)
     newgeoopt = session.new_object(collection=collection, type='AIIDALAB_GEO_OPT')
     newgeoopt.add_children(newSD)
-    newgeoopt.add_parents('/MATERIALS/ORGANIZATION/PER1')
+    #newgeoopt.add_parents('/MATERIALS/ORGANIZATION/PER1')
     newgeoopt.props['start_date'] = node.ctime.strftime("%Y-%m-%d %H:%M:%S")
     newgeoopt.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
     newgeoopt.props['description'] = node.description
@@ -433,7 +433,7 @@ def aiidalab_spm(
             xmlstring += filename.replace('.png', '')
             xmlstring += '</figcaption></figure>'
     xmlstring += '</body></html>'
-    newspm.props['images'] = xmlstring
+    newspm.props['xml.image'] = xmlstring
     newspm.save()
     # Close openBIS session
     session.logout()
