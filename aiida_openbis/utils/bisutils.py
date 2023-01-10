@@ -9,11 +9,7 @@ from rdkit import Chem  # pylint: disable=(import-error)
 from rdkit.Chem import AllChem  # pylint: disable=(import-error)
 
 
-def log_in(
-    bisurl='openbis',
-    bisuser='admin',
-    bispasswd='changeit'
-):
+def log_in(bisurl='openbis', bisuser='admin', bispasswd='changeit'):
     """Function to login to openBIS."""
     if Openbis(bisurl, verify_certificates=False).is_token_valid():
         session = Openbis(bisurl, verify_certificates=False)
@@ -61,18 +57,20 @@ def get_molecules(session=None):
     result = []
     if session and session.is_session_active():
         available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [(mol.props['name'], mol.permId, mol.props['smiles'])
-                  for mol in available_molecules]
+        result = [
+            (mol.props['name'], mol.permId, mol.props['smiles']) for mol in available_molecules
+        ]
     return result
+
 
 def get_precursors(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
         available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [( mol.permId, mol.props['name'], mol.props['id'], mol.props['smiles'])
+        result = [(mol.permId, mol.props['name'], mol.props['id'], mol.props['smiles'])
                   for mol in available_molecules]
-    return result 
+    return result
 
 
 def new_chem_sketch(session=None, attachment=None):
@@ -141,9 +139,10 @@ def new_molecule(session=None, name=None, molid=None, smile=None, cdxml=None):
 
     return obj
 
+
 def new_molecule_precursor(
-    session=None, 
-    number=None, 
+    session=None,
+    number=None,
     batch=None,
     acronym=None,
     iupac=None,
@@ -170,30 +169,30 @@ def new_molecule_precursor(
 ):
     """Function  to create in openBIS a new MOLECULE object."""
     session = log_in()
-    obj = session.new_object(collection='/MATERIALS/MOLECULES/PRECURSORS', type='MOLECULE') 
-    obj.props['molecule.number'] =    number               
-    obj.props['molecule.batch'] =    batch               
-    obj.props['molecule.acronym'] =    acronym             
-    obj.props['molecule.iupac'] =    iupac               
-    obj.props['molecule.chemformula'] =    chemformula         
-    obj.props['molecule.smile'] =    smile               
-    obj.props['molecule.cas'] =    cas                 
-    obj.props['molecule.evaporationt'] =    evaporationt        
-    obj.props['molecule.hazardous'] =    hazardous           
-    obj.props['molecule.azardousdescription'] =    azardousdescription 
-    obj.props['molecule.fridge'] =    fridge              
-    obj.props['molecule.nolight'] =    nolight             
-    obj.props['molecule.dry'] =    dry                 
-    obj.props['molecule.nooxygen'] =    nooxygen            
-    obj.props['molecule.otherstorage'] =    otherstorage        
-    obj.props['molecule.specifyotherstorage'] =    specifyotherstorage 
-    obj.props['molecule.supplier'] =    supplier            
-    obj.props['molecule.synthesizedby'] =    synthesizedby       
-    obj.props['molecule.supplierownname'] =    supplierownname     
-    obj.props['molecule.amount'] =    str(amount)             
-    obj.props['molecule.receivingdate'] =    receivingdate  
-    obj.props['molecule.addcomments'] =    addcomments
-    
+    obj = session.new_object(collection='/MATERIALS/MOLECULES/PRECURSORS', type='MOLECULE')
+    obj.props['molecule.number'] = number
+    obj.props['molecule.batch'] = batch
+    obj.props['molecule.acronym'] = acronym
+    obj.props['molecule.iupac'] = iupac
+    obj.props['molecule.chemformula'] = chemformula
+    obj.props['molecule.smile'] = smile
+    obj.props['molecule.cas'] = cas
+    obj.props['molecule.evaporationt'] = evaporationt
+    obj.props['molecule.hazardous'] = hazardous
+    obj.props['molecule.azardousdescription'] = azardousdescription
+    obj.props['molecule.fridge'] = fridge
+    obj.props['molecule.nolight'] = nolight
+    obj.props['molecule.dry'] = dry
+    obj.props['molecule.nooxygen'] = nooxygen
+    obj.props['molecule.otherstorage'] = otherstorage
+    obj.props['molecule.specifyotherstorage'] = specifyotherstorage
+    obj.props['molecule.supplier'] = supplier
+    obj.props['molecule.synthesizedby'] = synthesizedby
+    obj.props['molecule.supplierownname'] = supplierownname
+    obj.props['molecule.amount'] = str(amount)
+    obj.props['molecule.receivingdate'] = receivingdate
+    obj.props['molecule.addcomments'] = addcomments
+
     obj.save()
     tmpl = Chem.MolFromSmiles(smile)
     AllChem.Compute2DCoords(tmpl)
@@ -214,7 +213,7 @@ def new_molecule_precursor(
     for addfile in filestoupload:
         print('uploading ', addfile)
         rawds = session.new_dataset(type='RAW_DATA', object=obj, file=addfile)
-        rawds.save()        
+        rawds.save()
 
     return obj
 
@@ -318,9 +317,7 @@ def is_from_openbis(pk=None):
     return permId
 
 
-def aiidalab_geo_opt(
-    session=None, pk=None, collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'
-):
+def aiidalab_geo_opt(session=None, pk=None, collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'):
     """Function to export to openBIS results from an AiiDA geo opt workflow."""
     if pk:
         try:
@@ -346,9 +343,7 @@ def aiidalab_geo_opt(
     newgeoopt.props['end_date'] = node.mtime.strftime("%Y-%m-%d %H:%M:%S")
     newgeoopt.props['description'] = node.description
     newgeoopt.props['aiida.uuid'] = node.uuid
-    newgeoopt.props[
-        'aiida.server_url'
-    ] = 'http://127.0.0.1:8888/apps/apps/home/start.ipynb'
+    newgeoopt.props['aiida.server_url'] = 'http://127.0.0.1:8888/apps/apps/home/start.ipynb'
     newgeoopt.save()
     if bis_parent_permId:
         newgeoopt.add_parents(bis_parent_permId)
@@ -361,11 +356,7 @@ def aiidalab_geo_opt(
     return info
 
 
-def aiidalab_spm(
-    zip_path=None,
-    pk=None,
-    collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'
-):  # pylint: disable=(too-many-locals)
+def aiidalab_spm(zip_path=None, pk=None, collection='/DEFAULT_LAB_NOTEBOOK/7-AGNR/PRISTINE'):  # pylint: disable=(too-many-locals)
     """Function to export to openBIS STM sets from an AiiDAlab SPM workflow."""
     if pk:
         try:

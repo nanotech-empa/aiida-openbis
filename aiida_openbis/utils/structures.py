@@ -58,35 +58,49 @@ class OpenbisMolWidget(ipw.VBox):
         self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")
         self.create_structure_btn.on_click(self._on_button_pressed)
         self.output = ipw.HTML("")
-        
-        
+
         # Dropdowns
         def observe_spaces(change):
             """Observe OpenBIS space change."""
-            self.project_dropdown.options = [(project.code.capitalize(), project.code) for  project in self.session.get_projects(space=change['new'])]
+            self.project_dropdown.options = [
+                (project.code.capitalize(), project.code)
+                for project in self.session.get_projects(space=change['new'])
+            ]
+
         self.space_dropdown = ipw.Dropdown(
-            description = "Space:",
-            options = [(space.code.capitalize(), space.code) for space in self.session.get_spaces()],
+            description="Space:",
+            options=[(space.code.capitalize(), space.code) for space in self.session.get_spaces()],
         )
         self.space_dropdown.observe(observe_spaces, names='value')
-        
+
         def observe_projects(change):
             """Observe OpenBIS project change."""
-            self.objects_dropdown.options = [(obj.props['name'], obj) for  obj in self.session.get_objects(space=self.space_dropdown.value, project=change['new'])]
+            self.objects_dropdown.options = [
+                (obj.props['name'], obj) for obj in
+                self.session.get_objects(space=self.space_dropdown.value, project=change['new'])
+            ]
+
         self.project_dropdown = ipw.Dropdown(
             description="Project:",
-            options=[(project.description or project.code, project.code) for project in self.session.get_projects(space=self.space_dropdown.value)],
+            options=[(project.description or project.code, project.code)
+                     for project in self.session.get_projects(space=self.space_dropdown.value)],
         )
         self.project_dropdown.observe(observe_projects, names='value')
-        
+
         self.objects_dropdown = ipw.Dropdown(
             description="Object:",
-            options=[(str(mol[1])+str(mol[2]), {'permId': mol[0], 'smiles':mol[3]}) for mol in mols]
-            )
+            options=[(str(mol[1]) + str(mol[2]), {
+                'permId': mol[0],
+                'smiles': mol[3]
+            }) for mol in mols]
+        )
 
         #bisutils.log_out(session=self.session)
 
-        super().__init__([ipw.HBox([self.space_dropdown, self.project_dropdown, self.objects_dropdown]), self.create_structure_btn, self.output])
+        super().__init__([
+            ipw.HBox([self.space_dropdown, self.project_dropdown, self.objects_dropdown]),
+            self.create_structure_btn, self.output
+        ])
 
     def make_ase(self, species, positions):
         """Create ase Atoms object."""
@@ -160,7 +174,9 @@ class OpenbisMolWidget(ipw.VBox):
             "file_name": self.objects_dropdown.label,
         }
 
-        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.objects_dropdown.value.props['smiles']))
+        self.structure = orm.StructureData(
+            ase=self.mol_from_smiles(self.objects_dropdown.value.props['smiles'])
+        )
         self.structure.set_extra("eln", eln_info)
         self.output.value = ""
 
