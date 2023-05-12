@@ -1,0 +1,44 @@
+---
+version: '3.4'
+services:
+
+    openbis:
+      image: openbis/debian-openbis:latest
+      container_name: openbis
+      environment:
+        CORE_PLUGINS: "enabled-modules = dropbox-monitor, dataset-uploader, dataset-file-search, xls-import, openbis-sync, eln-lims, openbis-ng-ui, search-store"
+      ports:
+        - 8443:443 # main port
+        - 2222:2222 # main port
+      volumes:
+        - openbis:/home/openbis/openbis_state
+      deploy:
+        resources:
+          limits:
+            cpus: '1'
+            memory: 2G
+
+    aiidalab:
+      image: aiidalab/full-stack:latest
+      container_name: aiidalab
+      environment:
+        RMQHOST: messaging
+        TZ: Europe/Zurich
+        DOCKER_STACKS_JUPYTER_CMD: notebook
+        SETUP_DEFAULT_AIIDA_PROFILE: 'true'
+        AIIDALAB_DEFAULT_APPS: ''
+      volumes:
+        - aiidalab-home-folder:/home/jovyan
+      ports:
+        - 8888:8888 # main port
+      deploy:
+        resources:
+          limits:
+            cpus: '1'
+            memory: 2G
+
+volumes:
+  openbis:
+    name: openbis 
+  aiidalab-home-folder:
+    name: aiidalab-home-folder
