@@ -115,15 +115,15 @@ def get_opt_geo_ids(session=None):
             for obj in session.get_objects(collection='/MATERIALS/SAMPLES/COMPUTEDGEO')]
 
 
-def new_molecule(session=None, name=None, molid=None, smile=None, cdxml=None):
+def new_molecule(session=None, name=None, molid=None, smiles=None, cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
     obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
     obj.props['name'] = name
-    obj.props['smiles'] = smile
+    obj.props['smiles'] = smiles
     if molid:
         obj.props['id'] = molid
     obj.save()
-    tmpl = Chem.MolFromSmiles(smile)
+    tmpl = Chem.MolFromSmiles(smiles)
     AllChem.Compute2DCoords(tmpl)
     img = Chem.Draw.MolToImage(tmpl)
     tmpdir = tempfile.mkdtemp()
@@ -148,7 +148,7 @@ def new_molecule_precursor(
     acronym=None,
     iupac=None,
     chemformula=None,
-    smile=None,
+    smiles=None,
     cas=None,
     evaporationt=None,
     hazardous=None,
@@ -176,7 +176,7 @@ def new_molecule_precursor(
     obj.props['molecule.acronym'] =    acronym             
     obj.props['molecule.iupac'] =    iupac               
     obj.props['molecule.chemformula'] =    chemformula         
-    obj.props['molecule.smile'] =    smile               
+    obj.props['molecule.smile'] =    smiles              
     obj.props['molecule.cas'] =    cas                 
     obj.props['molecule.evaporationt'] =    evaporationt        
     obj.props['molecule.hazardous'] =    hazardous           
@@ -195,7 +195,7 @@ def new_molecule_precursor(
     obj.props['molecule.addcomments'] =    addcomments
     
     obj.save()
-    tmpl = Chem.MolFromSmiles(smile)
+    tmpl = Chem.MolFromSmiles(smiles)
     AllChem.Compute2DCoords(tmpl)
     img = Chem.Draw.MolToImage(tmpl)
     tmpdir = tempfile.mkdtemp()

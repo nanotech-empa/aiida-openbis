@@ -11,10 +11,11 @@
         "Framework :: AiiDA"
     ],
     "install_requires": [
-        "aiida-core>=1.0.0,<2.0.0",
+        "aiida-core",
         "ase",
         "scikit-learn",
-        "pybis"
+        "pybis",
+        "rdkit",
     ],
     "data_files": [
         [
