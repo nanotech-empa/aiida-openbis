@@ -155,12 +155,12 @@ class OpenbisMolWidget(ipw.VBox):
         eln_info = {
             "eln_instance": "https://openbis-empa-lab205.labnotebook.ch/",
             "eln_type": "OpenBIS",
-            "sample_uuid": self.objects_dropdown.value.permId,
+            #"sample_uuid": self.objects_dropdown.value.permId,
             "spectrum_type": "molecule",
             "file_name": self.objects_dropdown.label,
         }
 
-        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.objects_dropdown.value.props['smiles']))
+        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.objects_dropdown.value['smiles']))
         self.structure.set_extra("eln", eln_info)
         self.output.value = ""
 
