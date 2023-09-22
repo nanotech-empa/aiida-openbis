@@ -123,8 +123,8 @@ class OpenbisMolWidget(ipw.VBox):
     def _rdkit_opt(self, smile, steps):
         """Optimize a molecule using force field and rdkit (needed for complex SMILES)."""
 
-        smile = smile.replace("[", "").replace("]", "")
-        mol = Chem.MolFromSmiles(smile)
+        smiles = smile.replace("[", "").replace("]", "")
+        mol = Chem.MolFromSmiles(smiles)
         mol = Chem.AddHs(mol)
 
         AllChem.EmbedMolecule(mol, maxAttempts=20, randomSeed=42)
@@ -159,7 +159,6 @@ class OpenbisMolWidget(ipw.VBox):
             "spectrum_type": "molecule",
             "file_name": self.objects_dropdown.label,
         }
-
         self.structure = orm.StructureData(ase=self.mol_from_smiles(self.objects_dropdown.value['smiles']))
         self.structure.set_extra("eln", eln_info)
         self.output.value = ""
