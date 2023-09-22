@@ -60,7 +60,7 @@ def get_molecules(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES').get_samples()
         result = [(mol.props['name'], mol.permId, mol.props['smiles'])
                   for mol in available_molecules]
     return result
@@ -69,7 +69,7 @@ def get_precursors(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULES_EXP_1').get_samples()
         result = [( mol.permId, mol.props['name'], mol.props['id'], mol.props['smiles'])
                   for mol in available_molecules]
     return result 
