@@ -1,2 +1,12 @@
 spaces:
   
+
+
+# Space carbon nanomaterials
+# Project Triangulene Spin Chains
+# Default Experiment: TipTime_Q+_2021_05_24
+# Preparation: PRE2 with Mol1 as parent and ANL6 (temperature: 700 and Type: Annealing) and SPT4 (Temperature:600 and Type: Sputtering) as children
+# Annealing: Preparation (type: Cleaning) and SPT4 as parents
+# Sputtering: Preparation as parent and ANL and SPM as children
+# Spm measurement: SPT4 as parent. voltage: -2 and Dataset is a RAW_DATA type
+# Preparation, Annealing, sputtering and spm measurement must be created

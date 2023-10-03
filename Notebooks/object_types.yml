@@ -14,6 +14,15 @@ property_types:
     description: identifier
     dataType: VARCHAR
     managedInternally: false
+  type:
+    label: type
+    label: type
+    dataType: VARCHAR
+    managerInternally: false
+  voltage:
+    label: voltage
+    description: Voltage
+    dataType: INTEGER
   yield:
     label: yield
     description: Yield
@@ -53,6 +62,26 @@ property_types:
       custom_widget: Word Processor
 
 object_types:
+  preparation:
+    generatedCodePrefix: PRE
+    sections:
+      general_information:
+        - type
+  annealing:
+    generatedCodePrefix: ANL
+    sections:
+      general_information:
+        - temperature
+  sputtering:
+    generatedCodePrefix: SPT
+    sections:
+      general_information:
+        - temperature
+  spm_measurement:
+    generatedCodePrefix: SPM
+    sections:
+      general_information:
+        - voltage
   chemsketch:
     generatedCodePrefix: CSK
     sections:
