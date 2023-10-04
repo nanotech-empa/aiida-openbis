@@ -16,9 +16,9 @@ property_types:
     managedInternally: false
   type:
     label: type
-    label: type
+    description: type
     dataType: VARCHAR
-    managerInternally: false
+    managedInternally: false
   voltage:
     label: voltage
     description: Voltage
