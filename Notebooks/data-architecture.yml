@@ -1,4 +1,19 @@
 spaces:
+  carbon_nanomaterials:
+    description: null
+projects:
+  triangulene_spin_chains:
+    space: carbon_nanomaterials
+    description: null
+experiments:
+  triangulene_spin_chains_exp:
+    project: /carbon_nanomaterials/triangulene_spin_chains
+    type: default_experiment
+    props:
+      $name: A very nice experiment
+preparations:
+  
+  
   
 
 

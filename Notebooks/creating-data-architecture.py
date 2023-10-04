@@ -16,7 +16,7 @@ with open('./object_types.yml', mode='r') as fhandle:
 all_property_types_database = session.get_property_types()
 for key, value in items['property_types'].items():
     new_property_type_code = key.upper()
-    property_type_exists = utils.scanning_property_types(all_property_types_database, new_property_type_code)
+    property_type_exists = utils.scanning_element_database(all_property_types_database, new_property_type_code)
     if property_type_exists == False:
         print(new_property_type_code)
         session.new_property_type(code=new_property_type_code, **value).save()
@@ -25,7 +25,7 @@ for key, value in items['property_types'].items():
 all_object_types_database = session.get_object_types()
 for key, value in items['object_types'].items():
     new_object_type_code = key.upper()
-    object_type_exists = utils.scanning_object_types(all_object_types_database, new_object_type_code)
+    object_type_exists = utils.scanning_element_database(all_object_types_database, new_object_type_code)
     
     if object_type_exists == False:
         print(new_object_type_code)
@@ -42,5 +42,44 @@ for key, value in items['object_types'].items():
             print(section, properties)
             for property_type in properties:
                 object_type.assign_property(session.get_property_type(code=property_type))
+
+# Load data architecture from YAML file
+with open('./data-architecture.yml', mode='r') as fhandle:
+    items = yaml.safe_load(fhandle)
+
+# Creating Spaces
+all_spaces_database = session.get_spaces()
+for key, value in items['spaces'].items():
+    new_space_code = key.upper()
+    space_exists = utils.scanning_element_database(all_spaces_database, new_space_code)
+    if space_exists == False:
+        print(new_space_code)
+        session.new_space(code=new_space_code,**value).save()
+
+# Creating Projects
+all_projects_database = session.get_projects()
+for key, value in items['projects'].items():
+    new_project_code = key.upper()
+    project_exists = utils.scanning_element_database(all_projects_database, new_project_code)
+    if project_exists == False:
+        print(new_project_code)
+        session.new_project(code=new_project_code,**value).save()
+
+# Creating Experiments
+all_experiments_database = session.get_experiments()
+for key, value in items['experiments'].items():
+    new_experiment_code = key.upper()
+    experiment_exists = utils.scanning_element_database(all_experiments_database, new_experiment_code)
+    if experiment_exists == False:
+        print(new_experiment_code)
+        session.new_experiment(code=new_experiment_code,**value).save()
+
+#session.new_project(space = 'carbon_nanomaterials', code = 'triangulene_spin_chains').save()
+#session.new_experiment(props = {'$name':'New Experiment'}, project = '/carbon_nanomaterials/triangulene_spin_chains', type='DEFAULT_EXPERIMENT', 
+#                       code = 'triangulene_spin_chains_exp',).save()
+#session.new_sample(type = 'YEAST', space = 'MY_SPACE', experiment = '/MY_SPACE/MY_PROJECT/EXPERIMENT_1', parents = ['/MY_SPACE/YEA66'], children = [], 
+#                            props = {"name": "some name", "description": "something interesting"}).save()
+
+
 
 
