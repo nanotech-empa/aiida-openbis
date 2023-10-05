@@ -22,7 +22,8 @@ property_types:
   voltage:
     label: voltage
     description: Voltage
-    dataType: INTEGER
+    dataType: REAL
+    managedInternally: false
   yield:
     label: yield
     description: Yield
@@ -36,7 +37,7 @@ property_types:
   temperature:
     label: temperature
     description: Temperature
-    dataType: VARCHAR
+    dataType: REAL
     managedInternally: false
   aiida.uuid:
     label: AiiDA UUID

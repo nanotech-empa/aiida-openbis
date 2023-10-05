@@ -5,13 +5,74 @@ projects:
   triangulene_spin_chains:
     space: carbon_nanomaterials
     description: null
+  samples:
+    space: materials
+    description: null
 experiments:
   triangulene_spin_chains_exp:
     project: /carbon_nanomaterials/triangulene_spin_chains
     type: default_experiment
     props:
       $name: A very nice experiment
-preparations:
+  molecules:
+    project: /materials/samples
+    type: collection
+    props:
+      $name: A very nice set of molecules
+      $default_object_type: molecule
+samples:
+  molecule-1:
+    experiment: /MATERIALS/SAMPLES/MOLECULES
+    type: molecule
+    props:
+      name: diesel
+      id: 301a
+      smiles: CCCCCCCCCCCCCCCC
+    code: diesel301a
+  molecule-2:
+    experiment: /MATERIALS/SAMPLES/MOLECULES
+    type: molecule
+    props:
+      name: benzene
+      id: 300a
+      smiles: C1=CC=CC=C1
+    code: benzene300a
+  preparation-1:
+    experiment: /CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP
+    type: preparation
+    props:
+      type: Cleaning
+    code: pre_cleaning
+    parents:
+      - /MATERIALS/SAMPLES/MOLECULES/DIESEL301A
+  sputtering-1:
+    experiment: /CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP
+    type: sputtering
+    props:
+      temperature: 600J
+    parents:
+      - /carbon_nanomaterials/triangulene_spin_chains/triangulene_spin_chains_exp/PRE_CLEANING
+    code: sputtering_1
+  annealing-1:
+    experiment: /CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP
+    type: annealing
+    props:
+      temperature: 700J
+    code: annealing_1
+    parents:
+      - /carbon_nanomaterials/triangulene_spin_chains/triangulene_spin_chains_exp/PRE_CLEANING
+      - /carbon_nanomaterials/triangulene_spin_chains/triangulene_spin_chains_exp/SPUTTERING_1
+  spm-measurement-1:
+    experiment: /CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP
+    type: spm_measurement
+    props:
+      voltage: -2
+    parents:
+      - /carbon_nanomaterials/triangulene_spin_chains/triangulene_spin_chains_exp/SPUTTERING_1
+    code: SPM_MEASUREMENT_1
+
+    
+    
   
   
   

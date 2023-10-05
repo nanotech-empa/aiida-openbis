@@ -48,31 +48,16 @@ with open('./data-architecture.yml', mode='r') as fhandle:
     items = yaml.safe_load(fhandle)
 
 # Creating Spaces
-all_spaces_database = session.get_spaces()
-for key, value in items['spaces'].items():
-    new_space_code = key.upper()
-    space_exists = utils.scanning_element_database(all_spaces_database, new_space_code)
-    if space_exists == False:
-        print(new_space_code)
-        session.new_space(code=new_space_code,**value).save()
+utils.create_element(session, items, 'spaces')
 
 # Creating Projects
-all_projects_database = session.get_projects()
-for key, value in items['projects'].items():
-    new_project_code = key.upper()
-    project_exists = utils.scanning_element_database(all_projects_database, new_project_code)
-    if project_exists == False:
-        print(new_project_code)
-        session.new_project(code=new_project_code,**value).save()
+utils.create_element(session, items, 'projects')
 
 # Creating Experiments
-all_experiments_database = session.get_experiments()
-for key, value in items['experiments'].items():
-    new_experiment_code = key.upper()
-    experiment_exists = utils.scanning_element_database(all_experiments_database, new_experiment_code)
-    if experiment_exists == False:
-        print(new_experiment_code)
-        session.new_experiment(code=new_experiment_code,**value).save()
+utils.create_element(session, items, 'experiments')
+
+# Creating Preparations
+utils.create_element(session, items, 'samples')
 
 #session.new_project(space = 'carbon_nanomaterials', code = 'triangulene_spin_chains').save()
 #session.new_experiment(props = {'$name':'New Experiment'}, project = '/carbon_nanomaterials/triangulene_spin_chains', type='DEFAULT_EXPERIMENT', 
