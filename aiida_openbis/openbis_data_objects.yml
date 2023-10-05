@@ -1,0 +1,174 @@
+property_types:
+  acronym:
+    label: Acronym
+    description: Acronym
+    dataType: VARCHAR
+    managedInternally: false
+  material:
+    label: Material
+    description: Material
+    dataType: VARCHAR
+    managedInternally: false
+  face:
+    label: Face
+    description: Face
+    dataType: VARCHAR
+    managedInternally: false
+  sample-plate:
+    label: Sample Plate
+    description: Sample Plate
+    dataType: VARCHAR
+    managedInternally: false
+  diameter:
+    label: Diameter
+    description: Diameter
+    dataType: REAL
+    managedInternally: false
+  height:
+    label: Height
+    description: Height
+    dataType: REAL
+    managedInternally: false
+  hazardous:
+    label: Hazardous
+    description: Hazardous
+    dataType: BOOLEAN
+    managedInternally: false
+  hazardous-specification:
+    label: Hazardous specification
+    description: Hazardous specification
+    dataType: VARCHAR
+    managedInternally: false
+  fridge:
+    label: Fridge
+    description: Fridge
+    dataType: BOOLEAN
+    managedInternally: false
+  no-light:
+    label: No light
+    description: No light
+    dataType: BOOLEAN
+    managedInternally: false
+  dry:
+    label: Dry
+    description: Dry
+    dataType: BOOLEAN
+    managedInternally: false
+  no-ox:
+    label: No O2
+    description: No O2
+    dataType: BOOLEAN
+    managedInternally: false
+  other-storage:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
+    managedInternally: false
+  location-hyperlink:
+    label: Location
+    description: Location
+    dataType: OBJECT
+    managedInternally: false
+  room:
+    label: Room
+    description: Room
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: STORAGE
+  instrument-brand:
+    label: Instrument
+    description: Instrument
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: SUPPLIER
+  instrument-model:
+    label: Instrument
+    description: Instrument
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: SUPPLIER
+  storage:
+    label: Storage
+    description: Storage
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: STORAGE
+  storage-box:
+    label: Storage box
+    description: Storage box
+    dataType: VARCHAR
+    managedInternally: false
+  supplier-name:
+    label: Supplier
+    description: Supplier
+    dataType: VARCHAR
+    managedInternally: false
+  specifications:
+    label: Specifications
+    description: Specifications
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  receive-date:
+    label: Receiving Date
+    description: Receiving Date
+    dataType: TIMESTAMP
+    managedInternally: false
+  reference-number:
+    label: Reference Number
+    description: Reference Number
+    dataType: INTEGER
+    managedInternally: false
+  datasheet:
+    label: Datasheet
+    description: Datasheet
+    dataType: OBJECT
+    managedInternally: false
+  procurement:
+    label: Procurement
+    description: Procurement
+    dataType: OBJECT
+    managedInternally: false
+  photo:
+    label: Photo(s)
+    description: Photo(s)
+    dataType: OBJECT
+    managedInternally: false
+  documentation:
+    label: Documentation(s)
+    description: Documentation(s)
+    dataType: OBJECT
+    managedInternally: false
+  xml.image:
+    label: XML Image
+    description: XML image
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+
+object_types:
+  crystal:
+    generatedCodePrefix: CRYS
+    sections:
+      general_information:
+        - acronym
+        - material
+        - face
+        - sample-plate
+        - diameter
+        - height
+        - hazardous
+        - hazardous-specification
+        - fridge
+        - no-light
+        - dry
+        - no-ox
+        - other-storage
+        - location-hyperlink
+        - room
+        - instrument-brand
+        - instrument-model
+        - storage
+        - storage-box
