@@ -1,0 +1,134 @@
+vocabulary_types:
+  code: 'BATCH_ID'
+  description: 'Batch ID'
+  terms:
+    - code: Batch_a
+      label: a
+      description: null
+    - code: Batch_b
+      label: b
+      description: null
+property_types:
+  structure-image:
+    label: Structure Image
+    description: null
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  empa-number:
+    label: EMPA Number
+    description: null
+    dataType: INTEGER
+    managedInternally: false
+  batch:
+    label: Batch
+    description: null
+    dataType: CONTROLLEDVOCABULARY # VARCHAR?
+    managedInternally: false
+    vocabulary: BATCH_ID
+  vial:
+    label: Vial
+    description: null
+    dataType: VARCHAR # CONTROLLEDVOCABULARY
+    managedInternally: false
+  iupac-name:
+    label: Name (IUPAC)
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  formula:
+    label: Sum Formula
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  smiles:
+    label: Smiles
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  cas-number:
+    label: CAS Number
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  hazardous:
+    label: Hazardous
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  hazardous-specify:
+    label: Hazardous - Specify
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+# Safety datasheet is DATASET ??
+  evaporation-temperature:
+    label: Evaporation Details
+    description: null
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  light:
+    label: Light
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  oxygen:
+    label: Oxygen
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  freezer:
+    label: Freezer
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  dry:
+    label: Dry
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  storage-condition-other:
+    label: Storage Condition (other)
+    description: null
+    dataType: BOOLEAN
+    managedInternally: false
+  storage-condition-other-specify:
+    label: Storage Condition (other) - Specify
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  supplier:
+    label: Supplier
+    description: null
+    dataType: SAMPLE
+    managedInternally: false # We should consider that supplier own name is already stored in supplier entity, right?
+  synthesised-by:
+    label: Synthesised By
+    description: null
+    dataType: SAMPLE
+    managedInternally: false
+  amount:
+    label: Amount
+    description: null
+    dataType: VARCHAR # or REAL and obligate the input to be in international system? If we consider real, we have to define the measure
+    managedInternally: false
+  receiving-date:
+    label: Receiving Date
+    description: null
+    dataType: TIMESTAMP
+    managedInternally: false
+  # Procurement is DATASET ??
+  comments:
+    label: Comments
+    description: null
+    dataType: VARCHAR
+    managedInternally: false
+  # Photos and Documentations are DATASET?? Or link to another SAMPLE?
+  # Sent by Nils: Identifier by cientists, Studied by, Current status, Reports (What is supposed to be there? Only test edi)
+
+
+  
+  
