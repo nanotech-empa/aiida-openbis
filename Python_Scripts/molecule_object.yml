@@ -1,134 +1,166 @@
-vocabulary_types:
-  code: 'BATCH_ID'
-  description: 'Batch ID'
-  terms:
-    - code: Batch_a
-      label: a
-      description: null
-    - code: Batch_b
-      label: b
-      description: null
+vocabularies:
+  batch-id:
+    description: 'Batch ID'
+    terms:
+      - code: Batch_a
+        label: a
+        description: null
+      - code: Batch_b
+        label: b
+        description: null
 property_types:
-  structure-image:
-    label: Structure Image
-    description: null
-    dataType: MULTILINE_VARCHAR
+  # structure-image:
+  #   label: Structure Image
+  #   description: null
+  #   dataType: MULTILINE_VARCHAR
+  #   managedInternally: false
+  #   metaData:
+  #     custom_widget: Word Processor
+  acronym:
+    label: Acronym
+    description: Acronym
+    dataType: VARCHAR
     managedInternally: false
-    metaData:
-      custom_widget: Word Processor
   empa-number:
     label: EMPA Number
-    description: null
+    description: EMPA Number
     dataType: INTEGER
     managedInternally: false
   batch:
     label: Batch
-    description: null
+    description: Batch
     dataType: CONTROLLEDVOCABULARY # VARCHAR?
     managedInternally: false
-    vocabulary: BATCH_ID
+    vocabulary: BATCH-ID
   vial:
     label: Vial
-    description: null
+    description: Vial
     dataType: VARCHAR # CONTROLLEDVOCABULARY
-    managedInternally: false
+    managedInternally: false # Ask experimentalists if this should be written in the location or next to batch letter
   iupac-name:
     label: Name (IUPAC)
-    description: null
+    description: Name (IUPAC)
     dataType: VARCHAR
     managedInternally: false
   formula:
     label: Sum Formula
-    description: null
+    description: Sum Formula
     dataType: VARCHAR
     managedInternally: false
   smiles:
     label: Smiles
-    description: null
+    description: Smiles
     dataType: VARCHAR
     managedInternally: false
   cas-number:
     label: CAS Number
-    description: null
+    description: CAS Number
     dataType: VARCHAR
     managedInternally: false
   hazardous:
     label: Hazardous
-    description: null
+    description: Hazardous
     dataType: BOOLEAN
     managedInternally: false
   hazardous-specify:
     label: Hazardous - Specify
-    description: null
+    description: Hazardous - Specify
     dataType: VARCHAR
     managedInternally: false
-# Safety datasheet is DATASET ??
+# Safety datasheet is DATASET ?? Or collection in the inventory? it could be a parent?
   evaporation-temperature:
     label: Evaporation Details
-    description: null
+    description: Evaporation Details
     dataType: XML
     managedInternally: false
     metaData:
-      custom_widget: Spreadsheet
+      custom_widget: Spreadsheet   # Ask if it should be a spreadsheet or a pointer to experiments (parent - children relation)
   light:
     label: Light
-    description: null
+    description: Light
     dataType: BOOLEAN
     managedInternally: false
   oxygen:
     label: Oxygen
-    description: null
+    description: Oxygen
     dataType: BOOLEAN
     managedInternally: false
   freezer:
     label: Freezer
-    description: null
+    description: Freezer
     dataType: BOOLEAN
     managedInternally: false
   dry:
     label: Dry
-    description: null
+    description: Dry
     dataType: BOOLEAN
     managedInternally: false
   storage-condition-other:
     label: Storage Condition (other)
-    description: null
+    description: Storage Condition (other)
     dataType: BOOLEAN
     managedInternally: false
   storage-condition-other-specify:
     label: Storage Condition (other) - Specify
-    description: null
+    description: Storage Condition (other) - Specify
     dataType: VARCHAR
     managedInternally: false
-  supplier:
-    label: Supplier
-    description: null
-    dataType: SAMPLE
-    managedInternally: false # We should consider that supplier own name is already stored in supplier entity, right?
-  synthesised-by:
-    label: Synthesised By
-    description: null
-    dataType: SAMPLE
-    managedInternally: false
+  # supplier:
+  #   label: Supplier
+  #   description: null
+  #   dataType: SAMPLE
+  #   managedInternally: false # We should consider that supplier own name is already stored in supplier entity, right?
+  # synthesised-by:
+  #   label: Synthesised By
+  #   description: null
+  #   dataType: SAMPLE
+  #   managedInternally: false
   amount:
     label: Amount
-    description: null
+    description: Amount
     dataType: VARCHAR # or REAL and obligate the input to be in international system? If we consider real, we have to define the measure
     managedInternally: false
   receiving-date:
     label: Receiving Date
-    description: null
-    dataType: TIMESTAMP
+    description: Receiving Date
+    dataType: TIMESTAMP # DATE
     managedInternally: false
   # Procurement is DATASET ??
   comments:
     label: Comments
-    description: null
+    description: Comments
     dataType: VARCHAR
     managedInternally: false
   # Photos and Documentations are DATASET?? Or link to another SAMPLE?
-  # Sent by Nils: Identifier by cientists, Studied by, Current status, Reports (What is supposed to be there? Only test edi)
+  # Sent by Nils: Identifier by cientists, Studied by, Current status, Reports (What is supposed to be there? Only test editor? PPT?)
 
 
-  
-  
+  # Ask about the crucibles. WHat are they and how to display them.
+
+
+object_types:
+  molecule:
+    generatedCodePrefix: MOL
+    sections:
+      general_information:
+        - acronym
+        - empa-number
+        - batch
+        - vial
+        - iupac-name
+        - formula
+        - smiles
+        - cas-number
+        - hazardous
+        - hazardous-specify
+        - evaporation-temperature
+        - light
+        - oxygen
+        - freezer
+        - dry
+        - storage-condition-other
+        - storage-condition-other-specify
+        - amount
+        - receiving-date
+        - comments
+    

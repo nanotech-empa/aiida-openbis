@@ -1,0 +1,10 @@
+projects:
+  SAMPLES:
+    description: Some samples
+    space: MATERIALS
+  TRIANGULENE_SPIN_CHAINS:
+    description: asdasd
+    space: CARBON
+spaces:
+  CARBON:
+    description: ahsashas

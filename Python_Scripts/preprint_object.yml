@@ -1,0 +1,18 @@
+property_types:
+  title:
+    label: Title
+    description: Title
+    dataType: VARCHAR
+    managedInternally: false
+  version-number:
+    label: Version Number
+    description: Version Number
+    dataType: INTEGER
+    managedInternally: false
+object_types:
+  preprint:
+    generatedCodePrefix: PRPT
+    sections:
+      general_information:
+        - title
+        - version-number

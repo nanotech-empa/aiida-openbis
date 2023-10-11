@@ -1,0 +1,61 @@
+projects:
+  samples:
+    space: MATERIALS
+    description: Some samples
+experiments:
+  molecules:
+    type: COLLECTION
+    project: /MATERIALS/SAMPLES
+samples:
+  dbba:
+    type: MOLECULE
+    space: MATERIALS
+    experiment: /MATERIALS/SAMPLES/MOLECULES
+    parents: null
+    children: null
+    props:
+      acronym: DBBA
+      empa-number: 325
+      iupac-name: 10,10'-dibromo-9,9' bia
+      batch: a
+      vial: i
+      formula: C28H16Br2
+      smiles: C1=CC=C2C(=C1)C(=C
+      cas-number: 121848-75-7
+      hazardous: false
+      hazardous-specify: null
+      evaporation-temperature: ???
+      light: True
+      oxygen: True
+      freezer: True
+      dry: False
+      storage-condition-other: False
+      storage-condition-other-specify: null
+      amount: 100 mg
+      receiving-date: ???
+      comments: null
+    
+
+        - acronym
+        - empa-number
+        - batch
+        - vial
+        - iupac-name
+        - formula
+        - smiles
+        - cas-number
+        - hazardous
+        - hazardous-specify
+        - evaporation-temperature
+        - light
+        - oxygen
+        - freezer
+        - dry
+        - storage-condition-other
+        - storage-condition-other-specify
+        - amount
+        - receiving-date
+        - comments
+      
+
+
