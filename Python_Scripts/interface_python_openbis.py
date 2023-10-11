@@ -21,10 +21,9 @@ while option!="6":
         new_space_code = utils.convert_name_to_code(new_space_name)
 
         # Check if the space it is being created already exists in the DB
-        all_spaces_database = session.get_spaces()
-        new_space_exists = utils.scanning_element_database(all_spaces_database, new_space_code)
+        new_space_not_exists = session.get_spaces(code = new_space_code).df.empty
 
-        if new_space_exists == False:
+        if new_space_not_exists:
             new_space_description = input("Introduce the new space's description: ")
             values = {'description': new_space_description}
 
@@ -54,10 +53,10 @@ while option!="6":
         new_project_code = utils.convert_name_to_code(new_project_name)
 
         # Check if the project it is being created already exists in the DB
-        all_projects_database = session.get_projects()
-        new_project_exists = utils.scanning_element_database(all_projects_database, new_project_code)
+        new_project_not_exists = session.get_projects(space = selected_space_code,
+                                                      code = new_project_code).df.empty
 
-        if new_project_exists == False:
+        if new_project_not_exists:
             new_project_description = input("Introduce the new project's description: ")
             values = {'space': selected_space_code, 'description': new_project_description}
 
@@ -65,6 +64,64 @@ while option!="6":
             print(f"The project {new_project_name} was successfully created!")
         else:
             print(f"The project {new_project_name} already exists!")
+    
+    # TODO: Option creating it from yml file
+    if option == "3":
+        print("\n----Create a new experiment----\n")
+
+        # Print all the spaces' codes available in the database
+        all_spaces_database = session.get_spaces()
+        all_spaces_database_codes = list(all_spaces_database.df.code)
+
+        for idx, code in enumerate(all_spaces_database_codes):
+            print(f"{idx + 1}: {code}")
+
+        selected_space_code_idx = input("\nSelect a space from the list: ")
+        selected_space_code_idx = int(selected_space_code_idx)
+        selected_space_code = all_spaces_database_codes[selected_space_code_idx - 1]
+
+        # Print all the project' codes available in the database
+        all_projects_space = session.get_projects(space = selected_space_code)
+        all_projects_space_codes = list(all_projects_space.df.code)
+
+        for idx, code in enumerate(all_projects_space_codes):
+            print(f"{idx + 1}: {code}")
+
+        selected_project_code_idx = input("\nSelect a project from the list: ")
+        selected_project_code_idx = int(selected_project_code_idx)
+        selected_project_code = all_projects_space_codes[selected_project_code_idx - 1]
+
+        # Print all the experiment types available in the database
+        all_experiment_types = session.get_experiment_types()
+        all_experiment_types_codes = list(all_experiment_types.df.code)
+
+        for idx, code in enumerate(all_experiment_types_codes):
+            print(f"{idx + 1}: {code}")
+
+        selected_experiment_type_code_idx = input("\nSelect an experiment type from the list: ")
+        selected_experiment_type_code_idx = int(selected_experiment_type_code_idx)
+        selected_experiment_type_code = all_experiment_types_codes[selected_experiment_type_code_idx - 1]
+
+        new_experiment_name = input("Introduce the new experiment's name: ")
+
+        # Convert the name to a code that openBIS API can understand
+        new_experiment_code = utils.convert_name_to_code(new_experiment_name)
+
+        # Check if the experiment it is being created already exists in the DB
+        new_experiment_not_exists = session.get_experiments(space = selected_space_code,
+                                                            project = selected_project_code,
+                                                            code = new_experiment_code).df.empty
+
+        if new_experiment_not_exists:
+            new_experiment_description = input("Introduce the new experiment's description: ")
+            values = {'project': f'/{selected_space_code}/{selected_project_code}', 
+                      'type': selected_experiment_type_code, 
+                      'description': new_experiment_description}
+
+            session.new_experiment(code=new_experiment_code, **values).save()
+            print(f"The experiment {new_experiment_name} was successfully created!")
+        else:
+            print(f"The experiment {new_experiment_name} already exists!")
 
     if option=="5":
 
@@ -81,11 +138,10 @@ while option!="6":
             all_openbis_dict = {'spaces': {}}
 
         for space in all_spaces:
-            if space.registrator!='system' and space.code not in all_openbis_dict['spaces']:
+            if space.code not in all_openbis_dict['spaces']:
                 space_code = space.code
                 space_description = space.description
                 all_openbis_dict['spaces'][space_code] = {'description':space_description}
-        
 
         # Retrieve all projects available in DB
         all_projects = session.get_projects()
@@ -102,13 +158,37 @@ while option!="6":
             else:
                 all_openbis_dict['projects'] = {}
             
-            if project_in_yml == False and project.registrator!='system':
+            if project_in_yml == False:
                 all_openbis_dict['projects'][project_code] = {'space': project_space, 'description': project.description}
+        
+        # Retrieve all experiments available in DB
+        all_experiments = session.get_experiments()
+
+        for experiment in all_experiments:
+            
+            _, experiment_space, experiment_project, experiment_code = experiment.identifier.split("/")
+            experiment_space_project = f'/{experiment_space}/{experiment_project}'
+
+            experiment_in_yml = False
+            if 'experiments' in all_openbis_dict:
+                if experiment_code in all_openbis_dict['experiments']:
+                    if experiment_space_project == all_openbis_dict['experiments'][experiment_code]['project']:
+                            experiment_in_yml = True
+            else:
+                all_openbis_dict['experiments'] = {}
+            
+            if experiment_in_yml == False:
+                all_openbis_dict['experiments'][experiment_code] = {'space': experiment_space, 
+                                                                    'project': experiment_project, 
+                                                                    'type': experiment.type.code,
+                                                                    'description': experiment.description}
 
         filepath = '/home/jovyan/work/aiida-openbis/Python_Scripts/openbis_schema.yml'
         mode = 'w'
         utils.save_yml_file(filepath, mode, all_openbis_dict)
         print(f"OpenBIS schema was successfully downloaded!")
+
+
 
 # # Create new projects
 # all_projects_database = session.get_projects()

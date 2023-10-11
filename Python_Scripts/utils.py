@@ -39,19 +39,6 @@ def convert_name_to_code(name: str) -> str:
     code = code.replace(" ","_")
     return code
 
-def scanning_element_database(all_elements: pybis.things.Things, new_element_code: str) -> bool:
-    """Verifies if the element is already created in openBIS.
-
-    Args:
-        all_elements(pybis.things.Things): All elements that alread exist in the openBIS database.
-        new_element_code(str): Element code that is being created.
-
-    Returns:
-        bool: Boolean representing if the element is already created.
-    """
-
-    return all_elements.df.code.isin([new_element_code]).any()
-
 # TODO: As the session and the items variables are the same, maybe it is possible to create an object with all these functions (ex.: Class CreateObjectOpenBIS)
 def create_new_vocabulary(session: pybis.pybis.Openbis, items: dict):
     """Create new vocabularies using details obtained from an YML file
@@ -64,9 +51,9 @@ def create_new_vocabulary(session: pybis.pybis.Openbis, items: dict):
 
     for key, value in items['vocabularies'].items():
         new_vocabulary_code = key.upper()
-        vocabulary_exists = scanning_element_database(all_vocabulary_database, new_vocabulary_code)
+        vocabulary_not_exists = session.get_vocabularies(new_vocabulary_code).df.empty
 
-        if vocabulary_exists == False:
+        if vocabulary_not_exists:
             print(new_vocabulary_code)
             session.new_vocabulary(code=new_vocabulary_code, **value).save()
 
@@ -81,9 +68,9 @@ def create_new_property_types(session: pybis.pybis.Openbis, items: dict):
 
     for key, value in items['property_types'].items():
         new_property_type_code = key.upper()
-        property_type_exists = scanning_element_database(all_property_types_database, new_property_type_code)
+        property_type_not_exists = session.get_property_types(new_property_type_code).df.empty
 
-        if property_type_exists == False:
+        if property_type_not_exists:
             print(new_property_type_code)
             session.new_property_type(code=new_property_type_code, **value).save()
 
@@ -98,9 +85,9 @@ def create_new_object_types(session: pybis.pybis.Openbis, items: dict):
 
     for key, value in items['object_types'].items():
         new_object_type_code = key.upper()
-        object_type_exists = scanning_element_database(all_object_types_database, new_object_type_code)
+        object_type_not_exists = session.get_object_types(new_object_type_code).df.empty
         
-        if object_type_exists == False:
+        if object_type_not_exists:
             print(new_object_type_code)
             sections = value.pop('sections')
             object_type = session.new_object_type(code=new_object_type_code,

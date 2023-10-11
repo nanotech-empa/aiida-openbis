@@ -1,10 +1,114 @@
+experiments:
+  CENAS_FIXES_2:
+    description: null
+    project: SAMPLES
+    space: MATERIALS
+    type: DEFAULT_EXPERIMENT
+  CENAS_FIXES_3:
+    description: null
+    project: SAMPLES
+    space: MATERIALS
+    type: DEFAULT_EXPERIMENT
+  DEFAULT_EXPERIMENT:
+    description: null
+    project: DEFAULT_PROJECT
+    space: DEFAULT_LAB_NOTEBOOK
+    type: DEFAULT_EXPERIMENT
+  GENERAL_PROTOCOLS:
+    description: null
+    project: PROTOCOLS
+    space: METHODS
+    type: COLLECTION
+  ORDER_COLLECTION:
+    description: null
+    project: ORDERS
+    space: STOCK_ORDERS
+    type: COLLECTION
+  PRODUCT_COLLECTION:
+    description: null
+    project: PRODUCTS
+    space: STOCK_CATALOG
+    type: COLLECTION
+  PUBLICATIONS_COLLECTION:
+    description: null
+    project: PUBLIC_REPOSITORIES
+    space: PUBLICATIONS
+    type: COLLECTION
+  REQUEST_COLLECTION:
+    description: null
+    project: REQUESTS
+    space: STOCK_CATALOG
+    type: COLLECTION
+  STORAGES_COLLECTION:
+    description: null
+    project: STORAGES
+    space: ELN_SETTINGS
+    type: COLLECTION
+  SUPPLIER_COLLECTION:
+    description: null
+    project: SUPPLIERS
+    space: STOCK_CATALOG
+    type: COLLECTION
+  TEMPLATES_COLLECTION:
+    description: null
+    project: TEMPLATES
+    space: ELN_SETTINGS
+    type: COLLECTION
 projects:
+  DEFAULT:
+    description: null
+    space: DEFAULT
+  DEFAULT_PROJECT:
+    description: Default Project
+    space: DEFAULT_LAB_NOTEBOOK
+  ORDERS:
+    description: Orders
+    space: STOCK_ORDERS
+  PRODUCTS:
+    description: Products
+    space: STOCK_CATALOG
+  PROTOCOLS:
+    description: Protocols
+    space: METHODS
+  PUBLIC_REPOSITORIES:
+    description: Public Repositories
+    space: PUBLICATIONS
+  REQUESTS:
+    description: Requests
+    space: STOCK_CATALOG
   SAMPLES:
     description: Some samples
     space: MATERIALS
+  STORAGES:
+    description: Storages
+    space: ELN_SETTINGS
+  SUPPLIERS:
+    description: Suppliers
+    space: STOCK_CATALOG
+  TEMPLATES:
+    description: Templates
+    space: ELN_SETTINGS
   TRIANGULENE_SPIN_CHAINS:
     description: asdasd
     space: CARBON
 spaces:
   CARBON:
     description: ahsashas
+  DEFAULT:
+    description: null
+  DEFAULT_LAB_NOTEBOOK:
+    description: Default Lab Notebook
+  ELN_SETTINGS:
+    description: ELN Settings
+  MATERIALS:
+    description: Folder for th materials
+  METHODS:
+    description: Folder for methods
+  PUBLICATIONS:
+    description: Folder for publications
+  STOCK_CATALOG:
+    description: Folder for the catalog
+  STOCK_ORDERS:
+    description: Folder for orders
+  STORAGE:
+    description: Folder for the storage positions
