@@ -1,0 +1,266 @@
+<!doctype html>
+<html>
+<head>
+    <title>Molecule</title>
+    <link rel="stylesheet" type="text/css" href="static/css/styles.css">
+</head>
+<body>
+    <h1> Molecule </h1>
+    <hr>
+    <div class="container">
+        <div class="molecule_image_container">
+            <img src="static/images/molecule.png" alt="Molecule Figure">
+        </div>
+        <div class="figure-container">
+            <div class="figure">
+              <img src="static/images/qr.png" alt="QR Code">
+              <p>print label</p>
+            </div>
+            <div class="figure">
+              <img src="static/images/edit.png" alt="Edit Icon">
+              <p>draw/edit</p>
+            </div>
+            <div class="figure">
+                <img src="static/images/smiles.png" alt="Edit Icon">
+                <p>generate from SMILES</p>
+            </div>
+            <div class="figure">
+                <img src="static/images/upload.png" alt="Edit Icon">
+                <p>upload cdxml</p>
+            </div>
+            <div class="figure">
+                <img src="static/images/download.png" alt="Edit Icon">
+                <p>download (cdxml/png/svg)</p>
+            </div>
+          </div>
+    </div>
+    <h2> General Info </h2>
+    <hr>
+    <div class="text-read-input-container">
+        <p>ID</p>
+        <input type="text" id="molecule-id" name="molecule-id" style="margin-left:149px" disabled>
+    </div>
+    <div class="text-input-box-container">
+        <p>Number</p>
+        <input type="text" id="complex-input" name="complex-input" style="margin-left:113px" onkeydown="handleEnter(event)">
+        <select id="text-selector" style="margin-left:10px; width:55px">
+            <option value="" disabled selected> Batch </option>
+            {% for batch_code in batch_codes %}
+                <option value="{{ batch_code }}">{{ batch_chars[loop.index-1] }}</option>
+            {% endfor %}
+        </select>
+      </div>
+    <div class="text-input-container">
+        <p>Acronym</p>
+        <input type="text" id="molecule-acronym" name="molecule-acronym" style="margin-left:108px">
+    </div>
+    <div class="text-input-container">
+        <p>IUPAC Name</p>
+        <input type="text" id="molecule-iupac" name="molecule-iupac" style="margin-left:80px">
+    </div>
+    <h2> Structure </h2>
+    <hr>
+    <div class="text-input-image-container">
+        <p>Chemical Formula</p>
+        <input type="text" id="molecule-formula" name="molecule-formula" style="margin-left:50px; 
+        background-color: rgb(199, 199, 67); border: 1px solid #ccc; border-radius: 2px;">
+        <div class="figure">
+            <img src="static/images/smiles.png" alt="Make Structure">
+        </div>
+    </div>
+    <div class="text-input-image-container">
+        <p>SMILES</p>
+        <input type="text" id="molecule-smiles" name="molecule-smiles" style="margin-left:112px; 
+        background-color: rgb(199, 199, 67); border: 1px solid #ccc; border-radius: 2px;">
+        <div class="figure">
+            <img src="static/images/smiles.png" alt="SMILES">
+        </div>
+    </div>
+    <div class="text-input-container">
+        <p>CAS number</p>
+        <input type="text" id="molecule-cas-number" name="molecule-cas-number" style="margin-left:82px">
+    </div>
+    <h2> Properties </h2>
+    <hr>
+    <div class="check-text-input-container">
+        <input type="checkbox" id="hazardous-checkbox" name="hazardous-checkbox">
+        <p style="margin-left:5px"> hazardous </p>
+        <input type="text" id="molecule-hazardous-specify" name="molecule-hazardous-specify" placeholder="specify" style="margin-left:71px">
+    </div>
+    <div class="text-input-image-container">
+        <p>Safety Data Sheet(s)</p>
+        <input type="text" id="molecule-safety-datasheet" name="molecule-safety-datasheet" style="margin-left:31px">
+        <div class="figure">
+            <img src="static/images/upload.png" alt="Safety Datasheet">
+        </div>
+    </div>
+    <h5> Evaporation Temperature </h5>
+    <div>
+        <table>
+            <tr>
+              <th>Device</th>
+              <th>Temp [°C]</th>
+              <th>Date</th>
+              <th>Time</th>
+            </tr>
+            <tr>
+              <td>SRD</td>
+              <td>234</td>
+              <td>06/02/2021</td>
+              <td>12:33:02</td>
+            </tr>
+            <tr>
+              <td>6-fold LT</td>
+              <td>250</td>
+              <td>23/10/2021</td>
+              <td>16:12:22</td>
+            </tr>
+        </table>
+    </div>
+    <div class="figure-add-rows-container" style="margin-top:5px">
+        <img src="static/images/plus.png" alt="Add Rows">
+    </div>
+    <h2> Storage Conditions </h2>
+    <hr>
+    <div class='conditions-checkboxes'>
+        <div class="check-text-container" style="margin-right:15px">
+            <input type="checkbox" id="fridge-checkbox" name="fridge-checkbox">
+            <p style="margin-left:5px"> fridge </p>
+        </div>
+        <div class="check-text-container" style="margin-right:15px">
+            <input type="checkbox" id="light-checkbox" name="light-checkbox">
+            <p style="margin-left:5px"> light </p>
+        </div>
+        <div class="check-text-container" style="margin-right:15px">
+            <input type="checkbox" id="dry-checkbox" name="dry-checkbox">
+            <p style="margin-left:5px"> dry </p>
+        </div>
+        <div class="check-text-container" style="margin-right:15px">
+            <input type="checkbox" id="oxygen-checkbox" name="oxygen-checkbox">
+            <p style="margin-left:5px"> O<sub>2</sub> </p>
+        </div>
+    </div>
+    <div class="check-input-container">
+        <input type="checkbox" id="other-condition-checkbox" name="other-condition-checkbox" >
+        <input type="text" id="other-condition-text" name="other-condition-text" placeholder="other" style="margin-left:0px">
+    </div>
+    <div style="display: flex; align-items: center;">
+        <h2> Locations </h2>
+        <img src="static/images/chain.png" alt="Link" style="width: 20px; height: 20px; margin-left: 20px">
+        <h2 style="font-style: italic; font-size: 12px; color: red; margin-left: 5px"> (Link item to instrument) </h2>
+    </div>
+    <hr>
+    <h4 style="margin-top:10px"> Vials </h4>
+    <div style="margin-top:-20px">
+        <table>
+            <tr>
+              <th>Room</th>
+              <th>Storage</th>
+              <th>Box</th>
+              <th>State</th>
+            </tr>
+            <tr>
+              <td>Chem Lab (La048)</td>
+              <td>Drawer A</td>
+              <td>krni</td>
+              <td>sealed</td>
+            </tr>
+            <tr>
+              <td>Chem Lab (La048)</td>
+              <td>Drawer A</td>
+              <td>krni</td>
+              <td>opened</td>
+            </tr>
+        </table>
+    </div>
+    <div class="figure-add-rows-container" style="margin-top:5px">
+        <img src="static/images/plus.png" alt="Add Rows">
+    </div>
+    <h4 style="margin-top:10px"> Crucibles </h4>
+    <div style="margin-top:-20px">
+        <table>
+            <tr>
+              <th>Room</th>
+              <th>Storage</th>
+              <th>Box</th>
+              <th>State</th>
+            </tr>
+            <tr>
+              <td>QPlus/ARPES (La041)</td>
+              <td>QPlus</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>VT-STM/GNR (La033)</td>
+              <td>GNR Reactor</td>
+              <td></td>
+              <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="figure-add-rows-container" style="margin-top:5px">
+        <img src="static/images/plus.png" alt="Add Rows">
+    </div>
+    <h2> Supplier Info </h2>
+    <hr>
+    <div class="text-input-container">
+        <p>Supplier</p>
+        <input type="text" id="molecule-supplier-name" name="molecule-supplier-name" style="margin-left:110px;
+        background-color: yellow; border: 1px solid #ccc; border-radius: 2px;">
+    </div>
+    <div class="text-input-container">
+        <p>Synthesized by</p>
+        <input type="text" id="molecule-synthesized-name" name="molecule-synthesized-name" style="margin-left:66px;
+        background-color: yellow; border: 1px solid #ccc; border-radius: 2px;">
+    </div>
+    <div class="text-input-container">
+        <p>Supplier Own Name</p>
+        <input type="text" id="molecule-supple-own-name" name="molecule-supple-own-name" style="margin-left:36px">
+    </div>
+    <div class="text-input-container">
+        <p>Amount</p>
+        <input type="text" id="molecule-supplier-amount" name="molecule-supplier-amount" style="margin-left:113px">
+    </div>
+    <div id="receiving-date-container">
+        <p>Receiving Date</p>
+        <input type="text" id="molecule-receiving-date" name="molecule-receiving-date" style="margin-left:66px">
+        <div class="figure">
+            <img src="static/images/calendar.png" alt="Receiving Date">
+        </div>
+    </div>
+    <div id="procurement-container">
+        <p>Procurement</p>
+        <input type="text" id="molecule-procurement" name="molecule-procurement" placeholder="Add quote/order" style="margin-left:81px">
+        <div class="figure">
+            <img src="static/images/upload.png" alt="Procurement">
+        </div>
+    </div>
+    <h2> Additional Info </h2>
+    <hr>
+    <div id="comments-container">
+        <p>Comments</p>
+        <input type="text" id="molecule-receiving-date" name="molecule-comments" placeholder="Write comment..." style="margin-left:93px">
+    </div>
+    <div id="photos-container">
+        <p>Photo(s)</p>
+        <input type="text" id="molecule-photos" name="molecule-photos" placeholder="img_01.png, img_02.png" style="margin-left:108px">
+        <div class="figure">
+            <img src="static/images/upload.png" alt="Photo(s)">
+        </div>
+    </div>
+    <div id="documentation-container">
+        <p>Documentation(s)</p>
+        <input type="text" id="molecule-documentation" name="molecule-documentation" placeholder="325a_docu.ppt" style="margin-left:49px">
+        <div class="figure">
+            <img src="static/images/upload.png" alt="Documentation(s)">
+        </div>
+    </div>
+
+    <div>
+        <button type="button" id="save-molecule"> Save Molecule </button>
+        <button type="button" id="return-menu"> Return to Main Menu </button>
+    </div>
+    <script src="static/js/load_molecule_openbis.js"></script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+    <head>
+        <title>OpenBIS Interface</title>
+    </head>
+    <body>
+        <h1> OpenBIS Interface </h1>
+        <hr>
+        <div>
+            <button id="create-new-space"> Create New Space </button>
+        </div>
+        <div>
+            <button id="create-new-project" style="margin-top:10px"> Create New Project </button>
+        </div>
+        <div>
+            <button id="create-new-experiment" style="margin-top:10px"> Create New Experiment </button>
+        </div>
+        <div>
+            <button id="create-new-collection" style="margin-top:10px"> Create New Collection </button>
+        </div>
+        <script>
+            document.getElementById('create-new-space').addEventListener('click', function() {
+                window.location.href = '/new_space';
+            });
+
+            document.getElementById('create-new-project').addEventListener('click', function() {
+                window.location.href = '/new_project';
+            });
+
+            document.getElementById('create-new-experiment').addEventListener('click', function() {
+                window.location.href = '/new_experiment';
+            });
+
+            document.getElementById('create-new-collection').addEventListener('click', function() {
+                window.location.href = '/new_collection';
+            });
+        </script>
+    </body>
+</html>

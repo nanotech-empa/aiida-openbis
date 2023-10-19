@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+    <head>
+        <title>New Project</title>
+        <link rel="stylesheet" type="text/css" href="static/css/style_new_project.css">
+    </head>
+    <body>
+        <h1> New Project </h1>
+        <hr>
+        <div id='project-space-container'>
+            <p>Project Space</p>
+            <select id="space-selector" style="margin-left:10px">
+                {% for item in items %}
+                    <option value="{{ item }}">{{ item }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id='project-name-container'>
+            <p>Project Name</p>
+            <input type="text" id="project-name" name="project-name" placeholder="Introduce a name">
+        </div>
+        <div id='project-description-container' style="margin-bottom:10px">
+            <p>Project Description</p>
+            <input type="text" id="project-description" name="project-description" placeholder="Introduce a description">
+        </div>
+        <div>
+            <button type="button" id="save-new-project"> Save Project </button>
+            <button type="button" id="return-menu"> Return to Main Menu </button>
+        </div>
+        <script src="static/js/create_new_project.js"></script>
+    </body>
+</html>

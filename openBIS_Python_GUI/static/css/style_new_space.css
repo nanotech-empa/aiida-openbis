@@ -1,0 +1,28 @@
+body, h1, p, .figure p {
+    font-family: 'Open Sans', sans-serif;
+}
+
+hr {
+    margin-top: -17px;
+    border-color: lightgray;
+}
+
+#space-name-container {
+    display: flex;
+    align-items: center;
+}
+
+#space-name-container input {
+    margin-left: 48px;
+}
+
+#space-description-container {
+    display: flex;
+    align-items: center;
+}
+
+#space-description-container input {
+    margin-left: 10px;
+    height: 200px;
+    width: 400px;
+}
