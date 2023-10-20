@@ -1,0 +1,13 @@
+property_types:
+  simulation-code:
+    label: Simulation code
+    description: Simulation code
+    dataType: VARCHAR
+    managedInternally: false
+object_types:
+  bands_simulation:
+    generatedCodePrefix: BND_SIM
+    sections:
+      general_information:
+        - $name
+        - simulation-code

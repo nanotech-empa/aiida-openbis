@@ -1,0 +1,21 @@
+vocabularies:
+  evaporation-type:
+    description: 'Evaporation Type'
+    terms:
+      - code: 6_Fold
+        label: 6-Fold
+        description: 6-Fold evaporation.
+property_types:
+  evaporation-type:
+    label: Evaporation Type
+    description: Evaporation Type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: EVAPORATION-TYPE
+object_types:
+  evaporation:
+    generatedCodePrefix: EVAP
+    sections:
+      general_information:
+        - $name
+        - evaporation-type

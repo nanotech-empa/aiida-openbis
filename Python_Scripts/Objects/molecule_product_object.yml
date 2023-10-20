@@ -1,0 +1,141 @@
+vocabularies:
+  batch-id:
+    description: 'Batch ID'
+    terms:
+      - code: a
+        label: a
+        description: null
+      - code: b
+        label: b
+        description: null
+
+property_types:
+  empa-number:
+    label: EMPA Number
+    description: EMPA Number
+    dataType: INTEGER
+    managedInternally: false
+  batch:
+    label: Batch
+    description: Batch
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: BATCH-ID
+  iupac-name:
+    label: Name (IUPAC)
+    description: Name (IUPAC)
+    dataType: VARCHAR
+    managedInternally: false
+  formula:
+    label: Sum Formula
+    description: Sum Formula
+    dataType: VARCHAR
+    managedInternally: false
+  smiles:
+    label: Smiles
+    description: Smiles
+    dataType: VARCHAR
+    managedInternally: false
+  cas-number:
+    label: CAS Number
+    description: CAS Number
+    dataType: VARCHAR
+    managedInternally: false
+  hazardous:
+    label: Hazardous
+    description: Hazardous
+    dataType: BOOLEAN
+    managedInternally: false
+  hazardous-specification:
+    label: Hazardous (Specification)
+    description: Hazardous (Specification)
+    dataType: VARCHAR
+    managedInternally: false
+  evaporation-temperature:
+    label: Evaporation Details
+    description: Evaporation Details
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  molecule-vials:
+    label: Molecule Vials
+    description: Molecule Vials
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  molecule-crucibles:
+    label: Molecule Crucibles
+    description: Molecule Crucibles
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  fridge:
+    label: Fridge
+    description: Fridge
+    dataType: BOOLEAN
+    managedInternally: false
+  no-light:
+    label: No light
+    description: No light
+    dataType: BOOLEAN
+    managedInternally: false
+  dry:
+    label: Dry
+    description: Dry
+    dataType: BOOLEAN
+    managedInternally: false
+  no-ox:
+    label: No O2
+    description: No O2
+    dataType: BOOLEAN
+    managedInternally: false
+  other-storage-condition:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
+    managedInternally: false
+  other-storage-condition-specification:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
+    managedInternally: false
+  amount:
+    label: Amount
+    description: Amount
+    dataType: VARCHAR
+    managedInternally: false
+  receive-date:
+    label: Receiving Date
+    description: Receiving Date
+    dataType: TIMESTAMP
+    managedInternally: false
+  comments:
+    label: Comments
+    description: Comments
+    dataType: VARCHAR
+    managedInternally: false
+  # Photos and Documentations are DATASET?? Or link to another SAMPLE?
+  # Sent by Nils: Identifier by cientists, Studied by, Current status, Reports (What is supposed to be there? Only test editor? PPT?)
+
+
+  # Ask about the crucibles. WHat are they and how to display them.
+
+
+object_types:
+  molecule_product:
+    generatedCodePrefix: MOL_PROD
+    sections:
+      general_information:
+        - $name
+        - empa-number
+        - batch
+        - iupac-name
+      structure:
+        - formula
+        - smiles
+        - cas-number
+      additional_info:
+        - comments

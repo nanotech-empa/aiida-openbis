@@ -1,0 +1,43 @@
+property_types:
+  funding-agency:
+    label: Funding Agency
+    description: Funding Agency
+    dataType: VARCHAR
+    managedInternally: false
+  title:
+    label: Title
+    description: Title
+    dataType: VARCHAR
+    managedInternally: false
+  start-date:
+    label: Start Date
+    description: Start Date
+    dataType: TIMESTAMP
+    managedInternally: false
+  end-date:
+    label: End Date
+    description: End Date
+    dataType: TIMESTAMP
+    managedInternally: false
+  budget:
+    label: Budget
+    description: Budget
+    dataType: VARCHAR
+    managedInternally: false
+  project-id:
+    label: Project ID
+    description: Project ID
+    dataType: VARCHAR
+    managedInternally: false
+object_types:
+  grant:
+    generatedCodePrefix: GRT
+    sections:
+      general_information:
+        - $name
+        - funding-agency
+        - title
+        - start-date
+        - end-date
+        - budget
+        - project-id

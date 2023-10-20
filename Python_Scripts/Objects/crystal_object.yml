@@ -1,9 +1,4 @@
 property_types:
-  acronym:
-    label: Acronym
-    description: Acronym
-    dataType: VARCHAR
-    managedInternally: false
   material:
     label: Material
     description: Material
@@ -22,12 +17,12 @@ property_types:
   diameter:
     label: Diameter
     description: Diameter
-    dataType: REAL
+    dataType: VARCHAR
     managedInternally: false
   height:
     label: Height
     description: Height
-    dataType: REAL
+    dataType: VARCHAR
     managedInternally: false
   hazardous:
     label: Hazardous
@@ -59,49 +54,15 @@ property_types:
     description: No O2
     dataType: BOOLEAN
     managedInternally: false
-  other-storage:
+  other-storage-condition:
     label: Other
     description: Other
     dataType: BOOLEAN
     managedInternally: false
-  location-hyperlink:
-    label: Location
-    description: Location
-    dataType: OBJECT
-    managedInternally: false
-  room:
-    label: Room
-    description: Room
-    dataType: CONTROLLEDVOCABULARY
-    managedInternally: false
-    vocabulary: STORAGE
-  instrument-brand:
-    label: Instrument
-    description: Instrument
-    dataType: CONTROLLEDVOCABULARY
-    managedInternally: false
-    vocabulary: SUPPLIER
-  instrument-model:
-    label: Instrument
-    description: Instrument
-    dataType: CONTROLLEDVOCABULARY
-    managedInternally: false
-    vocabulary: SUPPLIER
-  storage:
-    label: Storage
-    description: Storage
-    dataType: CONTROLLEDVOCABULARY
-    managedInternally: false
-    vocabulary: STORAGE
-  storage-box:
-    label: Storage box
-    description: Storage box
-    dataType: VARCHAR
-    managedInternally: false
-  supplier-name:
-    label: Supplier
-    description: Supplier
-    dataType: VARCHAR
+  other-storage-condition-specification:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
     managedInternally: false
   specifications:
     label: Specifications
@@ -120,29 +81,9 @@ property_types:
     description: Reference Number
     dataType: INTEGER
     managedInternally: false
-  datasheet:
-    label: Datasheet
-    description: Datasheet
-    dataType: OBJECT
-    managedInternally: false
-  procurement:
-    label: Procurement
-    description: Procurement
-    dataType: OBJECT
-    managedInternally: false
-  photo:
-    label: Photo(s)
-    description: Photo(s)
-    dataType: OBJECT
-    managedInternally: false
-  documentation:
-    label: Documentation(s)
-    description: Documentation(s)
-    dataType: OBJECT
-    managedInternally: false
-  xml.image:
-    label: XML Image
-    description: XML image
+  comments:
+    label: Comments
+    description: Comments
     dataType: MULTILINE_VARCHAR
     managedInternally: false
     metaData:
@@ -153,22 +94,25 @@ object_types:
     generatedCodePrefix: CRYS
     sections:
       general_information:
-        - acronym
+        - $name
         - material
         - face
         - sample-plate
+      properties:
         - diameter
         - height
         - hazardous
         - hazardous-specification
+      storage_conditions:
         - fridge
         - no-light
         - dry
         - no-ox
-        - other-storage
-        - location-hyperlink
-        - room
-        - instrument-brand
-        - instrument-model
-        - storage
-        - storage-box
+        - other-storage-condition
+        - other-storage-condition-specification
+      supplier_info:
+        - specifications
+        - receive-date
+        - reference-number
+      additional_info:
+        - comments

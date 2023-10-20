@@ -1,0 +1,6 @@
+object_types:
+  spm_measurements:
+    generatedCodePrefix: SPM
+    sections:
+      general_information:
+        - $name

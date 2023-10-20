@@ -1,0 +1,14 @@
+property_types:
+  result-description:
+    label: Result Description
+    description: Result Description
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+object_types:
+  result:
+    generatedCodePrefix: RES
+    sections:
+      general_information:
+        - result-description

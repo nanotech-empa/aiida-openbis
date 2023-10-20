@@ -2,25 +2,14 @@ vocabularies:
   batch-id:
     description: 'Batch ID'
     terms:
-      - code: Batch_a
+      - code: a
         label: a
         description: null
-      - code: Batch_b
+      - code: b
         label: b
         description: null
+
 property_types:
-  # structure-image:
-  #   label: Structure Image
-  #   description: null
-  #   dataType: MULTILINE_VARCHAR
-  #   managedInternally: false
-  #   metaData:
-  #     custom_widget: Word Processor
-  acronym:
-    label: Acronym
-    description: Acronym
-    dataType: VARCHAR
-    managedInternally: false
   empa-number:
     label: EMPA Number
     description: EMPA Number
@@ -29,14 +18,9 @@ property_types:
   batch:
     label: Batch
     description: Batch
-    dataType: CONTROLLEDVOCABULARY # VARCHAR?
+    dataType: CONTROLLEDVOCABULARY
     managedInternally: false
     vocabulary: BATCH-ID
-  vial:
-    label: Vial
-    description: Vial
-    dataType: VARCHAR # CONTROLLEDVOCABULARY
-    managedInternally: false # Ask experimentalists if this should be written in the location or next to batch letter
   iupac-name:
     label: Name (IUPAC)
     description: Name (IUPAC)
@@ -62,32 +46,40 @@ property_types:
     description: Hazardous
     dataType: BOOLEAN
     managedInternally: false
-  hazardous-specify:
-    label: Hazardous - Specify
-    description: Hazardous - Specify
+  hazardous-specification:
+    label: Hazardous (Specification)
+    description: Hazardous (Specification)
     dataType: VARCHAR
     managedInternally: false
-# Safety datasheet is DATASET ?? Or collection in the inventory? it could be a parent?
   evaporation-temperature:
     label: Evaporation Details
     description: Evaporation Details
     dataType: XML
     managedInternally: false
     metaData:
-      custom_widget: Spreadsheet   # Ask if it should be a spreadsheet or a pointer to experiments (parent - children relation)
-  light:
-    label: Light
-    description: Light
+      custom_widget: Spreadsheet
+  molecule-vials:
+    label: Molecule Vials
+    description: Molecule Vials
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  molecule-crucibles:
+    label: Molecule Crucibles
+    description: Molecule Crucibles
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  fridge:
+    label: Fridge
+    description: Fridge
     dataType: BOOLEAN
     managedInternally: false
-  oxygen:
-    label: Oxygen
-    description: Oxygen
-    dataType: BOOLEAN
-    managedInternally: false
-  freezer:
-    label: Freezer
-    description: Freezer
+  no-light:
+    label: No light
+    description: No light
     dataType: BOOLEAN
     managedInternally: false
   dry:
@@ -95,37 +87,31 @@ property_types:
     description: Dry
     dataType: BOOLEAN
     managedInternally: false
-  storage-condition-other:
-    label: Storage Condition (other)
-    description: Storage Condition (other)
+  no-ox:
+    label: No O2
+    description: No O2
     dataType: BOOLEAN
     managedInternally: false
-  storage-condition-other-specify:
-    label: Storage Condition (other) - Specify
-    description: Storage Condition (other) - Specify
-    dataType: VARCHAR
+  other-storage-condition:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
     managedInternally: false
-  # supplier:
-  #   label: Supplier
-  #   description: null
-  #   dataType: SAMPLE
-  #   managedInternally: false # We should consider that supplier own name is already stored in supplier entity, right?
-  # synthesised-by:
-  #   label: Synthesised By
-  #   description: null
-  #   dataType: SAMPLE
-  #   managedInternally: false
+  other-storage-condition-specification:
+    label: Other
+    description: Other
+    dataType: BOOLEAN
+    managedInternally: false
   amount:
     label: Amount
     description: Amount
-    dataType: VARCHAR # or REAL and obligate the input to be in international system? If we consider real, we have to define the measure
+    dataType: VARCHAR
     managedInternally: false
-  receiving-date:
+  receive-date:
     label: Receiving Date
     description: Receiving Date
-    dataType: TIMESTAMP # DATE
+    dataType: TIMESTAMP
     managedInternally: false
-  # Procurement is DATASET ??
   comments:
     label: Comments
     description: Comments
@@ -143,24 +129,31 @@ object_types:
     generatedCodePrefix: MOL
     sections:
       general_information:
-        - acronym
+        - $name
         - empa-number
         - batch
-        - vial
         - iupac-name
+      structure:
         - formula
         - smiles
         - cas-number
+      properties:
         - hazardous
-        - hazardous-specify
+        - hazardous-specification
         - evaporation-temperature
-        - light
-        - oxygen
-        - freezer
+      storage_conditions:
+        - fridge
+        - no-light
         - dry
-        - storage-condition-other
-        - storage-condition-other-specify
+        - no-ox
+        - other-storage-condition
+        - other-storage-condition-specification
+      locations:
+        - molecule-vials
+        - molecule-crucibles
+      supplier_info:
         - amount
-        - receiving-date
+        - receive-date
+      additional_info:
         - comments
     

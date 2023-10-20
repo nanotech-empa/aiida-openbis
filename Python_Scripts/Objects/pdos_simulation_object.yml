@@ -1,0 +1,13 @@
+property_types:
+  simulation-code:
+    label: Simulation code
+    description: Simulation code
+    dataType: VARCHAR
+    managedInternally: false
+object_types:
+  pdos_simulation:
+    generatedCodePrefix: PDOS_SIM
+    sections:
+      general_information:
+        - $name
+        - simulation-code

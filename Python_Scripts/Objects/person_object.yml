@@ -1,0 +1,54 @@
+vocabularies:
+  work-status:
+    description: 'Work Status'
+    terms:
+      - code: Active
+        label: Active
+        description: Active.
+      - code: Inactive
+        label: Inactive
+        description: Inactive.
+property_types:
+  short-name:
+    label: Short Name
+    description: Short Name
+    dataType: VARCHAR
+    managedInternally: false
+  work-status:
+    label: Work Status
+    description: Work Status
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: WORK-STATUS
+  email:
+    label: Email
+    description: Email
+    dataType: VARCHAR
+    managedInternally: false
+  work-phone:
+    label: Work Phone
+    description: Work Phone
+    dataType: VARCHAR
+    managedInternally: false
+  mobile-phone:
+    label: Mobile Phone
+    description: Mobile Phone
+    dataType: VARCHAR
+    managedInternally: false
+  office-number:
+    label: Office
+    description: Office
+    dataType: VARCHAR
+    managedInternally: false
+object_types:
+  person:
+    generatedCodePrefix: PERS
+    sections:
+      general_information:
+        - $name
+        - short-name
+        - work-status
+        - email
+        - work-phone
+        - mobile-phone
+        - office-number

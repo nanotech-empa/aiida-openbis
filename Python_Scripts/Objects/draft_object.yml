@@ -1,0 +1,28 @@
+vocabularies:
+  draft-type:
+    description: 'Type'
+    terms:
+      - code: Development
+        label: On Development
+        description: It is in on development stage.
+      - code: Preprint
+        label: Preprint
+        description: It is in preprint stage.
+      - code: Postprint
+        label: Postprint
+        description: It is in postprint stage.
+property_types:
+  draft-type:
+    label: Draft Type
+    description: Draft Type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: DRAFT-TYPE
+
+object_types:
+  draft:
+    generatedCodePrefix: DRF
+    sections:
+      general_information:
+        - $name
+        - draft-type

@@ -94,6 +94,8 @@ projects:
 spaces:
   CARBON:
     description: ahsashas
+  CARBON_NANOMATERIALS:
+    description: adasdas
   DEFAULT:
     description: null
   DEFAULT_LAB_NOTEBOOK:

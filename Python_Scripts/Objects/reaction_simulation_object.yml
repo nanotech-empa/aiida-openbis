@@ -1,0 +1,19 @@
+property_types:
+  reaction-barrier:
+    label: Barrier (eV)
+    description: Barrier (eV)
+    dataType: REAL
+    managedInternally: false
+  simulation-code:
+    label: Simulation code
+    description: Simulation code
+    dataType: VARCHAR
+    managedInternally: false
+object_types:
+  reaction_simulation:
+    generatedCodePrefix: RCT_SIM
+    sections:
+      general_information:
+        - $name
+        - simulation-code
+        - reaction-barrier
