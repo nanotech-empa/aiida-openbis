@@ -9,9 +9,9 @@
         <hr>
         <div id='collection-project-container'>
             <p>Collection Project</p>
-            <select id="project-selector" style="margin-left:10px">
-                {% for item in items %}
-                    <option value="{{ item }}">{{ item }}</option>
+            <select id="project-selector" style="margin-left:10px;">
+                {% for project_code in projects_codes %}
+                    <option value="{{ project_code }}">{{ project_code }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -19,9 +19,17 @@
             <p>Collection Name</p>
             <input type="text" id="collection-name" name="collection-name" placeholder="Introduce a name">
         </div>
-        <div id='collection-description-container' style="margin-bottom:10px">
+        <div id='collection-description-container' style="margin-bottom:10px;">
             <p>Collection Description</p>
             <input type="text" id="collection-description" name="collection-description" placeholder="Introduce a description">
+        </div>
+        <div id='collection-type-container'>
+            <p>Default Object Type</p>
+            <select id="object-type-selector" style="margin-left:10px;">
+                {% for object_type in objects_types %}
+                    <option value="{{ object_type }}">{{ object_type }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div>
             <button type="button" id="save-new-collection"> Save Collection </button>

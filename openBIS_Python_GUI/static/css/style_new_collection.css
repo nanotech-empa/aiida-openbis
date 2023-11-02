@@ -7,31 +7,44 @@ hr {
     border-color: lightgray;
 }
 
-#project-space-container {
+#collection-project-container {
     display: flex;
     align-items: center;
 }
 
-#project-space-container p {
-    margin-right: 35px;
+#collection-project-container p {
+    margin-right: 32px;
 }
 
-#project-name-container {
+#collection-name-container {
     display: flex;
     align-items: center;
 }
 
-#project-name-container input {
+#collection-name-container input{
     margin-left: 48px;
 }
 
-#project-description-container {
+#collection-description-container input {
+    margin-left: 48px;
+}
+
+#collection-description-container {
     display: flex;
     align-items: center;
 }
 
-#project-description-container input {
+#collection-description-container input {
     margin-left: 10px;
     height: 200px;
     width: 400px;
+}
+
+#collection-type-container {
+    display: flex;
+    align-items: center;
+}
+
+#collection-type-container p {
+    margin-right: 14px;
 }

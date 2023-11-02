@@ -1,6 +1,0 @@
-object_types:
-  author:
-    generatedCodePrefix: AUTH
-    sections:
-      general_information:
-        - $name

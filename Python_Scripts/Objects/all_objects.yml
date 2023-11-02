@@ -1,0 +1,832 @@
+object_types:
+  annealing:
+    generatedCodePrefix: ANL
+    sections:
+      general_information:
+        - $name
+        - description
+        - duration-minutes
+        - temperature-celsius
+        - current-amperes
+        - voltage-volts
+        - pressure-mbars
+      additional_information:
+        - comments
+  author:
+    generatedCodePrefix: AUTH
+    sections:
+      general_information:
+        - $name
+  bands_simulation:
+    generatedCodePrefix: BND_SIM
+    sections:
+      general_information:
+        - $name
+        - simulation-code
+      additional_information:
+        - comments
+  uhv_component:
+    generatedCodePrefix: UHV_COMP
+    sections:
+      general_information:
+        - $name
+        - uhv-component-type
+        - uhv-component-model
+        - serial-number
+        - empa-id
+      manufacturer-info:
+        - website
+        - receive-date
+      additional_information:
+        - comments
+  crystal:
+    generatedCodePrefix: CRYS
+    sections:
+      general_information:
+        - $name
+        - material
+        - face
+        - sample-plate
+      properties:
+        - diameter-mm
+        - height-mm
+        - hazardous
+        - hazardous-specification
+      storage_conditions:
+        - fridge
+        - no-light
+        - dry
+        - no-ox
+        - other-storage-condition
+        - other-storage-condition-specification
+      supplier_information:
+        - specifications
+        - receive-date
+        - reference-number
+      additional_information:
+        - comments
+  draft:
+    generatedCodePrefix: DRF
+    sections:
+      general_information:
+        - $name
+        - draft-type
+      additional_information:
+        - comments
+  evaporation:
+    generatedCodePrefix: EVAP
+    sections:
+      general_information:
+        - $name
+        - evaporation-type
+      additional_information:
+        - comments
+  grant:
+    generatedCodePrefix: GRT
+    sections:
+      general_information:
+        - $name
+        - funding-agency
+        - start-date
+        - end-date
+        - budget
+        - project-id
+        - acknowledgement-sentence
+      additional_information:
+        - comments
+  institution:
+    generatedCodePrefix: INST
+    sections:
+      general_information:
+        - $name
+        - address
+  instrument:
+    generatedCodePrefix: INSTR
+    sections:
+      general_information:
+        - $name
+        - serial-number
+        - empa-id
+      documentation:
+        - website
+      manufacturer_information:
+        - receive-date
+      additional_information:
+        - comments
+  layered_2d_material:
+    generatedCodePrefix: L2DM
+    sections:
+      general_information:
+        - $name
+        - empa-number
+        - batch
+        - sample-plate
+      properties:
+        - width-mm
+        - length-mm
+        - thickness-mm
+        - hazardous
+        - hazardous-specification
+      storage_conditions:
+        - fridge
+        - no-light
+        - dry
+        - no-ox
+        - other-storage-condition
+        - other-storage-condition-specification
+      supplier_information:
+        - receive-date
+      additional_information:
+        - comments
+  location:
+    generatedCodePrefix: LOC
+    sections:
+      general_information:
+        - $name
+        - location-type
+      additional_information:
+        - comments
+  maintenance:
+    generatedCodePrefix: MAINT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  manufacturer_person:
+    generatedCodePrefix: MANUFPER
+    sections:
+      general_information:
+        - $name
+        - email
+        - website
+  molecule:
+    generatedCodePrefix: MOL
+    sections:
+      general_information:
+        - $name
+        - empa-number
+        - batch
+        - iupac-name
+      structure:
+        - sum-formula
+        - smiles
+        - cas-number
+      properties:
+        - hazardous
+        - hazardous-specification
+        - evaporation-temperature
+      storage_conditions:
+        - fridge
+        - no-light
+        - dry
+        - no-ox
+        - other-storage-condition
+        - other-storage-condition-specification
+      locations:
+        - molecule-vials
+        - molecule-crucibles
+      supplier_information:
+        - amount
+        - receive-date
+      additional_information:
+        - comments
+  molecule_product:
+    generatedCodePrefix: PROD
+    sections:
+      general_information:
+        - $name
+        - empa-number
+        - batch
+        - iupac-name
+      structure:
+        - formula
+        - smiles
+        - cas-number
+      additional_information:
+        - comments
+  transfer:
+    generatedCodePrefix: TRANSF
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  optical_component:
+    generatedCodePrefix: OPTIC
+    sections:
+      general_information:
+        - $name
+        - optical-type
+        - optical-model-name
+        - serial-number
+      documentation:
+        - website
+      manufacturer_information:
+        - receive-date
+      additional_information:
+        - comments
+  pdos_simulation:
+    generatedCodePrefix: PDOS
+    sections:
+      general_information:
+        - $name
+        - simulation-code
+      additional_information:
+        - comments
+  person:
+    generatedCodePrefix: PERS
+    sections:
+      general_information:
+        - $name
+        - short-name
+        - work-status
+      contact:
+        - email
+        - work-phone
+        - mobile-phone
+  preparation:
+    generatedCodePrefix: PREP
+    sections:
+      general_information:
+        - $name
+        - preparation-date
+      additional_information:
+        - comments
+  publication-empa:
+    generatedCodePrefix: PUBL
+    sections:
+      general_information:
+        - $name
+        - abstract
+        - doi
+        - year
+        - oa-version
+        - oa-data
+      additional_information:
+        - comments
+  result:
+    generatedCodePrefix: RES
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  room:
+    generatedCodePrefix: ROOM
+    sections:
+      general_information:
+        - $name
+      additional_information:
+        - comments
+  spm_image:
+    generatedCodePrefix: SPMI
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  sputtering:
+    generatedCodePrefix: SPUT
+    sections:
+      general_information:
+        - $name
+        - duration-minutes
+        - pressure-mbars
+        - energy-kilovolts
+        - voltage-volts
+        - temperature-celsius
+        - angle-degrees
+        - current-milliamperes
+      additional_information:
+        - comments
+  supplier_empa:
+    generatedCodePrefix: SUPPL
+    sections:
+      general_information:
+        - $name
+  tip_sensor:
+    generatedCodePrefix: TIP
+    sections:
+      general_information:
+        - $name
+        - tip-sensor-type
+        - wire-material # CONTROLLEDVOCAB
+        - etched-fib # Ask about this property. What is that?
+        - holder-id # Remove it. It should be an object. Ask experimentalists
+      properties:
+        - thickness-mm
+        - length-mm
+        - resonance-frequency
+        - quality-factor # REAL or INTEGER?
+      supplier_information:
+        - reference-number
+        - specifications
+        - receive-date
+      additional_information:
+        - comments
+  wafer_substrate:
+    generatedCodePrefix: SUB
+    sections:
+      general_information:
+        - $name
+        - empa-number
+        - batch
+        - sample-plate # What is that? CONTROLLECVOCAB, SAMPLE, or VARCHAR (props)
+      properties:
+        - width-mm
+        - length-mm
+        - thickness-mm
+        - hazardous
+        - hazardous-specification
+      storage_conditions:
+        - fridge
+        - no-light
+        - dry
+        - no-ox
+        - other-storage-condition
+        - other-storage-condition-specification
+      supplier_information:
+        - receive-date
+      additional_information:
+        - comments
+  theory_device:
+    generatedCodePrefix: THDEV
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  error_problem:
+    generatedCodePrefix: ERROR
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  analysis:
+    generatedCodePrefix: ANLYS
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  calculation:
+    generatedCodePrefix: CALCTION
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  theory_task_other:
+    generatedCodePrefix: THEORY_OTHER
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  slab_calculation:
+    generatedCodePrefix: SLAB_CALC
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  reaction:
+    generatedCodePrefix: REACT
+    sections:
+      general_information:
+        - $name
+        - description
+        - simulation-code
+        - reaction-barrier
+      additional_information:
+        - comments
+  upload_structure:
+    generatedCodePrefix: UPLOAD_STRUCT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  nanoribbon_workflow:
+    generatedCodePrefix: NANORIB_WORK
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  cell_optimisation:
+    generatedCodePrefix: CELL_OPT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  molecule_gas_phase:
+    generatedCodePrefix: MOL_GAS_PHS
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  calibration_optimisation:
+    generatedCodePrefix: CALIBTION
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  fill_cryostat:
+    generatedCodePrefix: FILL_CRYO
+    sections:
+      general_information:
+        - $name
+        - description
+        - cryostat-liquid
+        - cryostat-weight-before
+        - cryostat-weight-after
+      additional_information:
+        - comments
+  system_status:
+    generatedCodePrefix: SYST_STAT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  system_handover:
+    generatedCodePrefix: SYST_HNDOVR
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  degas_molecule:
+    generatedCodePrefix: DEGAS_MOL
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  afm:
+    generatedCodePrefix: AFM
+    sections:
+      general_information:
+        - $name
+        - description
+        - mode
+        - tip
+        - resonance-frequency
+        - scan-rate
+        - drive-amplitude
+        - proportional-gain
+        - integral-gain
+      additional_information:
+        - comments
+  arpes:
+    generatedCodePrefix: ARPES
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  kpfm:
+    generatedCodePrefix: KPFM
+    sections:
+      general_information:
+        - $name
+        - description
+        - scan-number
+      spectroscopy_settings:
+        - voltage-range-min-volts
+        - voltage-range-max-volts
+        - num-points
+        - raster-time
+        - delay-times
+      oscillation_settings:
+        - frequency-hertz
+        - oscillation-q
+        - amplitude-mv
+        - oscillation-amplitude-p
+        - oscillation-amplitude-i
+        - mx-pll-p
+        - mx-pll-i
+        - mx-pll-bw
+      zi_pll_settings:
+        - advisor-bw
+        - advisor-max-peak
+        - phase-detector-bw
+        - pi-p
+        - pi-tau
+      additional_information:
+        - comments
+  leed:
+    generatedCodePrefix: LEED
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  mass_spec:
+    generatedCodePrefix: MASS_SPEC
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  nc_afm:
+    generatedCodePrefix: NC_AFM
+    sections:
+      general_information:
+        - $name
+        - description
+        - scan-number
+      oscillation_settings:
+        - frequency-hertz
+        - oscillation-q
+        - amplitude-mv
+        - oscillation-amplitude-p
+        - oscillation-amplitude-i
+        - mx-pll-p
+        - mx-pll-i
+        - mx-pll-bw
+      zi_pll_settings:
+        - advisor-bw
+        - advisor-max-peak
+        - phase-detector-bw
+        - pi-p
+        - pi-tau
+      additional_information:
+        - comments
+  stm:
+    generatedCodePrefix: STM
+    sections:
+      general_information:
+        - $name
+        - description
+        - scan-number
+        - measurement-temperature
+      additional_information:
+        - comments
+  sts:
+    generatedCodePrefix: STS
+    sections:
+      general_information:
+        - $name
+        - description
+        - scan-number
+      zi_pll_settings:
+        - frequency-hertz
+        - phase-degrees
+        - excitation-amplitude-mv
+        - calibration-factor-volts
+      additional_information:
+        - comments
+  tdp:
+    generatedCodePrefix: TDP
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  ups:
+    generatedCodePrefix: UPS
+    sections:
+      general_information:
+        - $name
+        - description
+        - ups-source
+        - pressure-arp
+        - pressure-3rd
+        - pressure-2nd
+        - pressure-1st
+        - current-amperes
+        - voltage-volts
+        - angle-degrees
+        - peak-selection
+        - peak-voltage-min
+        - peak-voltage-max
+        - peak-voltage-step-size
+        - dwell-time
+        - pass-energy
+        - mode
+        - slit
+      additional_information:
+        - comments
+  xps:
+    generatedCodePrefix: XPS
+    sections:
+      general_information:
+        - $name
+        - description
+        - ups-source
+        - pressure-arp
+        - pressure-3rd
+        - pressure-2nd
+        - pressure-1st
+        - current-amperes
+        - voltage-volts
+        - angle-degrees
+        - peak-selection
+        - peak-voltage-min
+        - peak-voltage-max
+        - peak-voltage-step-size
+        - dwell-time
+        - pass-energy
+        - mode
+        - slit
+      additional_information:
+        - comments
+  xpd:
+    generatedCodePrefix: XPD
+    sections:
+      general_information:
+        - $name
+        - description
+        - ups-source
+        - pressure-arp
+        - pressure-3rd
+        - pressure-2nd
+        - pressure-1st
+        - current-amperes
+        - voltage-volts
+        - angle-degrees
+        - peak-selection
+        - peak-voltage-min
+        - peak-voltage-max
+        - peak-voltage-step-size
+        - dwell-time
+        - pass-energy
+        - mode
+        - slit
+      additional_information:
+        - comments
+  experiment_task_other:
+    generatedCodePrefix: EXPER_OTHER
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  bakeout:
+    generatedCodePrefix: BAKEOUT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  srd:
+    generatedCodePrefix: SRD
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  deposition:
+    generatedCodePrefix: DEPOS
+    sections:
+      general_information:
+        - $name
+        - description
+        - duration-minutes
+        - substrate-temperature
+        - molecule-temperature
+      additional_information:
+        - comments
+  dosing:
+    generatedCodePrefix: DOSING
+    sections:
+      general_information:
+        - $name
+        - description
+        - duration-minutes
+        - pressure-mbars
+      additional_information:
+        - comments
+  light_irradiation:
+    generatedCodePrefix: LIGHT_IRRAD
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  field_emission:
+    generatedCodePrefix: FIELD_EMIS
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  hydrogen_cracker:
+    generatedCodePrefix: HYDRO_CRACK
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  catalysis_chamber:
+    generatedCodePrefix: CATALYS_CHAMB
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  fib:
+    generatedCodePrefix: FIB
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  sem:
+    generatedCodePrefix: SEM
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  edx:
+    generatedCodePrefix: EDX
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  raman:
+    generatedCodePrefix: RAMAN
+    sections:
+      general_information:
+        - $name
+        - description
+      system:
+        - laser-wavelength
+        - objective
+        - laser-power
+        - sweeps-integration-time
+        - area-length-um
+        - area-width-um
+        - polarisation
+        - vacuum
+      additional_information:
+        - comments
+  uv_vis:
+    generatedCodePrefix: UV_VIS
+    sections:
+      general_information:
+        - $name
+        - description
+        - mode
+        - measurement-range-min
+        - measurement-range-max
+        - scan-speed
+      additional_information:
+        - comments
+  neb:
+    generatedCodePrefix: NEB
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  chain_geo_opt:
+    generatedCodePrefix: CHAIN_GEO_OPT
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments

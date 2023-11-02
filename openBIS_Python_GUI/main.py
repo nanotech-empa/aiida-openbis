@@ -60,7 +60,14 @@ async def new_project(request: Request):
 @app.get("/new_experiment", response_class=HTMLResponse)
 async def new_experiment(request: Request):
     all_spaces = session.get_spaces().df.code
-    return templates.TemplateResponse("new_collection.html", {"request": request, "items": all_spaces})
+    return templates.TemplateResponse("new_experiment.html", {"request": request, "items": all_spaces})
+
+@app.get("/new_collection", response_class=HTMLResponse)
+async def new_collection(request: Request):
+    all_projects = session.get_projects().df.identifier
+    all_objects_types = session.get_object_types().df.code
+    return templates.TemplateResponse("new_collection.html", {"request": request, "projects_codes": all_projects,
+                                                              "objects_types": all_objects_types})
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ document.getElementById('return-menu').addEventListener('click', function() {
     window.location.href = '/';
 });
 
-document.getElementById('save-new-project').addEventListener("click", function() {
+document.getElementById('save-new-collection').addEventListener("click", function() {
         var newProjectSpace = document.getElementById("space-selector");
         var newProjectName = document.getElementById("project-name");
         var newProjectDescription = document.getElementById("project-description");

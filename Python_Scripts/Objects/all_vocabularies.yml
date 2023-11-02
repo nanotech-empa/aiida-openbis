@@ -1,0 +1,118 @@
+vocabularies:
+  batch-id:
+    description: Batch ID
+    terms:
+      - code: a
+        label: a
+        description: null
+      - code: b
+        label: b
+        description: null
+      - code: c
+        label: c
+        description: null
+  draft-type:
+    description: Draft type
+    terms:
+      - code: On_development
+        label: On Development
+        description: On development stage.
+      - code: Preprint
+        label: Preprint
+        description: Preprint stage.
+      - code: Postprint
+        label: Postprint
+        description: Postprint stage.
+  uhv-component-type:
+    description: UHV Component type
+    terms:
+      - code: Pump
+        label: Pump
+        description: Pump
+      - code: Evaporator
+        label: Evaporator
+        description: Evaporator
+      - code: Analyser
+        label: Analyser
+        description: Analyser
+      - code: Gauge
+        label: Gauge
+        description: Gauge
+      - code: Ion_Photon_Stage
+        label: Ion/Photon Stage
+        description: Ion/Photon Stage
+      - code: Storage
+        label: Storage
+        description: Storage
+      - code: Gas_Panel
+        label: Gas Panel
+        description: Gas Panel
+      - code: Port_Valve
+        label: Port/Valve
+        description: Port/Valve
+      - code: Manipulator_Wobble_Stick
+        label: Manipulator/Wobble Stick
+        description: Manipulator/Wobble Stick
+      - code: Cryostat
+        label: Cryostat
+        description: Cryostat
+      - code: SPM
+        label: SPM
+        description: SPM
+      - code: Electronics
+        label: Electronics
+        description: Electronics
+      - code: Various
+        label: Various
+        description: Various
+  evaporation-type:
+    description: Evaporation type
+    terms:
+      - code: 6_Fold
+        label: 6-Fold
+        description: 6-Fold evaporation
+  location-type:
+    description: Location type
+    terms:
+      - code: Drawer
+        label: Drawer
+        description: Drawer
+      - code: Fridge
+        label: Fridge
+        description: Fridge
+  optical-component-type:
+    description: Optical component type
+    terms:
+      - code: Mirror
+        label: Mirror
+        description: Mirror
+  work-status:
+    description: Work status
+    terms:
+      - code: Active
+        label: Active
+        description: Active
+      - code: Inactive
+        label: Inactive
+        description: Inactive
+  tip-sensor-type:
+    description: Tip/QPlus Sensor type
+    terms:
+      - code: Tuning_Fork
+        label: Tuning Fork
+        description: Tuning Fork
+  etched-fib:
+    description: Etched/FIB
+    terms:
+      - code: Ga_FIB
+        label: Ga FIB
+        description: Ga FIB
+  peak-type:
+    description: Peak type
+    terms:
+      - code: fixed
+        label: fixed
+        description: fixed
+      - code: swept
+        label: swept
+        description: swept

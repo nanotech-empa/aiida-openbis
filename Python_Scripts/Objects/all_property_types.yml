@@ -1,0 +1,693 @@
+property_types:
+  draft-type:
+    label: Draft type
+    description: Draft type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: DRAFT-TYPE
+  current-amperes:
+    label: Current (A)
+    description: Current in Amperes
+    dataType: REAL
+    managedInternally: false
+  duration-minutes:
+    label: Duration (min)
+    description: Duration in minutes
+    dataType: REAL
+    managedInternally: false
+  temperature-celsius:
+    label: Temperature (°C)
+    description: Temperature in Celsius
+    dataType: REAL
+    managedInternally: false
+  voltage-volts:
+    label: Voltage (V)
+    description: Voltage in Volts
+    dataType: REAL
+    managedInternally: false
+  energy-kilovolts:
+    label: Energy (kV)
+    description: Energy in kiloVolts
+    dataType: REAL
+    managedInternally: false
+  angle-degrees:
+    label: Angle (°)
+    description: Angle in degrees
+    dataType: REAL
+    managedInternally: false
+  current-milliamperes:
+    label: Current (mA)
+    description: Current in milliamperes
+    dataType: REAL
+    managedInternally: false
+  pressure-mbars:
+    label: Pressure (mBar)
+    description: Pressure in millibars
+    dataType: REAL
+    managedInternally: false
+  simulation-code:
+    label: Simulation code
+    description: Simulation code
+    dataType: VARCHAR
+    managedInternally: false
+  website:
+    label: Website
+    description: Website
+    dataType: HYPERLINK
+    managedInternally: false
+  diameter-mm:
+    label: Diameter (mm)
+    description: Diameter in Millimeters
+    dataType: REAL
+    managedInternally: false
+  height-mm:
+    label: Height (mm)
+    description: Height in Millimeters
+    dataType: REAL
+    managedInternally: false
+  width-mm:
+    label: Width (mm)
+    description: Width in Millimeters
+    dataType: REAL
+    managedInternally: false
+  length-mm:
+    label: Length (mm)
+    description: Length in Millimeters
+    dataType: REAL
+    managedInternally: false
+  thickness-mm:
+    label: Thickness (mm)
+    description: Thickness in Millimeters
+    dataType: REAL
+    managedInternally: false
+  hazardous:
+    label: Hazardous
+    description: Hazardous
+    dataType: BOOLEAN
+    managedInternally: false
+  hazardous-specification:
+    label: Hazardous specification
+    description: Hazardous specification
+    dataType: VARCHAR
+    managedInternally: false
+  fridge:
+    label: Fridge
+    description: Fridge
+    dataType: BOOLEAN
+    managedInternally: false
+  no-light:
+    label: No light
+    description: No light
+    dataType: BOOLEAN
+    managedInternally: false
+  dry:
+    label: Dry
+    description: Dry
+    dataType: BOOLEAN
+    managedInternally: false
+  no-ox:
+    label: No O2
+    description: No O2
+    dataType: BOOLEAN
+    managedInternally: false
+  other-storage-condition:
+    label: Other storage condition
+    description: Other storage condition
+    dataType: BOOLEAN
+    managedInternally: false
+  other-storage-condition-specification:
+    label: Other storage condition specification
+    description: Other storage condition specification
+    dataType: VARCHAR
+    managedInternally: false
+  comments:
+    label: Comments
+    description: Comments
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  email:
+    label: Email
+    description: Email
+    dataType: VARCHAR
+    managedInternally: false
+  receive-date:
+    label: Receiving date
+    description: Receiving date
+    dataType: TIMESTAMP
+    managedInternally: false
+  address:
+    label: Address
+    description: Address
+    dataType: VARCHAR
+    managedInternally: false
+  work-phone:
+    label: Work phone
+    description: Work phone
+    dataType: VARCHAR
+    managedInternally: false
+  mobile-phone:
+    label: Mobile phone
+    description: Mobile phone
+    dataType: VARCHAR
+    managedInternally: false
+  resonance-frequency:
+    label: Resonance frequency (Hz)
+    description: Resonance frequency in Hertz
+    dataType: REAL
+    managedInternally: false
+  quality-factor:
+    label: Quality factor
+    description: Quality factor
+    dataType: REAL
+    managedInternally: false
+  empa-number:
+    label: Empa number
+    description: Empa number
+    dataType: INTEGER
+    managedInternally: false
+  batch:
+    label: Batch
+    description: Batch
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: BATCH-ID
+  sample-plate:
+    label: Sample plate
+    description: Sample plate
+    dataType: VARCHAR
+    managedInternally: false
+  uhv-component-type:
+    label: UHV Component type
+    description: UHV Component type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: UHV-COMPONENT-TYPE
+  uhv-component-model:
+    label: UHV Component Model
+    description: UHV Component Model
+    dataType: VARCHAR
+    managedInternally: false
+  serial-number:
+    label: Serial/Model Number
+    description: Serial/Model Number
+    dataType: VARCHAR
+    managedInternally: false
+  empa-id:
+    label: Empa ID
+    description: Empa ID
+    dataType: VARCHAR
+    managedInternally: false
+  material:
+    label: Material
+    description: Material
+    dataType: VARCHAR
+    managedInternally: false
+  face:
+    label: Face
+    description: Face
+    dataType: VARCHAR
+    managedInternally: false
+  specifications:
+    label: Specifications
+    description: Specifications
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  reference-number:
+    label: Reference number
+    description: Reference number
+    dataType: VARCHAR
+    managedInternally: false
+  iupac-name:
+    label: IUPAC name
+    description: IUPAC name
+    dataType: VARCHAR
+    managedInternally: false
+  sum-formula:
+    label: Sum formula
+    description: Sum formula
+    dataType: VARCHAR
+    managedInternally: false
+  smiles:
+    label: SMILES
+    description: SMILES
+    dataType: VARCHAR
+    managedInternally: false
+  cas-number:
+    label: CAS number
+    description: CAS number
+    dataType: VARCHAR
+    managedInternally: false
+  evaporation-type:
+    label: Evaporation type
+    description: Evaporation type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: EVAPORATION-TYPE
+  funding-agency:
+    label: Funding agency
+    description: Funding agency
+    dataType: VARCHAR
+    managedInternally: false
+  start-date:
+    label: Start date
+    description: Start date
+    dataType: TIMESTAMP
+    managedInternally: false
+  end-date:
+    label: End date
+    description: End date
+    dataType: TIMESTAMP
+    managedInternally: false
+  budget:
+    label: Budget
+    description: Budget
+    dataType: VARCHAR
+    managedInternally: false
+  currency:
+    label: Currency
+    description: Currency
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: CURRENCY
+  project-id:
+    label: Project ID
+    description: Project ID
+    dataType: VARCHAR
+    managedInternally: false
+  acknowledgment-sentence:
+    label: Acknowledgment Sentence
+    description: Acknowledgment Sentence
+    dataType: VARCHAR
+    managedInternally: false
+  location-type:
+    label: Location type
+    description: Location type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: LOCATION-TYPE
+  description:
+    label: Description
+    description: Description
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  evaporation-temperature:
+    label: Evaporation temperature
+    description: Evaporation temperature
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  molecule-vials:
+    label: Molecule vials
+    description: Molecule vials
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  molecule-crucibles:
+    label: Molecule crucibles
+    description: Molecule crucibles
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  amount:
+    label: Amount
+    description: Amount
+    dataType: VARCHAR
+    managedInternally: false
+  optical-type:
+    label: Optical type
+    description: Optical type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: OPTICAL-COMPONENT-TYPE
+  optical-model-name:
+    label: Optical model name
+    description: Optical model name
+    dataType: VARCHAR
+    managedInternally: false
+  short-name:
+    label: Short name
+    description: Short name
+    dataType: VARCHAR
+    managedInternally: false
+  work-status:
+    label: Work status
+    description: Work status
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: WORK-STATUS
+  preparation-date:
+    label: Preparation date
+    description: Preparation date
+    dataType: TIMESTAMP
+    managedInternally: false
+  doi:
+    label: DOI
+    description: DOI
+    dataType: VARCHAR
+    managedInternally: false
+  year:
+    label: Year
+    description: Year
+    dataType: INTEGER
+    managedInternally: false
+  oa-version:
+    label: Open Access Version URL
+    description: Open Access Version URL
+    dataType: HYPERLINK
+    managedInternally: false
+  oa-data:
+    label: Open Access Data URL
+    description: Open Access Data URL
+    dataType: HYPERLINK
+    managedInternally: false
+  abstract:
+    label: Abstract
+    description: Abstract
+    dataType: MULTILINE_VARCHAR
+    managedInternally: false
+    metaData:
+      custom_widget: Word Processor
+  reaction-barrier:
+    label: Reaction Barrier (eV)
+    description: Reaction Barrier in electron-Volts
+    dataType: REAL
+    managedInternally: false
+  tip-sensor-type:
+    label: Tip Sensor type
+    description: Tip Sensor type
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: TIP-SENSOR-TYPE
+  etched-fib:
+    label: Etched/FIB
+    description: Etched/FIB
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    vocabulary: ETCHED-FIB
+  wire-material:
+    label: Wire material
+    description: Wire material
+    dataType: VARCHAR
+    managedInternally: false
+  holder-id:
+    label: Holder ID
+    description: Holder ID
+    dataType: VARCHAR
+    managedInternally: false
+  cryostat-liquid:
+    label: Cryostat liquid
+    description: Cryostat liquid
+    dataType: VARCHAR
+    managedInternally: false
+  cryostat-weight-before:
+    label: Cryostat [Weight before] (kg)
+    description: Cryostat [Weight before] in kilograms
+    dataType: REAL
+    managedInternally: false
+  cryostat-weight-after:
+    label: Cryostat [Weight after] (kg)
+    description: Cryostat [Weight after] in kilograms
+    dataType: REAL
+    managedInternally: false
+  mode:
+    label: Mode
+    description: Mode
+    dataType: VARCHAR
+    managedInternally: false
+  scan-rate:
+    label: Scan rate
+    description: Scan rate
+    dataType: REAL
+    managedInternally: false
+  drive-amplitude:
+    label: Drive amplitude
+    description: Drive amplitude
+    dataType: REAL
+    managedInternally: false
+  proportional-gain:
+    label: Proportional gain
+    description: Proportional gain
+    dataType: REAL
+    managedInternally: false
+  integral-gain:
+    label: Integral gain
+    description: Integral gain
+    dataType: REAL
+    managedInternally: false
+  scan-number:
+    label: Scan number
+    description: Scan number
+    dataType: INTEGER
+    managedInternally: false
+  voltage-range-min-volts:
+    label: Minimum voltage range (V)
+    description: Minimum voltage range in Volts
+    dataType: REAL
+    managedInternally: false
+  voltage-range-max-volts:
+    label: Maximum voltage range (V)
+    description: Maximum voltage range in Volts
+    dataType: REAL
+    managedInternally: false
+  num-points:
+    label: Number of points
+    description: Number of points
+    dataType: INTEGER
+    managedInternally: false
+  raster-time:
+    label: Raster time (ms)
+    description: Raster time in milliseconds
+    dataType: REAL
+    managedInternally: false
+  delay-times:
+    label: Delay times (ms)
+    description: Delay times in milliseconds
+    dataType: XML
+    managedInternally: false
+    metaData:
+      custom_widget: Spreadsheet
+  frequency-hertz:
+    label: Frequency (Hz)
+    description: Frequency in Hertz
+    dataType: REAL
+    managedInternally: false
+  oscillation-q:
+    label: Q
+    description: Q
+    dataType: INTEGER
+    managedInternally: false
+  amplitude-mv:
+    label: Amplitude (mV)
+    description: Amplitude in millivolts
+    dataType: REAL
+    managedInternally: false 
+  oscillation-amplitude-p:
+    label: Amplitude-P (%)
+    description: Amplitude-P in Percentage
+    dataType: REAL
+    managedInternally: false
+  oscillation-amplitude-i:
+    label: Amplitude-I (%)
+    description: Amplitude-I in Percentage
+    dataType: REAL
+    managedInternally: false
+  mx-pll-p:
+    label: MX-PLL-P (%)
+    description: MX-PLL-P in Percentage
+    dataType: REAL
+    managedInternally: false
+  mx-pll-i:
+    label: MX-PLL-I (%)
+    description: MX-PLL-I in Percentage
+    dataType: REAL
+    managedInternally: false
+  mx-pll-bw:
+    label: MX-PLL-Bandwidth (Hz)
+    description: MX-PLL-Bandwidth in Hertz
+    dataType: REAL
+    managedInternally: false
+  advisor-bw:
+    label: Advisor Bandwidth (Hz)
+    description: Advisor Bandwidth in Hertz
+    dataType: REAL
+    managedInternally: false
+  advisor-max-peak:
+    label: Advisor Max Peak (dB)
+    description: Advisor Max Peak in decibels
+    dataType: REAL
+    managedInternally: false
+  phase-detector-bw:
+    label: Phase detector bandwidth (Hz)
+    description: Phase detector bandwidth in Hertz
+    dataType: REAL
+    managedInternally: false
+  pi-p:
+    label: PI-P (mHz/deg)
+    description: Pi-P in milliHertz per degree
+    dataType: REAL
+    managedInternally: false
+  pi-tau:
+    label: PI-tau (ms)
+    description: PI-tau in milliseconds
+    dataType: REAL
+    managedInternally: false
+  measurement-temperature:
+    label: Measurement temperature (°C)
+    description: Measurement temperature in Celsius
+    dataType: REAL
+    managedInternally: false
+  phase-degrees:
+    label: Phase (°)
+    description: Phase in degrees
+    dataType: REAL
+    managedInternally: false
+  excitation-amplitude-mv:
+    label: Excitation amplitude (mV)
+    description: Excitation amplitude in millivolts
+    dataType: REAL
+    managedInternally: false
+  calibration-factor-volts:
+    label: Calibration factor (V)
+    description: Calibration factor in Volts
+    dataType: REAL
+    managedInternally: false
+  ups-source:
+    label: Source
+    description: Source
+    dataType: VARCHAR
+    managedInternally: false
+  pressure-arp:
+    label: Pressure [ARP] (mBar)
+    description: Pressure [ARP] in millibars
+    dataType: REAL
+    managedInternally: false
+  pressure-3rd:
+    label: Pressure [3rd] (mBar)
+    description: Pressure [ARP] in millibars
+    dataType: REAL
+    managedInternally: false
+  pressure-2nd:
+    label: Pressure [2nd] (mBar)
+    description: Pressure [ARP] in millibars
+    dataType: REAL
+    managedInternally: false
+  pressure-1st:
+    label: Pressure [1st] (mBar)
+    description: Pressure [ARP] in millibars
+    dataType: REAL
+    managedInternally: false
+  peak-type:
+    label: Peak
+    description: Peak
+    dataType: CONTROLLEDVOCABULARY
+    managedInternally: false
+    volcabulary: UPS-PEAK-TYPE
+  peak-voltage-min:
+    label: Peak voltage minimum (eV)
+    description: Peak voltage minimum in electron-Volts
+    dataType: REAL
+    managedInternally: false
+  peak-voltage-max:
+    label: Peak voltage maximum (eV)
+    description: Peak voltage maximum in electron-Volts
+    dataType: REAL
+    managedInternally: false
+  peak-voltage-step-size:
+    label: Peak voltage step size (eV)
+    description: Peak voltage step size in electron-Volts
+    dataType: REAL
+    managedInternally: false 
+  dwell-time:
+    label: Dwell time (s)
+    description: Dwell time in seconds
+    dataType: REAL
+    managedInternally: false
+  pass-energy:
+    label: Pass energy (eV)
+    description: Pass energy in electron-Volts
+    dataType: REAL
+    managedInternally: false
+  slit:
+    label: Slit (mm curved)
+    description: Slit in millimeters (curved)
+    dataType: REAL
+    managedInternally: false
+  substrate-temperature:
+    label: Substrate temperature (K)
+    description: Substrate temperature in Kelvin
+    dataType: REAL
+    managedInternally: false
+  molecule-temperature:
+    label: Molecule temperature (°C)
+    description: Molecule temperature in Celsius
+    dataType: REAL
+    managedInternally: false
+  laser-wavelength:
+    label: Laser wavelength (nm)
+    description: Laser wavelength in nanometers
+    dataType: REAL
+    managedInternally: false
+  raman-objective:
+    label: Objective factor
+    description: Objective factor
+    dataType: INTEGER
+    managedInternally: false
+  laser-power:
+    label: Laser power (mW)
+    description: Laser power in milliwatts
+    dataType: REAL
+    managedInternally: false
+  sweeps-integration-time:
+    label: Sweeps integration time (s)
+    description: Sweeps integration time in seconds
+    dataType: REAL
+    managedInternally: false
+  area-length-um:
+    label: Area length (um)
+    description: Area length in micrometers
+    dataType: REAL
+    managedInternally: false
+  area-width-um:
+    label: Area width (um)
+    description: Area width in micrometers
+    dataType: REAL
+    managedInternally: false
+  polarisation:
+    label: Polarisation
+    description: Polarisation
+    dataType: VARCHAR
+    managedInternally: false
+  vacuum:
+    label: Vacuum
+    description: Vacuum
+    dataType: VARCHAR
+    managedInternally: false
+  measurement-range-min:
+    label: Measurement range (min)
+    description: Measurement range (min)
+    dataType: REAL
+    managedInternally: false
+  measurement-range-max:
+    label: Measurement range (max)
+    description: Measurement range (max)
+    dataType: REAL
+    managedInternally: false
+  scan-speed:
+    label: Scan speed
+    description: Scan speed
+    dataType: REAL
+    managedInternally: false
+  tip:
+    label: Tip
+    description: Tip
+    dataType: VARCHAR
+    managedInternally: false
