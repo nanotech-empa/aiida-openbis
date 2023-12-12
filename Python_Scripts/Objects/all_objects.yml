@@ -90,6 +90,7 @@ object_types:
         - start-date
         - end-date
         - budget
+        - currency
         - project-id
         - acknowledgement-sentence
       additional_information:
@@ -201,7 +202,7 @@ object_types:
         - batch
         - iupac-name
       structure:
-        - formula
+        - sum-formula
         - smiles
         - cas-number
       additional_information:
@@ -626,7 +627,7 @@ object_types:
         - current-amperes
         - voltage-volts
         - angle-degrees
-        - peak-selection
+        - peak-type
         - peak-voltage-min
         - peak-voltage-max
         - peak-voltage-step-size
@@ -650,7 +651,7 @@ object_types:
         - current-amperes
         - voltage-volts
         - angle-degrees
-        - peak-selection
+        - peak-type
         - peak-voltage-min
         - peak-voltage-max
         - peak-voltage-step-size
@@ -674,7 +675,7 @@ object_types:
         - current-amperes
         - voltage-volts
         - angle-degrees
-        - peak-selection
+        - peak-type
         - peak-voltage-min
         - peak-voltage-max
         - peak-voltage-step-size
@@ -700,6 +701,18 @@ object_types:
         - description
       additional_information:
         - comments
+  qcm:
+    generatedCodePrefix: QCM
+    sections:
+      general_information:
+        - $name
+        - description
+        - pressure-mbars
+        - rate-angstroem-min
+        - temperature-celsius
+        - pid
+      additional_information:
+        - comments
   srd:
     generatedCodePrefix: SRD
     sections:
@@ -715,6 +728,7 @@ object_types:
         - $name
         - description
         - duration-minutes
+        - pressure-mbar
         - substrate-temperature
         - molecule-temperature
       additional_information:
@@ -793,7 +807,7 @@ object_types:
         - description
       system:
         - laser-wavelength
-        - objective
+        - raman-objective
         - laser-power
         - sweeps-integration-time
         - area-length-um
@@ -830,3 +844,45 @@ object_types:
         - description
       additional_information:
         - comments
+  stm_image:
+    generatedCodePrefix: SPMI
+    sections:
+      general_information:
+        - $name
+        - description
+      additional_information:
+        - comments
+  simulation:
+    generatedCodePrefix: SIMUL
+    sections:
+      general_information:
+        - $name
+        - description
+        - simulation-type
+      wfms:
+        - wfm-connection
+        - wfm-uuid
+  atomistic_model:
+    generatedCodePrefix: ATOM_MODEL
+    sections:
+      general_information:
+        - $name
+        - description
+        - geo-is-optimised
+        - pbcx
+        - pbcy
+        - pbcz
+  stm_simulation:
+    generatedCodePrefix: SIMUL_STM
+    sections:
+      general_information:
+        - $name
+        - description
+        - e-min
+        - e-max
+        - de
+  geo_optimisation:
+    generatedCodePrefix: GEO_OPT
+    sections:
+      general_information:
+        - $name

@@ -278,9 +278,9 @@ property_types:
     description: Project ID
     dataType: VARCHAR
     managedInternally: false
-  acknowledgment-sentence:
-    label: Acknowledgment Sentence
-    description: Acknowledgment Sentence
+  acknowledgement-sentence:
+    label: Acknowledgement Sentence
+    description: Acknowledgement Sentence
     dataType: VARCHAR
     managedInternally: false
   location-type:
@@ -590,7 +590,7 @@ property_types:
     description: Peak
     dataType: CONTROLLEDVOCABULARY
     managedInternally: false
-    volcabulary: UPS-PEAK-TYPE
+    vocabulary: PEAK-TYPE
   peak-voltage-min:
     label: Peak voltage minimum (eV)
     description: Peak voltage minimum in electron-Volts
@@ -690,4 +690,69 @@ property_types:
     label: Tip
     description: Tip
     dataType: VARCHAR
+    managedInternally: false
+  pid:
+    label: PID
+    description: PID
+    dataType: VARCHAR
+    managedInternally: false
+  rate-angstroem-min:
+    label: Rate (Angstroem/min)
+    description: Rate (Angstroem/min)
+    dataType: REAL
+    managedInternally: false
+  simulation-type:
+    label: Simulation type
+    description: Simulation type
+    dataType: VARCHAR
+    managedInternally: false
+  wfm-connection:
+    label: WFM connection
+    description: WFM connection
+    dataType: HYPERLINK
+    managedInternally: false
+  wfm-uuid:
+    label: WFM UUID
+    description: WFM UUID
+    dataType: VARCHAR
+    managedInternally: false
+  geo-is-optimised:
+    label: Geometry is Optimised
+    description: Geometry is Optimised
+    dataType: BOOLEAN
+    managedInternally: false
+  # pbc:
+  #   label: PBC
+  #   description: Periodic Boundarz Condition
+  #   dataType: ARRAY_INTEGER
+  #   managedInternally: false
+  pbcx:
+    label: PBC-X
+    description: Periodic Boundary Condition in X
+    dataType: BOOLEAN
+    managedInternally: false
+  pbcy:
+    label: PBC-Y
+    description: Periodic Boundary Condition in Y
+    dataType: BOOLEAN
+    managedInternally: false
+  pbcz:
+    label: PBC-Z
+    description: Periodic Boundary Condition in Z
+    dataType: BOOLEAN
+    managedInternally: false
+  e-min:
+    label: Emin [eV]
+    description: Energy of the lowest orbital included in the calculation
+    dataType: REAL
+    managedInternally: false
+  e-max:
+    label: Emax [eV]
+    description: Energy of the highest orbital included in the calculation
+    dataType: REAL
+    managedInternally: false
+  de:
+    label: dE [eV]
+    description: Step between Emin and Emax
+    dataType: REAL
     managedInternally: false

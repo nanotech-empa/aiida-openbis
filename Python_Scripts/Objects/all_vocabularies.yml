@@ -116,3 +116,15 @@ vocabularies:
       - code: swept
         label: swept
         description: swept
+  currency:
+    description: Currency
+    terms:
+      - code: CHF
+        label: CHF
+        description: CHF
+      - code: EUR
+        label: EUR
+        description: EUR
+      - code: USD
+        label: USD
+        description: USD
