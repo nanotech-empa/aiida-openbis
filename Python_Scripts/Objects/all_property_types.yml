@@ -756,3 +756,8 @@ property_types:
     description: Step between Emin and Emax
     dataType: REAL
     managedInternally: false
+  multiplicity:
+    label: Multiplicity
+    description: Multiplicity
+    dataType: INTEGER
+    managedInternally: false

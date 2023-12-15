@@ -886,3 +886,4 @@ object_types:
     sections:
       general_information:
         - $name
+        - multiplicity
