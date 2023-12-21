@@ -1,3 +1,5 @@
+import os
+os.sys.path.append("/home/jovyan/work/aiida-openbis/")
 from aiida_openbis.utils import bisutils
 import yaml
 import utils
