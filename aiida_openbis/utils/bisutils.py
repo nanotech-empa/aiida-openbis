@@ -12,7 +12,7 @@ from rdkit.Chem import AllChem  # pylint: disable=(import-error)
 def log_in(
     bisurl='openbis',
     bisuser='admin',
-    bispasswd='changeit'
+    bispasswd='123456789'
 ):
     """Function to login to openBIS."""
     if Openbis(bisurl, verify_certificates=False).is_token_valid():
@@ -60,8 +60,8 @@ def get_molecules(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [(mol.props['name'], mol.permId, mol.props['smiles'])
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULES_EXP_1').get_samples()
+        result = [(mol.props['$name'], mol.permId, mol.props['sum-formula'], mol.props['smiles'])
                   for mol in available_molecules]
     return result
 
@@ -69,8 +69,8 @@ def get_precursors(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/SAMPLES/MOLECULES').get_samples()
-        result = [( mol.permId, mol.props['name'], mol.props['id'], mol.props['smiles'])
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULES_EXP_1').get_samples()
+        result = [( mol.permId, mol.props['$name'], mol.props['sum-formula'], mol.props['smiles'])
                   for mol in available_molecules]
     return result 
 
@@ -117,11 +117,9 @@ def get_opt_geo_ids(session=None):
 
 def new_molecule(session=None, name=None, molid=None, smiles=None, cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
-    obj = session.new_object(collection='/MATERIALS/SAMPLES/MOLECULES', type='MOLECULE')
-    obj.props['name'] = name
+    obj = session.new_object(collection='/MATERIALS/MOLECULES/MOLECULES_EXP_1', type='MOLECULE')
+    obj.props['$name'] = name
     obj.props['smiles'] = smiles
-    if molid:
-        obj.props['id'] = molid
     obj.save()
     tmpl = Chem.MolFromSmiles(smiles)
     AllChem.Compute2DCoords(tmpl)
