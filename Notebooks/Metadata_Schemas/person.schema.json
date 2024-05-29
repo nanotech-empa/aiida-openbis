@@ -1,0 +1,50 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/person.schema.json",
+    "title": "Person",
+    "openBISCode": "PERS",
+    "description": "Person",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the person."
+        },
+        "shortName": {
+            "title": "Short name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The username of the person."
+        },
+        "workStatus": {
+            "title": "Work status",
+            "type": "string",
+            "openBISType": "CONTROLLEDVOCABULARY",
+            "enum": ["active", "inactive"],
+            "description": "Work status."
+        },
+        "email": {
+            "title": "Email",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The email of the person.",
+            "pattern": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+        },
+        "workPhone": {
+            "title": "Work phone",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The work phone of the person."
+        },
+        "mobilePhone": {
+            "title": "Mobile phone",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The mobile phone of the person."
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "shortName", "workStatus", "email", "workPhone"]
+}

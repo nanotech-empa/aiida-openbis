@@ -84,7 +84,7 @@ class OpenbisMolWidget(ipw.VBox):
         
         def observe_collections(change):
             """Observe OpenBIS project change."""
-            self.objects_dropdown.options = [(obj.props['iupac-name'], {'permId': obj.permId, 'smiles': obj.props["smiles"]}) for obj in self.session.get_objects(space=self.space_dropdown.value, project=self.project_dropdown.value, experiment = change['new'])]
+            self.objects_dropdown.options = [(f"{obj.props['$name']}: {obj.props['sumformula']}", {'permId': obj.permId, 'smiles': obj.props["smiles"]}) for obj in self.session.get_objects(space=self.space_dropdown.value, project=self.project_dropdown.value, experiment = change['new'])]
             
         self.collection_dropdown = ipw.Dropdown(
             description="Collection:",

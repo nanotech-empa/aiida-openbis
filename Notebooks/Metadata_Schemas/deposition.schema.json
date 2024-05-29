@@ -1,0 +1,110 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/deposition.schema.json",
+    "title": "Deposition",
+    "openBISCode": "DEPOS",
+    "description": "Deposition",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the deposition."
+        },
+        "stabilitationTime": {
+            "title": "Stabilisation time",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Time to stabilise.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "depositionTime": {
+            "title": "Deposition time",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Time to deposit.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "pressure": {
+            "title": "Pressure",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Pressure of the deposition.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "substrateTemperature": {
+            "title": "Substrate temperature",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Substrate temperature of the deposition.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "moleculeTemperature": {
+            "title": "Molecule temperature",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Molecule temperature of the deposition.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "evaporatorSlot": {
+            "title": "Evaporator slot",
+            "type": "integer",
+            "openBISType": "INTEGER",
+            "minimum": 0,
+            "description": "Evaporator slot number."
+        },
+        "comments": {
+            "title": "Comments",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Comments to the deposition."
+        },
+        "annealing": {
+            "$ref": "./annealing.schema.json"
+        },
+        "molecule": {
+            "$ref": "./molecule.schema.json"
+        },
+        "uhvComponent": {
+            "$ref": "./uhvcomponent.schema.json"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "stabilitationTime", "depositionTime", "molecule"]
+}

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/transfer.schema.json",
+    "title": "Transfer",
+    "openBISCode": "TRANSF",
+    "description": "A transfer in the inventory",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the transfer."
+        },
+        "description": {
+            "title": "Description",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Description of the transfer."
+        },
+        "locationBefore": {
+            "title": "Name",
+            "description": "Location of the sample before the transfer.",
+            "$ref": "./room.schema.json"
+        },
+        "locationAfter": {
+            "description": "Location of the sample after the transfer.",
+            "$ref": "./room.schema.json"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "locationBefore", "locationAfter"]
+}

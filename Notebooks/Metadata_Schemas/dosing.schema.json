@@ -1,0 +1,58 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/dosing.schema.json",
+    "title": "Dosing",
+    "openBISCode": "DOS",
+    "description": "Dosing",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the dosing."
+        },
+        "moleculeName": {
+            "title": "Molecule name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the used gas molecule."
+        },
+        "duration": {
+            "title": "Duration",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Duration of the dosing.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "pressure": {
+            "title": "Pressure",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Pressure of the dosing.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "comments": {
+            "title": "Comments",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Comments to the deposition."
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "moleculeName", "duration"]
+}

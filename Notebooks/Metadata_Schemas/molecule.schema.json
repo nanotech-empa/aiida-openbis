@@ -1,0 +1,188 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/molecule.schema.json",
+    "title": "Molecule",
+    "openBISCode": "MOL",
+    "description": "A molecule in the inventory",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the molecule."
+        },
+        "iupacName": {
+            "title": "IUPAC name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The IUPAC name of the molecule."
+        },
+        "sumFormula": {
+            "title": "Sum formula",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The chemical formula of the molecule."
+        },
+        "smiles": {
+            "title": "SMILES",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The SMILES of the molecule."
+        },
+        "casNumber": {
+            "title": "CAS number",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The CAS number of the molecule."
+        },
+        "empaNumber": {
+            "title": "Empa number",
+            "type": "integer",
+            "openBISType": "INTEGER",
+            "minimum": 0,
+            "description": "The Empa number of the molecule."
+        },
+        "batch": {
+            "title": "Batch",
+            "type": "string",
+            "openBISType": "CONTROLLEDVOCABULARY",
+            "description": "The batch letter where to the molecule belongs.",
+            "pattern": "^[a-z]$"
+        },
+        "vial": {
+            "title": "Vial",
+            "type": "string",
+            "openBISType": "CONTROLLEDVOCABULARY",
+            "description": "The vial letter where to the molecule belongs.",
+            "enum": ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
+        },
+        "hazardous": {
+            "title": "Hazardous",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule is dangerous."
+        },
+        "hazardousSpecification": {
+            "title": "Hazardous specification",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The specification of the type of danger."
+        },
+        "evaporationTemperatures": {
+            "title": "Evaporation temperatures",
+            "type": "array",
+            "openBISType": "JSON",
+            "description": "Evaporation temperatures, used instruments, and the datetime when the evaporations were performed, separated by commas.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "device": {
+                        "type": "string"
+                    },
+                    "temperature": {
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "number"
+                            },
+                            "unit": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "datetime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            }
+        },
+        "fridge": {
+            "title": "Fridge",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule must be stored in a fridge."
+        },
+        "noLight": {
+            "title": "No light",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule must be stored in darkness."
+        },
+        "dry": {
+            "title": "Dry",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule must be stored in a dry environment."
+        },
+        "noOxygen": {
+            "title": "No oxygen",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule must be stored in an anaerobic environment."
+        },
+        "otherStorageCondition": {
+            "title": "Other storage condition",
+            "type": "boolean",
+            "openBISType": "BOOLEAN",
+            "description": "Whether the molecule must be stored following another special storage condition."
+        },
+        "otherStorageConditionSpecification": {
+            "title": "Other storage condition specification",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The specification of the other special storage condition."
+        },
+        "chemistMoleculeName": {
+            "title": "Chemist molecule name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Molecule name given by the chemist that synthesised it."
+        },
+        "amount": {
+            "title": "Amount",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Amount of molecule.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "receiveDate": {
+            "title": "Received date",
+            "type": "string",
+            "openBISType": "DATE",
+            "description": "Date when the molecule was received.",
+            "format": "date"
+        },
+        "comments": {
+            "title": "Comments",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Comments to the molecule."
+        },
+        "chemist": {
+            "$ref": "./chemist.schema.json",
+            "description": "Details about the chemist"
+        },
+        "storage": {
+            "$ref": "./storage.schema.json",
+            "description": "Details about the storage"
+        },
+        "molecules": {
+            "type": "array",
+            "items": {
+                "$ref": "./molecule.schema.json"
+            },
+            "description": "Details about the parent molecules"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "sumFormula", "smiles", "empaNumber", "batch"]
+}

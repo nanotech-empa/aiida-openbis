@@ -1,0 +1,79 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/publication.schema.json",
+    "title": "Publication Custom",
+    "openBISCode": "PUBL",
+    "description": "Publication custom",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the publication."
+        },
+        "abstract": {
+            "title": "Abstract",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "The abstract of the publication."
+        },
+        "doi": {
+            "title": "DOI",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "DOI",
+            "pattern": "^\\b10[.][0-9]{4,}(?:[.][0-9]+)*/(?:(?![\"&\\'<>])\\S)+$"
+        },
+        "year": {
+            "title": "Year",
+            "type": "integer",
+            "openBISType": "INTEGER",
+            "minimum": 1900,
+            "description": "The year of the publication."
+        },
+        "url": {
+            "title": "Open access version URL",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Open access version URL",
+            "pattern": "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+        },
+        "datasetUrl": {
+            "title": "Open access data URL",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Open access data URL",
+            "pattern": "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+        },
+        "comments": {
+            "title": "Comments",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Comments to the publication."
+        },
+        "grants": {
+            "type": "array",
+            "items": {
+                "$ref": "./grant.schema.json"
+            },
+            "description": "Details about the grants"
+        },
+        "drafts": {
+            "type": "array",
+            "items": {
+                "$ref": "./draft.schema.json"
+            },
+            "description": "Details about the grants"
+        },
+        "authors": {
+            "type": "array",
+            "items": {
+                "$ref": "./author.schema.json"
+            },
+            "description": "Details about the authors"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "abstract", "doi", "year", "authors"]
+}

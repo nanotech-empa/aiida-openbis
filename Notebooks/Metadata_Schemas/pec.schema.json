@@ -1,0 +1,58 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/pec.schema.json",
+    "title": "Potential Energy Calculation",
+    "openBISCode": "PEC",
+    "description": "Potential Energy Calculation schema",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the Potential Energy Calculation object."
+        },
+        "wfmsUUID": {
+            "title": "WFMS UUID",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Unique identifier of the simulation object in the WFMS.",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "wfmsURL": {
+            "title": "WFMS URL",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Link to WFMS.",
+            "pattern": "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+        },
+        "energy": {
+            "title": "Energy",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Energy.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "densityFunctionalTheory": {
+            "$ref": "./dft.schema.json",
+            "description": "Details about the DFT"
+        },
+        "tightBinding": {
+            "$ref": "./tightbinding.schema.json",
+            "description": "Details about the tight binding"
+        },
+        "empiricalModeling": {
+            "$ref": "./empiricalmodeling.schema.json",
+            "description": "Details about the empirical modeling"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "atomicSelections"]
+}

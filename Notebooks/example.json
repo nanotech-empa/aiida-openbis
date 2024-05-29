@@ -1,0 +1,93 @@
+{
+    "@context": {
+        "schema": "http://schema.org/",
+        "emmo": "http://emmo.info/emmo#",
+        "ncit": "http://purl.obolibrary.org/obo/ncit.owl#",
+        "occo": "http://purl.obolibrary.org/obo/occo.owl#",
+        "afe": "http://purl.allotrope.org/ontologies/equipment#",
+        "type": "@type",
+        "name": "schema:name",
+        "address": "schema:address",
+        "iupacName": "schema:iupacName",
+        "sumFormula": "schema:molecularFormula",
+        "smiles": "schema:smiles",
+        "casNumber": "emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff",
+        "empaNumber": "schema:identifier",
+        "batch": "ncit:NCIT_C67073",
+        "vial": "afe:AFE_0000329",
+        "hazardous": "ncit:NCIT_C73538",
+        "chemistMoleculeName": "schema:alternateName",
+        "amount": "schema:QuantitativeValue",
+        "hasNumericalPart": "schema:value",
+        "hasMeasurementUnit": "schema:unitCode",
+        "receiveDate": "ncit:NCIT_C164590",
+        "comments": "schema:comment",
+        "chemist": "occo:OCCO_19203100",
+        "storage": "ncit:NCIT_C16143",
+        "molecules": "@set",
+        "institution1": "schema:Organization",
+        "institution2": "schema:Organization",
+        "institution3": "schema:Organization",
+        "room": "schema:Room"
+    },
+
+    "type": "schema:MolecularEntity",
+    "name": "Methane", 
+    "smiles": "C",
+    "sumFormula": "CH4", 
+    "empaNumber": 500, 
+    "batch": "a",
+    "amount": {
+        "hasNumericalPart": 90,
+        "hasMeasurementUnit": "mg"
+    },
+    "storage": {
+        "name": "lab", 
+        "room": {
+            "name": "lab",
+            "institution1": {
+                "name": "empa",
+                "address": "empa"
+                }
+            }
+        },
+    "molecules": [
+            {
+                "type": "schema:MolecularEntity",
+                "name": "Methane",
+                "smiles": "C", 
+                "sumFormula": "CH4", 
+                "empaNumber": 500, 
+                "batch": "a", 
+                "storage": {
+                    "name": "lab", 
+                    "room": {
+                        "name": "lab", 
+                        "institution2": {
+                            "name": "empa", 
+                            "address": "empa"
+                            }
+                        }
+                    }
+            },
+            {
+                "type": "schema:MolecularEntity",
+                "name": "Ethanol",
+                "smiles": "CCO", 
+                "sumFormula": "C2H6O", 
+                "empaNumber": 400, 
+                "batch": "a", 
+                "storage": {
+                    "name": "lab", 
+                    "room": {
+                        "name": "lab", 
+                        "institution3": {
+                            "name": "empa", 
+                            "address": "empa"
+                            }
+                        }
+                    }
+                }
+        ],
+    "comments": "1"             
+}

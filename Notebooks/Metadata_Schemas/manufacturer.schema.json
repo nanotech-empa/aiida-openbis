@@ -1,0 +1,31 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/manufacturer.schema.json",
+    "title": "Manufacturer",
+    "openBISCode": "MANUF",
+    "description": "Manufacturer",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the manufacturer."
+        },
+        "email": {
+            "title": "Email",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The email of the manufacturer.",
+            "pattern": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+        },
+        "workPhone": {
+            "title": "Work phone",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The work phone of the manufacturer."
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "email"]
+}

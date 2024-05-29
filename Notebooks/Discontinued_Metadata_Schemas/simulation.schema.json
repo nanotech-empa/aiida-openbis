@@ -1,0 +1,37 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/simulation.schema.json",
+    "title": "Simulation",
+    "openBISCode": "SIM",
+    "description": "A simulation in the inventory",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the simulation."
+        },
+        "description": {
+            "title": "Description",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Description of the simulation."
+        },
+        "wfmsUUID": {
+            "title": "WFMS UUID",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Unique identifier of the simulation object in the WFMS.",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "wfmsURL": {
+            "title": "WFMS URL",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "Link to WFMS.",
+            "pattern": "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+        }
+    },
+    "required": ["name", "wfmsUUID"]
+}

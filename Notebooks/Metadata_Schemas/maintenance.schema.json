@@ -1,0 +1,30 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/maintenance.schema.json",
+    "title": "Maintenance",
+    "openBISCode": "MAINT",
+    "description": "Maintenance",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the maintenance."
+        },
+        "description": {
+            "title": "Description",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Description of the maintenance."
+        },
+        "uhvComponent": {
+            "$ref": "./uhvcomponent.schema.json"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "description"]
+}

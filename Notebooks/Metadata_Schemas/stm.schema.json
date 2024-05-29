@@ -1,0 +1,739 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/stm.schema.json",
+    "title": "STM",
+    "openBISCode": "STM",
+    "description": "An STM",
+    "type": "object",
+    "properties": {
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "openBISType": "VARCHAR",
+            "description": "The name of the STM."
+        },
+        "recordingTime": {
+            "title": "Recording time",
+            "type": "string",
+            "openBISType": "TIMESTAMP",
+            "description": "The date of the STM.",
+            "format": "date-time"
+        },
+        "duration": {
+            "title": "Duration",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "The duration of the STM.",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "biasSettings": {
+            "title": "Bias settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Bias voltage settings.",
+            "properties": {
+                "setpoint": {
+                    "type": "object",
+                    "description": "Setpoint",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "calibrationFactor": {
+                    "type": "object",
+                    "description": "Calibration factor",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "calibrationOffset": {
+                    "type": "object",
+                    "description": "Calibration offset",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "currentSettings": {
+            "title": "Current settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Current settings.",
+            "properties": {
+                "setpoint": {
+                    "type": "object",
+                    "description": "Setpoint",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "calibrationFactor": {
+                    "type": "object",
+                    "description": "Calibration factor",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "calibrationOffset": {
+                    "type": "object",
+                    "description": "Calibration offset",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "gain": {
+                    "type": "number",
+                    "description": "Gain"
+                }
+            }
+        },
+        "Z": {
+            "title": "Z",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Tip position in Z axis",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "feedbackSettings": {
+            "title": "Feedback settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Feedback settings.",
+            "properties": {
+                "feedbackActive": {
+                    "type": "string",
+                    "description": "Whether feedback is active",
+                    "enum": ["active", "inactive"]
+                },
+                "feedbackType": {
+                    "type": "string",
+                    "description": "Feedback type",
+                    "enum": ["Log current", "Abs current"]
+                }
+            }
+        },
+        "ZControllerSettings": {
+            "title": "Z-controller settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Z-Controller settings.",
+            "properties": {
+                "setpoint": {
+                    "type": "object",
+                    "description": "Setpoint",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "pGain": {
+                    "type": "number",
+                    "description": "Proportional gain"
+                },
+                "iGain": {
+                    "type": "number",
+                    "description": "Integral gain"
+                },
+                "timeConstant": {
+                    "type": "object",
+                    "description": "Time constant",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "tipLift": {
+                    "type": "object",
+                    "description": "Position of the tip when feedback loop is off",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "switchOffDelay": {
+                    "type": "object",
+                    "description": "Time delay applied when switching off feedback loop",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "piezoConfigurationSettings": {
+            "title": "Piezo configuration settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Piezo configuration settings.",
+            "properties": {
+                "activeCalib": {
+                    "type": "string",
+                    "description": "Setpoint",
+                    "enum": ["LHe"]
+                },
+                "sensitivity": {
+                    "type": "object",
+                    "description": "Sensitivity",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "z": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "HVGain": {
+                    "type": "object",
+                    "description": "HV Gain",
+                    "properties": {
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        },
+                        "z": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "scanSlope": {
+                    "type": "object",
+                    "description": "Scan slope",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "curvatureRadius": {
+                    "type": "object",
+                    "description": "Curvature radius",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "secondOrderCorrection": {
+                    "type": "object",
+                    "description": "2nd order correction",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "drift": {
+                    "type": "object",
+                    "description": "Drift",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "z": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "driftCorrectionStatus": {
+                    "type": "boolean",
+                    "description": "Whether the drift correction is performed."
+                }
+            }
+        },
+        "scanSettings": {
+            "title": "Scan settings",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Scan settings",
+            "properties": {
+                "field": {
+                    "type": "array",
+                    "items": {
+                        "type": "number"
+                    },
+                    "description": "The scanfield of the image."
+                },
+                "angle": {
+                    "type": "object",
+                    "description": "Angle",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "offset": {
+                    "type": "object",
+                    "description": "Offset",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "time": {
+                    "type": "object",
+                    "description": "Time",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "range": {
+                    "type": "object",
+                    "description": "Range",
+                    "properties": {
+                        "x": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "y": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "pixels": {
+                    "type": "object",
+                    "description": "Pixels",
+                    "properties": {
+                        "x": {
+                            "type": "number"
+                        },
+                        "y": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "speed": {
+                    "type": "object",
+                    "description": "Speed",
+                    "properties": {
+                        "forward": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "backwards": {
+                            "type": "object",
+                            "properties": {
+                                "value": {
+                                    "type": "number"
+                                },
+                                "unit": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "direction": {
+                    "type": "string",
+                    "description": "Direction.",
+                    "enum": ["down", "both"]
+                }
+            }
+        },
+        "dwellTime": {
+            "title": "Dwell time",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Acquisition time for each point value in data",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "sampleTemperature": {
+            "title": "Sample temperature",
+            "type": "object",
+            "description": "Sample temperature",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "recordingTemperature": {
+            "title": "Room temperature",
+            "type": "object",
+            "description": "Room temperature",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "eMin": {
+            "title": "E-min",
+            "type": "object",
+            "description": "Energy of the lowest orbital included in the calculation",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "eMax": {
+            "title": "E-max",
+            "type": "object",
+            "description": "Energy of the highest orbital included in the calculation",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "dE": {
+            "title": "dE",
+            "type": "object",
+            "description": "Step between the eMin and eMax",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "FWHM": {
+            "title": "FWHM",
+            "type": "object",
+            "description": "Full width at half maximum",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "extrapPlane": {
+            "title": "Extrapolation Plane",
+            "type": "object",
+            "description": "Position of the extrapolation place",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "constantHeight": {
+            "title": "Constant height",
+            "type": "object",
+            "description": "Distance from the surface at which the constant Z image is simulated",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "constantCurrent": {
+            "title": "Constant current",
+            "type": "object",
+            "description": "Isovalue of charged density at which the constant current image is produced",
+            "openBISType": "JSON",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "comments": {
+            "title": "Comments",
+            "type": "string",
+            "openBISType": "MULTILINE_VARCHAR",
+            "description": "Comments to the STM."
+        },
+        "annealing": {
+            "$ref": "./annealing.schema.json",
+            "description": "Details about the annealing before the STM"
+        },
+        "deposition": {
+            "$ref": "./deposition.schema.json",
+            "description": "Details about the deposition before the STM"
+        },
+        "dft": {
+            "$ref": "./dft.schema.json",
+            "description": "Details about the DFT parameters"
+        },
+        "tb": {
+            "$ref": "./tb.schema.json",
+            "description": "Details about the TB parameters"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["name", "recordingTime", "duration", "biasSettings", "currentSettings", "Z"]
+}
