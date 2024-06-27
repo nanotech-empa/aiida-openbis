@@ -71,6 +71,10 @@
     "description": "Scanning Tunnelling Spectroscopy",
     "type": "object",
     "properties": {
+        "type": {
+            "type": "string",
+            "const": "faitmat-sts:nxsts"
+        },
         "name": {
             "title": "Name",
             "type": "string",
