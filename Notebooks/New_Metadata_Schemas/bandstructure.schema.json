@@ -74,12 +74,6 @@
                 }
             }
         },
-        "fermi_energy": {
-            "title": "Fermi energy",
-            "type": "number",
-            "openBISType": "REAL",
-            "description": "Fermi energy."
-        },
         "comments": {
             "title": "Comments",
             "type": "string",

@@ -152,6 +152,9 @@
         },
         "deposition": {
             "$ref": "./deposition.schema.json"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json"
         }
     },
     "additionalProperties": false,

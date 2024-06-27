@@ -738,6 +738,9 @@
         "tb": {
             "$ref": "./tb.schema.json",
             "description": "Details about the TB parameters"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json"
         }
     },
     "additionalProperties": false,

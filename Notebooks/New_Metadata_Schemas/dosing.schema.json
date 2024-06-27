@@ -46,11 +46,29 @@
                 }
             }
         },
+        "temperature": {
+            "title": "Temperature",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Temperature",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
         "comments": {
             "title": "Comments",
             "type": "string",
             "openBISType": "MULTILINE_VARCHAR",
             "description": "Comments"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,

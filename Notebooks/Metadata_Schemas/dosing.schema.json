@@ -10,7 +10,7 @@
             "title": "Name",
             "type": "string",
             "openBISType": "VARCHAR",
-            "description": "The name of the dosing."
+            "description": "Name"
         },
         "moleculeName": {
             "title": "Molecule name",
@@ -22,7 +22,7 @@
             "title": "Duration",
             "type": "object",
             "openBISType": "JSON",
-            "description": "Duration of the dosing.",
+            "description": "Duration",
             "properties": {
                 "value": {
                     "type": "number"
@@ -36,7 +36,21 @@
             "title": "Pressure",
             "type": "object",
             "openBISType": "JSON",
-            "description": "Pressure of the dosing.",
+            "description": "Pressure",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "temperature": {
+            "title": "Temperature",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Temperature",
             "properties": {
                 "value": {
                     "type": "number"
@@ -50,7 +64,11 @@
             "title": "Comments",
             "type": "string",
             "openBISType": "MULTILINE_VARCHAR",
-            "description": "Comments to the deposition."
+            "description": "Comments"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,

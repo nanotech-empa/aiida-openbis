@@ -29,10 +29,10 @@
         "atomic_selections": {
             "title": "Atomic selections",
             "type": "array",
-            "openBISType": "ARRAY_STRING",
+            "openBISType": "ARRAY_REAL",
             "description": "List of group of atoms on which projections of the orbitals are computed",
             "items": {
-                "type": "string"
+                "type": "number"
             }
         },
         "energies": {

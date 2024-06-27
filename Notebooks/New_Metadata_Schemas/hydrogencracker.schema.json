@@ -26,6 +26,9 @@
         },
         "uhv_component": {
             "$ref": "./uhvcomponent.schema.json"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json"
         }
     },
     "additionalProperties": false,

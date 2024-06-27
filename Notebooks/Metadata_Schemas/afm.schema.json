@@ -921,7 +921,7 @@
             "title": "Comments",
             "type": "string",
             "openBISType": "MULTILINE_VARCHAR",
-            "description": "Comments to the AFM."
+            "description": "Comments"
         },
         "scandx": {
             "title": "Scan dx",
@@ -1015,6 +1015,10 @@
         "tb": {
             "$ref": "./tb.schema.json",
             "description": "Details about the TB parameters"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,

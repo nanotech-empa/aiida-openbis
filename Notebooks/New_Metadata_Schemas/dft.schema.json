@@ -9,12 +9,7 @@
         "wfms_url": "schema:url",
         "value": "schema:value",
         "unit": "schema:unitCode",
-        "net_charge": ,
-        "smearing": ,
-        "fermi_dirac_temperature": ,
-        "force_multiplicity": ,
-        "output_hirshfeld_population_analysis": ,
-        "output_mulliken_population_analysis": ,
+        "net_charge": "http://edamontology.org/data_0845",
         "comments": "schema:comment"
     },
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -47,6 +42,12 @@
             "openBISType": "VARCHAR",
             "description": "Link to WFMS",
             "pattern": "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+        },
+        "fermi_energy": {
+            "title": "Fermi energy",
+            "type": "number",
+            "openBISType": "REAL",
+            "description": "Fermi energy."
         },
         "scf_convergence_threshold": {
             "title": "SCF convergence threshold",

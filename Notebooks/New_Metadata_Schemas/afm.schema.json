@@ -1,11 +1,38 @@
 {
+    "@context": {
+        "schema": "http://schema.org/",
+        "emmo": "https://w3id.org/emmo#",
+        "emmo-da": "http://emmo.info/domain-atomistic#",
+        "emmo-chameo": "https://w3id.org/emmo-chameo/chameo#",
+        "chmo": "http://purl.obolibrary.org/obo/chmo.owl#",
+        "fairmat-sts": "https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#",
+        "type": "@type",
+        "name": "schema:name",
+        "recording_time": "ncit:NCIT_C78441",
+        "duration": "ncit:NCIT_C25330",
+        "bias_setpoint": "fairmat-sts:nxsts-entry-reproducibility-indicators-bias-field",
+        "bias_calibration_factor": "fairmat-sts:nxsts-entry-reproducibility-indicators-bias-calibration-field",
+        "bias_calibration_offset": "fairmat-sts:nxsts-entry-reproducibility-indicators-bias-offset-field",
+        "current_setpoint": "fairmat-sts:nxsts-entry-reproducibility-indicators-current-field",
+        "current_calibration_factor": "fairmat-sts:nxsts-entry-reproducibility-indicators-current-calibration-field",
+        "current_calibration_offset": "fairmat-sts:nxsts-entry-reproducibility-indicators-current-offset-field",
+        "current_gain": "fairmat-sts:nxsts-entry-reproducibility-indicators-current-gain-field",
+        "wfms_uuid": "ncit:NCIT_C54100",
+        "value": "schema:value",
+        "unit": "schema:unitCode",
+        "comments": "schema:comment"
+    },
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://example.com/afm.schema.json",
     "title": "AFM",
     "openBISCode": "AFM",
-    "description": "An AFM",
+    "description": "Atomic Force Microscopy",
     "type": "object",
     "properties": {
+        "type": {
+            "type": "string",
+            "const": "chmo:CHMO_0000113"
+        },
         "name": {
             "title": "Name",
             "type": "string",
@@ -33,95 +60,101 @@
                 }
             }
         },
-        "bias_settings": {
-            "title": "Bias settings",
+        "bias_setpoint": {
+            "title": "Bias setpoint",
             "type": "object",
             "openBISType": "JSON",
-            "description": "Bias voltage settings",
+            "description": "Bias voltage setpoint",
             "properties": {
-                "setpoint": {
-                    "type": "object",
-                    "description": "Setpoint",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
+                "value": {
+                    "type": "number"
                 },
-                "calibration_factor": {
-                    "type": "object",
-                    "description": "Calibration factor",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "calibration_offset": {
-                    "type": "object",
-                    "description": "Calibration offset",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
+                "unit": {
+                    "type": "string"
                 }
             }
         },
-        "current_settings": {
-            "title": "Current settings",
+        "bias_calibration_factor": {
+            "title": "Bias calibration factor",
             "type": "object",
             "openBISType": "JSON",
-            "description": "Current settings",
+            "description": "Bias voltage calibration factor",
             "properties": {
-                "setpoint": {
-                    "type": "object",
-                    "description": "Setpoint",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
+                "value": {
+                    "type": "number"
                 },
-                "calibration_factor": {
-                    "type": "object",
-                    "description": "Calibration factor",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "bias_calibration_offset": {
+            "title": "Bias calibration offset",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Bias voltage calibration offset",
+            "properties": {
+                "value": {
+                    "type": "number"
                 },
-                "calibration_offset": {
-                    "type": "object",
-                    "description": "Calibration offset",
-                    "properties": {
-                        "value": {
-                            "type": "number"
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
-                    }
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "current_setpoint": {
+            "title": "Current setpoint",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Current setpoint",
+            "properties": {
+                "value": {
+                    "type": "number"
                 },
-                "gain": {
-                    "type": "number",
-                    "description": "Gain"
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "current_calibration_factor": {
+            "title": "Current calibration factor",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Current calibration factor",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "current_calibration_offset": {
+            "title": "Current calibration offset",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Current calibration offset",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
+                }
+            }
+        },
+        "current_gain": {
+            "title": "Current gain",
+            "type": "object",
+            "openBISType": "JSON",
+            "description": "Current gain",
+            "properties": {
+                "value": {
+                    "type": "number"
+                },
+                "unit": {
+                    "type": "string"
                 }
             }
         },
@@ -1021,6 +1054,10 @@
         "tb": {
             "$ref": "./tb.schema.json",
             "description": "Details about the TB parameters"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,

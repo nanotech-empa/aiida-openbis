@@ -103,6 +103,10 @@
         },
         "uhvComponent": {
             "$ref": "./uhvcomponent.schema.json"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,

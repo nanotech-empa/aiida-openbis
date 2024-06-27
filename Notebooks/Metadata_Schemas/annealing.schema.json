@@ -100,7 +100,7 @@
             "title": "Current",
             "type": "object",
             "openBISType": "JSON",
-            "description": "Current of the annealing.",
+            "description": "Current",
             "properties": {
                 "value": {
                     "type": "number"
@@ -114,7 +114,7 @@
             "title": "Current",
             "type": "string",
             "openBISType": "MULTILINE_VARCHAR",
-            "description": "Comments to the annealing."
+            "description": "Comments"
         },
         "sputtering": {
             "$ref": "./sputtering.schema.json"
@@ -124,6 +124,10 @@
         },
         "uhvComponent": {
             "$ref": "./uhvcomponent.schema.json"
+        },
+        "instrument": {
+            "$ref": "./instrument.schema.json",
+            "description": "Details about the instrument parameters"
         }
     },
     "additionalProperties": false,
