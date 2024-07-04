@@ -30,7 +30,7 @@
             "description": "Pressure",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

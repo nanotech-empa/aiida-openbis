@@ -27,7 +27,7 @@
                             "description": "Pressure",
                             "properties": {
                                 "value": {
-                                    "type": "number"
+                                    "type": "string"
                                 },
                                 "unit": {
                                     "type": "string"
@@ -49,7 +49,7 @@
                             "description": "Pressure",
                             "properties": {
                                 "value": {
-                                    "type": "number"
+                                    "type": "string"
                                 },
                                 "unit": {
                                     "type": "string"
@@ -71,7 +71,7 @@
                             "description": "Pressure",
                             "properties": {
                                 "value": {
-                                    "type": "number"
+                                    "type": "string"
                                 },
                                 "unit": {
                                     "type": "string"
@@ -97,7 +97,7 @@
                     "description": "Temperature",
                     "properties": {
                         "value": {
-                            "type": "number"
+                            "type": "string"
                         },
                         "unit": {
                             "type": "string"
@@ -109,7 +109,7 @@
                     "description": "Liquid Helium",
                     "properties": {
                         "value": {
-                            "type": "number"
+                            "type": "string"
                         },
                         "unit": {
                             "type": "string"

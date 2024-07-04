@@ -19,7 +19,7 @@
             "description": "Weight of the container (before)",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -33,7 +33,7 @@
             "description": "Weight of the container (after)",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

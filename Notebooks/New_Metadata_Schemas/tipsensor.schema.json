@@ -38,7 +38,7 @@
             "description": "Thickness",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -52,7 +52,7 @@
             "description": "Length",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -66,7 +66,7 @@
             "description": "Resonance frequency",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

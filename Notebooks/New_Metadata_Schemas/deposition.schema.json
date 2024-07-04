@@ -36,7 +36,7 @@
             "description": "Time to stabilise",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -50,7 +50,7 @@
             "description": "Time to deposit",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -64,7 +64,7 @@
             "description": "Pressure",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -78,7 +78,7 @@
             "description": "Substrate temperature",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -92,7 +92,7 @@
             "description": "Molecule temperature",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

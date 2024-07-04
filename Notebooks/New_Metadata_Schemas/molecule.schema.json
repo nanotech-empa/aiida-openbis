@@ -116,7 +116,7 @@
                         "type": "object",
                         "properties": {
                             "value": {
-                                "type": "number"
+                                "type": "string"
                             },
                             "unit": {
                                 "type": "string"
@@ -179,7 +179,7 @@
             "description": "Amount",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

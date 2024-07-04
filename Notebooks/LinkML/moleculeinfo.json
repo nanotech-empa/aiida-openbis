@@ -1,0 +1,192 @@
+{
+   "@context": {
+      "afe": "http://purl.allotrope.org/ontologies/equipment#",
+      "emmo": "https://w3id.org/emmo#",
+      "linkml": "https://w3id.org/linkml/",
+      "moleculeinfo": "https://w3id.org/linkml/examples/moleculeinfo/",
+      "ncit": "http://purl.obolibrary.org/obo/ncit.owl#",
+      "occo": "http://purl.obolibrary.org/obo/occo.owl#",
+      "schema": "http://schema.org/",
+      "xsd": "http://www.w3.org/2001/XMLSchema#",
+      "@vocab": "https://w3id.org/linkml/examples/moleculeinfo/",
+      "address": {
+         "@id": "schema:address"
+      },
+      "amount": {
+         "@type": "@id",
+         "@id": "schema:QuantitativeValue"
+      },
+      "batch": {
+         "@id": "ncit:NCIT_C67073"
+      },
+      "cas_number": {
+         "@id": "emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff"
+      },
+      "chemist": {
+         "@type": "@id",
+         "@id": "occo:OCCO_19203100"
+      },
+      "chemist_molecule_name": {
+         "@id": "schema:alternateName"
+      },
+      "comments": {
+         "@id": "schema:comment"
+      },
+      "chemists": {
+         "@type": "@id",
+         "@id": "chemists"
+      },
+      "institutions": {
+         "@type": "@id",
+         "@id": "institutions"
+      },
+      "molecules": {
+         "@type": "@id",
+         "@id": "molecules"
+      },
+      "rooms": {
+         "@type": "@id",
+         "@id": "rooms"
+      },
+      "storages": {
+         "@type": "@id",
+         "@id": "storages"
+      },
+      "suppliers": {
+         "@type": "@id",
+         "@id": "suppliers"
+      },
+      "datetime": {
+         "@type": "xsd:dateTime",
+         "@id": "datetime"
+      },
+      "description": {
+         "@id": "schema:description"
+      },
+      "device": {
+         "@id": "device"
+      },
+      "dry": {
+         "@type": "xsd:boolean",
+         "@id": "dry"
+      },
+      "email": {
+         "@id": "schema:email"
+      },
+      "empa_number": {
+         "@type": "xsd:integer",
+         "@id": "empa_number"
+      },
+      "evaporation_temperatures": {
+         "@type": "@id",
+         "@id": "evaporation_temperatures"
+      },
+      "fridge": {
+         "@type": "xsd:boolean",
+         "@id": "fridge"
+      },
+      "hazardous": {
+         "@type": "xsd:boolean",
+         "@id": "ncit:NCIT_C73538"
+      },
+      "hazardous_specification": {
+         "@id": "hazardous_specification"
+      },
+      "institution": {
+         "@type": "@id",
+         "@id": "schema:Organization"
+      },
+      "iupac_name": {
+         "@id": "schema:iupacName"
+      },
+      "name": {
+         "@id": "schema:name"
+      },
+      "no_light": {
+         "@type": "xsd:boolean",
+         "@id": "no_light"
+      },
+      "no_oxygen": {
+         "@type": "xsd:boolean",
+         "@id": "no_oxygen"
+      },
+      "other_storage_condition": {
+         "@type": "xsd:boolean",
+         "@id": "other_storage_condition"
+      },
+      "other_storage_condition_specification": {
+         "@id": "other_storage_condition_specification"
+      },
+      "parent_molecules": {
+         "@type": "@id",
+         "@id": "schema:MolecularEntity"
+      },
+      "receive_date": {
+         "@type": "xsd:date",
+         "@id": "ncit:NCIT_C164590"
+      },
+      "room": {
+         "@type": "@id",
+         "@id": "schema:Room"
+      },
+      "smiles": {
+         "@id": "schema:smiles"
+      },
+      "storage": {
+         "@type": "@id",
+         "@id": "ncit:NCIT_C16143"
+      },
+      "sum_formula": {
+         "@id": "schema:molecularFormula"
+      },
+      "supplier": {
+         "@type": "@id",
+         "@id": "ncit:NCIT_C43530"
+      },
+      "temperature": {
+         "@type": "@id",
+         "@id": "temperature"
+      },
+      "unit": {
+         "@id": "unit"
+      },
+      "value": {
+         "@type": "xsd:double",
+         "@id": "value"
+      },
+      "vial": {
+         "@id": "afe:AFE_0000329"
+      },
+      "work_phone": {
+         "@id": "schema:telephone"
+      },
+      "Chemist": {
+         "@id": "occo:OCCO_19203100"
+      },
+      "Container": {
+         "@id": "Container"
+      },
+      "EvaporationTemperature": {
+         "@id": "EvaporationTemperature"
+      },
+      "Institution": {
+         "@id": "schema:Organization"
+      },
+      "Molecule": {
+         "@id": "schema:MolecularEntity"
+      },
+      "QuantitativeValue": {
+         "@id": "schema:QuantitativeValue"
+      },
+      "Room": {
+         "@id": "schema:Room"
+      },
+      "Storage": {
+         "@id": "ncit:NCIT_C16143"
+      },
+      "Supplier": {
+         "@id": "ncit:NCIT_C43530"
+      }
+   }
+}
+

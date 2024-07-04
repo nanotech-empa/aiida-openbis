@@ -44,7 +44,7 @@
             "description": "Duration",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -58,7 +58,7 @@
             "description": "Pressure",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -72,7 +72,7 @@
             "description": "Voltage",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -86,7 +86,7 @@
             "description": "Temperature",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -100,7 +100,7 @@
             "description": "Current",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

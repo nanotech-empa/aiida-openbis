@@ -39,7 +39,7 @@
             "description": "Amount of money",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "currency": {
                     "type": "string"

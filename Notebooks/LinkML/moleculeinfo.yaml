@@ -1,0 +1,258 @@
+id: https://w3id.org/linkml/examples/moleculeinfo
+name: moleculeinfo
+prefixes:                                 
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  emmo: https://w3id.org/emmo#
+  ncit: http://purl.obolibrary.org/obo/ncit.owl#
+  occo: http://purl.obolibrary.org/obo/occo.owl#
+  afe: http://purl.allotrope.org/ontologies/equipment#
+  moleculeinfo: https://w3id.org/linkml/examples/moleculeinfo/
+  xsd: http://www.w3.org/2001/XMLSchema#
+default_curi_maps:
+  - semweb_context
+imports:
+  - linkml:types
+default_prefix: moleculeinfo
+  
+classes:
+  Room:
+    class_uri: schema:Room
+    slots:
+     - name
+     - comments
+     - institution
+  Institution:
+    class_uri: schema:Organization
+    slots:
+     - name
+     - description
+     - address
+  Storage:
+    class_uri: ncit:NCIT_C16143
+    slots:
+     - name
+     - comments
+     - room
+  Supplier:
+    class_uri: ncit:NCIT_C43530
+    slots:
+     - name
+     - email
+     - work_phone
+     - address
+  Chemist:
+    class_uri: occo:OCCO_19203100 
+    slots:
+     - name
+     - email
+     - work_phone
+     - supplier
+  Molecule:
+    class_uri: schema:MolecularEntity   
+    slots:   ## specified as a list
+     - name
+     - iupac_name
+     - sum_formula
+     - smiles
+     - cas_number
+     - empa_number
+     - batch
+     - vial
+     - hazardous
+     - hazardous_specification
+     - evaporation_temperatures
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - chemist_molecule_name
+     - amount
+     - receive_date
+     - comments
+     - chemist
+     - storage
+     - parent_molecules
+  QuantitativeValue:
+    class_uri: schema:QuantitativeValue
+    slots:
+     - value
+     - unit
+  EvaporationTemperature:
+    slots:
+     - temperature
+     - device
+     - datetime
+  Container:
+    tree_root: true
+    attributes:
+      molecules:
+        multivalued: true
+        inlined_as_list: true
+        range: Molecule
+      chemists:
+        multivalued: true
+        inlined_as_list: true
+        range: Chemist
+      rooms:
+        multivalued: true
+        inlined_as_list: true
+        range: Room
+      institutions:
+        multivalued: true
+        inlined_as_list: true
+        range: Institution
+      storages:
+        multivalued: true
+        inlined_as_list: true
+        range: Storage
+      suppliers:
+        multivalued: true
+        inlined_as_list: true
+        range: Supplier
+
+types:
+  custom_datetime:
+    base: str
+    pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
+    uri: xsd:dateTime
+
+# slots are first-class entities in the metamodel
+# declaring them here allows them to be reused elsewhere
+slots:
+  name:
+    required: true
+    description: name
+    range: string
+    slot_uri: schema:name
+  description:
+    description: description
+    range: string
+    slot_uri: schema:description
+  work_phone:
+      range: string
+      slot_uri: schema:telephone 
+  email:
+    range: string
+    pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    slot_uri: schema:email
+  address: 
+    description: address
+    range: string
+    slot_uri: schema:address
+  iupac_name:
+    description: iupac name
+    range: string
+    slot_uri: schema:iupacName
+  sum_formula:
+    required: true
+    range: string
+    description: sum formula
+    slot_uri: schema:molecularFormula
+  smiles:
+    required: true
+    range: string
+    description: smiles
+    slot_uri: schema:smiles
+  cas_number:
+    description: cas number
+    range: string
+    slot_uri: emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff
+  empa_number:
+    required: true
+    range: integer
+    description: empa number
+    minimum_value: 0
+  batch:
+    required: true
+    range: string
+    description: batch
+    pattern: ^[a-z]$
+    slot_uri: ncit:NCIT_C67073
+  vial:
+    description: vial
+    range: string
+    pattern: ^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$
+    slot_uri: afe:AFE_0000329
+  hazardous:
+    description: hazardous
+    range: boolean
+    slot_uri: ncit:NCIT_C73538
+  hazardous_specification:
+    range: string
+    description: hazardous specification
+  evaporation_temperatures:
+    range: EvaporationTemperature
+    multivalued: true
+    description: evaporation temperatures
+  fridge:
+    description: fridge
+    range: boolean
+  no_light:
+    description: no light
+    range: boolean
+  dry:
+    description: dry
+    range: boolean
+  no_oxygen:
+    description: no oxygen
+    range: boolean
+  other_storage_condition:
+    description: other storage condition
+    range: boolean
+  other_storage_condition_specification:
+    description: other storage condition specification
+    range: string
+  chemist_molecule_name:
+    description: chemist molecule name
+    range: string
+    slot_uri: schema:alternateName
+  amount:
+    description: amount
+    range: QuantitativeValue
+    slot_uri: schema:QuantitativeValue
+  receive_date:
+    description: received date
+    range: date
+    slot_uri: ncit:NCIT_C164590
+  comments:
+    description: comments
+    range: string
+    slot_uri: schema:comment
+  value:
+    description: Value
+    range: double
+  unit:
+    description: Unit
+    range: string
+  device:
+    description: device
+    range: string
+  temperature:
+    description: temperature
+    range: QuantitativeValue
+  datetime:
+    description: datetime
+    range: custom_datetime
+  chemist:
+    range: Chemist
+    slot_uri: occo:OCCO_19203100
+  parent_molecules:
+    range: Molecule
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: schema:MolecularEntity
+  supplier:
+    range: Supplier
+    slot_uri: ncit:NCIT_C43530
+  storage:
+    range: Storage
+    slot_uri: ncit:NCIT_C16143
+  room:
+    range: Room
+    slot_uri: schema:Room
+  institution:
+    range: Institution
+    slot_uri: schema:Organization

@@ -1,0 +1,83 @@
+molecules:
+  - name: Methane
+    empa_number: 500
+    batch: a
+    iupac_name: methane
+    sum_formula: CH4
+    smiles: C
+    evaporation_temperatures:
+      - temperature:
+          value: 500
+          unit: K
+        device: ARPES
+        datetime: '2024-04-30T12:30:30Z'
+      - temperature:
+          value: 510
+          unit: K
+        device: ARPES
+        datetime: '2024-05-02T12:30:30Z'
+    receive_date: '2024-04-29'
+    amount:
+      value: 50
+      unit: mg
+    chemist:
+      name: Empa
+      work_phone: 0798989899
+      email: empa@empa.ch
+    storage:
+      name: Empa
+      room:
+        name: La037
+        institution:
+          name: Empa
+    parent_molecules:
+      - name: Methane2
+        empa_number: 501
+        batch: a
+        iupac_name: methane
+        sum_formula: CH4
+        smiles: C
+        evaporation_temperatures:
+          - temperature:
+              value: 500
+              unit: K
+            device: ARPES
+            datetime: '2024-04-30T12:30:30Z'
+          - temperature:
+              value: 510
+              unit: K
+            device: ARPES
+            datetime: '2024-05-02T12:30:30Z'
+        receive_date: '2024-04-29'
+        amount:
+          value: 50
+          unit: mg
+        chemist:
+          name: Empa
+          work_phone: 0798989899
+          email: empa@empa.ch
+      - name: Methane3
+        empa_number: 502
+        batch: a
+        iupac_name: methane
+        sum_formula: CH4
+        smiles: C
+        evaporation_temperatures:
+          - temperature:
+              value: 500
+              unit: K
+            device: ARPES
+            datetime: '2024-04-30T12:30:30Z'
+          - temperature:
+              value: 510
+              unit: K
+            device: ARPES
+            datetime: '2024-05-02T12:30:30Z'
+        receive_date: "2024-04-29"
+        amount:
+          value: 50
+          unit: mg
+        chemist:
+          name: Empa
+          work_phone: 0798989899
+          email: empa@empa.ch

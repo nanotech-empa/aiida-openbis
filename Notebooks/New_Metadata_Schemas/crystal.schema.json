@@ -64,7 +64,7 @@
             "description": "Diameter",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -78,7 +78,7 @@
             "description": "Height",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"

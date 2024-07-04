@@ -1,0 +1,9 @@
+persons:
+  - name: Empa
+    work_phone: 09009090900
+    email: emap@empa.ch
+    datetime: 2024-04-30T12:30:30Z
+  - name: Empa2
+    work_phone: 09009090902
+    email: emap2@empa.ch
+    datetime: 2024-04-30T12:35:30Z

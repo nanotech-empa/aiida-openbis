@@ -47,7 +47,7 @@
             "description": "Duration",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -61,7 +61,7 @@
             "description": "Pressure",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -75,7 +75,7 @@
             "description": "Discharge voltage",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -89,7 +89,7 @@
             "description": "Voltage",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -103,7 +103,7 @@
             "description": "Temperature",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -117,7 +117,7 @@
             "description": "Angle",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -131,7 +131,7 @@
             "description": "Current",
             "properties": {
                 "value": {
-                    "type": "number"
+                    "type": "string"
                 },
                 "unit": {
                     "type": "string"
@@ -155,6 +155,9 @@
         },
         "instrument": {
             "$ref": "./instrument.schema.json"
+        },
+        "sample": {
+            "$ref": "./sample.schema.json"
         }
     },
     "additionalProperties": false,
