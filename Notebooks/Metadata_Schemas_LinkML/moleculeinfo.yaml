@@ -13,16 +13,124 @@ default_curi_maps:
   - semweb_context
 imports:
   - linkml:types
-  # - chemistinfo
-default_prefix: moleculeinfo
+default_prefix: materialsML
   
 classes:
+  AFM:
+    class_uri: 
+    slots:
+     -name
+  Annealling:
+    class_uri: chmo:CHMO_0001465
+    slots:
+     - name
+     - duration
+     - pressure
+     - voltage
+     - temperature
+     - current
+     - comments
+     - sputtering
+     - deposition
+     - uhv_component
+     - instrument
+  AtomisticModel:
+    class_uri: 
+    slots:
+     -name
+  Author:
+    class_uri: 
+    slots:
+     -name
+  BandStructure:
+    class_uri: 
+    slots:
+     -name
+  CanGasBottle:
+    class_uri: 
+    slots:
+     -name
   Chemist:
     class_uri: occo:OCCO_19203100 
     slots:
-    - name
-    - email
-    - work_phone
+     - name
+     - email
+     - work_phone
+     - supplier
+  Comments:
+    class_uri: 
+    slots:
+     -name
+  Crystal:
+    class_uri: 
+    slots:
+     -name
+  Deposition:
+    class_uri: 
+    slots:
+     -name
+  DFT:
+    class_uri: 
+    slots:
+     -name
+  Dosing:
+    class_uri: 
+    slots:
+     -name
+  Draft:
+    class_uri: 
+    slots:
+     -name
+  EmpiricalModelling:
+    class_uri: 
+    slots:
+     -name
+  Errors:
+    class_uri: 
+    slots:
+     -name
+  FillCryostat:
+    class_uri: 
+    slots:
+     -name
+  GeometryOptimisation:
+    class_uri: 
+    slots:
+     -name
+  Grant:
+    class_uri: 
+    slots:
+     -name
+  HydrogenCracker:
+    class_uri: 
+    slots:
+     -name
+  Institution:
+    class_uri: schema:Organization
+    slots:
+     - name
+     - description
+     - address
+  Instrument:
+    class_uri: 
+    slots:
+     -name
+  Layered2DMaterial:
+    class_uri: 
+    slots:
+     -name
+  Maintenance:
+    class_uri: 
+    slots:
+     -name
+  Manufacturer:
+    class_uri: 
+    slots:
+     -name
+  MEP:
+    class_uri: 
+    slots:
+     -name
   Molecule:
     class_uri: schema:MolecularEntity   
     slots:   ## specified as a list
@@ -48,8 +156,107 @@ classes:
      - receive_date
      - comments
      - chemist
-    #  - storage
+     - storage
      - parent_molecules
+  Notes:
+    class_uri: 
+    slots:
+     -name
+  PDOS:
+    class_uri: 
+    slots:
+     -name
+  PEC:
+    class_uri: 
+    slots:
+     -name
+  Person:
+    class_uri: 
+    slots:
+     -name
+  Protocol:
+    class_uri: 
+    slots:
+     -name
+  Publication:
+    class_uri: 
+    slots:
+     -name
+  Result:
+    class_uri: 
+    slots:
+     -name
+  Room:
+    class_uri: schema:Room
+    slots:
+     - name
+     - comments
+     - institution
+  Sample:
+    class_uri: 
+    slots:
+     -name
+  Software:
+    class_uri: 
+    slots:
+     -name
+  Sputtering:
+    class_uri: 
+    slots:
+     -name
+  SRD:
+    class_uri: 
+    slots:
+     -name
+  STM:
+    class_uri: 
+    slots:
+     -name
+  Storage:
+    class_uri:
+    slots:
+     - name
+     - comments
+     - room
+  STS:
+    class_uri: 
+    slots:
+     -name
+  Supplier:
+    class_uri:
+    slots:
+     - name
+     - email
+     - work_phone
+     - address
+  SystemHandover:
+    class_uri:
+    slots:
+     - name
+  TightBinding:
+    class_uri:
+    slots:
+     - name
+  TipPreparation:
+    class_uri:
+    slots:
+     - name
+  TipSensor:
+    class_uri:
+    slots:
+     - name
+  Transfer:
+    class_uri:
+    slots:
+     - name
+  UHVComponent:
+    class_uri:
+    slots:
+     - name
+  WaferSubstrate:
+    class_uri:
+    slots:
+     - name
   QuantitativeValue:
     class_uri: schema:QuantitativeValue
     slots:
@@ -67,13 +274,32 @@ classes:
         multivalued: true
         inlined_as_list: true
         range: Molecule
+      chemists:
+        multivalued: true
+        inlined_as_list: true
+        range: Chemist
+      rooms:
+        multivalued: true
+        inlined_as_list: true
+        range: Room
+      institutions:
+        multivalued: true
+        inlined_as_list: true
+        range: Institution
+      storages:
+        multivalued: true
+        inlined_as_list: true
+        range: Storage
+      suppliers:
+        multivalued: true
+        inlined_as_list: true
+        range: Supplier
 
 types:
   custom_datetime:
     base: str
     pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
     uri: xsd:dateTime
-
 
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
@@ -83,6 +309,10 @@ slots:
     description: name
     range: string
     slot_uri: schema:name
+  description:
+    description: description
+    range: string
+    slot_uri: schema:description
   work_phone:
       range: string
       slot_uri: schema:telephone 
@@ -90,6 +320,10 @@ slots:
     range: string
     pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     slot_uri: schema:email
+  address: 
+    description: address
+    range: string
+    slot_uri: schema:address
   iupac_name:
     description: iupac name
     range: string
@@ -181,9 +415,26 @@ slots:
   temperature:
     description: temperature
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25206
   datetime:
     description: datetime
     range: custom_datetime
+  duration:
+    description: duration
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25330
+  pressure:
+    description: pressure
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+  voltage:
+    description: voltage
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
+  current:
+    description: current
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
   chemist:
     range: Chemist
     slot_uri: occo:OCCO_19203100
@@ -192,5 +443,23 @@ slots:
     multivalued: true
     inlined_as_list: true
     slot_uri: schema:MolecularEntity
-  # storage:
-  #   range: Storage
+  supplier:
+    range: Supplier
+    slot_uri: ncit:NCIT_C43530
+  storage:
+    range: Storage
+    slot_uri: ncit:NCIT_C16143
+  room:
+    range: Room
+    slot_uri: schema:Room
+  institution:
+    range: Institution
+    slot_uri: schema:Organization
+  sputtering:
+    range: Sputtering
+  deposition:
+    range: Deposition
+  uhv_component:
+    range: UHVComponent
+  instrument:
+    range: Instrument

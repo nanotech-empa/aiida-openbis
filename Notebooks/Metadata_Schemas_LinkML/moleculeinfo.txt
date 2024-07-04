@@ -1,0 +1,96 @@
+@prefix moleculeinfo: <https://w3id.org/linkml/examples/moleculeinfo/> .
+@prefix ncit: <http://purl.obolibrary.org/obo/ncit.owl#> .
+@prefix occo: <http://purl.obolibrary.org/obo/occo.owl#> .
+@prefix schema1: <http://schema.org/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+[] a moleculeinfo:Container ;
+    moleculeinfo:molecules [ a schema1:MolecularEntity ;
+            ncit:NCIT_C16143 [ a ncit:NCIT_C16143 ;
+                    schema1:Room [ a schema1:Room ;
+                            schema1:Organization [ a schema1:Organization ;
+                                    schema1:name "Empa" ] ;
+                            schema1:name "La037" ] ;
+                    schema1:name "Empa" ] ;
+            ncit:NCIT_C164590 "2024-04-29"^^xsd:date ;
+            ncit:NCIT_C67073 "a" ;
+            occo:OCCO_19203100 [ a occo:OCCO_19203100 ;
+                    schema1:email "empa@empa.ch" ;
+                    schema1:name "Empa" ;
+                    schema1:telephone "0798989899" ] ;
+            schema1:MolecularEntity [ a schema1:MolecularEntity ;
+                    ncit:NCIT_C164590 "2024-04-29"^^xsd:date ;
+                    ncit:NCIT_C67073 "a" ;
+                    occo:OCCO_19203100 [ a occo:OCCO_19203100 ;
+                            schema1:email "empa@empa.ch" ;
+                            schema1:name "Empa" ;
+                            schema1:telephone "0798989899" ] ;
+                    schema1:QuantitativeValue [ a schema1:QuantitativeValue ;
+                            moleculeinfo:unit "mg" ;
+                            moleculeinfo:value 5e+01 ] ;
+                    schema1:iupacName "methane" ;
+                    schema1:molecularFormula "CH4" ;
+                    schema1:name "Methane2" ;
+                    schema1:smiles "C" ;
+                    moleculeinfo:empa_number 501 ;
+                    moleculeinfo:evaporation_temperatures [ a moleculeinfo:EvaporationTemperature ;
+                            moleculeinfo:datetime "2024-04-30T12:30:30+00:00"^^xsd:dateTime ;
+                            moleculeinfo:device "ARPES" ;
+                            moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                                    moleculeinfo:unit "K" ;
+                                    moleculeinfo:value 5e+02 ] ],
+                        [ a moleculeinfo:EvaporationTemperature ;
+                            moleculeinfo:datetime "2024-05-02T12:30:30+00:00"^^xsd:dateTime ;
+                            moleculeinfo:device "ARPES" ;
+                            moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                                    moleculeinfo:unit "K" ;
+                                    moleculeinfo:value 5.1e+02 ] ] ],
+                [ a schema1:MolecularEntity ;
+                    ncit:NCIT_C164590 "2024-04-29"^^xsd:date ;
+                    ncit:NCIT_C67073 "a" ;
+                    occo:OCCO_19203100 [ a occo:OCCO_19203100 ;
+                            schema1:email "empa@empa.ch" ;
+                            schema1:name "Empa" ;
+                            schema1:telephone "0798989899" ] ;
+                    schema1:QuantitativeValue [ a schema1:QuantitativeValue ;
+                            moleculeinfo:unit "mg" ;
+                            moleculeinfo:value 5e+01 ] ;
+                    schema1:iupacName "methane" ;
+                    schema1:molecularFormula "CH4" ;
+                    schema1:name "Methane3" ;
+                    schema1:smiles "C" ;
+                    moleculeinfo:empa_number 502 ;
+                    moleculeinfo:evaporation_temperatures [ a moleculeinfo:EvaporationTemperature ;
+                            moleculeinfo:datetime "2024-05-02T12:30:30+00:00"^^xsd:dateTime ;
+                            moleculeinfo:device "ARPES" ;
+                            moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                                    moleculeinfo:unit "K" ;
+                                    moleculeinfo:value 5.1e+02 ] ],
+                        [ a moleculeinfo:EvaporationTemperature ;
+                            moleculeinfo:datetime "2024-04-30T12:30:30+00:00"^^xsd:dateTime ;
+                            moleculeinfo:device "ARPES" ;
+                            moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                                    moleculeinfo:unit "K" ;
+                                    moleculeinfo:value 5e+02 ] ] ] ;
+            schema1:QuantitativeValue [ a schema1:QuantitativeValue ;
+                    moleculeinfo:unit "mg" ;
+                    moleculeinfo:value 5e+01 ] ;
+            schema1:iupacName "methane" ;
+            schema1:molecularFormula "CH4" ;
+            schema1:name "Methane" ;
+            schema1:smiles "C" ;
+            moleculeinfo:empa_number 500 ;
+            moleculeinfo:evaporation_temperatures [ a moleculeinfo:EvaporationTemperature ;
+                    moleculeinfo:datetime "2024-05-02T12:30:30+00:00"^^xsd:dateTime ;
+                    moleculeinfo:device "ARPES" ;
+                    moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                            moleculeinfo:unit "K" ;
+                            moleculeinfo:value 5.1e+02 ] ],
+                [ a moleculeinfo:EvaporationTemperature ;
+                    moleculeinfo:datetime "2024-04-30T12:30:30+00:00"^^xsd:dateTime ;
+                    moleculeinfo:device "ARPES" ;
+                    moleculeinfo:temperature [ a schema1:QuantitativeValue ;
+                            moleculeinfo:unit "K" ;
+                            moleculeinfo:value 5e+02 ] ] ] .
+
+
