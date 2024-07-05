@@ -1,0 +1,1124 @@
+id: https://w3id.org/linkml/examples/materialsML
+name: materialsML
+prefixes:                                 
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  emmo: https://w3id.org/emmo#
+  fairmatsts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
+  ncit: http://purl.obolibrary.org/obo/ncit.owl#
+  occo: http://purl.obolibrary.org/obo/occo.owl#
+  chmo: http://purl.obolibrary.org/obo/chmo.owl#
+  afe: http://purl.allotrope.org/ontologies/equipment#
+  materialsML: https://w3id.org/linkml/examples/materialsML/
+  xsd: http://www.w3.org/2001/XMLSchema#
+default_curi_maps:
+  - semweb_context
+imports:
+  - linkml:types
+default_prefix: materialsML
+  
+classes:
+  AFM:
+    class_uri: chmo:CHMO_0000113
+    slots:
+     - name
+     - start_time
+     - duration
+     - bias_setpoint
+     - bias_calibration_factor
+     - current_setpoint
+     - current_calibration_factor
+     - current_calibration_offset
+     - current_gain
+     - z
+     - feedback_settings
+     - z_controller_settings
+     - piezo_configuration_settings
+     - scan_settings
+     - dwell_time
+     - sample_temperature
+     - recording_temperature
+     - oscillation_control_settings
+     - comments
+     - scan_dx
+     - scan_z_min
+     - scan_z_max
+     - amplitude
+     - resonance_frequency
+     - p_model
+     - wfms_uuid
+     - annealing
+     - deposition
+     - dft
+     - tb
+     - instrument
+  Annealing:
+    class_uri: chmo:CHMO_0001465
+    slots:
+     - name
+     - duration
+     - pressure
+     - voltage
+     - temperature
+     - current
+     - comments
+     - sputtering
+     - deposition
+     - uhv_component
+     - instrument
+  AtomisticModel:
+    class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
+    slots:
+     - name
+     - atoms_positions
+     - comments
+     - cell_vectors
+     - periodic_boundary_conditions
+     - optimised
+     - wfms_uuid
+     - crystal
+     - molecule
+  Author:
+    class_uri: ncit:NCIT_C42781
+    slots:
+     - name
+     - person
+     - institution
+  BandStructure:
+    class_uri: 
+    slots:
+     - name
+     - k_points_conditions
+     - bs_energies
+     - wfms_uuid
+     - wfms_url
+     - comments
+     - atomistic_models
+     - dft
+     - tb
+  CanGasBottle:
+    class_uri: 
+    slots:
+     - name
+     - description
+     - pressure
+     - state
+     - comments
+  Chemist:
+    class_uri: occo:OCCO_19203100 
+    slots:
+     - name
+     - email
+     - work_phone
+     - supplier
+  Comments:
+    class_uri: schema:comment
+    slots:
+     - name
+     - description
+  Crystal:
+    class_uri: 
+    slots:
+     - name
+     - material
+     - face
+     - sample_plate
+     - diameter
+     - height
+     - hazardous
+     - hazardous_specification
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - specifications
+     - receive_date
+     - reference_number
+     - comments
+     - storage
+     - supplier
+  Deposition:
+    class_uri: 
+    slots:
+     - name
+     - stabilisation_time
+     - deposition_time
+     - pressure
+     - substrate_temperature
+     - molecule_temperature
+     - evaporator_slot
+     - comments
+     - annealing
+     - molecule
+     - uhv_component
+     - instrument
+  DFT:
+    class_uri: 
+    slots:
+     - name
+  Dosing:
+    class_uri: 
+    slots:
+     - name
+  Draft:
+    class_uri: 
+    slots:
+     - name
+  EmpiricalModelling:
+    class_uri: 
+    slots:
+     - name
+  Errors:
+    class_uri: 
+    slots:
+     - name
+  FillCryostat:
+    class_uri: 
+    slots:
+     - name
+  GeometryOptimisation:
+    class_uri: 
+    slots:
+     - name
+  Grant:
+    class_uri: 
+    slots:
+     - name
+  HydrogenCracker:
+    class_uri: 
+    slots:
+     - name
+  Institution:
+    class_uri: schema:Organization
+    slots:
+     - name
+     - description
+     - address
+  Instrument:
+    class_uri: 
+    slots:
+     - name
+  Layered2DMaterial:
+    class_uri: 
+    slots:
+     - name
+  Maintenance:
+    class_uri: 
+    slots:
+     - name
+  Manufacturer:
+    class_uri: 
+    slots:
+     - name
+  MEP:
+    class_uri: 
+    slots:
+     - name
+  Molecule:
+    class_uri: schema:MolecularEntity   
+    slots:   ## specified as a list
+     - name
+     - iupac_name
+     - sum_formula
+     - smiles
+     - cas_number
+     - empa_number
+     - batch
+     - vial
+     - hazardous
+     - hazardous_specification
+     - evaporation_temperatures
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - chemist_molecule_name
+     - amount
+     - receive_date
+     - comments
+     - chemist
+     - storage
+     - parent_molecules
+  Notes:
+    class_uri: 
+    slots:
+     - name
+  PDOS:
+    class_uri: 
+    slots:
+     - name
+  PEC:
+    class_uri: 
+    slots:
+     - name
+  Person:
+    class_uri: schema:Person
+    slots:
+     - name
+  Protocol:
+    class_uri: 
+    slots:
+     - name
+  Publication:
+    class_uri: 
+    slots:
+     - name
+  Result:
+    class_uri: 
+    slots:
+     - name
+  Room:
+    class_uri: schema:Room
+    slots:
+     - name
+     - comments
+     - institution
+  Sample:
+    class_uri: 
+    slots:
+     - name
+  Software:
+    class_uri: 
+    slots:
+     - name
+  Sputtering:
+    class_uri: 
+    slots:
+     - name
+  SRD:
+    class_uri: 
+    slots:
+     - name
+  STM:
+    class_uri: 
+    slots:
+     - name
+  Storage:
+    class_uri:
+    slots:
+     - name
+     - comments
+     - room
+  STS:
+    class_uri: 
+    slots:
+     - name
+  Supplier:
+    class_uri:
+    slots:
+     - name
+     - email
+     - work_phone
+     - address
+  SystemHandover:
+    class_uri:
+    slots:
+     - name
+  TightBinding:
+    class_uri:
+    slots:
+     - name
+  TipPreparation:
+    class_uri:
+    slots:
+     - name
+  TipSensor:
+    class_uri:
+    slots:
+     - name
+  Transfer:
+    class_uri:
+    slots:
+     - name
+  UHVComponent:
+    class_uri:
+    slots:
+     - name
+  WaferSubstrate:
+    class_uri:
+    slots:
+     - name
+  FeedbackSettings:
+    class_uri:
+    slots:
+     - feedback_active
+     - feedback_type
+  ZControllerSettings:
+    class_uri:
+    slots:
+     - setpoint
+     - p_gain
+     - i_gain
+     - time_constant
+     - tip_lift
+     - switch_off_delay
+  PiezoConfigurationSettings:
+    class_uri:
+    slots:
+     - active_calib
+     - sensitivity_settings
+     - hv_gain_settings
+     - scan_slope
+     - curvature_radius
+     - second_order_correction
+     - drift_settings
+     - drift_correction_status
+  SensitivitySettings:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+  HVGainSettings:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+  ScanSlope:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  CurvatureRadius:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  SecondOrderCorrection:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  DriftSettings:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+  ScanSettings:
+    class_uri:
+    slots:
+     - field
+     - angle
+     - scan_offset
+     - scan_time
+     - scan_range
+     - scan_pixels
+     - scan_speed
+     - direction_speed
+  ScanOffset:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  ScanTime:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  ScanRange:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  ScanPixels:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+  ScanSpeed:
+    class_uri:
+    slots:
+     - forward_speed
+     - backward_speed
+  OscillationControlSettings:
+    class_uri:
+    slots:
+     - differential_input
+     - one_ten
+     - input_calibration
+     - input_range
+     - center_frequency
+     - range
+     - demodulation_settings
+     - phase_settings
+     - frequency_shift
+     - amplitude_settings
+     - excitation
+     - output_settings
+     - pll_setup_settings
+  DemodulationSettings:
+    class_uri:
+    slots:
+     - inputs
+     - frequencies
+     - reference_phases
+     - cutoff_frequencies
+     - harmonics
+     - filters_orders
+  PhaseSettings:
+    class_uri:
+    slots:
+     - p_gain
+     - i_gain
+     - controller_on
+  AmplitudeSettings:
+    class_uri:
+    slots:
+     - setpoint
+     - p_gain
+     - i_gain
+     - controller_on
+  OutputSettings:
+    class_uri:
+    slots:
+     - amplitude_range
+     - output_active
+     - output_add
+  PLLSetupSettings:
+    class_uri:
+    slots:
+     - q_factor
+     - demodulation_bw_amp
+     - demodulation_bw_pha
+     - amplitude_excitation_ratio
+  PeriodicBoundaryConditions:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+  AtomsPositions:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+     - atom_symbol
+  KPointsConditions:
+    class_uri:
+    slots:
+     - x_coordinate
+     - y_coordinate
+     - z_coordinate
+  BSEnergy:
+    class_uri:
+    slots:
+     - charge
+     - magnetic_momentum
+  EvaporatorSlot:
+    class_uri:
+    slots:
+      - evaporator_number
+      - details
+  QuantitativeValue:
+    class_uri: schema:QuantitativeValue
+    slots:
+     - value
+     - unit
+  EvaporationTemperature:
+    slots:
+     - temperature
+     - device
+     - datetime
+  Container:
+    tree_root: true
+    attributes:
+      afms:
+        multivalued: true
+        inlined_as_list: true
+        range: AFM
+      annealings:
+        multivalued: true
+        inlined_as_list: true
+        range: Annealing
+      atomisticmodels:
+        multivalued: true
+        inlined_as_list: true
+        range: AtomisticModel
+      authors:
+        multivalued: true
+        inlined_as_list: true
+        range: Author
+      band_structures:
+        multivalued: true
+        inlined_as_list: true
+        range: BandStructure
+      can_gas_bottles:
+        multivalued: true
+        inlined_as_list: true
+        range: CanGasBottle
+      comments:
+        multivalued: true
+        inlined_as_list: true
+        range: Comments
+      molecules:
+        multivalued: true
+        inlined_as_list: true
+        range: Molecule
+      chemists:
+        multivalued: true
+        inlined_as_list: true
+        range: Chemist
+      rooms:
+        multivalued: true
+        inlined_as_list: true
+        range: Room
+      institutions:
+        multivalued: true
+        inlined_as_list: true
+        range: Institution
+      storages:
+        multivalued: true
+        inlined_as_list: true
+        range: Storage
+      suppliers:
+        multivalued: true
+        inlined_as_list: true
+        range: Supplier
+
+types:
+  custom_datetime:
+    base: str
+    pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
+    uri: xsd:dateTime
+
+# slots are first-class entities in the metamodel
+# declaring them here allows them to be reused elsewhere
+slots:
+  name:
+    required: true
+    description: name
+    range: string
+    slot_uri: schema:name
+  description:
+    description: description
+    range: string
+    slot_uri: schema:description
+  work_phone:
+      range: string
+      slot_uri: schema:telephone 
+  email:
+    range: string
+    pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
+    slot_uri: schema:email
+  address: 
+    description: address
+    range: string
+    slot_uri: schema:address
+  iupac_name:
+    description: iupac name
+    range: string
+    slot_uri: schema:iupacName
+  sum_formula:
+    required: true
+    range: string
+    description: sum formula
+    slot_uri: schema:molecularFormula
+  smiles:
+    required: true
+    range: string
+    description: smiles
+    slot_uri: schema:smiles
+  cas_number:
+    description: cas number
+    range: string
+    slot_uri: emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff
+  empa_number:
+    required: true
+    range: integer
+    description: empa number
+    minimum_value: 0
+  batch:
+    required: true
+    range: string
+    description: batch
+    pattern: ^[a-z]$
+    slot_uri: ncit:NCIT_C67073
+  vial:
+    description: vial
+    range: string
+    pattern: ^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$
+    slot_uri: afe:AFE_0000329
+  hazardous:
+    description: hazardous
+    range: boolean
+    slot_uri: ncit:NCIT_C73538
+  hazardous_specification:
+    range: string
+    description: hazardous specification
+  evaporation_temperatures:
+    range: EvaporationTemperature
+    multivalued: true
+    description: evaporation temperatures
+  fridge:
+    description: fridge
+    range: boolean
+  no_light:
+    description: no light
+    range: boolean
+  dry:
+    description: dry
+    range: boolean
+  no_oxygen:
+    description: no oxygen
+    range: boolean
+  other_storage_condition:
+    description: other storage condition
+    range: boolean
+  other_storage_condition_specification:
+    description: other storage condition specification
+    range: string
+  chemist_molecule_name:
+    description: chemist molecule name
+    range: string
+    slot_uri: schema:alternateName
+  amount:
+    description: amount
+    range: QuantitativeValue
+    slot_uri: schema:QuantitativeValue
+  receive_date:
+    description: received date
+    range: date
+    slot_uri: ncit:NCIT_C164590
+  comments:
+    description: comments
+    range: string
+    slot_uri: schema:comment
+  value:
+    description: Value
+    range: double
+    slot_uri: schema:value
+  unit:
+    description: Unit
+    range: string
+    slot_uri: schema:unitCode
+  device:
+    description: device
+    range: string
+  temperature:
+    description: temperature
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25206
+  datetime:
+    description: datetime
+    range: custom_datetime
+  duration:
+    description: duration
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25330
+  pressure:
+    description: pressure
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+  voltage:
+    description: voltage
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
+  current:
+    description: current
+    range: QuantitativeValue
+    slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
+  start_time:
+    description: start time
+    range: custom_datetime
+  bias_setpoint:
+    description: bias setpoint
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-field
+  bias_calibration_factor:
+    description: bias calibration factor
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-calibration-field
+  bias_calibration_offset:
+    description: bias calibration offset
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-offset-field
+  current_setpoint:
+    description: current setpoint
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-field
+  current_calibration_factor:
+    description: current calibration factor
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-calibration-field
+  current_calibration_offset:
+    description: current calibration offset
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-offset-field
+  current_gain:
+    description: current gain
+    range: QuantitativeValue
+    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-gain-field
+  z:
+    description: z
+    range: QuantitativeValue
+  feedback_settings:
+    description: z
+    range: FeedbackSettings
+  feedback_active:
+    description: whether feedback is active
+    range: boolean
+  feedback_type:
+    description: feedback type
+    range: FeedbackTypeEnum
+  z_controller_settings:
+    description: z
+    range: ZControllerSettings
+  piezo_configuration_settings:
+    description: piezo configuration settings
+    range: PiezoConfigurationSettings
+  active_calib:
+    description: active calib
+    range: ActiveCalibEnum
+  sensitivity_settings:
+    description: sensitivity
+    range: SensitivitySettings
+  hv_gain_settings:
+    description: HV gain
+    range: HVGainSettings
+  scan_slope:
+    description: scan slope
+    range: ScanSlope
+  curvature_radius:
+    description: curvatuve radius
+    range: CurvatureRadius
+  second_order_correction:
+    description: second order correction
+    range: SecondOrderCorrection
+  drift_settings:
+    description: drift settings
+    range: DriftSettings
+  drift_correction_status:
+    description: whether the drift correction is performed
+    range: boolean
+  time_constant:
+    description: time constant
+    range: QuantitativeValue
+  tip_lift:
+    description: position of the tip when feedback loop is off
+    range: QuantitativeValue
+  switch_off_delay:
+    description: time delay applied when switching off feedback loop
+    range: QuantitativeValue
+  scan_settings:
+    description: scan settings
+    range: ScanSettings
+  field:
+    description: the scanfield of the image
+    multivalued: true
+    range: double
+  angle:
+    description: angle
+    range: QuantitativeValue
+  scan_offset:
+    description: scan offset
+    range: ScanOffset
+  x_coordinate:
+    description: x coordinate
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C44477
+  y_coordinate:
+    description: y coordinate
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C44478
+  z_coordinate:
+    description: z coordinate
+    range: QuantitativeValue
+    slot_uri: ncit:NCIT_C44479
+  scan_time:
+    description: scan time
+    range: ScanTime
+  scan_range:
+    description: scan range
+    range: ScanRange
+  scan_pixels:
+    description: ScanPixels
+    range: ScanPixels
+  scan_speed:
+    description: scan speed
+    range: ScanSpeed
+  forward_speed:
+    description: forward speed
+    range: QuantitativeValue
+  backward_speed:
+    description: backward speed
+    range: QuantitativeValue
+  direction_speed:
+    description: direction speed
+    range: DirectionSpeedEnum
+  oscillation_control_settings:
+    description: oscillation control settings
+    range: OscillationControlSettings
+  differential_input:
+    description: whether differential input is used
+    range: boolean
+  one_ten:
+    description: Whether the input is attenuated by a factor of ten
+    range: boolean
+  input_calibration:
+    description: input calibration
+    range: QuantitativeValue
+  input_range:
+    description: input range
+    range: QuantitativeValue
+  center_frequency:
+    description: center frequency
+    range: QuantitativeValue
+  range:
+    description: range
+    range: QuantitativeValue
+  demodulation_settings:
+    description: demodulation settings
+    range: DemodulationSettings
+  inputs:
+    description: inputs
+    multivalued: true
+    range: double
+  frequencies:
+    description: frequencies
+    multivalued: true
+    range: QuantitativeValue
+  reference_phases:
+    description: reference phases
+    multivalued: true
+    range: QuantitativeValue
+  cutoff_frequencies:
+    description: cutoff frequencies
+    multivalued: true
+    range: QuantitativeValue
+  harmonics:
+    description: harmonics
+    multivalued: true
+    range: QuantitativeValue
+  filters_orders:
+    description: filters orders
+    multivalued: true
+    range: double
+  phase_settings:
+    description: phase settings
+    range: PhaseSettings
+  p_gain:
+    description: p gain
+    range: QuantitativeValue
+  i_gain:
+    description: i gain
+    range: QuantitativeValue
+  controller_on:
+    description: controller on
+    range: boolean
+  frequency_shift:
+    description: frequency shift
+    range: QuantitativeValue
+  amplitude_settings:
+    description: amplitude settings
+    range: AmplitudeSettings
+  setpoint:
+    description: setpoint
+    range: QuantitativeValue
+  excitation:
+    description: excitation
+    range: QuantitativeValue
+  output_settings:
+    description: output settings
+    range: OutputSettings
+  output_active:
+    description: whether the output is on
+    range: boolean
+  output_add:
+    description: whether to add the signal at the ADD connector of the OC4 to the output signal
+    range: boolean
+  pll_setup_settings:
+    description: PLL setup settings
+    range: PLLSetupSettings
+  q_factor:
+    description: Q-factor
+    range: double
+  demodulation_bw_amp:
+    description: demodulation bandwidth of the amplitude controller
+    range: QuantitativeValue
+  demodulation_bw_pha:
+    description: demodulation bandwidth of the phase controller
+    range: QuantitativeValue
+  amplitude_excitation_ratio:
+    description: amplitude to excitation ratio at the resonance
+    range: QuantitativeValue
+  amplitude_range:
+    description: amplitude range
+    range: QuantitativeValue
+  dwell_time:
+    description: dwell time
+    range: QuantitativeValue
+  sample_temperature:
+    description: sample temperature
+    range: QuantitativeValue
+  recording_temperature:
+    description: recording temperature
+    range: QuantitativeValue
+  scan_dx:
+    description: scan dx
+    range: QuantitativeValue
+  scan_z_min:
+    description: scan z min
+    range: QuantitativeValue
+  scan_z_max:
+    description: scan z max
+    range: QuantitativeValue
+  amplitude:
+    description: amplitude
+    range: QuantitativeValue
+  resonance_frequency:
+    description: resonance frequency
+    range: QuantitativeValue
+  p_model:
+    description: p model
+    range: PModelEnum
+  wfms_uuid:
+    description: wfms uuid
+    range: string
+    slot_uri: ncit:NCIT_C54100
+  optimised:
+    description: optimised
+    range: boolean
+  periodic_boundary_conditions:
+    description: periodic boundary conditions
+    range: PeriodicBoundaryConditions
+  cell_vectors:
+    description: lattice vectors of the cell
+    range: QuantitativeValue
+    multivalued: true
+  atoms_positions:
+    description: list of atomyc symbols and cartesian coordinates
+    range: AtomsPositions
+    multivalued: true
+  atom_symbol:
+    description: atom symbol
+    range: string
+    slot_uri: emmo:EMMO_eb77076b_a104_42ac_a065_798b2d2809ad
+  k_points_conditions:
+    description: list of K Points in the first Brillouin zone identifying the path along which the bands are computed
+    range: KPointsConditions
+  bs_energies:
+    description: band structure energies
+    range: BSEnergy
+  charge:
+    description: charge
+    range: double
+  magnetic_momentum:
+    description: magnetic momentum
+    range: double
+  wfms_url:
+    description: wfms url
+    range: string
+  state:
+    description: state
+    range: string
+  material:
+    description: material
+    range: string
+  face:
+    description: face
+    range: string
+  sample_plate:
+    description: sample plate
+    range: string
+  diameter:
+    description: diameter
+    range: QuantitativeValue
+  height:
+    description: height
+    range: QuantitativeValue
+  specifications:
+    description: specifications
+    range: string
+  reference_number:
+    description: reference number
+    range: string
+  stabilisation_time:
+    description: stabilisation time
+    range: QuantitativeValue
+  deposition_time:
+    description: deposition time
+    range: QuantitativeValue
+  substrate_temperature:
+    description: substrate temperature
+    range: QuantitativeValue
+  molecule_temperature:
+    description: molecule temperature
+    range: QuantitativeValue
+  evaporator_slot:
+    description: evaporator slot
+    range: EvaporatorSlot
+  evaporator_number:
+    description: evaporator number
+    range: integer
+  details:
+    description: details
+    range: string
+  chemist:
+    range: Chemist
+    slot_uri: occo:OCCO_19203100
+  parent_molecules:
+    range: Molecule
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: schema:MolecularEntity
+  supplier:
+    range: Supplier
+    slot_uri: ncit:NCIT_C43530
+  storage:
+    range: Storage
+    slot_uri: ncit:NCIT_C16143
+  room:
+    range: Room
+    slot_uri: schema:Room
+  institution:
+    range: Institution
+    slot_uri: schema:Organization
+  annealing:
+    range: Annealing
+  sputtering:
+    range: Sputtering
+  deposition:
+    range: Deposition
+  uhv_component:
+    range: UHVComponent
+  instrument:
+    range: Instrument
+  dft:
+    range: DFT
+  tb:
+    range: TightBinding
+  crystal:
+    range: Crystal
+  molecule:
+    range: Molecule
+  person:
+    range: Person
+    slot_uri: schema:Person
+  atomistic_models:
+    range: AtomisticModel
+    multivalued: true
+
+enums:
+  PModelEnum:
+    permissible_values:
+      Single probe:
+      2PP RESP PTCTA:
+      2PP RESP pentacene:
+  DirectionSpeedEnum:
+    permissible_values:
+      down:
+      both:
+  ActiveCalibEnum:
+    permissible_values:
+      LHe:
+  FeedbackTypeEnum:
+    permissible_values:
+      Log current:
+      Abs current:
