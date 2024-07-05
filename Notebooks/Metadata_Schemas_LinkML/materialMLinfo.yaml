@@ -4,6 +4,7 @@ prefixes:
   linkml: https://w3id.org/linkml/
   schema: http://schema.org/
   emmo: https://w3id.org/emmo#
+  emmoda: http://emmo.info/domain-atomistic#
   fairmatsts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
   ncit: http://purl.obolibrary.org/obo/ncit.owl#
   occo: http://purl.obolibrary.org/obo/occo.owl#
@@ -26,6 +27,7 @@ classes:
      - duration
      - bias_setpoint
      - bias_calibration_factor
+     - bias_calibration_offset
      - current_setpoint
      - current_calibration_factor
      - current_calibration_offset
@@ -155,41 +157,99 @@ classes:
      - uhv_component
      - instrument
   DFT:
-    class_uri: 
+    class_uri: emmoda:83a69cf2-00c1-58b8-915b-76cb3549890a
     slots:
      - name
+     - wfms_uuid
+     - wfms_url
+     - fermi_energy
+     - scf_convergence_threshold
+     - xc_functional
+     - spin_polarised_calculation
+     - initial_spin_guesses
+     - spin_multiplicity
+     - absolute_magnetisation
+     - total_magnetisation
+     - total_spin_squared
+     - net_charge
+     - smearing
+     - fermi_dirac_temperature
+     - force_multiplicity
+     - output_mulliken_population_analysis
+     - output_hirshfeld_population_analysis
+     - comments
   Dosing:
     class_uri: 
     slots:
      - name
+     - molecule_name
+     - duration
+     - pressure
+     - temperature
+     - comments
+     - instrument
   Draft:
     class_uri: 
     slots:
      - name
+     - draft_type
+     - comments
+     - results
   EmpiricalModelling:
     class_uri: 
     slots:
      - name
+     - wfms_uuid
+     - wfms_url
   Errors:
     class_uri: 
     slots:
      - name
+     - description
+     - instrument
+     - uhv_component
   FillCryostat:
     class_uri: 
     slots:
      - name
+     - weight_before
+     - weight_after
+     - substance
+     - dewar
+     - comments
+     - uhv_component
+     - instrument
   GeometryOptimisation:
     class_uri: 
     slots:
      - name
+     - wfms_uuid
+     - wfms_url
+     - force_convergence_threshold
+     - geometry_constraints
+     - comments
+     - atomistic_models
+     - dft
+     - empirical_modelling
   Grant:
     class_uri: 
     slots:
      - name
+     - funder
+     - start_date
+     - end_date
+     - budget
+     - project_id
+     - acknowledgement_sentence
+     - comments
   HydrogenCracker:
     class_uri: 
     slots:
      - name
+     - molecule_name
+     - comments
+     - uhv_component
+     - instrument
   Institution:
     class_uri: schema:Organization
     slots:
@@ -200,22 +260,67 @@ classes:
     class_uri: 
     slots:
      - name
+     - serial_number
+     - empa_id
+     - documentation_website
+     - receive_date
+     - comments
+     - uhv_components
+     - room
+     - manufacturer
+     - tip_sensor
   Layered2DMaterial:
     class_uri: 
     slots:
      - name
+     - empa_number
+     - batch
+     - sample_plate
+     - layers_2d
+     - substrates
+     - width
+     - length
+     - thickness
+     - hazardous
+     - hazardous_specification
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - receive_date
+     - supplier_own_name
+     - comments
+     - storage
+     - chemist
   Maintenance:
     class_uri: 
     slots:
      - name
+     - description
+     - uhv_component
+     - instrument
   Manufacturer:
     class_uri: 
     slots:
      - name
-  MEP:
+     - email
+     - work_phone
+  MinimumEnergyPotential:
     class_uri: 
     slots:
      - name
+     - wfms_uuid
+     - wfms_url
+     - method_type
+     - number_geometries
+     - energy_barrier
+     - energies
+     - geometry_constraints
+     - geometry_constraints_increments
+     - comments
+     - atomistic_models
   Molecule:
     class_uri: schema:MolecularEntity   
     slots:   ## specified as a list
@@ -247,30 +352,72 @@ classes:
     class_uri: 
     slots:
      - name
+     - description
   PDOS:
     class_uri: 
     slots:
      - name
-  PEC:
+     - wfms_uuid
+     - wfms_url
+     - atomic_selections
+     - energies
+     - orbitals_selections
+     - pdos_amplitude
+     - plot_contributions
+     - plot_group_by
+     - degauss_energy
+     - comments
+     - atomistic_models
+     - dft
+     - tb
+  PotentialEnergyCalculation:
     class_uri: 
     slots:
      - name
+     - wfms_uuid
+     - wfms_url
+     - energy
+     - dft
+     - tb
+     - empirical_modelling
   Person:
     class_uri: schema:Person
     slots:
      - name
+     - short_name
+     - work_status
+     - email
+     - work_phone
+     - mobile_phone
   Protocol:
     class_uri: 
     slots:
      - name
+     - description
   Publication:
     class_uri: 
     slots:
      - name
+     - abstract
+     - doi
+     - year
+     - url
+     - dataset_url
+     - comments
+     - grants
+     - drafts
+     - authors
   Result:
     class_uri: 
     slots:
      - name
+     - description
+     - comments
+     - stms
+     - afms
+     - stss
+     - geometry_optimisations
+     - softwares
   Room:
     class_uri: schema:Room
     slots:
@@ -281,22 +428,73 @@ classes:
     class_uri: 
     slots:
      - name
+     - crystal
+     - layered_2d_material
+     - wafer_substrate
   Software:
     class_uri: 
     slots:
      - name
+     - repository_url
   Sputtering:
     class_uri: 
     slots:
      - name
+     - duration
+     - pressure
+     - discharge_voltage
+     - voltage
+     - temperature
+     - angle
+     - current
+     - comments
+     - uhv_component
+     - annealing
+     - deposition
+     - instrument
+     - sample
   SRD:
     class_uri: 
     slots:
      - name
+     - comments
+     - molecule
   STM:
     class_uri: 
     slots:
      - name
+     - start_time
+     - duration
+     - bias_setpoint
+     - bias_calibration_factor
+     - bias_calibration_offset
+     - current_setpoint
+     - current_calibration_factor
+     - current_calibration_offset
+     - current_gain
+     - z
+     - feedback_settings
+     - z_controller_settings
+     - piezo_configuration_settings
+     - scan_settings
+     - dwell_time
+     - sample_temperature
+     - recording_temperature
+     - comments
+     - e_min
+     - e_max
+     - de
+     - fwhm
+     - extrap_plane
+     - constant_height
+     - constant_current
+     - wfms_uuid
+     - comments
+     - annealing
+     - deposition
+     - dft
+     - tb
+     - instrument
   Storage:
     class_uri:
     slots:
@@ -307,6 +505,72 @@ classes:
     class_uri: 
     slots:
      - name
+     - start_time
+     - duration
+     - experiment_type
+     - acquisition_coordinate_x
+     - acquisition_coordinate_y
+     - acquisition_coordinate_z
+     - final_z
+     - filter_type
+     - filter_order
+     - filter_cutoff
+     - bias_setpoint
+     - bias_calibration_factor
+     - bias_calibration_offset
+     - num_pixel
+     - z_avg_time
+     - first_settling_time
+     - settling_time
+     - integration_time
+     - end_settling_time
+     - z_control_time
+     - max_slew_rate
+     - backward_sweep
+     - num_sweeps
+     - channel_names
+     - record_final_z
+     - lock_in_run
+     - bias_spectroscopy_reset_bias
+     - bias_spectroscopy_sweep_start
+     - bias_spectroscopy_sweep_end
+     - bias_spectroscopy_z_offset
+     - bias_spectroscopy_z_controller_hold
+     - z_spectroscopy_reset_z
+     - z_spectroscopy_initial_z_offset
+     - z_spectroscopy_sweep_distance
+     - z_spectroscopy_time_between_forward_backward
+     - current_setpoint
+     - current_calibration_factor
+     - current_calibration_offset
+     - current_gain
+     - z
+     - feedback_active
+     - feedback_type
+     - z_controller_setpoint
+     - z_controller_p_gain
+     - z_controller_i_gain
+     - z_controller_time_constant
+     - z_controller_tip_lift
+     - z_controller_switch_off_delay
+     - lock_in_status
+     - lock_in_modulated_signal
+     - lock_in_frequency
+     - lock_in_amplitude
+     - lock_in_hp_filter_cutoffs
+     - lock_in_hp_filter_orders
+     - lock_in_demodulated_signal
+     - lock_in_harmonics
+     - lock_in_reference_phases
+     - lock_in_lp_filter_cutoffs
+     - lock_in_lp_filters_orders
+     - lock_in_sync_filter
+     - sample_temperature
+     - wfms_uuid
+     - comments
+     - annealing
+     - deposition
+     - instrument
   Supplier:
     class_uri:
     slots:
@@ -514,8 +778,32 @@ classes:
   EvaporatorSlot:
     class_uri:
     slots:
-      - evaporator_number
-      - details
+     - evaporator_number
+     - details
+  OutputPopulationAnalysis:
+    class_uri:
+    slots:
+     - charge
+     - magnetic_momentum
+  ForceConvergenceThreshold:
+    class_uri:
+    slots:
+     - charge
+     - magnetic_momentum
+  Layers2DDetails:
+    class_uri:
+    slots:
+     - material
+     - number_layers
+     - dopants
+     - coverage
+  SubstratesDetails:
+    class_uri:
+    slots:
+     - material
+     - thickness
+     - dopants
+     - coverage
   QuantitativeValue:
     class_uri: schema:QuantitativeValue
     slots:
@@ -553,34 +841,174 @@ classes:
         multivalued: true
         inlined_as_list: true
         range: CanGasBottle
-      comments:
-        multivalued: true
-        inlined_as_list: true
-        range: Comments
-      molecules:
-        multivalued: true
-        inlined_as_list: true
-        range: Molecule
       chemists:
         multivalued: true
         inlined_as_list: true
         range: Chemist
-      rooms:
+      comments:
         multivalued: true
         inlined_as_list: true
-        range: Room
+        range: Comments
+      crystals:
+        multivalued: true
+        inlined_as_list: true
+        range: Crystal
+      depositions:
+        multivalued: true
+        inlined_as_list: true
+        range: Deposition
+      dfts:
+        multivalued: true
+        inlined_as_list: true
+        range: DFT
+      dosings:
+        multivalued: true
+        inlined_as_list: true
+        range: Dosing
+      drafts:
+        multivalued: true
+        inlined_as_list: true
+        range: Draft
+      empirical_modellings:
+        multivalued: true
+        inlined_as_list: true
+        range: EmpiricalModelling
+      errors:
+        multivalued: true
+        inlined_as_list: true
+        range: Errors
+      fillcryostats:
+        multivalued: true
+        inlined_as_list: true
+        range: FillCryostat
+      geoopts:
+        multivalued: true
+        inlined_as_list: true
+        range: GeometryOptimisation
+      grants:
+        multivalued: true
+        inlined_as_list: true
+        range: Grant
+      hydrogen_crackers:
+        multivalued: true
+        inlined_as_list: true
+        range: HydrogenCracker
       institutions:
         multivalued: true
         inlined_as_list: true
         range: Institution
+      instruments:
+        multivalued: true
+        inlined_as_list: true
+        range: Instrument
+      layered2dmaterials:
+        multivalued: true
+        inlined_as_list: true
+        range: Layered2DMaterial
+      maintenances:
+        multivalued: true
+        inlined_as_list: true
+        range: Maintenance
+      manufacturers:
+        multivalued: true
+        inlined_as_list: true
+        range: Manufacturer
+      meps:
+        multivalued: true
+        inlined_as_list: true
+        range: MinimumEnergyPotential
+      molecules:
+        multivalued: true
+        inlined_as_list: true
+        range: Molecule
+      notes:
+        multivalued: true
+        inlined_as_list: true
+        range: Notes
+      pdoss:
+        multivalued: true
+        inlined_as_list: true
+        range: PDOS
+      persons:
+        multivalued: true
+        inlined_as_list: true
+        range: Person
+      protocols:
+        multivalued: true
+        inlined_as_list: true
+        range: Protocol
+      publications:
+        multivalued: true
+        inlined_as_list: true
+        range: Publication
+      results:
+        multivalued: true
+        inlined_as_list: true
+        range: Result
+      rooms:
+        multivalued: true
+        inlined_as_list: true
+        range: Room
+      samples:
+        multivalued: true
+        inlined_as_list: true
+        range: Sample
+      softwares:
+        multivalued: true
+        inlined_as_list: true
+        range: Software
+      sputterings:
+        multivalued: true
+        inlined_as_list: true
+        range: Sputtering
+      srds:
+        multivalued: true
+        inlined_as_list: true
+        range: SRD
+      stms:
+        multivalued: true
+        inlined_as_list: true
+        range: STM
       storages:
         multivalued: true
         inlined_as_list: true
         range: Storage
+      stss:
+        multivalued: true
+        inlined_as_list: true
+        range: STS
       suppliers:
         multivalued: true
         inlined_as_list: true
         range: Supplier
+      system_handovers:
+        multivalued: true
+        inlined_as_list: true
+        range: SystemHandover
+      tight_bindings:
+        multivalued: true
+        inlined_as_list: true
+        range: TightBinding
+      tip_preparations:
+        multivalued: true
+        inlined_as_list: true
+        range: TipPreparation
+      tip_sensors:
+        multivalued: true
+        inlined_as_list: true
+        range: TipSensor
+      transfers:
+        multivalued: true
+        inlined_as_list: true
+        range: Transfer
+      uhv_components:
+        multivalued: true
+        inlined_as_list: true
+        range: UHVComponent
+      wafer_substrates:
+        multivalued: true
+        inlined_as_list: true
+        range: WaferSubstrate
 
 types:
   custom_datetime:
@@ -1060,9 +1488,322 @@ slots:
   details:
     description: details
     range: string
+  fermi_energy:
+    description: fermi energy
+    range: double
+  scf_convergence_threshold:
+    description: threshold for the convergence of the wave function
+    range: QuantitativeValue
+  xc_functional:
+    description: approximation used for the exchanged correlation functional
+    range: XCFunctionalEnum
+  spin_polarised_calculation:
+    description: whether spin polarisation calculation is considered
+    range: boolean
+  spin_multiplicity:
+    description: spin multiplicity
+    range: boolean
+  initial_spin_guesses:
+    description: initial value of the magnetisation for each atom
+    range: double
+    multivalued: true
+  absolute_magnetisation:
+    description: output value of the absolute magnetisation
+    range: QuantitativeValue
+  total_magnetisation:
+    description: output value of the total magnetisation
+    range: QuantitativeValue
+  total_spin_squared:
+    description: output value of the eigenvalue of the square operator to control spin contamination
+    range: double
+  net_charge:
+    description: difference between electronic and ionic charge of the system (+1 means one electron is being removed from the neutral charge system)
+    range: double
+  smearing:
+    description: energy value for electron broadening function for fractional occupation of orbitals
+    range: QuantitativeValue
+  fermi_dirac_temperature:
+    description: temperature used for broadening in case of Fermi-Dirac broadening function for fractional occupation of orbitals
+    range: QuantitativeValue
+  force_multiplicity:
+    description: if true multiplicity is constrained to the input value in a calculation with broadening of the occupation of orbitals
+    range: boolean
+  output_mulliken_population_analysis:
+    description: charges and magnetic momentum for each atom resulting from Mulliken population analysis
+    range: OutputPopulationAnalysis
+  output_hirshfeld_population_analysis:
+    description: charges and magnetic momentum for each atom resulting from Hirshfeld population analysis
+    range: OutputPopulationAnalysis
+  molecule_name:
+    description: molecule name
+    range: string
+  draft_type:
+    description: draft type
+    range: DraftTypeEnum
+  weight_before:
+    description: weight before
+    range: QuantitativeValue
+  weight_after:
+    description: weight after
+    range: QuantitativeValue
+  substance:
+    description: substance
+    range: string
+  serial_number:
+    description: serial number
+    range: string
+  empa_id:
+    description: empa id
+    range: string
+  documentation_website:
+    description: documentation website
+    range: string
+    pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+  dewar:
+    description: dewar
+    range: DewarEnum
+  force_convergence_threshold:
+    description: maximum force allowed on each atom before the optimisation is converged
+    range: ForceConvergenceThreshold
+  geometry_constraints:
+    description: geometrical constraints defined in the simulation
+    range: double
+    multivalued: true
+  funder:
+    description: funder
+    range: string
+  start_date:
+    description: start date
+    range: date
+  end_date:
+    description: end date
+    range: date
+  budget:
+    description: budget
+    range: QuantitativeValue
+  project_id:
+    description: project id
+    range: string
+  acknowledgement_sentence:
+    description: acknowledgement sentence
+    range: string
+  layers_2d:
+    description: details about the 2D layers
+    range: Layers2DDetails
+    multivalued: true
+  number_layers:
+    description: number of 2D layers
+    range: integer
+  dopants:
+    description: dopants
+    range: string
+  coverage:
+    description: coverage
+    range: string
+  substrates:
+    description: substrates
+    range: SubstratesDetails
+    multivalued: true
+  width:
+    description: width
+    range: QuantitativeValue
+  length:
+    description: length
+    range: QuantitativeValue
+  thickness:
+    description: thickness
+    range: QuantitativeValue
+  supplier_own_name:
+    description: supplier own name
+    range: string
+  geometry_constraints_increments:
+    description: increments used to vary some of the constraints in case the constrained geometry optimisation method is used
+    range: double
+    multivalued: true
+  number_geometries:
+    description: number of geometries that eventually form the minimum energy path (Could be more than the input geometries)
+    range: integer
+  method_type:
+    description: method type
+    range: MethodTypeEnum
+  energy_barrier:
+    description: difference in energy between the initial geometry and the transition state geometry
+    range: QuantitativeValue
+  energies:
+    description: energy of each replica of the system identifying the minimum energy path
+    range: QuantitativeValue
+    multivalued: true
   chemist:
     range: Chemist
     slot_uri: occo:OCCO_19203100
+  atomic_selections:
+    description: list of group of atoms on which projections of the orbitals are computed
+    range: double
+    multivalued: true
+  orbitals_selections:
+    description: amplitude of each gas phase orbital for a portion of the system on the orbitals of the full system
+    range: double
+    multivalued: true
+  degauss_energy:
+    description: Gaussian broadening energy
+    range: QuantitativeValue
+  plot_group_by:
+    description: group by index or by periodic element
+    range: PlotGroupByEnum
+  plot_contributions:
+    description: contributions definition
+    range: PlotContributionsEnum
+  pdos_amplitude:
+    description: PDOS amplitude
+    range: double
+  energy:
+    description: energy
+    range: QuantitativeValue
+  short_name:
+    description: username
+    range: string
+  work_status:
+    description: work status
+    range: boolean
+  mobile_phone:
+    description: mobile phone
+    range: string
+  abstract:
+    description: abstract
+    range: string
+  doi:
+    description: doi
+    range: string
+  year:
+    description: year
+    range: integer
+  url:
+    description: url
+    range: string
+    pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+  dataset_url:
+    description: dataset url
+    range: string
+    pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+  repository_url:
+    description: dataset url
+    range: string
+    pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+  discharge_voltage:
+    description: Discharge voltage
+    range: QuantitativeValue
+  e_min:
+    description: energy of the lowest orbital included in the calculation
+    range: QuantitativeValue
+  e_max:
+    description: energy of the highest orbital included in the calculation
+    range: QuantitativeValue
+  de:
+    description: step between the E-min and E-max
+    range: QuantitativeValue
+  fwhm:
+    description: full width at half maximum
+    range: QuantitativeValue
+  extrap_plane:
+    description: position of the extrapolation plane
+    range: QuantitativeValue
+  constant_current:
+    description: isovalue of charged density at which the constant current image is produced
+    range: QuantitativeValue
+  constant_height:
+    description: distance from the surface at which the constant Z image is simulated
+    range: QuantitativeValue
+  experiment_type:
+    description: experiment type
+    range: ExperimentTypeEnum
+  acquisition_coordinate_x:
+    description: acquisition coordinate axis x
+    range: QuantitativeValue
+  acquisition_coordinate_y:
+    description: acquisition coordinate axis y
+    range: QuantitativeValue
+  acquisition_coordinate_z:
+    description: acquisition coordinate axis z
+    range: QuantitativeValue
+  final_z:
+    description: final z
+    range: QuantitativeValue
+  filter_type:
+    description: filter type
+    range: FilterTypeEnum
+  filter_order:
+    description: filter order
+    range: integer
+  filter_cutoff:
+    description: filter cutoff
+    range: QuantitativeValue
+  num_pixel:
+    description: number of pixels
+    range: integer
+  z_avg_time:
+    description: duration between which the Z position is recorded and averaged before and after the sweep
+    range: QuantitativeValue
+  first_settling_time:
+    description: additional time to wait (in addition to the Settling Time) after the bias has ramped to the starting point of the sweep
+    range: QuantitativeValue
+  settling_time:
+    description: time to wait after changing the bias to the next level and before starting to acquire data
+    range: QuantitativeValue
+  integration_time:
+    description: time during which the data are acquired and averaged
+    range: QuantitativeValue
+  end_settling_time:
+    description: time to wait after the sweep has finished and the bias is ramped to the initial value
+    range: QuantitativeValue
+  z_control_time:
+    description: time during which the Z-controller is enabled once a sweep has finished
+    range: QuantitativeValue
+  max_slew_rate:
+    description: max rate at which the bias changes (before, during and after sweeping)
+    range: QuantitativeValue
+  backward_sweep:
+    description: whether one wants to measure the backward (return) sweep or the forward only
+    range: boolean
+  num_sweeps:
+    description: number of sweeps to measure and average
+    range: integer
+  channel_names:
+    description: recorded channel names
+    range: string
+    multivalued: true
+  record_final_z:
+    description: record the Z position during Z averaging time at the end of the sweep (after Z control time)
+    range: boolean
+  lock_in_run:
+    description: lock-in to run during the measurement
+    range: integer
+  bias_spectroscopy_reset_bias:
+    description: reset bias to the initial value (before starting the sweep) at the end of the spectroscopy measurement
+    range: boolean
+  bias_spectroscopy_sweep_start:
+    description: bias spectroscopy sweep start
+    range: QuantitativeValue
+  bias_spectroscopy_sweep_end:
+    description: bias spectroscopy sweep end
+    range: QuantitativeValue
+  bias_spectroscopy_z_offset:
+    description: bias spectroscopy Z-offset
+    range: QuantitativeValue
+  bias_spectroscopy_z_controller_hold:
+    description: if Z-controller is being used
+    range: boolean
+  z_spectroscopy_reset_z:
+    description: reset the Z position at the end of the sweep to the initial averaged value calculated during Z averaging time at Max slew rate
+    range: boolean
+  z_spectroscopy_initial_z_offset:
+    description: initial z offset
+    range: QuantitativeValue
+  z_spectroscopy_sweep_distance:
+    description: Sweep distance
+    range: QuantitativeValue
+  z_spectroscopy_time_between_forward_backward:
+    description: time to wait in seconds between the forward and the backward sweep
+    range: QuantitativeValue
   parent_molecules:
     range: Molecule
     multivalued: true
@@ -1088,10 +1829,15 @@ slots:
     range: Deposition
   uhv_component:
     range: UHVComponent
+  uhv_components:
+    range: UHVComponent
+    inlined_as_list: true
+    multivalued: true
   instrument:
     range: Instrument
   dft:
     range: DFT
+    slot_uri: emmoda:83a69cf2-00c1-58b8-915b-76cb3549890a
   tb:
     range: TightBinding
   crystal:
@@ -1103,7 +1849,56 @@ slots:
     slot_uri: schema:Person
   atomistic_models:
     range: AtomisticModel
+    inlined_as_list: true
     multivalued: true
+  manufacturer:
+    range: Manufacturer
+  tip_sensor:
+    range: TipSensor
+  results:
+    range: Result
+    multivalued: true
+    inlined_as_list: true
+  empirical_modelling:
+    range: EmpiricalModelling
+  grants:
+    range: Grant
+    multivalued: true
+    inlined_as_list: true
+  drafts:
+    range: Draft
+    multivalued: true
+    inlined_as_list: true
+  authors:
+    range: Author
+    multivalued: true
+    inlined_as_list: true
+  stms:
+    range: STM
+    multivalued: true
+    inlined_as_list: true
+  afms:
+    range: AFM
+    multivalued: true
+    inlined_as_list: true
+  stss:
+    range: STS
+    multivalued: true
+    inlined_as_list: true
+  softwares:
+    range: Software
+    multivalued: true
+    inlined_as_list: true
+  geometry_optimisations:
+    range: GeometryOptimisation
+    multivalued: true
+    inlined_as_list: true
+  layered_2d_material:
+    range: Layered2DMaterial
+  wafer_substrate:
+    range: WaferSubstrate
+  sample:
+    range: Sample
 
 enums:
   PModelEnum:
@@ -1122,3 +1917,45 @@ enums:
     permissible_values:
       Log current:
       Abs current:
+  XCFunctionalEnum:
+    permissible_values:
+      Exchange correlation function:
+  DraftTypeEnum:
+    permissible_values:
+      preprint:
+      postprint:
+  DewarEnum:
+    permissible_values:
+      1:
+      2:
+      3:
+      4:
+      5:
+      6:
+      7:
+      8:
+      9:
+      10:
+      11:
+      12:
+      LN2:
+  MethodTypeEnum:
+    permissible_values:
+      NEB:
+      String method:
+  PlotGroupByEnum:
+    permissible_values:
+      index:
+      element:
+  PlotContributionsEnum:
+    permissible_values:
+      total:
+      orbital:
+      angular momentum:
+  ExperimentTypeEnum:
+    permissible_values:
+      bias spectroscopy:
+      z-spectroscopy:
+  FilterTypeEnum:
+    permissible_values:
+      Butterworth:
