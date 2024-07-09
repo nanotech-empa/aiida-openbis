@@ -4,11 +4,21 @@ prefixes:
   linkml: https://w3id.org/linkml/
   schema: http://schema.org/
   emmo: https://w3id.org/emmo#
-  emmoda: http://emmo.info/domain-atomistic#
-  fairmatsts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
+  emmo_da: http://emmo.info/domain-atomistic#
+  emmo_nano: http://emmo.info/emmo/nanoind#
+  emmo_chameo: https://w3id.org/emmo-chameo/chameo#
+  emmo_electrochemistry: https://w3id.org/emmo/domain/electrochemistry#
+  fairmat_sts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
   ncit: http://purl.obolibrary.org/obo/ncit.owl#
   occo: http://purl.obolibrary.org/obo/occo.owl#
   chmo: http://purl.obolibrary.org/obo/chmo.owl#
+  chebi: http://purl.obolibrary.org/obo/chebi.owl#
+  obi: http://purl.obolibrary.org/obo/obi.owl#
+  opmi: http://purl.obolibrary.org/obo/opmi.owl#
+  iao: http://purl.obolibrary.org/obo/iao.owl#
+  sio: http://semanticscience.org/ontology/sio.owl#
+  reprme: https://w3id.org/reproduceme#
+  apollo: http://purl.obolibrary.org/obo/apollo_sv.owl#
   afe: http://purl.allotrope.org/ontologies/equipment#
   materialsML: https://w3id.org/linkml/examples/materialsML/
   xsd: http://www.w3.org/2001/XMLSchema#
@@ -33,8 +43,14 @@ classes:
      - current_calibration_offset
      - current_gain
      - z
-     - feedback_settings
-     - z_controller_settings
+     - feedback_active
+     - feedback_type
+     - z_controller_setpoint
+     - z_controller_p_gain
+     - z_controller_i_gain
+     - z_controller_time_constant
+     - z_controller_tip_lift
+     - z_controller_switch_off_delay
      - piezo_configuration_settings
      - scan_settings
      - dwell_time
@@ -119,7 +135,7 @@ classes:
      - name
      - description
   Crystal:
-    class_uri: 
+    class_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
     slots:
      - name
      - material
@@ -142,7 +158,7 @@ classes:
      - storage
      - supplier
   Deposition:
-    class_uri: 
+    class_uri: chmo:CHMO_0001310
     slots:
      - name
      - stabilisation_time
@@ -157,7 +173,7 @@ classes:
      - uhv_component
      - instrument
   DFT:
-    class_uri: emmoda:83a69cf2-00c1-58b8-915b-76cb3549890a
+    class_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
     slots:
      - name
      - wfms_uuid
@@ -179,17 +195,17 @@ classes:
      - output_hirshfeld_population_analysis
      - comments
   Dosing:
-    class_uri: 
+    class_uri: chmo:CHMO_0001383
     slots:
      - name
-     - molecule_name
+     - sum_formula
      - duration
      - pressure
      - temperature
      - comments
      - instrument
   Draft:
-    class_uri: 
+    class_uri: ncit:NCIT_C85255
     slots:
      - name
      - draft_type
@@ -202,7 +218,7 @@ classes:
      - wfms_uuid
      - wfms_url
   Errors:
-    class_uri: 
+    class_uri: ncit:NCIT_C43369
     slots:
      - name
      - description
@@ -232,7 +248,7 @@ classes:
      - dft
      - empirical_modelling
   Grant:
-    class_uri: 
+    class_uri: schema:Grant
     slots:
      - name
      - funder
@@ -246,7 +262,7 @@ classes:
     class_uri: 
     slots:
      - name
-     - molecule_name
+     - sum_formula
      - comments
      - uhv_component
      - instrument
@@ -257,7 +273,7 @@ classes:
      - description
      - address
   Instrument:
-    class_uri: 
+    class_uri: ncit:NCIT_C16742
     slots:
      - name
      - serial_number
@@ -295,14 +311,14 @@ classes:
      - storage
      - chemist
   Maintenance:
-    class_uri: 
+    class_uri: ncit:NCIT_C53297
     slots:
      - name
      - description
      - uhv_component
      - instrument
   Manufacturer:
-    class_uri: 
+    class_uri: ncit:NCIT_C25392
     slots:
      - name
      - email
@@ -349,7 +365,7 @@ classes:
      - storage
      - parent_molecules
   Notes:
-    class_uri: 
+    class_uri: ncit:NCIT_C42619
     slots:
      - name
      - description
@@ -390,12 +406,12 @@ classes:
      - work_phone
      - mobile_phone
   Protocol:
-    class_uri: 
+    class_uri: obi:OBI_0000272
     slots:
      - name
      - description
   Publication:
-    class_uri: 
+    class_uri: schema:PublicationIssue
     slots:
      - name
      - abstract
@@ -408,7 +424,7 @@ classes:
      - drafts
      - authors
   Result:
-    class_uri: 
+    class_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
     slots:
      - name
      - description
@@ -432,12 +448,12 @@ classes:
      - layered_2d_material
      - wafer_substrate
   Software:
-    class_uri: 
+    class_uri: schema:SoftwareSourceCode
     slots:
      - name
      - repository_url
   Sputtering:
-    class_uri: 
+    class_uri: chmo:CHMO_0001569
     slots:
      - name
      - duration
@@ -454,13 +470,14 @@ classes:
      - instrument
      - sample
   SRD:
+    description: Sublimation Rate Determination
     class_uri: 
     slots:
      - name
      - comments
      - molecule
   STM:
-    class_uri: 
+    class_uri: chmo:CHMO_0000132
     slots:
      - name
      - start_time
@@ -473,8 +490,16 @@ classes:
      - current_calibration_offset
      - current_gain
      - z
-     - feedback_settings
-     - z_controller_settings
+     - feedback_active
+     - feedback_type
+     - z_controller_setpoint
+     - z_controller_p_gain
+     - z_controller_i_gain
+     - z_controller_time_constant
+     - z_controller_tip_lift
+     - z_controller_switch_off_delay
+    #  - feedback_settings
+    #  - z_controller_settings
      - piezo_configuration_settings
      - scan_settings
      - dwell_time
@@ -496,13 +521,13 @@ classes:
      - tb
      - instrument
   Storage:
-    class_uri:
+    class_uri: ncit:NCIT_C16143
     slots:
      - name
      - comments
      - room
   STS:
-    class_uri: 
+    class_uri: fairmat_sts:nxsts
     slots:
      - name
      - start_time
@@ -530,7 +555,7 @@ classes:
      - num_sweeps
      - channel_names
      - record_final_z
-     - lock_in_run
+    #  - lock_in_run
      - bias_spectroscopy_reset_bias
      - bias_spectroscopy_sweep_start
      - bias_spectroscopy_sweep_end
@@ -563,7 +588,7 @@ classes:
      - lock_in_harmonics
      - lock_in_reference_phases
      - lock_in_lp_filter_cutoffs
-     - lock_in_lp_filters_orders
+     - lock_in_lp_filter_orders
      - lock_in_sync_filter
      - sample_temperature
      - wfms_uuid
@@ -572,7 +597,7 @@ classes:
      - deposition
      - instrument
   Supplier:
-    class_uri:
+    class_uri: ncit:NCIT_C43530
     slots:
      - name
      - email
@@ -582,44 +607,88 @@ classes:
     class_uri:
     slots:
      - name
+     - vacuum_system_status
+     - cryo_system_status
+     - comments
+     - cangasbottles
+     - errors
+     - maintenance
+     - instrument
+  SystemStatus:
+    class_uri:
+    slots:
+     - name
+     - description
+     - instrument
   TightBinding:
     class_uri:
     slots:
      - name
+     - wfms_url
+     - wfms_uuid
   TipPreparation:
     class_uri:
     slots:
      - name
+     - description
+     - tip_preparation_type
+     - tip_sensor
+     - authors
   TipSensor:
-    class_uri:
+    class_uri: emmo_chameo:Probe
     slots:
      - name
+     - tip_sensor_type
+     - wire_material
+     - holder_id
+     - thickness
+     - length
+     - resonance_frequency
+     - quality_factor
+     - reference_number
+     - device_parameters
+     - receive_date
+     - comments
   Transfer:
-    class_uri:
+    class_uri: ncit:NCIT_C48167
     slots:
      - name
+     - description
+     - location_before
+     - location_after
   UHVComponent:
     class_uri:
     slots:
      - name
+     - uhv_component_type
+     - empa_id
+     - model
+     - serial_number
+     - receive_date
+     - comments
+     - manufacturer
   WaferSubstrate:
     class_uri:
     slots:
      - name
-  FeedbackSettings:
-    class_uri:
-    slots:
-     - feedback_active
-     - feedback_type
-  ZControllerSettings:
-    class_uri:
-    slots:
-     - setpoint
-     - p_gain
-     - i_gain
-     - time_constant
-     - tip_lift
-     - switch_off_delay
+     - batch
+     - sample_plate
+     - substrates
+     - diameter
+     - height
+     - thickness
+     - hazardous
+     - hazardous_specification
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - receive_date
+     - comments
+     - storage
+     - chemist
   PiezoConfigurationSettings:
     class_uri:
     slots:
@@ -814,6 +883,28 @@ classes:
      - temperature
      - device
      - datetime
+  VacuumSystemStatusSettings:
+    slots:
+     - principal_chamber
+     - analysis_chamber
+     - fel_chamber
+     - comments
+  CryoSystemStatusSettings:
+    slots:
+     - temperature
+     - liquid_helium
+     - liquid_nitrogen_refill_date
+  PrincipalChamberSettings:
+    slots:
+     - pressure
+     - tsp_filament_used
+  AnalysisChamberSettings:
+    slots:
+     - pressure
+     - tsp_filament_used
+  FELChamberSettings:
+    slots:
+     - pressure
   Container:
     tree_root: true
     attributes:
@@ -941,6 +1032,7 @@ classes:
         multivalued: true
         inlined_as_list: true
         range: Publication
+        slot_uri: schema:PublicationIssue
       results:
         multivalued: true
         inlined_as_list: true
@@ -1029,8 +1121,8 @@ slots:
     range: string
     slot_uri: schema:description
   work_phone:
-      range: string
-      slot_uri: schema:telephone 
+    range: string
+    slot_uri: schema:telephone 
   email:
     range: string
     pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
@@ -1062,6 +1154,7 @@ slots:
     range: integer
     description: empa number
     minimum_value: 0
+    slot_uri: schema:identifier
   batch:
     required: true
     range: string
@@ -1155,49 +1248,47 @@ slots:
   start_time:
     description: start time
     range: custom_datetime
+    slot_uri: ncit:NCIT_C78441
   bias_setpoint:
     description: bias setpoint
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-field
   bias_calibration_factor:
     description: bias calibration factor
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-calibration-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-calibration-field
   bias_calibration_offset:
     description: bias calibration offset
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-bias-offset-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-offset-field
   current_setpoint:
     description: current setpoint
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-field
   current_calibration_factor:
     description: current calibration factor
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-calibration-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-calibration-field
   current_calibration_offset:
     description: current calibration offset
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-offset-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-offset-field
   current_gain:
     description: current gain
     range: QuantitativeValue
-    slot_uri: fairmatsts:nxsts-entry-reproducibility-indicators-current-gain-field
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-gain-field
   z:
     description: z
     range: QuantitativeValue
-  feedback_settings:
-    description: z
-    range: FeedbackSettings
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-z-controller-z-field
   feedback_active:
     description: whether feedback is active
     range: boolean
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-status-field
   feedback_type:
     description: feedback type
     range: FeedbackTypeEnum
-  z_controller_settings:
-    description: z
-    range: ZControllerSettings
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-name-field
   piezo_configuration_settings:
     description: piezo configuration settings
     range: PiezoConfigurationSettings
@@ -1225,15 +1316,6 @@ slots:
   drift_correction_status:
     description: whether the drift correction is performed
     range: boolean
-  time_constant:
-    description: time constant
-    range: QuantitativeValue
-  tip_lift:
-    description: position of the tip when feedback loop is off
-    range: QuantitativeValue
-  switch_off_delay:
-    description: time delay applied when switching off feedback loop
-    range: QuantitativeValue
   scan_settings:
     description: scan settings
     range: ScanSettings
@@ -1244,6 +1326,7 @@ slots:
   angle:
     description: angle
     range: QuantitativeValue
+    slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
   scan_offset:
     description: scan offset
     range: ScanOffset
@@ -1400,6 +1483,7 @@ slots:
   amplitude:
     description: amplitude
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C70831
   resonance_frequency:
     description: resonance frequency
     range: QuantitativeValue
@@ -1449,24 +1533,31 @@ slots:
   material:
     description: material
     range: string
+    slot_uri: schema:material
   face:
     description: face
     range: string
+    slot_uri: ncit:NCIT_C126364
   sample_plate:
     description: sample plate
     range: string
+    slot_uri: emmo_nano:EMMO_69c892cc-b9c4-53cd-8e5e-216c57e2592f
   diameter:
     description: diameter
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25285
   height:
     description: height
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25347
   specifications:
     description: specifications
     range: string
+    slot_uri: sio:SIO_000090
   reference_number:
     description: reference number
     range: string
+    slot_uri: ncit:NCIT_99287
   stabilisation_time:
     description: stabilisation time
     range: QuantitativeValue
@@ -1534,9 +1625,6 @@ slots:
   output_hirshfeld_population_analysis:
     description: charges and magnetic momentum for each atom resulting from Hirshfeld population analysis
     range: OutputPopulationAnalysis
-  molecule_name:
-    description: molecule name
-    range: string
   draft_type:
     description: draft type
     range: DraftTypeEnum
@@ -1549,19 +1637,24 @@ slots:
   substance:
     description: substance
     range: string
+    slot_uri: schema:Substance
   serial_number:
     description: serial number
     range: string
+    slot_uri: ncit:NCIT_C73518
   empa_id:
     description: empa id
     range: string
+    slot_uri: schema:identifier
   documentation_website:
     description: documentation website
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+    slot_uri: ncit:NCIT_C93821
   dewar:
     description: dewar
     range: DewarEnum
+    slot_uri: ncit:NCIT_C43190
   force_convergence_threshold:
     description: maximum force allowed on each atom before the optimisation is converged
     range: ForceConvergenceThreshold
@@ -1575,18 +1668,23 @@ slots:
   start_date:
     description: start date
     range: date
+    slot_uri: schema:startDate
   end_date:
     description: end date
     range: date
+    slot_uri: schema:endDate
   budget:
     description: budget
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C60757
   project_id:
     description: project id
     range: string
+    slot_uri: schema:identifier
   acknowledgement_sentence:
     description: acknowledgement sentence
     range: string
+    slot_uri: iao:IAO_0000324
   layers_2d:
     description: details about the 2D layers
     range: Layers2DDetails
@@ -1607,15 +1705,19 @@ slots:
   width:
     description: width
     range: QuantitativeValue
+    slot_uri: schema:width
   length:
     description: length
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C25334
   thickness:
     description: thickness
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C41145
   supplier_own_name:
     description: supplier own name
     range: string
+    slot_uri: schema:alternateName
   geometry_constraints_increments:
     description: increments used to vary some of the constraints in case the constrained geometry optimisation method is used
     range: double
@@ -1640,6 +1742,7 @@ slots:
     description: list of group of atoms on which projections of the orbitals are computed
     range: double
     multivalued: true
+    slot_uri: chebi:CHEBI_33250
   orbitals_selections:
     description: amplitude of each gas phase orbital for a portion of the system on the orbitals of the full system
     range: double
@@ -1659,28 +1762,36 @@ slots:
   energy:
     description: energy
     range: QuantitativeValue
+    slot_uri: emmo:EMMO_31ec09ba_1713_42cb_83c7_b38bf6f9ced2
   short_name:
     description: username
     range: string
+    slot_uri: ncit:NCIT_C42694
   work_status:
     description: work status
     range: boolean
+    slot_uri: opmi:OPMI_0000122
   mobile_phone:
     description: mobile phone
     range: string
+    slot_uri: ncit:NCIT_C98193
   abstract:
     description: abstract
     range: string
+    slot_uri: schema:abstract
   doi:
     description: doi
     range: string
+    slot_uri: ncit:NCIT_C71462
   year:
     description: year
     range: integer
+    slot_uri: ncit:NCIT_C29848
   url:
     description: url
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+    slot_uri: ncit:NCIT_C42743
   dataset_url:
     description: dataset url
     range: string
@@ -1689,9 +1800,11 @@ slots:
     description: dataset url
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+    slot_uri: apollo:APOLLO_SV_00000488
   discharge_voltage:
-    description: Discharge voltage
+    description: discharge voltage
     range: QuantitativeValue
+    slot_uri: emmo_electrochemistry:electrochemistry_c7b26177_21bf_4787_b656_8e78edf27f88
   e_min:
     description: energy of the lowest orbital included in the calculation
     range: QuantitativeValue
@@ -1704,6 +1817,7 @@ slots:
   fwhm:
     description: full width at half maximum
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C94903
   extrap_plane:
     description: position of the extrapolation plane
     range: QuantitativeValue
@@ -1716,82 +1830,105 @@ slots:
   experiment_type:
     description: experiment type
     range: ExperimentTypeEnum
+    slot_uri: fairmat_sts:nxsts-entry-experiment-type-field
   acquisition_coordinate_x:
     description: acquisition coordinate axis x
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-x-field
   acquisition_coordinate_y:
     description: acquisition coordinate axis y
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-y-field
   acquisition_coordinate_z:
     description: acquisition coordinate axis z
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-z-field
   final_z:
     description: final z
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-final-z-field
   filter_type:
     description: filter type
     range: FilterTypeEnum
+    slot_uri: reprme:FilterType
   filter_order:
     description: filter order
     range: integer
   filter_cutoff:
     description: filter cutoff
     range: QuantitativeValue
+    slot_uri: ncit:NCIT_C94895
   num_pixel:
     description: number of pixels
     range: integer
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-num-pixel-field
   z_avg_time:
     description: duration between which the Z position is recorded and averaged before and after the sweep
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-z-avg-time-field
   first_settling_time:
     description: additional time to wait (in addition to the Settling Time) after the bias has ramped to the starting point of the sweep
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-first-settling-time-field
   settling_time:
     description: time to wait after changing the bias to the next level and before starting to acquire data
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-settling-time-field
   integration_time:
     description: time during which the data are acquired and averaged
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-integration-time-field
   end_settling_time:
     description: time to wait after the sweep has finished and the bias is ramped to the initial value
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-end-settling-time-field
   z_control_time:
     description: time during which the Z-controller is enabled once a sweep has finished
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-time-field
   max_slew_rate:
     description: max rate at which the bias changes (before, during and after sweeping)
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-max-slew-rate-field
   backward_sweep:
     description: whether one wants to measure the backward (return) sweep or the forward only
     range: boolean
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-backward-sweep-field
   num_sweeps:
     description: number of sweeps to measure and average
     range: integer
+    slot_uri: fairmat_sts:nxsts-entry-resolution-indicators-number-of-sweeps-field
   channel_names:
     description: recorded channel names
     range: string
     multivalued: true
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-scan-control-circuit-channels-current-field
   record_final_z:
     description: record the Z position during Z averaging time at the end of the sweep (after Z control time)
     range: boolean
-  lock_in_run:
-    description: lock-in to run during the measurement
-    range: integer
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-final-z-field
+  # lock_in_run:
+  #   description: lock-in to run during the measurement
+  #   range: integer
   bias_spectroscopy_reset_bias:
     description: reset bias to the initial value (before starting the sweep) at the end of the spectroscopy measurement
     range: boolean
   bias_spectroscopy_sweep_start:
     description: bias spectroscopy sweep start
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-sweep-start-field
   bias_spectroscopy_sweep_end:
     description: bias spectroscopy sweep end
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-sweep-end-field
   bias_spectroscopy_z_offset:
     description: bias spectroscopy Z-offset
     range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-offset-field
   bias_spectroscopy_z_controller_hold:
     description: if Z-controller is being used
     range: boolean
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-hold-field
   z_spectroscopy_reset_z:
     description: reset the Z position at the end of the sweep to the initial averaged value calculated during Z averaging time at Max slew rate
     range: boolean
@@ -1804,6 +1941,123 @@ slots:
   z_spectroscopy_time_between_forward_backward:
     description: time to wait in seconds between the forward and the backward sweep
     range: QuantitativeValue
+  z_controller_setpoint:
+    description: Z-controller setpoint
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-setpoint-field
+  z_controller_p_gain:
+    description: Z-controller proportional gain
+    range: double
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-p-gain-field
+  z_controller_i_gain:
+    description: Z-controller integral gain
+    range: double
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-i-gain-field
+  z_controller_time_constant:
+    description: Z-controller time constant
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-time-const-field
+  z_controller_tip_lift:
+    description: position of the tip when feedback loop is off
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-tip-lift-field
+  z_controller_switch_off_delay:
+    description: time delay applied when switching off feedback loop
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-switchoff-delay-field
+  lock_in_status:
+    description: if lock-in is on or not
+    range: boolean
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-status-field
+  lock_in_modulated_signal:
+    description: signal on which the modulation (sine) will be added
+    range: string
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-signal-field
+  lock_in_frequency:
+    description: lock-in frequency
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-frequency-field
+  lock_in_amplitude:
+    description: lock-in frequency
+    range: QuantitativeValue
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-amplitude-field
+  lock_in_hp_filter_cutoffs:
+    description: cutoff frequency of the high-pass filter applied on the demodulation signal
+    range: QuantitativeValue
+    multivalued: true
+  lock_in_hp_filter_orders:
+    description: filter order of the high-pass filter applied on the demodulation signal
+    range: integer
+    multivalued: true
+  lock_in_demodulated_signal:
+    description: signal which will be demodulated
+    range: LockInDemodulatedSignalEnum
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-demodulated-signal-field
+  lock_in_harmonics:
+    description: order of the harmonic oscillation to detect on the demodulated signal
+    range: integer
+    multivalued: true
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-harmonic-order-n-field
+  lock_in_reference_phases:
+    description: reference phase for the sine on the demodulated signal with respect to the modulation signal
+    range: QuantitativeValue
+    multivalued: true
+    slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-ref-phase-n-field
+  lock_in_lp_filter_cutoffs:
+    description: cutoff frequency of the low-pass filter applied on the demodulation signal
+    range: QuantitativeValue
+    multivalued: true
+  lock_in_lp_filter_orders:
+    description: filter order of the low-pass filter applied on the demodulation signal
+    range: integer
+    multivalued: true
+  lock_in_sync_filter:
+    description: if use sync filter (Operates after the low-pass filter and averages the demodulated signals over one period of the modulation frequency
+    range: boolean
+  vacuum_system_status:
+    description: vacuum system status
+    range: VacuumSystemStatusSettings
+  principal_chamber:
+    description: principal chamber
+    range: PrincipalChamberSettings
+  analysis_chamber:
+    description: analysis chamber
+    range: AnalysisChamberSettings
+  fel_chamber:
+    description: fel chamber
+    range: FELChamberSettings
+  tsp_filament_used:
+    description: TSP-filament used
+  cryo_system_status:
+    description: cryo system status
+    range: CryoSystemStatusSettings
+  liquid_helium:
+    description: liquid helium
+    range: QuantitativeValue
+  liquid_nitrogen_refill_date:
+    description: liquid helium refill date
+    range: custom_datetime
+  tip_preparation_type:
+    description: tip preparation type
+    range: TipPreparationTypeEnum
+  wire_material:
+    description: wire material
+    range: string
+  holder_id:
+    description: holder id
+    range: string
+  quality_factor:
+    description: quality factor or q factor
+    range: integer
+    slot_uri: emmo:EMMO_0658e7df_ffd9_4779_82fc_62efe0a7f3b1
+  device_parameters:
+    description: device parameters
+    range: string
+    slot_uri: ncit:NCIT_80474
+  model:
+    description: the model of the UHV component
+    range: string
+    slot_uri: schema:model
   parent_molecules:
     range: Molecule
     multivalued: true
@@ -1823,10 +2077,13 @@ slots:
     slot_uri: schema:Organization
   annealing:
     range: Annealing
+    slot_uri: chmo:CHMO_0001465
   sputtering:
     range: Sputtering
+    slot_uri: chmo:CHMO_0001569
   deposition:
     range: Deposition
+    slot_uri: chmo:CHMO_0001310
   uhv_component:
     range: UHVComponent
   uhv_components:
@@ -1835,15 +2092,18 @@ slots:
     multivalued: true
   instrument:
     range: Instrument
+    slot_uri: ncit:NCIT_C16742
   dft:
     range: DFT
-    slot_uri: emmoda:83a69cf2-00c1-58b8-915b-76cb3549890a
+    slot_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
   tb:
     range: TightBinding
   crystal:
     range: Crystal
+    slot_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
   molecule:
     range: Molecule
+    slot_uri: schema:MolecularEntity
   person:
     range: Person
     slot_uri: schema:Person
@@ -1851,44 +2111,55 @@ slots:
     range: AtomisticModel
     inlined_as_list: true
     multivalued: true
+    slot_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
   manufacturer:
     range: Manufacturer
+    slot_uri: ncit:NCIT_C25392
   tip_sensor:
     range: TipSensor
+    slot_uri: emmo_chameo:Probe
   results:
     range: Result
     multivalued: true
     inlined_as_list: true
+    slot_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
   empirical_modelling:
     range: EmpiricalModelling
   grants:
     range: Grant
     multivalued: true
     inlined_as_list: true
+    slot_uri: schema:Grant
   drafts:
     range: Draft
     multivalued: true
     inlined_as_list: true
+    slot_uri: ncit:NCIT_C85255
   authors:
     range: Author
     multivalued: true
     inlined_as_list: true
+    slot_uri: ncit:NCIT_C42781
   stms:
     range: STM
     multivalued: true
     inlined_as_list: true
+    slot_uri: chmo:CHMO_0000132
   afms:
     range: AFM
     multivalued: true
     inlined_as_list: true
+    slot_uri: chmo:CHMO_0000113
   stss:
     range: STS
     multivalued: true
     inlined_as_list: true
+    slot_uri: fairmat_sts:nxsts
   softwares:
     range: Software
     multivalued: true
     inlined_as_list: true
+    slot_uri: schema:SoftwareSourceCode
   geometry_optimisations:
     range: GeometryOptimisation
     multivalued: true
@@ -1899,6 +2170,32 @@ slots:
     range: WaferSubstrate
   sample:
     range: Sample
+  cangasbottles:
+    range: CanGasBottle
+    multivalued: true
+    inlined_as_list: true
+  maintenance:
+    range: Maintenance
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: ncit:NCIT_C53297
+  errors:
+    range: Errors
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: ncit:NCIT_C43369
+  location_before:
+    description: location of the sample before the transfer
+    range: Room
+  location_after:
+    description: location of the sample after the transfer
+    range: Room
+  tip_sensor_type:
+    description: tip sensor type
+    range: TipSensorTypeEnum
+  uhv_component_type:
+    description: uhv component type
+    range: UHVComponentTypeEnum
 
 enums:
   PModelEnum:
@@ -1959,3 +2256,28 @@ enums:
   FilterTypeEnum:
     permissible_values:
       Butterworth:
+  LockInDemodulatedSignalEnum:
+    permissible_values:
+      Current:
+  TipPreparationTypeEnum:
+    permissible_values:
+      FIB:
+      Etched:
+  TipSensorTypeEnum:
+    permissible_values:
+      Tuning fork:
+  UHVComponentTypeEnum:
+    permissible_values:
+      Pump:
+      Evaporator:
+      Analyser:
+      Gauge:
+      Ion/Photon stage:
+      Storage:
+      Gas panel:
+      Port/valve:
+      Manipulator/wobble stick:
+      Cryostat:
+      SPM:
+      Electronics:
+      Various:
