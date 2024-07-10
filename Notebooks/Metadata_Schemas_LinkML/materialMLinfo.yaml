@@ -17,13 +17,14 @@ prefixes:
   opmi: http://purl.obolibrary.org/obo/opmi.owl#
   iao: http://purl.obolibrary.org/obo/iao.owl#
   sio: http://semanticscience.org/ontology/sio.owl#
-  reprme: https://w3id.org/reproduceme#
+  ome_onto: http://www.openmicroscopy.org/Schemas/Documentation/Generated/OME-2016-06/ome_xsd.html#
   apollo: http://purl.obolibrary.org/obo/apollo_sv.owl#
   afe: http://purl.allotrope.org/ontologies/equipment#
   materialsML: https://w3id.org/linkml/examples/materialsML/
   xsd: http://www.w3.org/2001/XMLSchema#
-default_curi_maps:
-  - semweb_context
+  foaf: http://xmlns.com/foaf/0.1/
+# default_curi_maps:
+#   - semweb_context
 imports:
   - linkml:types
 default_prefix: materialsML
@@ -31,6 +32,9 @@ default_prefix: materialsML
 classes:
   AFM:
     class_uri: chmo:CHMO_0000113
+    description: Atomic Force Microscopy
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - start_time
@@ -42,7 +46,7 @@ classes:
      - current_calibration_factor
      - current_calibration_offset
      - current_gain
-     - z
+     - z_position
      - feedback_active
      - feedback_type
      - z_controller_setpoint
@@ -72,6 +76,9 @@ classes:
      - instrument
   Annealing:
     class_uri: chmo:CHMO_0001465
+    description: Annealing
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - duration
@@ -82,10 +89,13 @@ classes:
      - comments
      - sputtering
      - deposition
-     - uhv_component
+     - uhv_components
      - instrument
   AtomisticModel:
     class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
+    description: Atomistic Model
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - atoms_positions
@@ -98,12 +108,18 @@ classes:
      - molecule
   Author:
     class_uri: ncit:NCIT_C42781
+    description: Author
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - person
      - institution
   BandStructure:
     class_uri: 
+    description: Band Structure
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - k_points_conditions
@@ -116,6 +132,9 @@ classes:
      - tb
   CanGasBottle:
     class_uri: 
+    description: Bottle/Can of Gas
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
@@ -123,7 +142,10 @@ classes:
      - state
      - comments
   Chemist:
-    class_uri: occo:OCCO_19203100 
+    class_uri: occo:OCCO_19203100
+    description: Chemist/Synthesiser
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - email
@@ -131,11 +153,17 @@ classes:
      - supplier
   Comments:
     class_uri: schema:comment
+    description: Generic Comments
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
   Crystal:
     class_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
+    description: Crystal
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - material
@@ -159,6 +187,9 @@ classes:
      - supplier
   Deposition:
     class_uri: chmo:CHMO_0001310
+    description: Deposition
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - stabilisation_time
@@ -170,10 +201,13 @@ classes:
      - comments
      - annealing
      - molecule
-     - uhv_component
+     - uhv_components
      - instrument
   DFT:
     class_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
+    description: Density Functional Theory
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
@@ -196,6 +230,9 @@ classes:
      - comments
   Dosing:
     class_uri: chmo:CHMO_0001383
+    description: Dosing a molecule
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - sum_formula
@@ -206,6 +243,9 @@ classes:
      - instrument
   Draft:
     class_uri: ncit:NCIT_C85255
+    description: Publication draft/Manuscript
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - draft_type
@@ -213,19 +253,28 @@ classes:
      - results
   EmpiricalModelling:
     class_uri: 
+    description: Empirical Modelling
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
      - wfms_url
   Errors:
     class_uri: ncit:NCIT_C43369
+    description: Errors and problems
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
      - instrument
-     - uhv_component
+     - uhv_components
   FillCryostat:
     class_uri: 
+    description: Fill the cryostat
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - weight_before
@@ -233,10 +282,13 @@ classes:
      - substance
      - dewar
      - comments
-     - uhv_component
+     - uhv_components
      - instrument
   GeometryOptimisation:
     class_uri: 
+    description: Geometry optimisation
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
@@ -249,6 +301,9 @@ classes:
      - empirical_modelling
   Grant:
     class_uri: schema:Grant
+    description: Grant
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - funder
@@ -260,20 +315,29 @@ classes:
      - comments
   HydrogenCracker:
     class_uri: 
+    description: Splitting gas molecules into elements
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - sum_formula
      - comments
-     - uhv_component
+     - uhv_components
      - instrument
   Institution:
     class_uri: schema:Organization
+    description: Institution
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
      - address
   Instrument:
     class_uri: ncit:NCIT_C16742
+    description: Instrument
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - serial_number
@@ -287,6 +351,9 @@ classes:
      - tip_sensor
   Layered2DMaterial:
     class_uri: 
+    description: Layered 2D material
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - empa_number
@@ -312,19 +379,28 @@ classes:
      - chemist
   Maintenance:
     class_uri: ncit:NCIT_C53297
+    description: Maintenance performed in the instruments
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
-     - uhv_component
+     - uhv_components
      - instrument
   Manufacturer:
     class_uri: ncit:NCIT_C25392
+    description: Manufacturer
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - email
      - work_phone
   MinimumEnergyPotential:
     class_uri: 
+    description: Minimum Energy Potential
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
@@ -338,8 +414,11 @@ classes:
      - comments
      - atomistic_models
   Molecule:
-    class_uri: schema:MolecularEntity   
-    slots:   ## specified as a list
+    class_uri: schema:MolecularEntity  
+    description: Molecule
+    annotations:
+      openBIS_object: true
+    slots:
      - name
      - iupac_name
      - sum_formula
@@ -363,14 +442,20 @@ classes:
      - comments
      - chemist
      - storage
-     - parent_molecules
+     - precursor_molecules
   Notes:
     class_uri: ncit:NCIT_C42619
+    description: General Notes
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
   PDOS:
     class_uri: 
+    description: Projected Density of States
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
@@ -388,6 +473,9 @@ classes:
      - tb
   PotentialEnergyCalculation:
     class_uri: 
+    description: Potential Energy Calculation
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_uuid
@@ -398,6 +486,9 @@ classes:
      - empirical_modelling
   Person:
     class_uri: schema:Person
+    description: Person
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - short_name
@@ -407,11 +498,17 @@ classes:
      - mobile_phone
   Protocol:
     class_uri: obi:OBI_0000272
+    description: Protocol
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
   Publication:
     class_uri: schema:PublicationIssue
+    description: Publication
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - abstract
@@ -425,6 +522,9 @@ classes:
      - authors
   Result:
     class_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
+    description: Results
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
@@ -436,12 +536,18 @@ classes:
      - softwares
   Room:
     class_uri: schema:Room
+    description: Room
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - comments
      - institution
   Sample:
     class_uri: 
+    description: Sample being measured
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - crystal
@@ -449,11 +555,17 @@ classes:
      - wafer_substrate
   Software:
     class_uri: schema:SoftwareSourceCode
+    description: Used software script
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - repository_url
   Sputtering:
     class_uri: chmo:CHMO_0001569
+    description: Sputtering
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - duration
@@ -464,7 +576,7 @@ classes:
      - angle
      - current
      - comments
-     - uhv_component
+     - uhv_components
      - annealing
      - deposition
      - instrument
@@ -472,12 +584,17 @@ classes:
   SRD:
     description: Sublimation Rate Determination
     class_uri: 
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - comments
      - molecule
   STM:
     class_uri: chmo:CHMO_0000132
+    description: Scanning Tunneling Microscopy
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - start_time
@@ -489,7 +606,7 @@ classes:
      - current_calibration_factor
      - current_calibration_offset
      - current_gain
-     - z
+     - z_position
      - feedback_active
      - feedback_type
      - z_controller_setpoint
@@ -522,12 +639,18 @@ classes:
      - instrument
   Storage:
     class_uri: ncit:NCIT_C16143
+    description: Storage
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - comments
      - room
   STS:
     class_uri: fairmat_sts:nxsts
+    description: Scanning Tunneling Spectroscopy
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - start_time
@@ -569,7 +692,7 @@ classes:
      - current_calibration_factor
      - current_calibration_offset
      - current_gain
-     - z
+     - z_position
      - feedback_active
      - feedback_type
      - z_controller_setpoint
@@ -598,6 +721,9 @@ classes:
      - instrument
   Supplier:
     class_uri: ncit:NCIT_C43530
+    description: Supplier
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - email
@@ -605,6 +731,9 @@ classes:
      - address
   SystemHandover:
     class_uri:
+    description: System Handover
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - vacuum_system_status
@@ -616,18 +745,27 @@ classes:
      - instrument
   SystemStatus:
     class_uri:
+    description: System Status
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
      - instrument
   TightBinding:
     class_uri:
+    description: Tight Binding
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - wfms_url
      - wfms_uuid
   TipPreparation:
     class_uri:
+    description: Tip Preparation
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
@@ -636,6 +774,9 @@ classes:
      - authors
   TipSensor:
     class_uri: emmo_chameo:Probe
+    description: Tip Sensor
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - tip_sensor_type
@@ -651,6 +792,9 @@ classes:
      - comments
   Transfer:
     class_uri: ncit:NCIT_C48167
+    description: Transference
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - description
@@ -658,6 +802,9 @@ classes:
      - location_after
   UHVComponent:
     class_uri:
+    description: Ultra High Vacuum Component
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - uhv_component_type
@@ -669,6 +816,9 @@ classes:
      - manufacturer
   WaferSubstrate:
     class_uri:
+    description: Wafer Substrate
+    annotations:
+      openBIS_object: true
     slots:
      - name
      - batch
@@ -691,6 +841,7 @@ classes:
      - chemist
   PiezoConfigurationSettings:
     class_uri:
+    description: Piezo configuration settings
     slots:
      - active_calib
      - sensitivity_settings
@@ -702,39 +853,46 @@ classes:
      - drift_correction_status
   SensitivitySettings:
     class_uri:
+    description: Sensitivity settings
     slots:
      - x_coordinate
      - y_coordinate
      - z_coordinate
   HVGainSettings:
     class_uri:
+    description: HV gain settings
     slots:
      - x_coordinate
      - y_coordinate
      - z_coordinate
   ScanSlope:
     class_uri:
+    description: Scan slope axis
     slots:
      - x_coordinate
      - y_coordinate
   CurvatureRadius:
     class_uri:
+    description: Curvature radius axis
     slots:
      - x_coordinate
      - y_coordinate
   SecondOrderCorrection:
     class_uri:
+    description: Second order correction axis
     slots:
      - x_coordinate
      - y_coordinate
   DriftSettings:
     class_uri:
+    description: Drift settings
     slots:
      - x_coordinate
      - y_coordinate
      - z_coordinate
   ScanSettings:
     class_uri:
+    description: Scan settings
     slots:
      - field
      - angle
@@ -746,31 +904,37 @@ classes:
      - direction_speed
   ScanOffset:
     class_uri:
+    description: Scan offset axis
     slots:
      - x_coordinate
      - y_coordinate
   ScanTime:
     class_uri:
+    description: Scan time by axis
     slots:
      - x_coordinate
      - y_coordinate
   ScanRange:
     class_uri:
+    description: Scan range by axis
     slots:
      - x_coordinate
      - y_coordinate
   ScanPixels:
     class_uri:
+    description: Scan pixels by axis
     slots:
      - x_coordinate
      - y_coordinate
   ScanSpeed:
     class_uri:
+    description: Speed speed by axis
     slots:
      - forward_speed
      - backward_speed
   OscillationControlSettings:
     class_uri:
+    description: Oscillation control settings
     slots:
      - differential_input
      - one_ten
@@ -787,6 +951,7 @@ classes:
      - pll_setup_settings
   DemodulationSettings:
     class_uri:
+    description: Demodulation settings
     slots:
      - inputs
      - frequencies
@@ -796,12 +961,14 @@ classes:
      - filters_orders
   PhaseSettings:
     class_uri:
+    description: Phase settings
     slots:
      - p_gain
      - i_gain
      - controller_on
   AmplitudeSettings:
     class_uri:
+    description: Amplitude settings
     slots:
      - setpoint
      - p_gain
@@ -809,12 +976,14 @@ classes:
      - controller_on
   OutputSettings:
     class_uri:
+    description: Output settings
     slots:
      - amplitude_range
      - output_active
      - output_add
   PLLSetupSettings:
     class_uri:
+    description: PLL setup settings
     slots:
      - q_factor
      - demodulation_bw_amp
@@ -822,12 +991,14 @@ classes:
      - amplitude_excitation_ratio
   PeriodicBoundaryConditions:
     class_uri:
+    description: Periodic boundary conditions
     slots:
      - x_coordinate
      - y_coordinate
      - z_coordinate
   AtomsPositions:
     class_uri:
+    description: Atoms positions and atoms symbols
     slots:
      - x_coordinate
      - y_coordinate
@@ -835,32 +1006,38 @@ classes:
      - atom_symbol
   KPointsConditions:
     class_uri:
+    description: K-points conditions
     slots:
      - x_coordinate
      - y_coordinate
      - z_coordinate
   BSEnergy:
     class_uri:
+    description: Band structure energy
     slots:
      - charge
      - magnetic_momentum
   EvaporatorSlot:
     class_uri:
+    description: Evaporator slot
     slots:
      - evaporator_number
      - details
   OutputPopulationAnalysis:
     class_uri:
+    description: Output population analysis details
     slots:
      - charge
      - magnetic_momentum
   ForceConvergenceThreshold:
     class_uri:
+    description: Force convergence threshold
     slots:
      - charge
      - magnetic_momentum
   Layers2DDetails:
     class_uri:
+    description: details of 2D layers
     slots:
      - material
      - number_layers
@@ -868,6 +1045,7 @@ classes:
      - coverage
   SubstratesDetails:
     class_uri:
+    description: details of substrates
     slots:
      - material
      - thickness
@@ -875,235 +1053,291 @@ classes:
      - coverage
   QuantitativeValue:
     class_uri: schema:QuantitativeValue
+    description: Value together with unit
     slots:
-     - value
-     - unit
+     - has_value
+     - has_unit
   EvaporationTemperature:
+    description: evaporation temperature details
     slots:
      - temperature
      - device
      - datetime
   VacuumSystemStatusSettings:
+    description: vacuum system settings
     slots:
      - principal_chamber
      - analysis_chamber
      - fel_chamber
      - comments
   CryoSystemStatusSettings:
+    description: cryo system settings
     slots:
      - temperature
      - liquid_helium
      - liquid_nitrogen_refill_date
   PrincipalChamberSettings:
+    description: principal chamber settings
     slots:
      - pressure
      - tsp_filament_used
   AnalysisChamberSettings:
+    description: analysis chamber settings
     slots:
      - pressure
      - tsp_filament_used
   FELChamberSettings:
+    description: FEL chamber settings
     slots:
      - pressure
   Container:
+    description: Contains multiple objects
     tree_root: true
     attributes:
       afms:
         multivalued: true
         inlined_as_list: true
         range: AFM
+        description: atomic force microscopies container
       annealings:
         multivalued: true
         inlined_as_list: true
         range: Annealing
+        description: annealings container
       atomisticmodels:
         multivalued: true
         inlined_as_list: true
         range: AtomisticModel
+        description: atomistic models container
       authors:
         multivalued: true
         inlined_as_list: true
         range: Author
+        description: authors container
       band_structures:
         multivalued: true
         inlined_as_list: true
         range: BandStructure
+        description: band structures container
       can_gas_bottles:
         multivalued: true
         inlined_as_list: true
         range: CanGasBottle
+        description: bottles/cans of gas container
       chemists:
         multivalued: true
         inlined_as_list: true
         range: Chemist
+        description: chemists container
       comments:
         multivalued: true
         inlined_as_list: true
         range: Comments
+        description: comments container
       crystals:
         multivalued: true
         inlined_as_list: true
         range: Crystal
+        description: crystals container
       depositions:
         multivalued: true
         inlined_as_list: true
         range: Deposition
+        description: depositions container
       dfts:
         multivalued: true
         inlined_as_list: true
         range: DFT
+        description: density functional theory objects container
       dosings:
         multivalued: true
         inlined_as_list: true
         range: Dosing
+        description: dosings container
       drafts:
         multivalued: true
         inlined_as_list: true
         range: Draft
+        description: drafts container
       empirical_modellings:
         multivalued: true
         inlined_as_list: true
         range: EmpiricalModelling
+        description: empirical modelling objects container
       errors:
         multivalued: true
         inlined_as_list: true
         range: Errors
+        description: errors and problems container
       fillcryostats:
         multivalued: true
         inlined_as_list: true
         range: FillCryostat
+        description: fill cryostat objects container
       geoopts:
         multivalued: true
         inlined_as_list: true
         range: GeometryOptimisation
+        description: geometry optimisations container
       grants:
         multivalued: true
         inlined_as_list: true
         range: Grant
+        description: grants container
       hydrogen_crackers:
         multivalued: true
         inlined_as_list: true
         range: HydrogenCracker
+        description: hydrogen cracker objects container
       institutions:
         multivalued: true
         inlined_as_list: true
         range: Institution
+        description: institutions container
       instruments:
         multivalued: true
         inlined_as_list: true
         range: Instrument
+        description: instruments container
       layered2dmaterials:
         multivalued: true
         inlined_as_list: true
         range: Layered2DMaterial
+        description: 2D layered materials container
       maintenances:
         multivalued: true
         inlined_as_list: true
         range: Maintenance
+        description: maintenance container
       manufacturers:
         multivalued: true
         inlined_as_list: true
         range: Manufacturer
+        description: manufacturers container
       meps:
         multivalued: true
         inlined_as_list: true
         range: MinimumEnergyPotential
+        description: minimum energy potential objects container
       molecules:
         multivalued: true
         inlined_as_list: true
         range: Molecule
+        description: molecules container
       notes:
         multivalued: true
         inlined_as_list: true
         range: Notes
+        description: notes container
       pdoss:
         multivalued: true
         inlined_as_list: true
         range: PDOS
+        description: projected density of states objects container
       persons:
         multivalued: true
         inlined_as_list: true
         range: Person
+        description: persons container
       protocols:
         multivalued: true
         inlined_as_list: true
         range: Protocol
+        description: protocols container
       publications:
         multivalued: true
         inlined_as_list: true
         range: Publication
-        slot_uri: schema:PublicationIssue
+        description: publications container
       results:
         multivalued: true
         inlined_as_list: true
         range: Result
+        description: results container
       rooms:
         multivalued: true
         inlined_as_list: true
         range: Room
+        description: rooms container
       samples:
         multivalued: true
         inlined_as_list: true
         range: Sample
+        description: samples container
       softwares:
         multivalued: true
         inlined_as_list: true
         range: Software
+        description: softwares container
       sputterings:
         multivalued: true
         inlined_as_list: true
         range: Sputtering
+        description: sputterings container
       srds:
         multivalued: true
         inlined_as_list: true
         range: SRD
+        description: sublimation rate determination objects container
       stms:
         multivalued: true
         inlined_as_list: true
         range: STM
+        description: scanning tunneling microscopies container
       storages:
         multivalued: true
         inlined_as_list: true
         range: Storage
+        description: storages container
       stss:
         multivalued: true
         inlined_as_list: true
         range: STS
+        description: scanning tunneling spectroscopies container
       suppliers:
         multivalued: true
         inlined_as_list: true
         range: Supplier
+        description: suppliers container
       system_handovers:
         multivalued: true
         inlined_as_list: true
         range: SystemHandover
+        description: system handover objects container
       tight_bindings:
         multivalued: true
         inlined_as_list: true
         range: TightBinding
+        description: tight binding objects container
       tip_preparations:
         multivalued: true
         inlined_as_list: true
         range: TipPreparation
+        description: tip preparation objects container
       tip_sensors:
         multivalued: true
         inlined_as_list: true
         range: TipSensor
+        description: tip sensors container
       transfers:
         multivalued: true
         inlined_as_list: true
         range: Transfer
+        description: transfers container
       uhv_components:
         multivalued: true
         inlined_as_list: true
         range: UHVComponent
+        description: ultra high vacuum components container
       wafer_substrates:
         multivalued: true
         inlined_as_list: true
         range: WaferSubstrate
+        description: wafer substrates container
 
 types:
   custom_datetime:
+    description: custom datetime. It replaces linkML datetime because it was not possible to use it to validate a data file and to generate other schema file formats. For validating data it required datetime format while for converting it had be a string.
     base: str
     pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$
     uri: xsd:dateTime
@@ -1112,7 +1346,6 @@ types:
 # declaring them here allows them to be reused elsewhere
 slots:
   name:
-    required: true
     description: name
     range: string
     slot_uri: schema:name
@@ -1121,10 +1354,12 @@ slots:
     range: string
     slot_uri: schema:description
   work_phone:
+    description: work phone
     range: string
     slot_uri: schema:telephone 
   email:
     range: string
+    description: email
     pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     slot_uri: schema:email
   address: 
@@ -1136,12 +1371,10 @@ slots:
     range: string
     slot_uri: schema:iupacName
   sum_formula:
-    required: true
     range: string
     description: sum formula
     slot_uri: schema:molecularFormula
   smiles:
-    required: true
     range: string
     description: smiles
     slot_uri: schema:smiles
@@ -1150,13 +1383,11 @@ slots:
     range: string
     slot_uri: emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff
   empa_number:
-    required: true
     range: integer
     description: empa number
     minimum_value: 0
     slot_uri: schema:identifier
   batch:
-    required: true
     range: string
     description: batch
     pattern: ^[a-z]$
@@ -1211,11 +1442,11 @@ slots:
     description: comments
     range: string
     slot_uri: schema:comment
-  value:
+  has_value:
     description: Value
     range: double
     slot_uri: schema:value
-  unit:
+  has_unit:
     description: Unit
     range: string
     slot_uri: schema:unitCode
@@ -1277,8 +1508,8 @@ slots:
     description: current gain
     range: QuantitativeValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-gain-field
-  z:
-    description: z
+  z_position:
+    description: z position
     range: QuantitativeValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-z-controller-z-field
   feedback_active:
@@ -1349,7 +1580,7 @@ slots:
     description: scan range
     range: ScanRange
   scan_pixels:
-    description: ScanPixels
+    description: Scan pixels
     range: ScanPixels
   scan_speed:
     description: scan speed
@@ -1737,6 +1968,7 @@ slots:
     multivalued: true
   chemist:
     range: Chemist
+    description: chemist
     slot_uri: occo:OCCO_19203100
   atomic_selections:
     description: list of group of atoms on which projections of the orbitals are computed
@@ -1766,7 +1998,7 @@ slots:
   short_name:
     description: username
     range: string
-    slot_uri: ncit:NCIT_C42694
+    slot_uri: foaf:accountName
   work_status:
     description: work status
     range: boolean
@@ -1850,7 +2082,7 @@ slots:
   filter_type:
     description: filter type
     range: FilterTypeEnum
-    slot_uri: reprme:FilterType
+    slot_uri: ome_onto:FilterType
   filter_order:
     description: filter order
     range: integer
@@ -2058,129 +2290,161 @@ slots:
     description: the model of the UHV component
     range: string
     slot_uri: schema:model
-  parent_molecules:
+  precursor_molecules:
     range: Molecule
+    description: precursor molecules
     multivalued: true
     inlined_as_list: true
     slot_uri: schema:MolecularEntity
   supplier:
     range: Supplier
+    description: supplier
     slot_uri: ncit:NCIT_C43530
   storage:
     range: Storage
+    description: storage
     slot_uri: ncit:NCIT_C16143
   room:
     range: Room
+    description: room
     slot_uri: schema:Room
   institution:
     range: Institution
+    description: institution
     slot_uri: schema:Organization
   annealing:
     range: Annealing
+    description: annealing
     slot_uri: chmo:CHMO_0001465
   sputtering:
     range: Sputtering
+    description: sputtering
     slot_uri: chmo:CHMO_0001569
   deposition:
     range: Deposition
+    description: deposition
     slot_uri: chmo:CHMO_0001310
-  uhv_component:
-    range: UHVComponent
   uhv_components:
     range: UHVComponent
+    description: ultra high vacuum components
     inlined_as_list: true
     multivalued: true
   instrument:
     range: Instrument
+    description: instrument
     slot_uri: ncit:NCIT_C16742
   dft:
     range: DFT
+    description: density functional theory
     slot_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
   tb:
     range: TightBinding
+    description: tight binding
   crystal:
     range: Crystal
+    description: crystal
     slot_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
   molecule:
     range: Molecule
+    description: molecule
     slot_uri: schema:MolecularEntity
   person:
     range: Person
+    description: person
     slot_uri: schema:Person
   atomistic_models:
     range: AtomisticModel
+    description: atomistic models
     inlined_as_list: true
     multivalued: true
     slot_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
   manufacturer:
     range: Manufacturer
+    description: manufacturer
     slot_uri: ncit:NCIT_C25392
   tip_sensor:
     range: TipSensor
+    description: tip sensor
     slot_uri: emmo_chameo:Probe
   results:
     range: Result
+    description: results
     multivalued: true
     inlined_as_list: true
     slot_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
   empirical_modelling:
     range: EmpiricalModelling
+    description: empirical modelling
   grants:
     range: Grant
+    description: grants
     multivalued: true
     inlined_as_list: true
     slot_uri: schema:Grant
   drafts:
     range: Draft
+    description: drafts
     multivalued: true
     inlined_as_list: true
     slot_uri: ncit:NCIT_C85255
   authors:
     range: Author
+    description: authors
     multivalued: true
     inlined_as_list: true
     slot_uri: ncit:NCIT_C42781
   stms:
     range: STM
+    description: scanning tunneling microscopies
     multivalued: true
     inlined_as_list: true
     slot_uri: chmo:CHMO_0000132
   afms:
     range: AFM
+    description: atomic force microscopies
     multivalued: true
     inlined_as_list: true
     slot_uri: chmo:CHMO_0000113
   stss:
     range: STS
+    description: scanning tunneling spectroscopies
     multivalued: true
     inlined_as_list: true
     slot_uri: fairmat_sts:nxsts
   softwares:
     range: Software
+    description: softwares
     multivalued: true
     inlined_as_list: true
     slot_uri: schema:SoftwareSourceCode
   geometry_optimisations:
     range: GeometryOptimisation
+    description: geometry optimisations
     multivalued: true
     inlined_as_list: true
   layered_2d_material:
     range: Layered2DMaterial
+    description: 2D layered material
   wafer_substrate:
     range: WaferSubstrate
+    description: wafer substrate
   sample:
     range: Sample
+    description: sample
   cangasbottles:
     range: CanGasBottle
+    description: bottle/can of gas
     multivalued: true
     inlined_as_list: true
   maintenance:
     range: Maintenance
+    description: maintenance
     multivalued: true
     inlined_as_list: true
     slot_uri: ncit:NCIT_C53297
   errors:
     range: Errors
+    description: errors and problems
     multivalued: true
     inlined_as_list: true
     slot_uri: ncit:NCIT_C43369
@@ -2199,85 +2463,152 @@ slots:
 
 enums:
   PModelEnum:
+    description: p-model values
     permissible_values:
-      Single probe:
-      2PP RESP PTCTA:
-      2PP RESP pentacene:
+      single_probe:
+        description: single probe
+      two_pp_resp_ptcta:
+        description: 2PP RESP PTCTA
+      two_pp_resp_pentacene:
+        description: 2PP RESP pentacene
   DirectionSpeedEnum:
+    description: speed direction values
     permissible_values:
       down:
+        description: down
       both:
+        description: both
   ActiveCalibEnum:
+    description: active calib values
     permissible_values:
-      LHe:
+      l_he:
+        description: LHe
   FeedbackTypeEnum:
+    description: feedback type values
     permissible_values:
-      Log current:
-      Abs current:
+      log_current:
+        description: log current
+      abs_current:
+        description: abs current
   XCFunctionalEnum:
+    description: xc functional values
     permissible_values:
-      Exchange correlation function:
+      exchange_correlation_function:
+        description: exchange correlation function
   DraftTypeEnum:
+    description: draft type values
     permissible_values:
       preprint:
+        description: preprint
       postprint:
+        description: postprint
   DewarEnum:
+    description: dewar values
     permissible_values:
-      1:
-      2:
-      3:
-      4:
-      5:
-      6:
-      7:
-      8:
-      9:
-      10:
-      11:
-      12:
-      LN2:
+      one:
+        description: dewar 1
+      two:
+        description: dewar 2
+      three:
+        description: dewar 3
+      four:
+        description: dewar 4
+      five:
+        description: dewar 5
+      six:
+        description: dewar 6
+      seven:
+        description: dewar 7
+      eight:
+        description: dewar 8
+      nine:
+        description: dewar 9
+      ten:
+        description: dewar 10
+      eleven:
+        description: dewar 11
+      twelve:
+        description: dewar 12
+      ln2:
+        description: dewar liquid molecular nitrogen
   MethodTypeEnum:
+    description: method type values
     permissible_values:
-      NEB:
-      String method:
+      neb:
+        description: NEB
+      string_method:
+        description: string method
   PlotGroupByEnum:
+    description: group by (plot parameter) values
     permissible_values:
       index:
+        description: index
       element:
+        description: element
   PlotContributionsEnum:
+    description: contributions (plot parameter) values
     permissible_values:
       total:
+        description: total
       orbital:
-      angular momentum:
+        description: orbital
+      angular_momentum:
+        description: angular momentum
   ExperimentTypeEnum:
+    description: experiment type values
     permissible_values:
-      bias spectroscopy:
-      z-spectroscopy:
+      bias_spectroscopy:
+        description: bias spectroscopy
+      z_spectroscopy:
+        description: z-spectroscopy
   FilterTypeEnum:
+    description: filter type values
     permissible_values:
-      Butterworth:
+      butterworth:
+        description: Butterworth
   LockInDemodulatedSignalEnum:
+    description: lock-in demodulated signal values
     permissible_values:
-      Current:
+      current:
+        description: current
   TipPreparationTypeEnum:
+    description: tip preparation type values
     permissible_values:
-      FIB:
-      Etched:
+      fib:
+        description: FIB
+      etched:
+        description: Etched
   TipSensorTypeEnum:
+    description: tip sensor type values
     permissible_values:
-      Tuning fork:
+      tuning_fork:
+        description: tuning fork
   UHVComponentTypeEnum:
+    description: ultra high vacuum component type values
     permissible_values:
-      Pump:
-      Evaporator:
-      Analyser:
-      Gauge:
-      Ion/Photon stage:
-      Storage:
-      Gas panel:
-      Port/valve:
-      Manipulator/wobble stick:
-      Cryostat:
-      SPM:
-      Electronics:
-      Various:
+      pump:
+        description: pump
+      evaporator:
+        description: evaporator
+      analyser:
+        description: analyser
+      gauge:
+        description: gauge
+      ion_photon_stage:
+        description: ion/photon stage
+      storage:
+        description: storage
+      gas_panel:
+        description: gas panel
+      port_valve:
+        description: port/valve
+      manipulator_wobble_stick:
+        description: manipulator/wobble stick
+      cryostat:
+        description: cryostat
+      spm:
+        description: scanning probe microscope
+      electronics:
+        description: electronics
+      various:
+        description: various

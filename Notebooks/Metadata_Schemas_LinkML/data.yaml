@@ -1,25 +1,24 @@
 molecules:
-  - name: Methane
-    empa_number: 500
+  - empa_number: 500
     batch: a
     iupac_name: methane
     sum_formula: CH4
     smiles: C
     evaporation_temperatures:
       - temperature:
-          value: 500
-          unit: K
+          has_value: 500
+          has_unit: K
         device: ARPES
         datetime: '2024-04-30T12:30:30Z'
       - temperature:
-          value: 510
-          unit: K
+          has_value: 510
+          has_unit: K
         device: ARPES
         datetime: '2024-05-02T12:30:30Z'
     receive_date: '2024-04-29'
     amount:
-      value: 50
-      unit: mg
+      has_value: 50
+      has_unit: mg
     chemist:
       name: Empa
       work_phone: 0798989899
@@ -30,7 +29,7 @@ molecules:
         name: La037
         institution:
           name: Empa
-    parent_molecules:
+    precursor_molecules:
       - name: Methane2
         empa_number: 501
         batch: a
@@ -39,19 +38,19 @@ molecules:
         smiles: C
         evaporation_temperatures:
           - temperature:
-              value: 500
-              unit: K
+              has_value: 500
+              has_unit: K
             device: ARPES
             datetime: '2024-04-30T12:30:30Z'
           - temperature:
-              value: 510
-              unit: K
+              has_value: 510
+              has_unit: K
             device: ARPES
             datetime: '2024-05-02T12:30:30Z'
         receive_date: '2024-04-29'
         amount:
-          value: 50
-          unit: mg
+          has_value: 50
+          has_unit: mg
         chemist:
           name: Empa
           work_phone: 0798989899
@@ -64,19 +63,19 @@ molecules:
         smiles: C
         evaporation_temperatures:
           - temperature:
-              value: 500
-              unit: K
+              has_value: 500
+              has_unit: K
             device: ARPES
             datetime: '2024-04-30T12:30:30Z'
           - temperature:
-              value: 510
-              unit: K
+              has_value: 510
+              has_unit: K
             device: ARPES
             datetime: '2024-05-02T12:30:30Z'
         receive_date: "2024-04-29"
         amount:
-          value: 50
-          unit: mg
+          has_value: 50
+          has_unit: mg
         chemist:
           name: Empa
           work_phone: 0798989899
