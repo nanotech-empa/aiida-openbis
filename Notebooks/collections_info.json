@@ -1,0 +1,171 @@
+{
+    "spaces": {
+        "CARBON_NANOMATERIALS": {
+            "description": "Carbon Nanomaterials"
+        },
+        "MATERIALS_TO_DEVICES": {
+            "description": "Materials to Devices"
+        },
+        "2D_QUANTUM_MATERIALS":{
+            "description": "2D Quantum Materials"
+        },
+        "QUANTUM_MAGNETISM": {
+            "description": "Quantum Magnetism"
+        },
+        "CHIRAL_SURFACES": {
+            "description": "Chiral Surfaces"
+        },
+        "ATOMISTIC_SIMULATIONS":{
+            "description": "Atomistic Simulations"
+        },
+        "EQUIPMENT": {
+            "description": "Equipment",
+            "projects": {
+                "INSTRUMENTS": {
+                    "description": "Instruments",
+                    "experiments": {
+                        "INSTRUMENTS": {
+                            "name": "Instruments"
+                        },
+                        "UHV_COMPONENTS": {
+                            "name": "UHV Components"
+                        }
+                    }
+                }
+            }
+        },
+        "FUNDING": {
+            "description": "Funding",
+            "projects": {
+                "GRANTS": {
+                    "description": "Grants",
+                    "experiments": {
+                        "EMPA_GRANTS": {
+                            "name": "Empa Grants"
+                        },
+                        "SNF_GRANTS": {
+                            "name": "SNF Grants"
+                        }
+                    }
+                }
+            }
+        },
+        "INSTITUTIONS":{
+            "description": "Institutions",
+            "projects": {
+                "INSTITUTIONS": {
+                    "description": "Institutions",
+                    "experiments": {
+                        "RESEARCH_LABS": {
+                            "name": "Research Labs"
+                        },
+                        "UNIVERSITIES": {
+                            "name": "Universities"
+                        }
+                    }
+                },
+                "MANUFACTURERS": {
+                    "description": "Manufacturers",
+                    "experiments": {
+                        "MANUFACTURERS": {
+                            "name": "Manufacturers"
+                        }
+                    }
+                },
+                "ROOMS": {
+                    "description": "Rooms",
+                    "experiments": {
+                        "ROOMS": {
+                            "name": "Rooms"
+                        }
+                    }
+                },
+                "SUPPLIERS": {
+                    "description": "Suppliers",
+                    "experiments": {
+                        "ROOMS": {
+                            "name": "Suppliers"
+                        }
+                    }
+                }
+            }
+        },
+        "LOG_ENTRIES": {
+            "description": "Log Entries",
+            "projects": {
+                "LOG_ENTRIES": {
+                    "description": "Log Entries",
+                    "experiments": {
+                        "MAINTENANCE": {
+                            "name": "Maintenance"
+                        }
+                    }
+                }
+            }
+        },
+        "MATERIALS": {
+            "description": "Materials",
+            "projects": {
+                "2D_MATERIALS": {
+                    "description": "2D Materials",
+                    "experiments": {
+                        "2D_MATERIALS": {
+                            "name": "2D Materials"
+                        }
+                    }
+                },
+                "ATOMISTIC_MODELS": {
+                    "description": "Atomistic Models",
+                    "experiments": {
+                        "ATOMISTIC_MODELS": {
+                            "name": "Atomistic Models"
+                        }
+                    }
+                },
+                "CRYSTALS": {
+                    "description": "Crystals",
+                    "experiments": {
+                        "CRYSTALS": {
+                            "name": "Crystals"
+                        }
+                    }
+                },
+                "MOLECULES": {
+                    "description": "Molecules",
+                    "experiments": {
+                        "MOLECULES": {
+                            "name": "Molecules"
+                        }
+                    }
+                },
+                "SAMPLES": {
+                    "description": "Samples",
+                    "experiments": {
+                        "SAMPLES": {
+                            "name": "Samples"
+                        }
+                    }
+                }
+            }
+        },
+        "PERSONS":{
+            "description": "Persons",
+            "projects": {
+                "PERSONS": {
+                    "description": "Persons",
+                    "experiments": {
+                        "AUTHORS": {
+                            "name": "Authors"
+                        },
+                        "CHEMISTS": {
+                            "name": "Chemists"
+                        },
+                        "RESEARCHERS": {
+                            "name": "Researchers"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

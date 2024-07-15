@@ -1,5 +1,6 @@
 molecules:
-  - empa_number: 500
+  - name: "Methane"
+    empa_number: 500
     batch: a
     iupac_name: methane
     sum_formula: CH4
