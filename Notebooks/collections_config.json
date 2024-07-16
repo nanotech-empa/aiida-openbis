@@ -24,10 +24,10 @@
                 "INSTRUMENTS": {
                     "description": "Instruments",
                     "experiments": {
-                        "INSTRUMENTS": {
+                        "INSTRUMENT_COLLECTION": {
                             "name": "Instruments"
                         },
-                        "UHV_COMPONENTS": {
+                        "UHV_COMPONENT_COLLECTION": {
                             "name": "UHV Components"
                         }
                     }
@@ -40,10 +40,10 @@
                 "GRANTS": {
                     "description": "Grants",
                     "experiments": {
-                        "EMPA_GRANTS": {
+                        "EMPA_GRANT_COLLECTION": {
                             "name": "Empa Grants"
                         },
-                        "SNF_GRANTS": {
+                        "SNF_GRANT_COLLECTION": {
                             "name": "SNF Grants"
                         }
                     }
@@ -56,10 +56,10 @@
                 "INSTITUTIONS": {
                     "description": "Institutions",
                     "experiments": {
-                        "RESEARCH_LABS": {
+                        "RESEARCH_LAB_COLLECTION": {
                             "name": "Research Labs"
                         },
-                        "UNIVERSITIES": {
+                        "UNIVERSITY_COLLECTION": {
                             "name": "Universities"
                         }
                     }
@@ -67,7 +67,7 @@
                 "MANUFACTURERS": {
                     "description": "Manufacturers",
                     "experiments": {
-                        "MANUFACTURERS": {
+                        "MANUFACTURER_COLLECTION": {
                             "name": "Manufacturers"
                         }
                     }
@@ -75,7 +75,7 @@
                 "ROOMS": {
                     "description": "Rooms",
                     "experiments": {
-                        "ROOMS": {
+                        "ROOM_COLLECTION": {
                             "name": "Rooms"
                         }
                     }
@@ -83,7 +83,7 @@
                 "SUPPLIERS": {
                     "description": "Suppliers",
                     "experiments": {
-                        "ROOMS": {
+                        "SUPPLIER_COLLECTION": {
                             "name": "Suppliers"
                         }
                     }
@@ -96,7 +96,7 @@
                 "LOG_ENTRIES": {
                     "description": "Log Entries",
                     "experiments": {
-                        "MAINTENANCE": {
+                        "MAINTENANCE_COLLECTION": {
                             "name": "Maintenance"
                         }
                     }
@@ -109,7 +109,7 @@
                 "2D_MATERIALS": {
                     "description": "2D Materials",
                     "experiments": {
-                        "2D_MATERIALS": {
+                        "2D_MATERIAL_COLLECTION": {
                             "name": "2D Materials"
                         }
                     }
@@ -117,7 +117,7 @@
                 "ATOMISTIC_MODELS": {
                     "description": "Atomistic Models",
                     "experiments": {
-                        "ATOMISTIC_MODELS": {
+                        "ATOMISTIC_MODEL_COLLECTION": {
                             "name": "Atomistic Models"
                         }
                     }
@@ -125,7 +125,7 @@
                 "CRYSTALS": {
                     "description": "Crystals",
                     "experiments": {
-                        "CRYSTALS": {
+                        "CRYSTAL_COLLECTION": {
                             "name": "Crystals"
                         }
                     }
@@ -133,7 +133,7 @@
                 "MOLECULES": {
                     "description": "Molecules",
                     "experiments": {
-                        "MOLECULES": {
+                        "MOLECULE_COLLECTION": {
                             "name": "Molecules"
                         }
                     }
@@ -141,7 +141,7 @@
                 "SAMPLES": {
                     "description": "Samples",
                     "experiments": {
-                        "SAMPLES": {
+                        "SAMPLE_COLLECTION": {
                             "name": "Samples"
                         }
                     }
@@ -154,13 +154,13 @@
                 "PERSONS": {
                     "description": "Persons",
                     "experiments": {
-                        "AUTHORS": {
+                        "AUTHOR_COLLECTION": {
                             "name": "Authors"
                         },
-                        "CHEMISTS": {
+                        "CHEMIST_COLLECTION": {
                             "name": "Chemists"
                         },
-                        "RESEARCHERS": {
+                        "RESEARCHER_COLLECTION": {
                             "name": "Researchers"
                         }
                     }

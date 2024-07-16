@@ -172,6 +172,7 @@ classes:
       openbis_label: Chemist
     slots:
      - perm_id
+     - name
      - person
      - supplier
   Crystal:
