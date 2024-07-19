@@ -1,0 +1,11 @@
+{
+    "name": "Methane",
+    "smiles": "C",
+    "@type": "Molecule",
+    "@context": {
+      "schema": "http://schema.org/",
+      "name": {"@id": "schema:name"},
+      "smiles": {"@id": "schema:smiles"},
+      "Molecule": {"@id": "schema:MolecularEntity"}
+    }
+}

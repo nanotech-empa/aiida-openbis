@@ -12,10 +12,10 @@ import sys
 warnings.filterwarnings("ignore")
 
 # Functions
-def load_json(filepath: str) -> dict:
+def read_json(filepath: str) -> dict:
     return json.load(open(filepath, "r"))
 
-def load_yaml(filepath: str):
+def read_yaml(filepath: str):
     return yaml.safe_load(open(filepath, 'r'))
 
 def create_object_type_in_openbis(session, object_type_dict: dict):
@@ -216,7 +216,7 @@ class OpenBisDatabase:
         
         # Create collections in openBIS
         collections_config_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "collections_config.json")
-        collections_config = load_json(collections_config_filepath)
+        collections_config = read_json(collections_config_filepath)
         
         # Create spaces in openBIS
         for space_code, space_info in collections_config["spaces"].items():
@@ -247,7 +247,7 @@ if __name__ == "__main__":
 
     # Load LinkML schema
     yaml_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "Metadata_Schemas_LinkML", "materialMLinfo.yaml")
-    openbis_database.set_schema(load_yaml(yaml_filepath))
+    openbis_database.set_schema(read_yaml(yaml_filepath))
 
     # Setup openBIS database (create object types, experiment type, and collections)
     openbis_database.setup_openbis_database()

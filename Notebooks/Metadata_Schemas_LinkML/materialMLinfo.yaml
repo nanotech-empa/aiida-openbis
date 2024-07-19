@@ -80,6 +80,7 @@ classes:
      - dft
      - tb
      - instrument
+     - sample
   Annealing:
     class_uri: chmo:CHMO_0001465
     description: Annealing
@@ -100,6 +101,7 @@ classes:
      - deposition
      - uhv_components
      - instrument
+     - sample
   AtomisticModel:
     class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
     description: Atomistic Model
@@ -225,6 +227,7 @@ classes:
      - molecule
      - uhv_components
      - instrument
+     - sample
   DFT:
     class_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
     description: Density Functional Theory
@@ -269,6 +272,7 @@ classes:
      - temperature
      - comments
      - instrument
+     - sample
   Draft:
     class_uri: ncit:NCIT_C85255
     description: Publication draft/Manuscript
@@ -757,6 +761,8 @@ classes:
      - dft
      - tb
      - instrument
+     - sample
+     - tip_sensor
   Storage:
     class_uri: ncit:NCIT_C16143
     description: Storage
@@ -845,6 +851,8 @@ classes:
      - annealing
      - deposition
      - instrument
+     - sample
+     - tip_sensor
   Supplier:
     class_uri: ncit:NCIT_C43530
     description: Supplier
@@ -931,6 +939,7 @@ classes:
      - description
      - location_before
      - location_after
+     - sample
   UHVComponent:
     class_uri:
     description: Ultra High Vacuum Component
@@ -3872,4 +3881,39 @@ enums:
 
   # Change quantitative value to has_measurement_unit?
   # Usar o slot_usage para colocar required em todos os atributos obrigatorios
-  # Verificar 
+  # Verificar
+
+#   Tight Binding
+
+# hamiltonian - matrix
+# xyz file with the coords of every atom in the molecule
+# neighbor function ?
+
+# To compute hamiltonian I need to know the neighbors 3D matrix.
+
+# hoppings list que pode ter tamanho N 
+
+# on-site energy: N x
+
+# Tight Binding
+# - xyz -> atom coords
+# - lattice vectors (max 3 vectors)
+# - k-points -> vector with 3 doubles >>> always defined between 0 and 2pi
+# - lattice: honeycomb is the most used in our case but could be undefined
+# - hoppings (doubles but can be complex numbers) [Energy units]
+# - hamiltonian (complex numbers) matrix hermitica [Energy units] or functions (in the case of the crystal) ?? output ??
+# - comments
+
+# Mean Field Hubbard
+# - tight binding (link to TB)
+# - on site Hubbard repulsion U (double) [Energy units] so um valor
+# - density tolerance (double)  [No unit]
+# - number of electrons or charge (-1, 0, +1)
+# - up densities -> matrix dimension (number of columns) [No unit]
+# - down densities -> matrix dimension (number of columns) [No unit]
+# - number of electrons up and the number of electrons down (integer)
+# - convergence_coefficient - help with the convergence of the solution (double)
+# - number of k-points used in the integral (integer)
+# - comments 
+# 
+# Simulation object with general info
