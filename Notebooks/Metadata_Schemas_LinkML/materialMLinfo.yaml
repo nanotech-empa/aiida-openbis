@@ -539,6 +539,16 @@ classes:
      - perm_id
      - name
      - description
+  OpticalComponent:
+    class_uri:
+    description: Optical component
+    annotations:
+      openbis_object: true
+      openbis_code: OPTICS
+      openbis_label: Optical component
+    slots:
+      - perm_id
+      - name
   PDOS:
     class_uri: 
     description: Projected Density of States
@@ -1442,6 +1452,11 @@ classes:
         inlined_as_list: true
         range: Notes
         description: notes container
+      optics:
+        multivalued: true
+        inlined_as_list: true
+        range: OpticalComponent
+        description: optical component container
       pdoss:
         multivalued: true
         inlined_as_list: true
