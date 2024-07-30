@@ -1,0 +1,6 @@
+- Open terminal of openBIS container
+- Run:
+    - apt-get update
+    - apt install software-properties-common -y
+    - apt install python3-pip -y
+    - pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt

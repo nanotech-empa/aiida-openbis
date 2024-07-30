@@ -22,8 +22,9 @@ molecules:
       has_unit: mg
     chemist:
       name: Empa
-      work_phone: 0798989899
-      email: empa@empa.ch
+      person:
+        work_phone: 0798989899
+        email: empa@empa.ch
     storage:
       name: Empa
       room:
@@ -54,8 +55,9 @@ molecules:
           has_unit: mg
         chemist:
           name: Empa
-          work_phone: 0798989899
-          email: empa@empa.ch
+          person:
+            work_phone: 0798989899
+            email: empa@empa.ch
       - name: Methane3
         empa_number: 502
         batch: a
@@ -79,5 +81,6 @@ molecules:
           has_unit: mg
         chemist:
           name: Empa
-          work_phone: 0798989899
-          email: empa@empa.ch
+          person:
+            work_phone: 0798989899
+            email: empa@empa.ch

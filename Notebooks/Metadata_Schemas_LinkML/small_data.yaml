@@ -1,0 +1,33 @@
+molecules:
+  - name: "Methane"
+    empa_number: 500
+    batch: a
+    iupac_name: methane
+    sum_formula: CH4
+    smiles: C
+    evaporation_temperatures:
+      - temperature:
+          has_value: 500
+          has_unit: K
+        device: ARPES
+        datetime: '2024-04-30T12:30:30Z'
+      - temperature:
+          has_value: 510
+          has_unit: K
+        device: ARPES
+        datetime: '2024-05-02T12:30:30Z'
+    receive_date: '2024-04-29'
+    amount:
+      has_value: 50
+      has_unit: mg
+    chemist:
+      name: Empa
+      person:
+        work_phone: 0798989899
+        email: empa@empa.ch
+    storage:
+      name: Empa
+      room:
+        name: La037
+        institution:
+          name: Empa
