@@ -121,7 +121,6 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
 def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experiment=None):
     assert experiment is not None or sample is not None, "Either sample or experiment needs to be provided!"
     data = spmpy.importall(folder_path, file_prefix, 'spec')
-
     imaging_control = imaging.ImagingControl(openbis)
 
     for d in data:
@@ -138,15 +137,20 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
     data.sort(key=lambda da: da.date_time)
 
     channels = list(set([(channel['ChannelNickname'], channel['ChannelUnit'], channel['ChannelScaling']) for spec in data for channel in spec.SignalsList]))
-
+    print(channels)
     color_scale_visibility_x = []
     color_scale_visibility_y = []
     for (channel, unit, scaling) in channels:
         minimum = []
         maximum = []
         for spec in data:
-            minimum += [np.nanmin(spec.get_channel(f'{channel}')[0])]
-            maximum += [np.nanmax(spec.get_channel(f'{channel}')[0])]
+            channel_in_signals_list = False
+            for signal_settings in spec.SignalsList:
+                if channel in signal_settings["ChannelNickname"]:
+                    channel_in_signals_list = True
+            if channel_in_signals_list:
+                minimum += [np.nanmin(spec.get_channel(f'{channel}')[0])]
+                maximum += [np.nanmax(spec.get_channel(f'{channel}')[0])]
         minimum = np.nanmin(minimum)
         maximum = np.nanmax(maximum)
         step = abs(round((maximum - minimum) / 100, 2))
@@ -275,8 +279,8 @@ def demo_sxm_flow(openbis, file_sxm, permId=None):
     if perm_id is None:
         dataset_sxm = create_sxm_dataset(
             openbis=openbis,
-            experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-            sample='/IMAGING/NANONIS/TEMPLATE-SXM',
+            experiment='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3',
+            sample='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3/TEMPLATE-SXM',
             file_path=file_sxm)
         perm_id = dataset_sxm.permId
         print(f'Created imaging .SXM dataset: {dataset_sxm.permId}')
@@ -290,8 +294,8 @@ def demo_dat_flow(openbis, folder_path, permId=None):
     if permId is None:
         dataset_dat = create_dat_dataset(
             openbis=openbis,
-            experiment='/IMAGING/NANONIS/SXM_COLLECTION',
-            sample='/IMAGING/NANONIS/TEMPLATE-DAT',
+            experiment='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3',
+            sample='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3/TEMPLATE-DAT',
             folder_path=folder_path,
             file_prefix='')
         perm_id = dataset_dat.permId
@@ -313,16 +317,16 @@ else:
 
 o = get_instance(openbis_url)
 
-sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
-print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
+# sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
+# print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
 
-for sxm_file in sxm_files:
-    print(f"SXM file: {sxm_file}")
-    file_path = os.path.join(data_folder, sxm_file)
-    try:
-        demo_sxm_flow(o, file_path)
-    except:
-        print(f"Cannot upload {sxm_file}.")
+# for sxm_file in sxm_files:
+#     print(f"SXM file: {sxm_file}")
+#     file_path = os.path.join(data_folder, sxm_file)
+#     try:
+#         demo_sxm_flow(o, file_path)
+#     except:
+#         print(f"Cannot upload {sxm_file}.")
 
 demo_dat_flow(o, data_folder)
 

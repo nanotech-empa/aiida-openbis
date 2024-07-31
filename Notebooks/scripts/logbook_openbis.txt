@@ -1,0 +1,4 @@
+One can upload sxm and dat files to the same collection in openBIS. 
+One just has to create a TEMPLATE-SXM and a TEMPLATE-DAT samples inside the collection and then change the experiment and sample inside nanonis_importer.py.
+Bug in nanonis_importer on line 147. As it was getting all the possible channels from the files before getting the minimum and maximum of the files, there were some cases
+where the channels did not exist and it was throwing a ValueError when using .index() in the list inside the function get_channel in spmpy_terry.py

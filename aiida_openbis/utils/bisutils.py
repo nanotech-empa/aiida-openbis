@@ -60,7 +60,7 @@ def get_molecules(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULES_EXP_1').get_samples()
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULE_COLLECTION').get_samples()
         result = [(mol.props['$name'], mol.permId, mol.props['sum-formula'], mol.props['smiles'])
                   for mol in available_molecules]
     return result
@@ -69,7 +69,7 @@ def get_precursors(session=None):
     """Function to retrieve from openBIS objects in Molecules collection."""
     result = []
     if session and session.is_session_active():
-        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULES_EXP_1').get_samples()
+        available_molecules = session.get_collection('/MATERIALS/MOLECULES/MOLECULE_COLLECTION').get_samples()
         result = [( mol.permId, mol.props['$name'], mol.props['sum-formula'], mol.props['smiles'])
                   for mol in available_molecules]
     return result 
@@ -117,7 +117,7 @@ def get_opt_geo_ids(session=None):
 
 def new_molecule(session=None, name=None, molid=None, smiles=None, cdxml=None):
     """Function  to create in openBIS a new MOLECULE object."""
-    obj = session.new_object(collection='/MATERIALS/MOLECULES/MOLECULES_EXP_1', type='MOLECULE')
+    obj = session.new_object(collection='/MATERIALS/MOLECULES/MOLECULE_COLLECTION', type='MOLECULE')
     obj.props['$name'] = name
     obj.props['smiles'] = smiles
     obj.save()
@@ -168,7 +168,7 @@ def new_molecule_precursor(
 ):
     """Function  to create in openBIS a new MOLECULE object."""
     session = log_in()
-    obj = session.new_object(collection='/MATERIALS/MOLECULES/PRECURSORS', type='MOLECULE') 
+    obj = session.new_object(collection='/MATERIALS/MOLECULES/MOLECULE_COLLECTION', type='MOLECULE') 
     obj.props['molecule.number'] =    number               
     obj.props['molecule.batch'] =    batch               
     obj.props['molecule.acronym'] =    acronym             

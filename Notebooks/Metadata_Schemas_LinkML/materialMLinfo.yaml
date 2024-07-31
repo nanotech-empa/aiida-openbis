@@ -620,7 +620,7 @@ classes:
     annotations:
       openbis_object: true
       openbis_code: PUBL
-      openbis_label: Publication
+      openbis_label: Publication Custom
     slots:
      - perm_id
      - name

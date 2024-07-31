@@ -145,7 +145,7 @@ class spm:
                 ch.append([d['ChannelName'] for d in SignalsListReference].index(key))
             except:
                 pass;    
- 
+
         self.SignalsList = [SignalsListReference[i] for i in ch] #List of all recorded channels
         self.channels = [c['ChannelNickname'] for c in self.SignalsList] 
         self.header = self.napImport.header
@@ -189,9 +189,8 @@ class spm:
             return (im,unit)
         
         elif self.type == 'spec':
-        
             if direction == 'backward':
-                channel = channel + '_bw';
+                channel = channel + '_bw'
                 #print(channel)
             
             chNum = [d['ChannelNickname'] for d in self.SignalsList].index(channel)
