@@ -58,11 +58,11 @@ def get_color_scale_range(img, channel):
         step = 0.01
     else:
         step = abs((maximum - minimum) / 100)
-        step = math.log10(step)
-        if math.isnan(step) or math.isinf(step):
+        step = np.log10(step)
+        if np.isnan(step) or np.isinf(step):
             step = 0.01
         else:
-            step = 10 ** math.floor(step)
+            step = 10 ** np.floor(step)
 
     return [str(minimum), str(maximum), str(step)]
 
@@ -137,18 +137,19 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
     data.sort(key=lambda da: da.date_time)
 
     channels = list(set([(channel['ChannelNickname'], channel['ChannelUnit'], channel['ChannelScaling']) for spec in data for channel in spec.SignalsList]))
-    print(channels)
     color_scale_visibility_x = []
     color_scale_visibility_y = []
     for (channel, unit, scaling) in channels:
         minimum = []
         maximum = []
         for spec in data:
+            # -------- Boolean flag was added to the code -------
             channel_in_signals_list = False
             for signal_settings in spec.SignalsList:
                 if channel in signal_settings["ChannelNickname"]:
                     channel_in_signals_list = True
             if channel_in_signals_list:
+            # ---------------------------------------------------
                 minimum += [np.nanmin(spec.get_channel(f'{channel}')[0])]
                 maximum += [np.nanmax(spec.get_channel(f'{channel}')[0])]
         minimum = np.nanmin(minimum)
@@ -161,11 +162,12 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             step = 0.01
         else:
             step = abs((maximum - minimum) / 100)
-            step = math.log10(step)
-            if math.isnan(step) or math.isinf(step):
+            
+            step = np.log10(step)
+            if np.isnan(step) or np.isinf(step):
                 step = 0.01
             else:
-                step = 10 ** math.floor(step)
+                step = 10 ** np.floor(step)
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
@@ -185,7 +187,7 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
                imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg']),
                imaging.ImagingDataSetControl('archive-format', "Dropdown", values=['zip', 'tar']),
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
-
+    
     inputs = [
         imaging.ImagingDataSetControl('Channel X', "Dropdown", values=[channel[0] for channel in channels]),
         imaging.ImagingDataSetControl('Channel Y', "Dropdown", values=[channel[0] for channel in channels]),
@@ -273,29 +275,29 @@ def multi_export_images(openbis: Openbis, perm_ids: list[str], image_ids: list[i
     imaging_control.multi_export_download(imaging_multi_exports, path_to_download)
 
 
-def demo_sxm_flow(openbis, file_sxm, permId=None):
+def demo_sxm_flow(openbis, file_sxm, experiment_permid, sample_permid, permId=None):
 
     perm_id = permId
     if perm_id is None:
         dataset_sxm = create_sxm_dataset(
             openbis=openbis,
-            experiment='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3',
-            sample='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3/TEMPLATE-SXM',
+            experiment=experiment_permid,
+            sample=sample_permid,
             file_path=file_sxm)
         perm_id = dataset_sxm.permId
         print(f'Created imaging .SXM dataset: {dataset_sxm.permId}')
 
 
 
-def demo_dat_flow(openbis, folder_path, permId=None):
+def demo_dat_flow(openbis, folder_path, experiment_permid, sample_permid, permId=None):
 
     print(f'Searching for .DAT files')
     perm_id = permId
     if permId is None:
         dataset_dat = create_dat_dataset(
             openbis=openbis,
-            experiment='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3',
-            sample='/CARBON_NANOMATERIALS/TRIANGULENE_SPIN_CHAINS/TRIANGULENE_SPIN_CHAINS_EXP_3/TEMPLATE-DAT',
+            experiment=experiment_permid,
+            sample=sample_permid,
             folder_path=folder_path,
             file_prefix='')
         perm_id = dataset_dat.permId
@@ -305,29 +307,91 @@ def demo_dat_flow(openbis, folder_path, permId=None):
 
 openbis_url = None
 data_folder = 'data'
+collection_permid = '20240731121246895-1259'
 
-if len(sys.argv) > 2:
+if len(sys.argv) > 3:
     openbis_url = sys.argv[1]
     data_folder = sys.argv[2]
+    collection_permid = sys.argv[3]
 else:
-    print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <PATH_TO_DATA_FOLDER>')
+    print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <PATH_TO_DATA_FOLDER> <COLLECTION_ID>')
     print(f'Using default parameters')
     print(f'URL: {DEFAULT_URL}')
     print(f'Data folder: {data_folder}')
+    print(f'Default collection ID: {collection_permid}')
 
 o = get_instance(openbis_url)
 
-# sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
-# print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
+#TODO: Move these
+import tempfile
+import shutil
 
-# for sxm_file in sxm_files:
-#     print(f"SXM file: {sxm_file}")
-#     file_path = os.path.join(data_folder, sxm_file)
-#     try:
-#         demo_sxm_flow(o, file_path)
-#     except:
-#         print(f"Cannot upload {sxm_file}.")
+if collection_permid:
+    sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
+    print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
+    
+    # Organise files by dates
+    sxm_datetimes = []
+    for sxm_file in sxm_files:
+        img = spm(f"{data_folder}/{sxm_file}")
+        img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
+        sxm_datetimes.append(img_datetime)
+    
+    dat_datetimes = []
+    dat_files = [f for f in os.listdir(data_folder) if f.endswith('.dat')]
+    for dat_file in dat_files:
+        img = spm(f"{data_folder}/{dat_file}")
+        img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+        dat_datetimes.append(img_datetime)
+    
+    # Put the organised dat files into different folders according to the respective SXM
+    dat_files_by_sxm = [[] for sxm_file in sxm_files]
+    for dat_index, dat_datetime in enumerate(dat_datetimes):
+        last_sxm_index = 0
+        for sxm_index, sxm_datetime in enumerate(sxm_datetimes):
+            if dat_datetime > sxm_datetime:
+                last_sxm_index = sxm_index
+        
+        dat_files_by_sxm[last_sxm_index].append(dat_files[dat_index])
+    
+    # Make a temporary folder by SXM with all the respective DAT files
+    sxm_dat_files_directories = []
+    for sxm_index, dat_files in enumerate(dat_files_by_sxm):
+        dat_files_directory = os.path.join(data_folder, f"SXM {sxm_index}")
+        os.mkdir(dat_files_directory)
+        
+        for dat_file in dat_files:
+            shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
+        
+        sxm_dat_files_directories.append(dat_files_directory)
 
-demo_dat_flow(o, data_folder)
+    # Create SXM measurements and DAT measurements in openBIS and link them according to parent-child relation (DAT files connected to respective SXM files)
+    for sxm_index, sxm_file in enumerate(sxm_files):
+        print(f"SXM file: {sxm_file}")
+        stm_sample = o.new_sample(
+            type = "SCANNING_TUNNELING_MICROSCOPY", 
+            experiment = collection_permid, 
+            props = {"$name": "Experimental STM"}
+        )
+        stm_sample.save()
+        file_path = os.path.join(data_folder, sxm_file)
+        try:
+            demo_sxm_flow(o, file_path, collection_permid, stm_sample.permId)
+        except:
+            print(f"Cannot upload {sxm_file}.")
+        
+        sts_sample = o.new_sample(
+            type = "SCANNING_TUNNELING_SPECTROSCOPY", 
+            experiment = collection_permid, 
+            props = {"$name": "Experimental STS"},
+            parents = [stm_sample]
+        )
+        sts_sample.save()
+        
+        demo_dat_flow(o, sxm_dat_files_directories[sxm_index], collection_permid, sts_sample.permId)
+
+    # Remove temporary SXM folders
+    for sxm_dat_files_directory in sxm_dat_files_directories:
+        shutil.rmtree(sxm_dat_files_directory)
 
 o.logout()

@@ -59,25 +59,33 @@ class spm:
                    'Amplitude [bwd] (m)', 'Excitation (V)', 'Excitation [bwd] (V)', 'Frequency Shift (Hz)', 'Frequency Shift [bwd] (Hz)',
                    'LI Demod 1 X (A)','LI Demod 1 X (A) [bwd] (A)','PMT (V)','Counter 1 (Hz)','Counter_1', 'Z rel (m)', 'Z (m)','Time (s)',
                    'Delay Sampling (s)','LI Demod 0 X (V)','LI Demod 0 Y (V)','LI Demod 3 X (A)','LI Demod 3 Y (A)',
-                   'Position Phase1 (m)','Rotation1 (deg)','Rotation2 (deg)','Rotation (deg)','Index']
+                   'Position Phase1 (m)','Rotation1 (deg)','Rotation2 (deg)','Rotation (deg)','Index', 
+                #    'LI Demod 1 Y (A)','LI Demod 1 Y (A) [bwd] (A)'
+                   ]
     ChannelNickname = ['dIdV','dIdV_Y','z','I','V','df','A','exc','T1',
                     'V', 'V', 'V_bw' ,'I','I_bw','A',
                     'A_bw', 'exc','exc_bw','df','df_bw',
                     'dIdV','dIdV_bw','PMT','counter','counter', 'zrel','zspec','t',
                     'Delay','EOS','EOS_Y','I_THz','I_THz_Y',
-                    'Phase','Rot1','Rot2','Rot','Index']
+                    'Phase','Rot1','Rot2','Rot','Index', 
+                    # 'dIdV_Y', 'dIdV_Y_bw'
+                    ]
     ChanneliScaling = [10**12,10**12,10**9,10**12,1,1,10**9,1,1,
                     1,1,1,10**12,10**12,10**9,
                     10**9,1,1,1,1,10**12,
                     1,1,1,1,10**12,10**9,1,
                     10**12,1,1,10**12,10**12,
-                    10**3,1,1,1,1]
+                    10**3,1,1,1,1,
+                    # 10**12,10**12
+                    ]
     ChannelUnit = ['pS','pS','nm','pA','V','Hz','nm','V','K',
                     'V','V','V','pA','pA','nm',
                     'nm','V','V','Hz','Hz','pA',
                     'a.u.','V','Hz','Hz','pm','nm','s',
                     'ps','V','V','pA','pA',
-                    'mm','deg','deg','deg','N']
+                    'mm','deg','deg','deg','N',
+                    # 'pA','pA'
+                    ]
 
     global SignalsListReference
     SignalsListReference = []
