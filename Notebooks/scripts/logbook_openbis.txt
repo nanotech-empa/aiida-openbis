@@ -1,3 +1,11 @@
+Questions:
+
+- When creating a new space, how to place it inside lab notebook or inventory?
+- Unzipping a zip file in pybis dataset does not work right?
+- In microscopy app, DAT files are now together in just one object. However, each data file has a different header. How are you going to handle this?
+
+Notes: 
+
 One can upload sxm and dat files to the same collection in openBIS. 
 One just has to create a TEMPLATE-SXM and a TEMPLATE-DAT samples inside the collection and then change the experiment and sample inside nanonis_importer.py.
 Bug in nanonis_importer on line 147. As it was getting all the possible channels from the files before getting the minimum and maximum of the files, there were some cases
@@ -21,3 +29,10 @@ Changed math to numpy in nanonis_importer.py.
 Added 'LI Demod 1 Y (A)','LI Demod 1 Y (A) [bwd] (A)' to channel names together with the respective elements to the other 3 groups??? Ask Lysandr
 Change STM, AFM, STS, etc by 1D Measurements, 2D Measurements, 3D Measurements....
 Bruno asked to present examples of how to build a Sample Preparation/Sample in openBIS.
+
+5-8-2024:
+How to store a sample preparation:
+1- Store sample preparation tasks without making a specific object for sample. Connect measurements to the last sample preparation task.
+2- Create a sample object and then connect the measurements to the last sample preparation task.
+3- Create a Sample preparation object and connect sample object to it. Then connect sample to measurements.
+4- Create a sample preparation object and no sample objects. Connect measurement to sample preparation object.

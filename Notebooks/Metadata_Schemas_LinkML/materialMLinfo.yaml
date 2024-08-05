@@ -33,54 +33,6 @@ imports:
 default_prefix: materialsML
   
 classes:
-  AFM:
-    class_uri: chmo:CHMO_0000113
-    description: Atomic Force Microscopy
-    annotations:
-      openbis_object: true
-      openbis_code: AFM
-      openbis_label: Atomic Force Microscopy
-    slots:
-     - perm_id
-     - name
-     - start_time
-     - duration
-     - bias_setpoint
-     - bias_calibration_factor
-     - bias_calibration_offset
-     - current_setpoint
-     - current_calibration_factor
-     - current_calibration_offset
-     - current_gain
-     - z_position
-     - feedback_active
-     - feedback_type
-     - z_controller_setpoint
-     - z_controller_p_gain
-     - z_controller_i_gain
-     - z_controller_time_constant
-     - z_controller_tip_lift
-     - z_controller_switch_off_delay
-     - piezo_configuration_settings
-     - scan_settings
-     - dwell_time
-     - sample_temperature
-     - recording_temperature
-     - oscillation_control_settings
-     - comments
-     - scan_dx
-     - scan_z_min
-     - scan_z_max
-     - amplitude
-     - resonance_frequency
-     - p_model
-     - wfms_uuid
-     - annealing
-     - deposition
-     - dft
-     - tb
-     - instrument
-     - sample
   Annealing:
     class_uri: chmo:CHMO_0001465
     description: Annealing
@@ -645,9 +597,8 @@ classes:
      - name
      - description
      - comments
-     - stms
-     - afms
-     - stss
+     - 1d_measurements
+     - 2d_measurements
      - geometry_optimisations
      - softwares
   Room:
@@ -721,13 +672,13 @@ classes:
      - name
      - comments
      - molecule
-  STM:
-    class_uri: chmo:CHMO_0000132
-    description: Scanning Tunneling Microscopy
+  2DMeasurement:
+    class_uri:
+    description: 2D Measurement
     annotations:
       openbis_object: true
-      openbis_code: STM
-      openbis_label: Scanning Tunneling Microscopy
+      openbis_code: TDMEAS
+      openbis_label: 2D Measurement
     slots:
      - perm_id
      - name
@@ -756,6 +707,7 @@ classes:
      - dwell_time
      - sample_temperature
      - recording_temperature
+     - oscillation_control_settings
      - comments
      - e_min
      - e_max
@@ -764,6 +716,12 @@ classes:
      - extrap_plane
      - constant_height
      - constant_current
+     - scan_dx
+     - scan_z_min
+     - scan_z_max
+     - amplitude
+     - resonance_frequency
+     - p_model
      - wfms_uuid
      - comments
      - annealing
@@ -785,13 +743,13 @@ classes:
      - name
      - comments
      - room
-  STS:
+  1DMeasurement:
     class_uri: fairmat_sts:nxsts
-    description: Scanning Tunneling Spectroscopy
+    description: 1D Measurement
     annotations:
       openbis_object: true
-      openbis_code: STS
-      openbis_label: Scanning Tunneling Spectroscopy
+      openbis_code: ODMEAS
+      openbis_label: 1D Measurement
     slots:
      - perm_id
      - name
@@ -863,6 +821,7 @@ classes:
      - instrument
      - sample
      - tip_sensor
+     - 2d_measurement
   Supplier:
     class_uri: ncit:NCIT_C43530
     description: Supplier
@@ -1322,11 +1281,6 @@ classes:
       openbis_object: false
     tree_root: true
     attributes:
-      afms:
-        multivalued: true
-        inlined_as_list: true
-        range: AFM
-        description: atomic force microscopies container
       annealings:
         multivalued: true
         inlined_as_list: true
@@ -1507,21 +1461,21 @@ classes:
         inlined_as_list: true
         range: SRD
         description: sublimation rate determination objects container
-      stms:
+      2d_measurements:
         multivalued: true
         inlined_as_list: true
-        range: STM
-        description: scanning tunneling microscopies container
+        range: 2DMeasurement
+        description: 2D measurements container
       storages:
         multivalued: true
         inlined_as_list: true
         range: Storage
         description: storages container
-      stss:
+      1d_measurements:
         multivalued: true
         inlined_as_list: true
-        range: STS
-        description: scanning tunneling spectroscopies container
+        range: 1DMeasurement
+        description: 1D measurements container
       suppliers:
         multivalued: true
         inlined_as_list: true
@@ -3486,33 +3440,6 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Authors
-  stms:
-    range: STM
-    description: scanning tunneling microscopies
-    multivalued: true
-    inlined_as_list: true
-    slot_uri: chmo:CHMO_0000132
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: STMs
-  afms:
-    range: AFM
-    description: atomic force microscopies
-    multivalued: true
-    inlined_as_list: true
-    slot_uri: chmo:CHMO_0000113
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: AFMs
-  stss:
-    range: STS
-    description: scanning tunneling spectroscopies
-    multivalued: true
-    inlined_as_list: true
-    slot_uri: fairmat_sts:nxsts
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: STSs
   softwares:
     range: Software
     description: softwares
@@ -3586,6 +3513,38 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (after)
+  1d_measurement:
+    range: 1DMeasurement
+    description: 1D measurement
+    slot_uri: fairmat_sts:nxsts
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: 1D Measurement
+  1d_measurements:
+    range: 1DMeasurement
+    description: 1D measurements
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: fairmat_sts:nxsts
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: 1D Measurements
+  2d_measurements:
+    range: 2DMeasurement
+    description: 2D measurements
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: chmo:CHMO_0000132
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: 2D Measurements
+  2d_measurement:
+    range: 2DMeasurement
+    description: 2D measurement
+    slot_uri: chmo:CHMO_0000132
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: 2D Measurement
 
 enums:
   PModelEnum:

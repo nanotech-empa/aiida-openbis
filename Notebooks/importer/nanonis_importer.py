@@ -24,6 +24,7 @@ import numpy as np
 from spmpy_terry import spm
 import spmpy_terry as spmpy
 from datetime import datetime
+import json
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
@@ -303,6 +304,24 @@ def demo_dat_flow(openbis, folder_path, experiment_permid, sample_permid, permId
         perm_id = dataset_dat.permId
         print(f'Created imaging .DAT dataset: {dataset_dat.permId}')
 
+def get_1D_measurement_props(full_dat_filepath):
+    pass
+    
+def get_2D_measurement_props(full_sxm_filepath):
+    img = spm(full_sxm_filepath)
+    properties = {
+        "$name": full_sxm_filepath.split("/")[-1],
+        "start_time": datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S"),
+        "duration": json.dumps({"has_value": float(img.header["acq_time"]), "has_unit": "http://qudt.org/vocab/unit/SEC"}),
+        "bias_setpoint": json.dumps({"has_value": float(img.header["bias>bias (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
+        "bias_calibration_factor": json.dumps({"has_value": float(img.header["bias>calibration (v/v)"]), "has_unit": "http://qudt.org/vocab/unit/V-PER-V"}),
+        "bias_calibration_offset": json.dumps({"has_value": float(img.header["bias>offset (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
+        "current_setpoint": json.dumps({"has_value": float(img.header["current>current (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
+        "current_calibration_factor": json.dumps({"has_value": float(img.header["current>calibration (a/v)"]), "has_unit": "A/V"}),
+        "current_calibration_offset": json.dumps({"has_value": float(img.header["current>offset (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
+        "current_gain": json.dumps({"has_value": img.header["current>gain"], "has_unit": "None"})
+    }
+    return properties
 
 
 openbis_url = None
@@ -368,30 +387,30 @@ if collection_permid:
     # Create SXM measurements and DAT measurements in openBIS and link them according to parent-child relation (DAT files connected to respective SXM files)
     for sxm_index, sxm_file in enumerate(sxm_files):
         print(f"SXM file: {sxm_file}")
-        stm_sample = o.new_sample(
-            type = "SCANNING_TUNNELING_MICROSCOPY", 
+        twoD_measurement_sample = o.new_sample(
+            type = "2D_MEASUREMENT", 
             experiment = collection_permid, 
-            props = {"$name": "Experimental STM"}
+            props = get_2D_measurement_props(os.path.join(data_folder, sxm_file))
         )
-        stm_sample.save()
+        twoD_measurement_sample.save()
         file_path = os.path.join(data_folder, sxm_file)
         try:
-            demo_sxm_flow(o, file_path, collection_permid, stm_sample.permId)
+            demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
         except:
             print(f"Cannot upload {sxm_file}.")
         
-        sts_sample = o.new_sample(
-            type = "SCANNING_TUNNELING_SPECTROSCOPY", 
-            experiment = collection_permid, 
-            props = {"$name": "Experimental STS"},
-            parents = [stm_sample]
+        oneD_measurement_sample = o.new_sample(
+            type = "1D_MEASUREMENT", 
+            experiment = collection_permid,
+            props = {"$name": "Experimental 1D Measurement"},
+            parents = [twoD_measurement_sample]
         )
-        sts_sample.save()
+        oneD_measurement_sample.save()
         
-        demo_dat_flow(o, sxm_dat_files_directories[sxm_index], collection_permid, sts_sample.permId)
+        demo_dat_flow(o, sxm_dat_files_directories[sxm_index], collection_permid, oneD_measurement_sample.permId)
 
     # Remove temporary SXM folders
     for sxm_dat_files_directory in sxm_dat_files_directories:
         shutil.rmtree(sxm_dat_files_directory)
 
-o.logout()
+# o.logout()
