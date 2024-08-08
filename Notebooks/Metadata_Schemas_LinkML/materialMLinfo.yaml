@@ -444,6 +444,29 @@ classes:
      - geometry_constraints_increments
      - comments
      - atomistic_models
+  MeanFieldHubbard:
+    class_uri: 
+    description: Mean Field Hubbard
+    annotations:
+      openbis_object: true
+      openbis_code: MFH
+      openbis_label: Mean Field Hubbard
+    slots:
+     - perm_id
+     - name
+     - wfms_uuid
+     - wfms_url
+     - on_site_hubbard_repulsion_u
+     - density_tolerance
+     - charge
+     - up_densities
+     - down_densities
+     - up_electrons
+     - down_electrons
+     - convergence_coefficient
+     - number_k_points
+     - comments
+     - tb
   Molecule:
     class_uri: schema:MolecularEntity  
     description: Molecule
@@ -847,6 +870,18 @@ classes:
      - name
      - description
      - instrument
+  Simulation:
+    class_uri:
+    description: Simulation
+    annotations:
+      openbis_object: true
+      openbis_code: SIMUL
+      openbis_label: Simulation
+    slots:
+     - perm_id
+     - name
+     - wfms_url
+     - wfms_uuid
   TightBinding:
     class_uri:
     description: Tight Binding
@@ -859,6 +894,14 @@ classes:
      - name
      - wfms_url
      - wfms_uuid
+     - atoms_positions
+     - cell_vectors
+     - hoppings
+     - k_points_conditions
+     - lattice_type
+     - hamiltonian
+     - comments
+    #  - dft?
   TipPreparation:
     class_uri:
     description: Tip Preparation
@@ -3268,6 +3311,70 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: UHV component type
+  lattice_type:
+    description: lattice type
+    range: string
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Lattice type
+  hamiltonian:
+    description: hamiltonian
+    range: string
+    multivalued: true
+    inlined_as_list: true
+    annotations:
+      openbis_type: JSON
+      openbis_label: Hamiltonian
+  hoppings:
+    description: hoppings
+    range: string
+    multivalued: true
+    inlined_as_list: true
+    annotations:
+      openbis_type: JSON
+      openbis_label: Hoppings
+  density_tolerance:
+    description: density tolerance
+    range: double
+    annotations:
+      openbis_type: REAL
+      openbis_label: Density tolerance
+  up_densities:
+    description: up densities
+    range: integer
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Up densities
+  down_densities:
+    description: down densities
+    range: integer
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Down densities
+  up_electrons:
+    description: up electrons
+    range: integer
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Up electrons
+  down_electrons:
+    description: down electrons
+    range: integer
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Down electrons
+  convergence_coefficient:
+    description: convergence coefficient
+    range: double
+    annotations:
+      openbis_type: REAL
+      openbis_label: Convergence coefficient
+  number_k_points:
+    description: number of k-points
+    range: integer
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: number of k-points
   precursor_molecules:
     range: Molecule
     description: precursor molecules
@@ -3851,43 +3958,3 @@ enums:
         description: kilograms
         annotations:
           openbis_label: Kilograms
-
-
-  # Change quantitative value to has_measurement_unit?
-  # Usar o slot_usage para colocar required em todos os atributos obrigatorios
-  # Verificar
-
-#   Tight Binding
-
-# hamiltonian - matrix
-# xyz file with the coords of every atom in the molecule
-# neighbor function ?
-
-# To compute hamiltonian I need to know the neighbors 3D matrix.
-
-# hoppings list que pode ter tamanho N 
-
-# on-site energy: N x
-
-# Tight Binding
-# - xyz -> atom coords
-# - lattice vectors (max 3 vectors)
-# - k-points -> vector with 3 doubles >>> always defined between 0 and 2pi
-# - lattice: honeycomb is the most used in our case but could be undefined
-# - hoppings (doubles but can be complex numbers) [Energy units]
-# - hamiltonian (complex numbers) matrix hermitica [Energy units] or functions (in the case of the crystal) ?? output ??
-# - comments
-
-# Mean Field Hubbard
-# - tight binding (link to TB)
-# - on site Hubbard repulsion U (double) [Energy units] so um valor
-# - density tolerance (double)  [No unit]
-# - number of electrons or charge (-1, 0, +1)
-# - up densities -> matrix dimension (number of columns) [No unit]
-# - down densities -> matrix dimension (number of columns) [No unit]
-# - number of electrons up and the number of electrons down (integer)
-# - convergence_coefficient - help with the convergence of the solution (double)
-# - number of k-points used in the integral (integer)
-# - comments 
-# 
-# Simulation object with general info

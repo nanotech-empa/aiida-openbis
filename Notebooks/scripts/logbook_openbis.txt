@@ -36,3 +36,37 @@ How to store a sample preparation:
 2- Create a sample object and then connect the measurements to the last sample preparation task.
 3- Create a Sample preparation object and connect sample object to it. Then connect sample to measurements.
 4- Create a sample preparation object and no sample objects. Connect measurement to sample preparation object.
+
+6-8-2024:
+Search for ontologies and complete more fields.
+
+8-8-2024:
+What is the difference between net charge and charge? In Schema
+
+Save the conversation with one theory scientist (It was not done on the 8th): 
+Change quantitative value to has_measurement_unit?
+Usar o slot_usage para colocar required em todos os atributos obrigatorios
+Verificar
+
+ Tight Binding
+ - xyz -> atom coords
+ - lattice vectors (max 3 vectors)
+ - k-points -> vector with 3 doubles >>> always defined between 0 and 2pi
+ - lattice: honeycomb is the most used in our case but could be undefined
+ - hoppings (doubles but can be complex numbers) [Energy units]
+ - hamiltonian (complex numbers) matrix hermitica [Energy units] or functions (in the case of the crystal) ?? output ??
+ - comments
+
+ Mean Field Hubbard
+ - tight binding (link to TB)
+ - on site Hubbard repulsion U (double) [Energy units] so um valor
+ - density tolerance (double)  [No unit]
+ - number of electrons or charge (-1, 0, +1)
+ - up densities -> matrix dimension (number of columns) [No unit]
+ - down densities -> matrix dimension (number of columns) [No unit]
+ - number of electrons up and the number of electrons down (integer)
+ - convergence_coefficient - help with the convergence of the solution (double)
+ - number of k-points used in the integral (integer)
+ - comments 
+ 
+ Simulation object with general info
