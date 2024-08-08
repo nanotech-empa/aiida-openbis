@@ -42,6 +42,7 @@ Search for ontologies and complete more fields.
 
 8-8-2024:
 What is the difference between net charge and charge? In Schema
+Updated the presentation for September
 
 Save the conversation with one theory scientist (It was not done on the 8th): 
 Change quantitative value to has_measurement_unit?

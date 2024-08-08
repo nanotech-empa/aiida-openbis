@@ -25,6 +25,7 @@ from spmpy_terry import spm
 import spmpy_terry as spmpy
 from datetime import datetime
 import json
+import shutil
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
@@ -341,10 +342,6 @@ else:
 
 o = get_instance(openbis_url)
 
-#TODO: Move these
-import tempfile
-import shutil
-
 if collection_permid:
     sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
     print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
@@ -413,4 +410,14 @@ if collection_permid:
     for sxm_dat_files_directory in sxm_dat_files_directories:
         shutil.rmtree(sxm_dat_files_directory)
 
-# o.logout()
+o.logout()
+
+# If the openBIS microscopy app does not work as expected (you are not able to change plots inside openBIS),
+# open openBIS app container (image: openbis/openbis-server:alpha) and install python together with some libraries.
+# For the installation follow the following steps:
+# 1. Open terminal of openBIS container
+# 2. Run:
+#    2.1. apt-get update
+#    2.2. apt install software-properties-common -y
+#    2.3. apt install python3-pip -y
+#    2.4. pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt
