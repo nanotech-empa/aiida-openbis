@@ -14,6 +14,8 @@
 #
 import sys
 import os
+import copy
+import argparse
 
 import imaging as imaging
 
@@ -26,6 +28,7 @@ import spmpy_terry as spmpy
 from datetime import datetime
 import json
 import shutil
+from collections import defaultdict
 
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
@@ -48,7 +51,6 @@ def get_instance(url=None):
     print(f'Connected to {url} -> token: {token}')
     return openbis_instance
 
-
 def get_color_scale_range(img, channel):
     minimum = np.nanmin(img.get_channel(channel)[0])
     maximum = np.nanmax(img.get_channel(channel)[0])
@@ -68,10 +70,133 @@ def get_color_scale_range(img, channel):
 
     return [str(minimum), str(maximum), str(step)]
 
+def reorder_sxm_channels(channels, header):
+    """
+    Lock-in>Lock-in status: ON > dIdV vs V
+    Lock-in>Lock-in status: OFF:
+        Z-Ctrl hold: TRUE > z vs V
+        Z-Ctrl hold: FALSE:
+            Oscillation Control>output off: TRUE > df vs V
+            Oscillation Control>output off: FALSE > I vs V
+    """
+    channel_index = -1
+    if header["lock-in>lock-in status"] == "ON":
+        channel_index = channels.index("dIdV")
+    else:
+        if header["z-controller>controller status"] == "ON":
+            channel_index = channels.index("z")
+        else:
+            if header["oscillation control>output off"] == "TRUE":
+                channel_index = channels.index("df")
+            else:
+                channel_index = channels.index("I")
+    
+    # If the channel index is less than 0, it means the tree did not find the measurement type
+    if channel_index >= 0:        
+        channels[channel_index], channels[0] = channels[0], channels[channel_index]
+        
+    return channels
+
+def reorder_dat_channels(channels, header):
+    """
+    Bias spectroscopy:
+        Lock-in>Lock-in status: ON > dIdV vs V
+        Lock-in>Lock-in status: OFF
+            Z-Ctrl hold: TRUE > z vs V
+            Z-Ctrl hold: FALSE
+                Oscillation Control>output off: TRUE > df vs V
+                Oscillation Control>output off: FALSE > I vs V
+
+    Z spectroscopy:
+        Lock-in>Lock-in status: ON > dIdV vs z
+        Lock-in>Lock-in status: OFF
+            Oscillation Control>output off: TRUE > df vs z
+            Oscillation Control>output off: FALSE > I vs z
+    """
+    channels_x = copy.deepcopy(channels)
+    channels_y = copy.deepcopy(channels)
+    channel_x_index = -1
+    channel_y_index = -1
+    
+    if header["Experiment"] == "bias spectroscopy":
+        if header["Lock-in>Lock-in status"] == "ON":
+            channel_x_index = channels_x.index(("V","V",1))
+            channel_y_index = channels_y.index(("dIdV","pA",10**12))
+        else:
+            if header["Z-Ctrl hold"] == "FALSE":
+                channel_x_index = channels_x.index(("V","V",1))
+                channel_y_index = channels_y.index(("zspec","nm",10**9))
+            else:
+                if header["Oscillation Control>output off"] == "TRUE":
+                    channel_x_index = channels_x.index(("V","V",1))
+                    channel_y_index = channels_y.index(("df","Hz",1))
+                else:
+                    channel_x_index = channels_x.index(("V","V",1))
+                    channel_y_index = channels_y.index(("I","pA",10**12))
+    else:
+        if header["Lock-in>Lock-in status"] == "ON":
+            channel_x_index = channels_x.index(("zspec","nm",10**9))
+            channel_y_index = channels_y.index(("dIdV","pA",10**12))
+        else:
+            if header["Oscillation Control>output off"] == "TRUE":
+                channel_x_index = channels_x.index(("zspec","nm",10**9))
+                channel_y_index = channels_y.index(("df","Hz",1))
+            else:
+                channel_x_index = channels_x.index(("zspec","nm",10**9))
+                channel_y_index = channels_y.index(("I","pA",10**12))
+
+    if channel_x_index >= 0:
+        channels_x[channel_x_index], channels_x[0] = channels_x[0], channels_x[channel_x_index]
+        channels_y[channel_y_index], channels_y[0] = channels_y[0], channels_y[channel_y_index]
+    return channels_x, channels_y
+
+def get_dat_type(header):
+    """
+    Bias spectroscopy:
+        Lock-in>Lock-in status: ON > dIdV vs V
+        Lock-in>Lock-in status: OFF
+            Z-Ctrl hold: TRUE > z vs V
+            Z-Ctrl hold: FALSE
+                Oscillation Control>output off: TRUE > df vs V
+                Oscillation Control>output off: FALSE > I vs V
+
+    Z spectroscopy:
+        Lock-in>Lock-in status: ON > dIdV vs z
+        Lock-in>Lock-in status: OFF
+            Oscillation Control>output off: TRUE > df vs z
+            Oscillation Control>output off: FALSE > I vs z
+    """
+    measurement_type = ""
+    
+    if header["Experiment"] == "bias spectroscopy":
+        if header["Lock-in>Lock-in status"] == "ON":
+            measurement_type = "bias spectroscopy dIdV vs V"
+        else:
+            if header["Z-Ctrl hold"] == "TRUE":
+                measurement_type = "bias spectroscopy z vs V"
+            else:
+                if header["Oscillation Control>output off"] == "TRUE":
+                    measurement_type = "bias spectroscopy df vs V"
+                else:
+                    measurement_type = "bias spectroscopy I vs V"
+    else:
+        if header["Lock-in>Lock-in status"] == "ON":
+            measurement_type = "z spectroscopy dIdV vs z"
+        else:
+            if header["Oscillation Control>output off"] == "TRUE":
+                measurement_type = "z spectroscopy df vs z"
+            else:
+                measurement_type = "z spectroscopy I vs z"
+
+    return measurement_type
 
 def create_sxm_dataset(openbis, experiment, file_path, sample=None):
     img = spm(file_path)
     channels = [x['ChannelNickname'] for x in img.SignalsList]
+    header = img.header
+    
+    # Select default channel according to the measurement type
+    channels = reorder_sxm_channels(channels, header)
 
     imaging_control = imaging.ImagingControl(openbis)
 
@@ -87,7 +212,6 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
                imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg']),
                imaging.ImagingDataSetControl('archive-format', "Dropdown", values=['zip', 'tar']),
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
-
     inputs = [
         imaging.ImagingDataSetControl('Channel', "Dropdown", values=channels),
         imaging.ImagingDataSetControl('X-axis', "Range", values_range=["0", str(img.get_param('width')[0]), "0.01"]),
@@ -119,7 +243,6 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
         sample=sample,
         files=[file_path])
 
-
 def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experiment=None):
     assert experiment is not None or sample is not None, "Either sample or experiment needs to be provided!"
     data = spmpy.importall(folder_path, file_prefix, 'spec')
@@ -137,52 +260,75 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
             d.date_time = datetime.strptime(date_time, "%d.%m.%Y %H:%M:%S") if date_time is not None else datetime.now()
 
     data.sort(key=lambda da: da.date_time)
-
     channels = list(set([(channel['ChannelNickname'], channel['ChannelUnit'], channel['ChannelScaling']) for spec in data for channel in spec.SignalsList]))
+    channels_x, channels_y = reorder_dat_channels(channels, data[0].header) # All files inside data belong to the same measurement type. Thus, the header of the first file can be used for all of them.
+    
     color_scale_visibility_x = []
     color_scale_visibility_y = []
-    for (channel, unit, scaling) in channels:
-        minimum = []
-        maximum = []
+    for idx, (channel_x, unit_x, scaling_x) in enumerate(channels_x):
+        channel_y = channels_y[idx][0]
+        unit_y = channels_y[idx][1]
+        scaling_y = channels_y[idx][2]
+        
+        minimum_x, maximum_x = [], []
+        minimum_y, maximum_y = [], []
         for spec in data:
-            # -------- Boolean flag was added to the code -------
-            channel_in_signals_list = False
-            for signal_settings in spec.SignalsList:
-                if channel in signal_settings["ChannelNickname"]:
-                    channel_in_signals_list = True
-            if channel_in_signals_list:
-            # ---------------------------------------------------
-                minimum += [np.nanmin(spec.get_channel(f'{channel}')[0])]
-                maximum += [np.nanmax(spec.get_channel(f'{channel}')[0])]
-        minimum = np.nanmin(minimum)
-        maximum = np.nanmax(maximum)
-        step = abs(round((maximum - minimum) / 100, 2))
-
-        if step >= 1:
-            step = 1
-        elif step > 0:
-            step = 0.01
-        else:
-            step = abs((maximum - minimum) / 100)
+            # # -------- Boolean flag was added to the code -------
+            # channel_in_signals_list = False
+            # for signal_settings in spec.SignalsList:
+            #     if channel_x in signal_settings["ChannelNickname"]:
+            #         channel_in_signals_list = True
+            # if channel_in_signals_list:
+            # # ---------------------------------------------------
+            minimum_x += [np.nanmin(spec.get_channel(f'{channel_x}')[0])]
+            maximum_x += [np.nanmax(spec.get_channel(f'{channel_x}')[0])]
             
-            step = np.log10(step)
-            if np.isnan(step) or np.isinf(step):
-                step = 0.01
+            minimum_y += [np.nanmin(spec.get_channel(f'{channel_y}')[0])]
+            maximum_y += [np.nanmax(spec.get_channel(f'{channel_y}')[0])]
+        minimum_x = np.nanmin(minimum_x)
+        maximum_x = np.nanmax(maximum_x)
+        
+        minimum_y = np.nanmin(minimum_y)
+        maximum_y = np.nanmax(maximum_y)
+        step_x = abs(round((maximum_x - minimum_x) / 100, 2))
+        step_y = abs(round((maximum_y - minimum_y) / 100, 2))
+
+        if step_x >= 1:
+            step_x = 1
+        elif step_x > 0:
+            step_x = 0.01
+        else:
+            step_x = abs((maximum_x - minimum_x) / 100)
+            step_x = np.log10(step_x)
+            if np.isnan(step_x) or np.isinf(step_x):
+                step_x = 0.01
             else:
-                step = 10 ** np.floor(step)
+                step_x = 10 ** np.floor(step_x)
+                
+        if step_y >= 1:
+            step_y = 1
+        elif step_y > 0:
+            step_y = 0.01
+        else:
+            step_y = abs((maximum_y - minimum_y) / 100)
+            step_y = np.log10(step_y)
+            if np.isnan(step_y) or np.isinf(step_y):
+                step_y = 0.01
+            else:
+                step_y = 10 ** np.floor(step_y)
 
         color_scale_visibility_x += [imaging.ImagingDataSetControlVisibility(
             "Channel X",
-            [channel],
-            [str(minimum), str(maximum), str(step)],
-            unit
+            [channel_x],
+            [str(minimum_x), str(maximum_x), str(step_x)],
+            unit_x
         )]
 
         color_scale_visibility_y += [imaging.ImagingDataSetControlVisibility(
             "Channel Y",
-            [channel],
-            [str(minimum), str(maximum), str(step)],
-            unit
+            [channel_y],
+            [str(minimum_y), str(maximum_y), str(step_y)],
+            unit_y
         )]
 
     exports = [imaging.ImagingDataSetControl('include', "Dropdown", values=['image', 'raw data'], multiselect=True),
@@ -191,8 +337,8 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
     
     inputs = [
-        imaging.ImagingDataSetControl('Channel X', "Dropdown", values=[channel[0] for channel in channels]),
-        imaging.ImagingDataSetControl('Channel Y', "Dropdown", values=[channel[0] for channel in channels]),
+        imaging.ImagingDataSetControl('Channel X', "Dropdown", values=[channel[0] for channel in channels_x]),
+        imaging.ImagingDataSetControl('Channel Y', "Dropdown", values=[channel[0] for channel in channels_y]),
         imaging.ImagingDataSetControl('X-axis', "Range", visibility=color_scale_visibility_x),
         imaging.ImagingDataSetControl('Y-axis', "Range", visibility=color_scale_visibility_y),
         imaging.ImagingDataSetControl('Grouping', "Dropdown", values=[d.name for d in data], multiselect=True),
@@ -222,13 +368,11 @@ def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experi
         sample=sample,
         files=[d.path for d in data])
 
-
 def create_preview(openbis, perm_id, config, preview_format="png", image_index=0):
     imaging_control = imaging.ImagingControl(openbis)
     preview = imaging.ImagingDataSetPreview(preview_format, config)
     preview = imaging_control.make_preview(perm_id, image_index, preview)
     return preview
-
 
 def update_image_with_preview(openbis, perm_id, image_id, preview: imaging.ImagingDataSetPreview):
     imaging_control = imaging.ImagingControl(openbis)
@@ -241,7 +385,6 @@ def update_image_with_preview(openbis, perm_id, image_id, preview: imaging.Imagi
         image.add_preview(preview)
 
     imaging_control.update_property_config(perm_id, config)
-
 
 def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download: str,
                  include=None, image_format='original', archive_format="zip", resolution='original'):
@@ -256,7 +399,6 @@ def export_image(openbis: Openbis, perm_id: str, image_id: int, path_to_download
     }
     imaging_export = imaging.ImagingDataSetExport(export_config)
     imaging_control.single_export_download(perm_id, imaging_export, image_id, path_to_download)
-
 
 def multi_export_images(openbis: Openbis, perm_ids: list[str], image_ids: list[int], preview_ids: list[int],
                         path_to_download: str, include=None, image_format='original',
@@ -276,7 +418,6 @@ def multi_export_images(openbis: Openbis, perm_ids: list[str], image_ids: list[i
                                                                    preview_ids[i], export_config)]
     imaging_control.multi_export_download(imaging_multi_exports, path_to_download)
 
-
 def demo_sxm_flow(openbis, file_sxm, experiment_permid, sample_permid, permId=None):
 
     perm_id = permId
@@ -288,8 +429,6 @@ def demo_sxm_flow(openbis, file_sxm, experiment_permid, sample_permid, permId=No
             file_path=file_sxm)
         perm_id = dataset_sxm.permId
         print(f'Created imaging .SXM dataset: {dataset_sxm.permId}')
-
-
 
 def demo_dat_flow(openbis, folder_path, experiment_permid, sample_permid, permId=None):
 
@@ -324,93 +463,119 @@ def get_2D_measurement_props(full_sxm_filepath):
     }
     return properties
 
+parser = argparse.ArgumentParser(description = 'Upload Nanonis files into openBIS.')
 
-openbis_url = None
-data_folder = 'data'
-collection_permid = '20240731121246895-1259'
+# Define the arguments with flags
+parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = None)
+parser.add_argument('-d', '--data_folder', type=str, help='Path to the data folder', default = 'data')
+parser.add_argument('-c', '--collection_permid', type=str, help='Collection ID', default = '20240805121017676-1377')
+parser.add_argument('-s', '--sample_permid', type=str, help='Sample ID', default = '20240809165355701-1394')
 
-if len(sys.argv) > 3:
-    openbis_url = sys.argv[1]
-    data_folder = sys.argv[2]
-    collection_permid = sys.argv[3]
-else:
-    print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <PATH_TO_DATA_FOLDER> <COLLECTION_ID>')
+args = parser.parse_args()
+
+openbis_url = args.openbis_url
+data_folder = args.data_folder
+collection_permid = args.collection_permid
+sample_permid = args.sample_permid
+
+if not openbis_url:
+    print(f'Usage: python3 nanonis_importer.py -o <OPENBIS_URL> -d <PATH_TO_DATA_FOLDER> -c <COLLECTION_ID> -s <SAMPLE_ID>')
     print(f'Using default parameters')
     print(f'URL: {DEFAULT_URL}')
     print(f'Data folder: {data_folder}')
     print(f'Default collection ID: {collection_permid}')
+    print(f'Default sample ID: {sample_permid}')
 
 o = get_instance(openbis_url)
 
-if collection_permid:
-    sxm_files = [f for f in os.listdir(data_folder) if f.endswith('.sxm')]
-    print(f'Found {len(sxm_files)} Nanonis .SXM files in {data_folder}')
-    
-    # Organise files by dates
-    sxm_datetimes = []
-    for sxm_file in sxm_files:
-        img = spm(f"{data_folder}/{sxm_file}")
-        img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
-        sxm_datetimes.append(img_datetime)
-    
-    dat_datetimes = []
-    dat_files = [f for f in os.listdir(data_folder) if f.endswith('.dat')]
-    for dat_file in dat_files:
-        img = spm(f"{data_folder}/{dat_file}")
-        img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
-        dat_datetimes.append(img_datetime)
-    
-    # Put the organised dat files into different folders according to the respective SXM
-    dat_files_by_sxm = [[] for sxm_file in sxm_files]
-    for dat_index, dat_datetime in enumerate(dat_datetimes):
-        last_sxm_index = 0
-        for sxm_index, sxm_datetime in enumerate(sxm_datetimes):
-            if dat_datetime > sxm_datetime:
-                last_sxm_index = sxm_index
-        
-        dat_files_by_sxm[last_sxm_index].append(dat_files[dat_index])
-    
-    # Make a temporary folder by SXM with all the respective DAT files
-    sxm_dat_files_directories = []
-    for sxm_index, dat_files in enumerate(dat_files_by_sxm):
-        dat_files_directory = os.path.join(data_folder, f"SXM {sxm_index}")
-        os.mkdir(dat_files_directory)
-        
-        for dat_file in dat_files:
-            shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
-        
-        sxm_dat_files_directories.append(dat_files_directory)
+measurement_files = [f for f in os.listdir(data_folder)]
+production = True
 
-    # Create SXM measurements and DAT measurements in openBIS and link them according to parent-child relation (DAT files connected to respective SXM files)
-    for sxm_index, sxm_file in enumerate(sxm_files):
-        print(f"SXM file: {sxm_file}")
-        twoD_measurement_sample = o.new_sample(
-            type = "2D_MEASUREMENT", 
-            experiment = collection_permid, 
-            props = get_2D_measurement_props(os.path.join(data_folder, sxm_file))
-        )
-        twoD_measurement_sample.save()
-        file_path = os.path.join(data_folder, sxm_file)
-        try:
-            demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
-        except:
-            print(f"Cannot upload {sxm_file}.")
-        
-        oneD_measurement_sample = o.new_sample(
-            type = "1D_MEASUREMENT", 
-            experiment = collection_permid,
-            props = {"$name": "Experimental 1D Measurement"},
-            parents = [twoD_measurement_sample]
-        )
-        oneD_measurement_sample.save()
-        
-        demo_dat_flow(o, sxm_dat_files_directories[sxm_index], collection_permid, oneD_measurement_sample.permId)
+if production:
+    measurement_datetimes = []
 
-    # Remove temporary SXM folders
-    for sxm_dat_files_directory in sxm_dat_files_directories:
-        shutil.rmtree(sxm_dat_files_directory)
+    for f in measurement_files:
+        if f.endswith(".sxm"):
+            img = spm(f"{data_folder}/{f}")
+            img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
+            measurement_datetimes.append(img_datetime)
+            
+        elif f.endswith(".dat"):
+            img = spm(f"{data_folder}/{f}")
+            img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+            measurement_datetimes.append(img_datetime)
 
-o.logout()
+    # Sort files by datetime
+    sorted_measurement_files = [x for _, x in sorted(zip(measurement_datetimes, measurement_files))]
+
+    # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files.
+    grouped_measurement_files = []
+    group = []
+    for i,f in enumerate(sorted_measurement_files):
+        if f.endswith(".sxm"):
+            if len(group) > 0:
+                grouped_measurement_files.append(group)
+                group = []
+            grouped_measurement_files.append([f])
+        elif f.endswith(".dat"):
+            group.append(f)
+
+    if len(group) > 0:
+        grouped_measurement_files.append(group)
+        group = []
+
+    if collection_permid:
+        for group in grouped_measurement_files:
+            if group[0].endswith(".sxm"):
+                print(f"SXM file: {group[0]}")
+                twoD_measurement_sample = o.new_sample(
+                    type = "2D_MEASUREMENT", 
+                    experiment = collection_permid, 
+                    props = get_2D_measurement_props(os.path.join(data_folder, group[0])),
+                    parents = [sample_permid]
+                )
+                twoD_measurement_sample.save()
+                file_path = os.path.join(data_folder, group[0])
+                try:
+                    demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
+                except:
+                    print(f"Cannot upload {group[0]}.")
+            else:
+                
+                # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
+                dat_files_types = []
+                for dat_file in group:
+                    dat_data = spm(f"{data_folder}/{dat_file}")
+                    dat_files_types.append(get_dat_type(dat_data.header))
+                
+                grouped = defaultdict(list)
+
+                for item1, item2 in zip(group, dat_files_types):
+                    grouped[item2].append(item1)
+
+                dat_files_grouped_by_type = list(grouped.values())
+                # ---------------
+                
+                for dat_files_group in dat_files_grouped_by_type:
+                    oneD_measurement_sample = o.new_sample(
+                        type = "1D_MEASUREMENT", 
+                        experiment = collection_permid,
+                        props = {"$name": "Experimental 1D Measurement"},
+                        parents = [sample_permid]
+                    )
+                    oneD_measurement_sample.save()
+                    
+                    dat_files_directory = os.path.join(data_folder, "dat_files")
+                    os.mkdir(dat_files_directory)
+                    
+                    for dat_file in dat_files_group:
+                        shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
+                    
+                    demo_dat_flow(o, dat_files_directory, collection_permid, oneD_measurement_sample.permId)
+                    
+                    shutil.rmtree(dat_files_directory)
+                    
+    o.logout()
 
 # If the openBIS microscopy app does not work as expected (you are not able to change plots inside openBIS),
 # open openBIS app container (image: openbis/openbis-server:alpha) and install python together with some libraries.

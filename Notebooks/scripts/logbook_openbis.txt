@@ -46,8 +46,7 @@ Updated the presentation for September
 
 Save the conversation with one theory scientist (It was not done on the 8th): 
 Change quantitative value to has_measurement_unit?
-Usar o slot_usage para colocar required em todos os atributos obrigatorios
-Verificar
+Use slot_usage to put required in all mandatory attributes (Verify)
 
  Tight Binding
  - xyz -> atom coords
@@ -55,7 +54,7 @@ Verificar
  - k-points -> vector with 3 doubles >>> always defined between 0 and 2pi
  - lattice: honeycomb is the most used in our case but could be undefined
  - hoppings (doubles but can be complex numbers) [Energy units]
- - hamiltonian (complex numbers) matrix hermitica [Energy units] or functions (in the case of the crystal) ?? output ??
+ - hamiltonian (complex numbers) hermitian matrix [Energy units] or functions (in the case of the crystal) ?? output ??
  - comments
 
  Mean Field Hubbard
@@ -71,3 +70,33 @@ Verificar
  - comments 
  
  Simulation object with general info
+
+ 3-9-2024:
+ Discussion with Bruno: 
+ - For every preparation, there should be a gallery with all SXM and Dat files.
+ - The files should be displayed chronologically.
+ - If Dat files come together, they should be merged into just one plot.
+ - One should be able to split the merged dat files afterwards if needed.
+
+ Sample objects conclusion (Discuss it in the meeting next week): 
+ - Create a new sample object after every sample preparation task like (Sample 1 > Task > Sample 1.1)
+ - Connect the measurements to the last sample object.
+
+ Should I do one collection with measurements for all the measurements in the project or should I make a collection for every sample preparation?
+
+ Store consecutive dat files together. There might be a case where dat files with an sxm image in-between should be merged but it is ok if it is not possible.
+
+ nanonis_importer.py is now placing the measurement chronologically, merging dat files whenever they are consecutive.
+
+ IMPORTANT: The exact location of the dat measurements in the sample should appear in the microscopy app? -> Discuss with Bruno and probably openBIS team.
+
+ IMPORTANT: One measurement collection per sample preparation.
+
+ DISCUSS WITH BRUNO: On the slide 5 of the G:\openBIS\ORD PREMISE\GUI, Style File\Lab205_microscopy_GUI_initial_concept.pptx, there is an image where the experimentalists combine dat measurements with an SXM measurement. To select the SXM measurement, we could take the coordinates of the dat measurements and try to find the best SXM match (one where the coords are not out of range). There should also be a manual option.
+
+ Working on inventory excel. -> Trying to replicate it inside openBIS.
+ Working on how the default channels are selected when uploading measurement files to openBIS.
+
+4-9-2024:
+Working on the selection of default channels for the measurements. If dat files that were taken together correspond to different measurement types, they should be grouped by type.
+Working on the mapping of the instruments' excel metadata into openBIS.
