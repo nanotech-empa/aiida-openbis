@@ -87,7 +87,7 @@ Use slot_usage to put required in all mandatory attributes (Verify)
  Store consecutive dat files together. There might be a case where dat files with an sxm image in-between should be merged but it is ok if it is not possible.
 
  nanonis_importer.py is now placing the measurement chronologically, merging dat files whenever they are consecutive.
-
++
  IMPORTANT: The exact location of the dat measurements in the sample should appear in the microscopy app? -> Discuss with Bruno and probably openBIS team.
 
  IMPORTANT: One measurement collection per sample preparation.
@@ -100,3 +100,9 @@ Use slot_usage to put required in all mandatory attributes (Verify)
 4-9-2024:
 Working on the selection of default channels for the measurements. If dat files that were taken together correspond to different measurement types, they should be grouped by type.
 Working on the mapping of the instruments' excel metadata into openBIS.
+
+5-9-2024:
+Talked with Edan about the PREMISE' tasks. I should ask Bruno whether they trigger simulations using information from the experiments, e.g. using the same parameters used in the lab to build a certain sample.
+
+6-9-2024:
+What should be stored in a transference? Room to Room or Location to Location? Location is the exactly place where the item is, like inside a drawer or inside an instrument.

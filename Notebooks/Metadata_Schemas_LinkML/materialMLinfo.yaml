@@ -962,6 +962,7 @@ classes:
     slots:
      - perm_id
      - name
+     - description
      - uhv_component_type
      - empa_id
      - model
@@ -1740,7 +1741,7 @@ slots:
     range: string
     slot_uri: schema:comment
     annotations:
-      openbis_type: VARCHAR
+      openbis_type: MULTILINE_VARCHAR
       openbis_label: Comments
   has_value:
     description: Value
