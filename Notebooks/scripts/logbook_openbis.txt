@@ -1,8 +1,13 @@
 Questions:
 
-- When creating a new space, how to place it inside lab notebook or inventory?
-- Unzipping a zip file in pybis dataset does not work right?
-- In microscopy app, DAT files are now together in just one object. However, each data file has a different header. How are you going to handle this?
+- When creating a new space, how to place it inside lab notebook or inventory? Using pyBIS
+- Why do I need to update the microscopy app even if it is the first time I upload some images
+- What is needed to fill the RO-Crate. Atm I have Json-LD and Json Schema. What is missing?
+- I developed a way of automatically selecting the measurement channels following a set of rules written by experimentalists. Are you going to incorporate that in the app?
+- Is the next openBIS release going to be plug-and-play? At the moment, I need to set up some settings to have microscopy app running, e.g., installing python 3.
+
+- Unzipping a zip file in pybis dataset does not work right? [CLOSED]
+- In microscopy app, DAT files are now together in just one object. However, each data file has a different header. How are you going to handle this? [CLOSED]
 
 Notes: 
 
@@ -106,3 +111,10 @@ Talked with Edan about the PREMISE' tasks. I should ask Bruno whether they trigg
 
 6-9-2024:
 What should be stored in a transference? Room to Room or Location to Location? Location is the exactly place where the item is, like inside a drawer or inside an instrument.
+Start preparing the different options to store components and instruments in openBIS. An option would be to have collections of those options in headings and those options in subheadings and then relate them. Another option is to enter that information as object properties.
+IMPORTANT: There is no option for entering an array of objects as object property.
+
+9-9-2024:
+
+Prepared slides in the presentation for wednesday using two different approachers of storing inventory metadata.
+Prepared RO-Crate for the discussion with Mihai.

@@ -620,8 +620,8 @@ classes:
      - name
      - description
      - comments
-     - 1d_measurements
-     - 2d_measurements
+     - one_d_measurements
+     - two_d_measurements
      - geometry_optimisations
      - softwares
   Room:
@@ -695,7 +695,7 @@ classes:
      - name
      - comments
      - molecule
-  2DMeasurement:
+  TwoDMeasurement:
     class_uri:
     description: 2D Measurement
     annotations:
@@ -766,7 +766,7 @@ classes:
      - name
      - comments
      - room
-  1DMeasurement:
+  OneDMeasurement:
     class_uri: fairmat_sts:nxsts
     description: 1D Measurement
     annotations:
@@ -844,7 +844,7 @@ classes:
      - instrument
      - sample
      - tip_sensor
-     - 2d_measurement
+     - two_d_measurement
   Supplier:
     class_uri: ncit:NCIT_C43530
     description: Supplier
@@ -1505,20 +1505,20 @@ classes:
         inlined_as_list: true
         range: SRD
         description: sublimation rate determination objects container
-      2d_measurements:
+      two_d_measurements:
         multivalued: true
         inlined_as_list: true
-        range: 2DMeasurement
+        range: TwoDMeasurement
         description: 2D measurements container
       storages:
         multivalued: true
         inlined_as_list: true
         range: Storage
         description: storages container
-      1d_measurements:
+      one_d_measurements:
         multivalued: true
         inlined_as_list: true
-        range: 1DMeasurement
+        range: OneDMeasurement
         description: 1D measurements container
       suppliers:
         multivalued: true
@@ -3376,6 +3376,12 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: number of k-points
+  on_site_hubbard_repulsion_u:
+    description: On-site Hubbard repulsion U
+    range: QuantityValue
+    annotations:
+      openbis_type: JSON
+      openbis_label: On-site Hubbard repulsion U
   precursor_molecules:
     range: Molecule
     description: precursor molecules
@@ -3621,15 +3627,15 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (after)
-  1d_measurement:
-    range: 1DMeasurement
+  one_d_measurement:
+    range: OneDMeasurement
     description: 1D measurement
     slot_uri: fairmat_sts:nxsts
     annotations:
       openbis_type: OBJECT
       openbis_label: 1D Measurement
-  1d_measurements:
-    range: 1DMeasurement
+  one_d_measurements:
+    range: OneDMeasurement
     description: 1D measurements
     multivalued: true
     inlined_as_list: true
@@ -3637,8 +3643,8 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: 1D Measurements
-  2d_measurements:
-    range: 2DMeasurement
+  two_d_measurements:
+    range: TwoDMeasurement
     description: 2D measurements
     multivalued: true
     inlined_as_list: true
@@ -3646,8 +3652,8 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: 2D Measurements
-  2d_measurement:
-    range: 2DMeasurement
+  two_d_measurement:
+    range: TwoDMeasurement
     description: 2D measurement
     slot_uri: chmo:CHMO_0000132
     annotations:
