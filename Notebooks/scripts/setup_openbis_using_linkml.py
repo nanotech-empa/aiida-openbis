@@ -215,7 +215,7 @@ class OpenBisDatabase:
         create_experiment_type_in_openbis(self.session)
         
         # Create collections in openBIS
-        collections_config_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "collections_config.json")
+        collections_config_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "scripts", "collections_config.json")
         collections_config = read_json(collections_config_filepath)
         
         # Create spaces in openBIS

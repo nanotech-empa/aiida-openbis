@@ -118,3 +118,15 @@ IMPORTANT: There is no option for entering an array of objects as object propert
 
 Prepared slides in the presentation for wednesday using two different approachers of storing inventory metadata.
 Prepared RO-Crate for the discussion with Mihai.
+
+10-9-2024:
+
+Meeting with Carlo: 
+- Missing the instrument mapping into openBIS (being done with iLog project)
+- Missing first deep benchmarking with experimentalists (Planned on mid December)
+- Need to refine our object structures to consider the logging (object tracking, maintenance, etc)
+- Missing simulation side mapping
+- Decide how to deal with cases when simulation starts from aiida
+- Decide about interoperability (where to start)
+- Implement missing features in the microscopy app (e.g. pointing 1D measurements on 2D measurements)
+- The openbis container does not work in macOS
