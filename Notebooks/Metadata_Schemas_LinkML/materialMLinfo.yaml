@@ -1746,7 +1746,7 @@ slots:
   has_value:
     description: Value
     range: double
-    slot_uri: qudt:hasQuantityKind
+    slot_uri: qudt:value
     annotations:
       openbis_type: REAL
       openbis_label: Value
