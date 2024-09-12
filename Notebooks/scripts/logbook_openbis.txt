@@ -130,3 +130,20 @@ Meeting with Carlo:
 - Decide about interoperability (where to start)
 - Implement missing features in the microscopy app (e.g. pointing 1D measurements on 2D measurements)
 - The openbis container does not work in macOS
+
+11-9-2024:
+
+Meeting with Bruno and meeting with Mihai, Adam, Edan, and Nukorn to discuss LinkML
+
+12-9-2024:
+
+Discuss Microscopy app with Bruno and ask him about creating an aiida simulation using sample information
+
+Bruno's questions:
+    How do they populate the gallery (image data)?
+    What is the difference between the images and previews inside the microscopy app?
+    We need a button to return to the galley and buttons to move through the different measurement inside the same gallery.
+    
+    Ask Simone about this: Who is in charge of the automatic import? Selection of the correct collection and correct sample.
+    Jupyter notebook to display measurments (check https://github.com/nanotech-empa/simpleNFB). Ask Eve about details.
+    Create a meeting with me, Carlo, Bruno, and developers from openBIS

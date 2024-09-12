@@ -1,0 +1,54 @@
+coincells:
+  - version: Dev_Excel_for_v060
+    product_id: Empa-bco-000007
+    date_created: 2024-06-16
+    creator:
+      name: Corsin Battaglia
+    manufacturer:
+      name: Empa
+    has_positive_electrode:
+      has_current_collector: 
+        has_measured_property_thickness: 
+          has_numerical_part_real: 
+            has_numerical_value: 15
+          has_measurement_unit: emmo:MicroMetre
+      has_coating:
+        has_active_material:
+          has_measured_property_mass_fraction:
+            has_numerical_part_real: 
+              has_numerical_value: 96
+            has_measurement_unit: unit:PERCENT
+          has_measured_property_mass_loading:
+            has_numerical_part_real: 
+              has_numerical_value: 6.6
+            has_measurement_unit: unit:MilliGM-PER-CentiM2
+          has_measured_property_d50_particle_size:
+            has_numerical_part_real: 
+              has_numerical_value: 6
+            has_measurement_unit: emmo:MicroMetre
+        has_binder:
+          has_measured_property_mass_fraction:
+            has_numerical_part_real: 
+              has_numerical_value: 2
+            has_measurement_unit: unit:PERCENT
+        has_conductive_additive:
+          has_measured_property_mass_fraction:
+            has_numerical_part_real: 
+              has_numerical_value: 2
+            has_measurement_unit: unit:PERCENT
+        has_measured_property_calendered_coating_thickness:
+          has_numerical_part_real: 
+            has_numerical_value: 16
+          has_measurement_unit: emmo:MicroMetre
+        has_measured_property_porosity:
+          has_numerical_part_real: 
+            has_numerical_value: 35
+          has_measurement_unit: unit:PERCENT
+        has_measured_property_tortuosity:
+          has_numerical_part_real: 
+            has_numerical_value: 2.5
+          has_measurement_unit: emmo:UnitOne
+      has_measured_property_diameter:
+        has_numerical_part_real: 
+          has_numerical_value: 12
+        has_measurement_unit: unit:MilliM

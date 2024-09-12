@@ -1,0 +1,1784 @@
+@prefix emmo: <https://w3id.org/emmo#> .
+@prefix materialsML: <https://w3id.org/linkml/examples/materialsML/> .
+@prefix ncit: <http://purl.obolibrary.org/obo/ncit.owl#> .
+@prefix occo: <http://purl.obolibrary.org/obo/occo.owl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix schema1: <http://schema.org/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://w3id.org/linkml/examples/materialsML.owl.ttl> a owl:Ontology ;
+    rdfs:label "materialsML" .
+
+materialsML:Container a owl:Class ;
+    rdfs:label "Container" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:grants ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:storages ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Publication ;
+            owl:onProperty materialsML:publications ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:persons ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Molecule ;
+            owl:onProperty materialsML:molecules ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Grant ;
+            owl:onProperty materialsML:grants ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:crystals ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:molecules ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:institutions ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Person ;
+            owl:onProperty materialsML:persons ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:suppliers ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Crystal ;
+            owl:onProperty materialsML:crystals ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:authors ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Institution ;
+            owl:onProperty materialsML:institutions ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Supplier ;
+            owl:onProperty materialsML:suppliers ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Author ;
+            owl:onProperty materialsML:authors ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Storage ;
+            owl:onProperty materialsML:storages ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:publications ] ;
+    skos:definition "Contains multiple objects" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_object false .
+
+materialsML:Crystal a owl:Class ;
+    rdfs:label "Crystal" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:material ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:height ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:diameter ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:material ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:face ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:face ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:QuantityValue ;
+            owl:onProperty materialsML:diameter ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:specifications ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:other_storage_condition_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:other_storage_condition_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:reference_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:sample_plate ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Supplier ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:specifications ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:sample_plate ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Storage ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:reference_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:material ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:reference_number ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:sample_plate ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:specifications ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:other_storage_condition_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:date ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:diameter ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:QuantityValue ;
+            owl:onProperty materialsML:height ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:face ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:height ] ;
+    skos:definition "Crystal" ;
+    skos:exactMatch emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "CRYST" ;
+    materialsML:openbis_label "Crystal" ;
+    materialsML:openbis_object true .
+
+materialsML:Publication a owl:Class ;
+    rdfs:label "Publication" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Grant ;
+            owl:onProperty materialsML:grants ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:url ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:doi ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:drafts ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:abstract ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Draft ;
+            owl:onProperty materialsML:drafts ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:abstract ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:integer ;
+            owl:onProperty materialsML:year ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:dataset_url ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:year ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})" ] ) ] ) ] ;
+            owl:onProperty materialsML:url ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Author ;
+            owl:onProperty materialsML:authors ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:url ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:doi ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:year ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:grants ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:dataset_url ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:doi ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:abstract ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:authors ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})" ] ) ] ) ] ;
+            owl:onProperty materialsML:dataset_url ] ;
+    skos:definition "Publication" ;
+    skos:exactMatch schema1:PublicationIssue ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "PUBL" ;
+    materialsML:openbis_label "Publication Custom" ;
+    materialsML:openbis_object true .
+
+materialsML:Chemist a owl:Class ;
+    rdfs:label "Chemist" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Supplier ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Person ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:supplier ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ] ;
+    skos:definition "Chemist/Synthesiser" ;
+    skos:exactMatch occo:OCCO_19203100 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "CHEM" ;
+    materialsML:openbis_label "Chemist" ;
+    materialsML:openbis_object true .
+
+materialsML:Draft a owl:Class ;
+    rdfs:label "Draft" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Result ;
+            owl:onProperty materialsML:results ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:results ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:draft_type ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:draft_type ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:draft_type ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ] ;
+    skos:definition "Publication draft/Manuscript" ;
+    skos:exactMatch ncit:NCIT_C85255 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "DRFT" ;
+    materialsML:openbis_label "Draft" ;
+    materialsML:openbis_object true .
+
+materialsML:EvaporationTemperature a owl:Class ;
+    rdfs:label "EvaporationTemperature" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:device ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:device ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:device ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:QuantityValue ;
+            owl:onProperty materialsML:temperature ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:datetime ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:temperature ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:temperature ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:datetime ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:dateTime ;
+            owl:onProperty materialsML:datetime ] ;
+    skos:definition "evaporation temperature details" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_object false .
+
+materialsML:Result a owl:Class ;
+    rdfs:label "Result" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ] ;
+    skos:definition "Results" ;
+    skos:exactMatch emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "RES" ;
+    materialsML:openbis_label "Results" ;
+    materialsML:openbis_object true .
+
+materialsML:Room a owl:Class ;
+    rdfs:label "Room" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Institution ;
+            owl:onProperty materialsML:institution ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:institution ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:institution ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ] ;
+    skos:definition "Room" ;
+    skos:exactMatch schema1:Room ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "ROOM" ;
+    materialsML:openbis_label "Room" ;
+    materialsML:openbis_object true .
+
+materialsML:crystals a owl:ObjectProperty ;
+    rdfs:label "crystals" ;
+    skos:definition "crystals container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:drafts a owl:ObjectProperty ;
+    rdfs:label "drafts" ;
+    rdfs:range materialsML:Draft ;
+    skos:definition "drafts" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Drafts" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:evaporation_temperatures a owl:ObjectProperty ;
+    rdfs:label "evaporation_temperatures" ;
+    rdfs:range materialsML:EvaporationTemperature ;
+    skos:definition "evaporation temperatures" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Evaporation temperatures" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:institutions a owl:ObjectProperty ;
+    rdfs:label "institutions" ;
+    skos:definition "institutions container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:molecules a owl:ObjectProperty ;
+    rdfs:label "molecules" ;
+    skos:definition "molecules container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:persons a owl:ObjectProperty ;
+    rdfs:label "persons" ;
+    skos:definition "persons container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:precursor_molecules a owl:ObjectProperty ;
+    rdfs:label "precursor_molecules" ;
+    rdfs:range materialsML:Molecule ;
+    skos:definition "precursor molecules" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Precursor molecules" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:publications a owl:ObjectProperty ;
+    rdfs:label "publications" ;
+    skos:definition "publications container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:results a owl:ObjectProperty ;
+    rdfs:label "results" ;
+    rdfs:range materialsML:Result ;
+    skos:definition "results" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Results" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:storages a owl:ObjectProperty ;
+    rdfs:label "storages" ;
+    skos:definition "storages container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:suppliers a owl:ObjectProperty ;
+    rdfs:label "suppliers" ;
+    skos:definition "suppliers container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> .
+
+materialsML:Author a owl:Class ;
+    rdfs:label "Author" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Institution ;
+            owl:onProperty materialsML:institution ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Person ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:person ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:institution ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:institution ] ;
+    skos:definition "Author" ;
+    skos:exactMatch ncit:NCIT_C42781 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "AUTH" ;
+    materialsML:openbis_label "Author" ;
+    materialsML:openbis_object true .
+
+materialsML:Grant a owl:Class ;
+    rdfs:label "Grant" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:date ;
+            owl:onProperty materialsML:end_date ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:funder ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:acknowledgement_sentence ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:date ;
+            owl:onProperty materialsML:start_date ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:budget ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:acknowledgement_sentence ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:QuantityValue ;
+            owl:onProperty materialsML:budget ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:end_date ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:budget ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:start_date ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:funder ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:acknowledgement_sentence ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:end_date ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:project_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:start_date ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:funder ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:project_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:project_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ] ;
+    skos:definition "Grant" ;
+    skos:exactMatch schema1:Grant ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "GRNT" ;
+    materialsML:openbis_label "Grant" ;
+    materialsML:openbis_object true .
+
+materialsML:Molecule a owl:Class ;
+    rdfs:label "Molecule" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:iupac_name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "^[a-z]$" ] ) ] ) ] ;
+            owl:onProperty materialsML:batch ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:smiles ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:empa_number ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:smiles ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:QuantityValue ;
+            owl:onProperty materialsML:amount ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:batch ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:other_storage_condition_specification ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:chemist ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:EvaporationTemperature ;
+            owl:onProperty materialsML:evaporation_temperatures ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:sum_formula ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:fridge ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:batch ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:vial ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:no_oxygen ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:dry ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:chemist_molecule_name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Storage ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:integer [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:integer ;
+                                owl:withRestrictions ( [ xsd:minInclusive 0 ] ) ] ) ] ;
+            owl:onProperty materialsML:empa_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:sum_formula ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:other_storage_condition_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:cas_number ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Molecule ;
+            owl:onProperty materialsML:precursor_molecules ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$" ] ) ] ) ] ;
+            owl:onProperty materialsML:vial ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:sum_formula ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:storage ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:iupac_name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:hazardous ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:other_storage_condition ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:amount ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:amount ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:precursor_molecules ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:no_light ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:hazardous_specification ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Chemist ;
+            owl:onProperty materialsML:chemist ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:cas_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:vial ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:cas_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:chemist_molecule_name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:chemist ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:chemist_molecule_name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:date ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:receive_date ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:evaporation_temperatures ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:iupac_name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:smiles ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:empa_number ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:other_storage_condition_specification ] ;
+    skos:definition "Molecule" ;
+    skos:exactMatch schema1:MolecularEntity ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "MOL" ;
+    materialsML:openbis_label "Molecule" ;
+    materialsML:openbis_object true .
+
+materialsML:abstract a owl:DatatypeProperty ;
+    rdfs:label "abstract" ;
+    rdfs:range xsd:string ;
+    skos:definition "abstract" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Abstract" ;
+    materialsML:openbis_type "MULTILINE_VARCHAR" .
+
+materialsML:acknowledgement_sentence a owl:DatatypeProperty ;
+    rdfs:label "acknowledgement_sentence" ;
+    rdfs:range xsd:string ;
+    skos:definition "acknowledgement sentence" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Acknowledgement sentence" ;
+    materialsML:openbis_type "MULTILINE_VARCHAR" .
+
+materialsML:amount a owl:ObjectProperty ;
+    rdfs:label "amount" ;
+    rdfs:range materialsML:QuantityValue ;
+    skos:definition "amount" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Amount" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:batch a owl:DatatypeProperty ;
+    rdfs:label "batch" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:string ;
+                        owl:withRestrictions ( [ xsd:pattern "^[a-z]$" ] ) ] ) ] ;
+    skos:definition "batch" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Batch" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:budget a owl:ObjectProperty ;
+    rdfs:label "budget" ;
+    rdfs:range materialsML:QuantityValue ;
+    skos:definition "budget" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Budget" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:cas_number a owl:DatatypeProperty ;
+    rdfs:label "cas_number" ;
+    rdfs:range xsd:string ;
+    skos:definition "cas number" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "CAS number" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:chemist a owl:ObjectProperty ;
+    rdfs:label "chemist" ;
+    rdfs:range materialsML:Chemist ;
+    skos:definition "chemist" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Chemist" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:chemist_molecule_name a owl:DatatypeProperty ;
+    rdfs:label "chemist_molecule_name" ;
+    rdfs:range xsd:string ;
+    skos:definition "chemist molecule name" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Molecule name (given by Chemist)" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:dataset_url a owl:DatatypeProperty ;
+    rdfs:label "dataset_url" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:string ;
+                        owl:withRestrictions ( [ xsd:pattern "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})" ] ) ] ) ] ;
+    skos:definition "dataset url" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Dataset URL" ;
+    materialsML:openbis_type "HYPERLINK" .
+
+materialsML:datetime a owl:DatatypeProperty ;
+    rdfs:label "datetime" ;
+    rdfs:range xsd:dateTime ;
+    skos:definition "datetime" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Datetime" ;
+    materialsML:openbis_type "TIMESTAMP" .
+
+materialsML:device a owl:DatatypeProperty ;
+    rdfs:label "device" ;
+    rdfs:range xsd:string ;
+    skos:definition "device" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Device" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:diameter a owl:ObjectProperty ;
+    rdfs:label "diameter" ;
+    rdfs:range materialsML:QuantityValue ;
+    skos:definition "diameter" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Diameter" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:doi a owl:DatatypeProperty ;
+    rdfs:label "doi" ;
+    rdfs:range xsd:string ;
+    skos:definition "doi" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "DOI" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:draft_type a owl:DatatypeProperty ;
+    rdfs:label "draft_type" ;
+    rdfs:range xsd:string ;
+    skos:definition "draft type" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Draft type" ;
+    materialsML:openbis_type "CONTROLLEDVOCABULARY" .
+
+materialsML:empa_number a owl:DatatypeProperty ;
+    rdfs:label "empa_number" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:integer [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:integer ;
+                        owl:withRestrictions ( [ xsd:minInclusive 0 ] ) ] ) ] ;
+    skos:definition "empa number" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Empa number" ;
+    materialsML:openbis_type "INTEGER" .
+
+materialsML:end_date a owl:DatatypeProperty ;
+    rdfs:label "end_date" ;
+    rdfs:range xsd:date ;
+    skos:definition "end date" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "End date" ;
+    materialsML:openbis_type "DATE" .
+
+materialsML:face a owl:DatatypeProperty ;
+    rdfs:label "face" ;
+    rdfs:range xsd:string ;
+    skos:definition "face" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Face" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:funder a owl:DatatypeProperty ;
+    rdfs:label "funder" ;
+    rdfs:range xsd:string ;
+    skos:definition "funder" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Funder" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:has_unit a owl:DatatypeProperty ;
+    rdfs:label "has_unit" ;
+    rdfs:range xsd:string ;
+    skos:definition "Unit" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Unit" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:has_value a owl:DatatypeProperty ;
+    rdfs:label "has_value" ;
+    rdfs:range xsd:double ;
+    skos:definition "Value" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Value" ;
+    materialsML:openbis_type "REAL" .
+
+materialsML:height a owl:ObjectProperty ;
+    rdfs:label "height" ;
+    rdfs:range materialsML:QuantityValue ;
+    skos:definition "height" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Height" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:iupac_name a owl:DatatypeProperty ;
+    rdfs:label "iupac_name" ;
+    rdfs:range xsd:string ;
+    skos:definition "iupac name" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "IUPAC name" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:material a owl:DatatypeProperty ;
+    rdfs:label "material" ;
+    rdfs:range xsd:string ;
+    skos:definition "material" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Material" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:mobile_phone a owl:DatatypeProperty ;
+    rdfs:label "mobile_phone" ;
+    rdfs:range xsd:string ;
+    skos:definition "mobile phone" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Mobile phone" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:project_id a owl:DatatypeProperty ;
+    rdfs:label "project_id" ;
+    rdfs:range xsd:string ;
+    skos:definition "project id" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Project ID" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:reference_number a owl:DatatypeProperty ;
+    rdfs:label "reference_number" ;
+    rdfs:range xsd:string ;
+    skos:definition "reference number" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Reference number" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:room a owl:ObjectProperty ;
+    rdfs:label "room" ;
+    rdfs:range materialsML:Room ;
+    skos:definition "room" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Room" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:sample_plate a owl:DatatypeProperty ;
+    rdfs:label "sample_plate" ;
+    rdfs:range xsd:string ;
+    skos:definition "sample plate" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Sample plate" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:short_name a owl:DatatypeProperty ;
+    rdfs:label "short_name" ;
+    rdfs:range xsd:string ;
+    skos:definition "username" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Username" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:smiles a owl:DatatypeProperty ;
+    rdfs:label "smiles" ;
+    rdfs:range xsd:string ;
+    skos:definition "smiles" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Smiles" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:specifications a owl:DatatypeProperty ;
+    rdfs:label "specifications" ;
+    rdfs:range xsd:string ;
+    skos:definition "specifications" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Specifications" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:start_date a owl:DatatypeProperty ;
+    rdfs:label "start_date" ;
+    rdfs:range xsd:date ;
+    skos:definition "start date" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Start date" ;
+    materialsML:openbis_type "DATE" .
+
+materialsML:sum_formula a owl:DatatypeProperty ;
+    rdfs:label "sum_formula" ;
+    rdfs:range xsd:string ;
+    skos:definition "sum formula" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Sum formula" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:temperature a owl:ObjectProperty ;
+    rdfs:label "temperature" ;
+    rdfs:range materialsML:QuantityValue ;
+    skos:definition "temperature" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Temperature" ;
+    materialsML:openbis_type "JSON" .
+
+materialsML:url a owl:DatatypeProperty ;
+    rdfs:label "url" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:string ;
+                        owl:withRestrictions ( [ xsd:pattern "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})" ] ) ] ) ] ;
+    skos:definition "url" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "URL" ;
+    materialsML:openbis_type "HYPERLINK" .
+
+materialsML:vial a owl:DatatypeProperty ;
+    rdfs:label "vial" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:string ;
+                        owl:withRestrictions ( [ xsd:pattern "^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$" ] ) ] ) ] ;
+    skos:definition "vial" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Vial" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:work_status a owl:DatatypeProperty ;
+    rdfs:label "work_status" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "work status" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Work status" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:year a owl:DatatypeProperty ;
+    rdfs:label "year" ;
+    rdfs:range xsd:integer ;
+    skos:definition "year" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Year" ;
+    materialsML:openbis_type "INTEGER" .
+
+materialsML:Institution a owl:Class ;
+    rdfs:label "Institution" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:address ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:address ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:description ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:address ] ;
+    skos:definition "Institution" ;
+    skos:exactMatch schema1:Organization ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "INST" ;
+    materialsML:openbis_label "Institution" ;
+    materialsML:openbis_object true .
+
+materialsML:Person a owl:Class ;
+    rdfs:label "Person" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:boolean ;
+            owl:onProperty materialsML:work_status ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:work_status ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:mobile_phone ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:short_name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:short_name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:mobile_phone ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:work_phone ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:short_name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:mobile_phone ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$" ] ) ] ) ] ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:work_phone ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:work_phone ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:work_status ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ] ;
+    skos:definition "Person" ;
+    skos:exactMatch schema1:Person ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "PERS" ;
+    materialsML:openbis_label "Person" ;
+    materialsML:openbis_object true .
+
+materialsML:Storage a owl:Class ;
+    rdfs:label "Storage" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:room ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:room ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:comments ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom materialsML:Room ;
+            owl:onProperty materialsML:room ] ;
+    skos:definition "Storage" ;
+    skos:exactMatch ncit:NCIT_C16143 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "STORG" ;
+    materialsML:openbis_label "Storage" ;
+    materialsML:openbis_object true .
+
+materialsML:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:work_phone ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:perm_id ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom [ a rdfs:Datatype ;
+                    owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                                owl:onDatatype xsd:string ;
+                                owl:withRestrictions ( [ xsd:pattern "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$" ] ) ] ) ] ;
+            owl:onProperty materialsML:email ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:name ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:address ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:address ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:address ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:work_phone ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:work_phone ] ;
+    skos:definition "Supplier" ;
+    skos:exactMatch ncit:NCIT_C43530 ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_code "SUPPL" ;
+    materialsML:openbis_label "Supplier" ;
+    materialsML:openbis_object true .
+
+materialsML:authors a owl:ObjectProperty ;
+    rdfs:label "authors" ;
+    rdfs:range materialsML:Author ;
+    skos:definition "authors",
+        "authors container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Authors" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:grants a owl:ObjectProperty ;
+    rdfs:label "grants" ;
+    rdfs:range materialsML:Grant ;
+    skos:definition "grants",
+        "grants container" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Grants" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:address a owl:DatatypeProperty ;
+    rdfs:label "address" ;
+    rdfs:range xsd:string ;
+    skos:definition "address" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Address" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string ;
+    skos:definition "description" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Description" ;
+    materialsML:openbis_type "MULTILINE_VARCHAR" .
+
+materialsML:dry a owl:DatatypeProperty ;
+    rdfs:label "dry" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "dry" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Dry" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:email a owl:DatatypeProperty ;
+    rdfs:label "email" ;
+    rdfs:range [ a rdfs:Datatype ;
+            owl:intersectionOf ( xsd:string [ a rdfs:Datatype ;
+                        owl:onDatatype xsd:string ;
+                        owl:withRestrictions ( [ xsd:pattern "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$" ] ) ] ) ] ;
+    skos:definition "email" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Email" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:fridge a owl:DatatypeProperty ;
+    rdfs:label "fridge" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "fridge" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Fridge" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:hazardous a owl:DatatypeProperty ;
+    rdfs:label "hazardous" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "hazardous" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Hazardous" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:hazardous_specification a owl:DatatypeProperty ;
+    rdfs:label "hazardous_specification" ;
+    rdfs:range xsd:string ;
+    skos:definition "hazardous specification" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Hazardous (specification)" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:institution a owl:ObjectProperty ;
+    rdfs:label "institution" ;
+    rdfs:range materialsML:Institution ;
+    skos:definition "institution" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Institution" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:no_light a owl:DatatypeProperty ;
+    rdfs:label "no_light" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "no light" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "No light" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:no_oxygen a owl:DatatypeProperty ;
+    rdfs:label "no_oxygen" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "no oxygen" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "No oxygen" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:other_storage_condition a owl:DatatypeProperty ;
+    rdfs:label "other_storage_condition" ;
+    rdfs:range xsd:boolean ;
+    skos:definition "other storage condition" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Other storage condition" ;
+    materialsML:openbis_type "BOOLEAN" .
+
+materialsML:other_storage_condition_specification a owl:DatatypeProperty ;
+    rdfs:label "other_storage_condition_specification" ;
+    rdfs:range xsd:string ;
+    skos:definition "other storage condition specification" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Other storage condition (specification)" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:person a owl:ObjectProperty ;
+    rdfs:label "person" ;
+    rdfs:range materialsML:Person ;
+    skos:definition "person" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Person" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:receive_date a owl:DatatypeProperty ;
+    rdfs:label "receive_date" ;
+    rdfs:range xsd:date ;
+    skos:definition "received date" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Receive date" ;
+    materialsML:openbis_type "DATE" .
+
+materialsML:storage a owl:ObjectProperty ;
+    rdfs:label "storage" ;
+    rdfs:range materialsML:Storage ;
+    skos:definition "storage" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Storage" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:supplier a owl:ObjectProperty ;
+    rdfs:label "supplier" ;
+    rdfs:range materialsML:Supplier ;
+    skos:definition "supplier" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Supplier" ;
+    materialsML:openbis_type "OBJECT" .
+
+materialsML:work_phone a owl:DatatypeProperty ;
+    rdfs:label "work_phone" ;
+    rdfs:range xsd:string ;
+    skos:definition "work phone" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Work phone" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:QuantityValue a owl:Class ;
+    rdfs:label "QuantityValue" ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:has_unit ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:string ;
+            owl:onProperty materialsML:has_unit ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom xsd:double ;
+            owl:onProperty materialsML:has_value ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:has_value ],
+        [ a owl:Restriction ;
+            owl:maxCardinality 1 ;
+            owl:onProperty materialsML:has_value ],
+        [ a owl:Restriction ;
+            owl:minCardinality 0 ;
+            owl:onProperty materialsML:has_unit ] ;
+    skos:definition "Value together with unit" ;
+    skos:exactMatch qudt:quantityValue ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_object false .
+
+materialsML:comments a owl:DatatypeProperty ;
+    rdfs:label "comments" ;
+    rdfs:range xsd:string ;
+    skos:definition "comments" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Comments" ;
+    materialsML:openbis_type "MULTILINE_VARCHAR" .
+
+materialsML:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:range xsd:string ;
+    skos:definition "name" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Name" ;
+    materialsML:openbis_type "VARCHAR" .
+
+materialsML:perm_id a owl:DatatypeProperty ;
+    rdfs:label "perm_id" ;
+    rdfs:range xsd:string ;
+    skos:definition "permanent ID" ;
+    skos:inScheme <https://w3id.org/linkml/examples/materialsML> ;
+    materialsML:openbis_label "Permanent ID" ;
+    materialsML:openbis_type "Not used" .
+
+
