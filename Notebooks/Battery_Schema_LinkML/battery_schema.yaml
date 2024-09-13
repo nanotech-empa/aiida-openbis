@@ -14,7 +14,8 @@ prefixes:
 
 imports:
   - linkml:types
-default_prefix: batteryML
+
+# default_prefix: batteryML
 
 ## TODO: How to put orcids as @id in json-ld?
 # "rdfs:comment": {
@@ -29,9 +30,10 @@ default_prefix: batteryML
 
 classes:
   CoinCell:
-    class_uri: 
-    description: ebattery:CoinCell
+    class_uri: ebattery:CoinCell
+    description: Coin Cell
     slots:
+     - type
      - version
      - product_id
      - date_created
@@ -42,12 +44,16 @@ classes:
     class_uri: schema:Person
     description: Person
     slots:
+      - id
       - name
+      - type
   Organization:
     class_uri: schema:Organization
     description: Organization
     slots:
+      - id
       - name
+      - type
   Electrode:
     class_uri: ebattery:Electrode
     description: Electrode
@@ -55,22 +61,27 @@ classes:
       - has_current_collector
       - has_coating
       - has_measured_property_diameter
+      - type
   CurrentCollector:
     class_uri: ebattery:CurrentCollector
     description: Current Collector
     slots:
       - has_measured_property_thickness
+      - type
+      - id
   Thickness:
     class_uri: ebattery:Thickness
     description: Thickness
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   NumericalPartReal:
     class_uri: emmo:Real
     description: Numerical Part Real
     slots:
       - has_numerical_value
+      - type
   ElectrodeCoating:
     class_uri: ebattery:ElectrodeCoating
     description: Electrode Coating
@@ -81,25 +92,30 @@ classes:
       - has_measured_property_calendered_coating_thickness
       - has_measured_property_porosity
       - has_measured_property_tortuosity
+      - type
   ActiveMaterial:
     class_uri: ebattery:ActiveMaterial
     description: ActiveMaterial
     slots:
+      - id
       - has_measured_property_mass_fraction
       - has_measured_property_mass_loading
       - has_measured_property_d50_particle_size
+      - type
   MassFraction:
     class_uri: ebattery:MassFraction
     description: Mass Fraction
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   MassLoading:
     class_uri: ebattery:MassLoading
     description: Mass Loading
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   D50ParticleSize:
     class_uri: ebattery:D50ParticleSize
     description: D50 Particle Size
@@ -111,40 +127,46 @@ classes:
     description: Binder
     slots:
       - has_measured_property_mass_fraction
+      - type
+      - id
   ConductiveAdditive:
     class_uri: ebattery:ConductiveAdditive
     description: Conductive Additive
     slots:
       - has_measured_property_mass_fraction
+      - type
+      - id
   CalenderedCoatingThickness:
     class_uri: ebattery:CalenderedCoatingThickness
     description: Calendered Coating Thickness
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   Porosity:
     class_uri: ebattery:Porosity
     description: Porosity
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   Tortuosity:
     class_uri: ebattery:Tortuosity
     description: Tortuosity
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
   Diameter:
     class_uri: ebattery:Diameter
     description: Diameter
     slots:
       - has_numerical_part_real
       - has_measurement_unit
+      - type
 
   Container:
     description: Contains multiple objects
-    annotations:
-      openbis_object: false
     tree_root: true
     attributes:
       coincells:
@@ -156,6 +178,8 @@ classes:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  id:
+    identifier: true
   version:
     description: version
     range: string
@@ -172,14 +196,19 @@ slots:
     description: creator
     range: Person
     slot_uri: schema:Person
+    inlined: true
   name:
     description: name
     range: string
     slot_uri: schema:name
+  type:
+    designates_type: true
+    range: string
   manufacturer:
     description: manufacturer
     range: Organization
     slot_uri: schema:Organization
+    inlined: true
   has_positive_electrode:
     description: has positive electrode
     range: Electrode
@@ -188,6 +217,7 @@ slots:
     description: has current collector
     range: CurrentCollector
     slot_uri: ebattery:hasCurrentCollector
+    inlined: true
   has_coating:
     description: has coating
     range: ElectrodeCoating
@@ -212,6 +242,7 @@ slots:
     description: has active material
     range: ActiveMaterial
     slot_uri: ebattery:hasActiveMaterial
+    inlined: true
   has_measured_property_mass_fraction:
     description: has measured property mass fraction
     range: MassFraction
@@ -228,10 +259,12 @@ slots:
     description: has binder
     range: Binder
     slot_uri: ebattery:hasBinder
+    inlined: true
   has_conductive_additive:
     description: has conductive additive
     range: ConductiveAdditive
     slot_uri: ebattery:hasConductiveAdditive
+    inlined: true
   has_measured_property_calendered_coating_thickness:
     description: has measured property calendered coating thickness
     range: CalenderedCoatingThickness
@@ -248,5 +281,3 @@ slots:
     description: has measured property diameter
     range: Diameter
     slot_uri: ebattery:hasMeasuredProperty
-
-  

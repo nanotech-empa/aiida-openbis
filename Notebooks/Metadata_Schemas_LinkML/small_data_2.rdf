@@ -1,0 +1,9 @@
+@prefix materialsML: <https://w3id.org/linkml/examples/materialsML/> .
+@prefix schema1: <http://schema.org/> .
+
+[] a materialsML:Container ;
+    materialsML:samples [ a materialsML:Sample ;
+            schema1:identifier "23123-09" ;
+            schema1:name "ola" ] .
+
+

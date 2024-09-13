@@ -1,19 +1,23 @@
 coincells:
-  - version: Dev_Excel_for_v060
+  - creator:
+      id: https://orcid.org/0000-0002-5003-1134
+      name: Corsin Battaglia
+    version: Dev_Excel_for_v060
     product_id: Empa-bco-000007
     date_created: 2024-06-16
-    creator:
-      name: Corsin Battaglia
     manufacturer:
+      id: https://www.wikidata.org/wiki/Q683116
       name: Empa
     has_positive_electrode:
-      has_current_collector: 
+      has_current_collector:
+        id: https://pubchem.ncbi.nlm.nih.gov/compound/5359268
         has_measured_property_thickness: 
           has_numerical_part_real: 
             has_numerical_value: 15
           has_measurement_unit: emmo:MicroMetre
       has_coating:
         has_active_material:
+          id: https://pubchem.ncbi.nlm.nih.gov/substance/485083898
           has_measured_property_mass_fraction:
             has_numerical_part_real: 
               has_numerical_value: 96
@@ -27,11 +31,13 @@ coincells:
               has_numerical_value: 6
             has_measurement_unit: emmo:MicroMetre
         has_binder:
+          id: https://pubchem.ncbi.nlm.nih.gov/substance/135021938
           has_measured_property_mass_fraction:
             has_numerical_part_real: 
               has_numerical_value: 2
             has_measurement_unit: unit:PERCENT
         has_conductive_additive:
+          id: https://pubchem.ncbi.nlm.nih.gov/compound/Carbon%20Black
           has_measured_property_mass_fraction:
             has_numerical_part_real: 
               has_numerical_value: 2

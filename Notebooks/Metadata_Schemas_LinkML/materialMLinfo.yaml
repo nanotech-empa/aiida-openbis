@@ -33,7 +33,24 @@ imports:
 default_prefix: materialsML
   
 classes:
+  Any:
+    title: Any
+    class_uri: linkml:Any
+  Thing:
+    title: Thing
+    class_uri: schema:Thing
+    slots:
+      - perm_id
+      - name
+      - type
+    slot_usage:
+      name:
+        required: true
+      perm_id:
+        required: true
   Annealing:
+    title: Annealing
+    is_a: Thing
     class_uri: chmo:CHMO_0001465
     description: Annealing
     annotations:
@@ -41,20 +58,18 @@ classes:
       openbis_code: ANNEAL
       openbis_label: Annealing
     slots:
-     - perm_id
-     - name
      - duration
      - pressure
      - voltage
      - temperature
      - current
      - comments
-     - sputtering
-     - deposition
      - uhv_components
      - instrument
      - sample
   AtomisticModel:
+    title: Atomistic Model
+    is_a: Thing
     class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
     description: Atomistic Model
     annotations:
@@ -62,17 +77,17 @@ classes:
       openbis_code: AM
       openbis_label: Atomistic Model
     slots:
-     - perm_id
-     - name
      - atoms_positions
      - comments
      - cell_vectors
      - periodic_boundary_conditions
      - optimised
      - wfms_uuid
-     - crystal
-     - molecule
+     - has_crystal
+     - has_molecule
   Author:
+    title: Author
+    is_a: Thing
     class_uri: ncit:NCIT_C42781
     description: Author
     annotations:
@@ -80,11 +95,11 @@ classes:
       openbis_code: AUTH
       openbis_label: Author
     slots:
-     - perm_id
-     - name
      - person
      - institution
   BandStructure:
+    title: Band Structure
+    is_a: Thing
     class_uri: 
     description: Band Structure
     annotations:
@@ -92,8 +107,6 @@ classes:
       openbis_code: BNDSTR
       openbis_label: Band Structure
     slots:
-     - perm_id
-     - name
      - k_points_conditions
      - bs_energies
      - wfms_uuid
@@ -103,6 +116,8 @@ classes:
      - dft
      - tb
   CanGasBottle:
+    title: Can Gas Bottle
+    is_a: Thing
     class_uri: 
     description: Bottle/Can of Gas
     annotations:
@@ -110,14 +125,14 @@ classes:
       openbis_code: CANGAS
       openbis_label: Bottle of Gas
     slots:
-     - perm_id
-     - name
      - description
      - pressure
      - state
      - supplier
      - comments
   Chemist:
+    title: Chemist
+    is_a: Thing
     class_uri: occo:OCCO_19203100
     description: Chemist/Synthesiser
     annotations:
@@ -125,11 +140,11 @@ classes:
       openbis_code: CHEM
       openbis_label: Chemist
     slots:
-     - perm_id
-     - name
      - person
      - supplier
   Crystal:
+    title: Crystal
+    is_a: Thing
     class_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
     description: Crystal
     annotations:
@@ -137,8 +152,6 @@ classes:
       openbis_code: CRYST
       openbis_label: Crystal
     slots:
-     - perm_id
-     - name
      - material
      - face
      - sample_plate
@@ -159,6 +172,8 @@ classes:
      - storage
      - supplier
   Deposition:
+    title: Deposition
+    is_a: Thing
     class_uri: chmo:CHMO_0001310
     description: Deposition
     annotations:
@@ -166,8 +181,6 @@ classes:
       openbis_code: DEPOS
       openbis_label: Deposition
     slots:
-     - perm_id
-     - name
      - stabilisation_time
      - deposition_time
      - pressure
@@ -175,12 +188,13 @@ classes:
      - molecule_temperature
      - evaporator_slot
      - comments
-     - annealing
-     - molecule
+     - has_molecule
      - uhv_components
      - instrument
      - sample
-  DFT:
+  DFT: 
+    title: DFT
+    is_a: Thing
     class_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
     description: Density Functional Theory
     annotations:
@@ -188,8 +202,6 @@ classes:
       openbis_code: DFT
       openbis_label: DFT
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - fermi_energy
@@ -209,6 +221,8 @@ classes:
      - output_hirshfeld_population_analysis
      - comments
   Dosing:
+    title: Dosing
+    is_a: Thing
     class_uri: chmo:CHMO_0001383
     description: Dosing a molecule
     annotations:
@@ -216,8 +230,6 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - perm_id
-     - name
      - sum_formula
      - duration
      - pressure
@@ -226,6 +238,8 @@ classes:
      - instrument
      - sample
   Draft:
+    title: Draft
+    is_a: Thing
     class_uri: ncit:NCIT_C85255
     description: Publication draft/Manuscript
     annotations:
@@ -233,12 +247,12 @@ classes:
       openbis_code: DRFT
       openbis_label: Draft
     slots:
-     - perm_id
-     - name
      - draft_type
      - comments
      - results
   EmpiricalModelling:
+    title: Empirical Modelling
+    is_a: Thing
     class_uri: 
     description: Empirical Modelling
     annotations:
@@ -246,11 +260,11 @@ classes:
       openbis_code: EM
       openbis_label: Empirical Modelling
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
   Errors:
+    title: Errors
+    is_a: Thing
     class_uri: ncit:NCIT_C43369
     description: Errors and problems
     annotations:
@@ -258,12 +272,12 @@ classes:
       openbis_code: ERR
       openbis_label: Errors
     slots:
-     - perm_id
-     - name
      - description
      - instrument
      - uhv_components
   FillCryostat:
+    title: Fill Cryostat
+    is_a: Thing
     class_uri: 
     description: Fill the cryostat
     annotations:
@@ -271,8 +285,6 @@ classes:
       openbis_code: FILLCRYS
       openbis_label: Fill Cryostat
     slots:
-     - perm_id
-     - name
      - weight_before
      - weight_after
      - substance
@@ -281,6 +293,8 @@ classes:
      - uhv_components
      - instrument
   GeometryOptimisation:
+    title: Geometry Optimisation
+    is_a: Thing
     class_uri: 
     description: Geometry optimisation
     annotations:
@@ -288,8 +302,6 @@ classes:
       openbis_code: GEOOPT
       openbis_label: Geometry Optimisation
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - force_convergence_threshold
@@ -299,6 +311,8 @@ classes:
      - dft
      - empirical_modelling
   Grant:
+    title: Grant
+    is_a: Thing
     class_uri: schema:Grant
     description: Grant
     annotations:
@@ -306,8 +320,6 @@ classes:
       openbis_code: GRNT
       openbis_label: Grant
     slots:
-     - perm_id
-     - name
      - funder
      - start_date
      - end_date
@@ -316,6 +328,8 @@ classes:
      - acknowledgement_sentence
      - comments
   HydrogenCracker:
+    title: Hydrogen Cracker
+    is_a: Thing
     class_uri: 
     description: Splitting gas molecules into elements
     annotations:
@@ -323,13 +337,13 @@ classes:
       openbis_code: HYDCRAC
       openbis_label: Hydrogen Cracker
     slots:
-     - perm_id
-     - name
      - sum_formula
      - comments
      - uhv_components
      - instrument
   Institution:
+    title: Institution
+    is_a: Thing
     class_uri: schema:Organization
     description: Institution
     annotations:
@@ -337,11 +351,11 @@ classes:
       openbis_code: INST
       openbis_label: Institution
     slots:
-     - perm_id
-     - name
      - description
      - address
   Instrument:
+    title: Instrument
+    is_a: Thing
     class_uri: ncit:NCIT_C16742
     description: Instrument
     annotations:
@@ -349,8 +363,6 @@ classes:
       openbis_code: INSTR
       openbis_label: Instrument
     slots:
-     - perm_id
-     - name
      - serial_number
      - empa_id
      - documentation_website
@@ -361,6 +373,8 @@ classes:
      - manufacturer
      - tip_sensor
   Layered2DMaterial:
+    title: Layered 2D Material
+    is_a: Thing
     class_uri: 
     description: Layered 2D material
     annotations:
@@ -368,8 +382,6 @@ classes:
       openbis_code: LAYMAT
       openbis_label: 2D Layered Material
     slots:
-     - perm_id
-     - name
      - empa_number
      - batch
      - sample_plate
@@ -392,6 +404,8 @@ classes:
      - storage
      - chemist
   Maintenance:
+    title: Maintenance
+    is_a: Thing
     class_uri: ncit:NCIT_C53297
     description: Maintenance performed in the instruments
     annotations:
@@ -399,8 +413,6 @@ classes:
       openbis_code: MAINT
       openbis_label: Maintenance
     slots:
-     - perm_id
-     - name
      - description
     #  - start_date
     #  - maintenance_type
@@ -413,6 +425,8 @@ classes:
      - uhv_components
      - instrument
   Manufacturer:
+    title: Manufacturer
+    is_a: Thing
     class_uri: ncit:NCIT_C25392
     description: Manufacturer
     annotations:
@@ -420,11 +434,11 @@ classes:
       openbis_code: MANUF
       openbis_label: Manufacturer
     slots:
-     - perm_id
-     - name
      - email
      - work_phone
   MinimumEnergyPotential:
+    title: Minimum Energy Potential
+    is_a: Thing
     class_uri: 
     description: Minimum Energy Potential
     annotations:
@@ -432,8 +446,6 @@ classes:
       openbis_code: MEP
       openbis_label: Minimum Energy Potential
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - method_type
@@ -445,6 +457,8 @@ classes:
      - comments
      - atomistic_models
   MeanFieldHubbard:
+    title: Mean Field Hubbard
+    is_a: Thing
     class_uri: 
     description: Mean Field Hubbard
     annotations:
@@ -452,8 +466,6 @@ classes:
       openbis_code: MFH
       openbis_label: Mean Field Hubbard
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - on_site_hubbard_repulsion_u
@@ -468,6 +480,8 @@ classes:
      - comments
      - tb
   Molecule:
+    title: Molecule
+    is_a: Thing
     class_uri: schema:MolecularEntity  
     description: Molecule
     annotations:
@@ -475,8 +489,6 @@ classes:
       openbis_code: MOL
       openbis_label: Molecule
     slots:
-     - perm_id
-     - name
      - iupac_name
      - sum_formula
      - smiles
@@ -500,10 +512,9 @@ classes:
      - chemist
      - storage
      - precursor_molecules
-    slot_usage:
-      name:
-        required: true
   Notes:
+    title: Notes
+    is_a: Thing
     class_uri: ncit:NCIT_C42619
     description: General Notes
     annotations:
@@ -511,20 +522,19 @@ classes:
       openbis_code: NOTE
       openbis_label: Notes
     slots:
-     - perm_id
-     - name
      - description
   OpticalComponent:
+    title: Optical Component
+    is_a: Thing
     class_uri:
     description: Optical component
     annotations:
       openbis_object: true
       openbis_code: OPTICS
       openbis_label: Optical component
-    slots:
-      - perm_id
-      - name
   PDOS:
+    title: PDOS
+    is_a: Thing
     class_uri: 
     description: Projected Density of States
     annotations:
@@ -532,8 +542,6 @@ classes:
       openbis_code: PDOS
       openbis_label: PDOS
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - atomic_selections
@@ -548,6 +556,8 @@ classes:
      - dft
      - tb
   PotentialEnergyCalculation:
+    title: Potential Energy Calculation
+    is_a: Thing
     class_uri: 
     description: Potential Energy Calculation
     annotations:
@@ -555,8 +565,6 @@ classes:
       openbis_code: PEC
       openbis_label: Potential Energy Calculation
     slots:
-     - perm_id
-     - name
      - wfms_uuid
      - wfms_url
      - energy
@@ -564,6 +572,8 @@ classes:
      - tb
      - empirical_modelling
   Person:
+    title: Person
+    is_a: Thing
     class_uri: schema:Person
     description: Person
     annotations:
@@ -571,14 +581,14 @@ classes:
       openbis_code: PERS
       openbis_label: Person
     slots:
-     - perm_id
-     - name
      - short_name
      - work_status
      - email
      - work_phone
      - mobile_phone
   Protocol:
+    title: Protocol
+    is_a: Thing
     class_uri: obi:OBI_0000272
     description: Protocol
     annotations:
@@ -586,10 +596,10 @@ classes:
       openbis_code: PROT
       openbis_label: Protocol
     slots:
-     - perm_id
-     - name
      - description
   Publication:
+    title: Publication
+    is_a: Thing
     class_uri: schema:PublicationIssue
     description: Publication
     annotations:
@@ -597,8 +607,6 @@ classes:
       openbis_code: PUBL
       openbis_label: Publication Custom
     slots:
-     - perm_id
-     - name
      - abstract
      - doi
      - year
@@ -609,6 +617,8 @@ classes:
      - drafts
      - authors
   Result:
+    title: Results
+    is_a: Thing
     class_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
     description: Results
     annotations:
@@ -616,8 +626,6 @@ classes:
       openbis_code: RES
       openbis_label: Results
     slots:
-     - perm_id
-     - name
      - description
      - comments
      - one_d_measurements
@@ -625,6 +633,8 @@ classes:
      - geometry_optimisations
      - softwares
   Room:
+    title: Room
+    is_a: Thing
     class_uri: schema:Room
     description: Room
     annotations:
@@ -632,11 +642,11 @@ classes:
       openbis_code: ROOM
       openbis_label: Room
     slots:
-     - perm_id
-     - name
      - comments
      - institution
   Sample:
+    title: Sample
+    is_a: Thing
     class_uri: 
     description: Sample being measured
     annotations:
@@ -644,12 +654,15 @@ classes:
       openbis_code: SAMP
       openbis_label: Sample
     slots:
-     - perm_id
-     - name
-     - crystal
-     - layered_2d_material
-     - wafer_substrate
+     - is_sputtered
+     - is_annealed
+     - underwent_molecular_deposition
+     - has_crystal
+     - has_layered_2d_material
+     - has_wafer_substrate
   Software:
+    title: Software
+    is_a: Thing
     class_uri: schema:SoftwareSourceCode
     description: Used software script
     annotations:
@@ -657,10 +670,10 @@ classes:
       openbis_code: SOFTWR
       openbis_label: Software
     slots:
-     - perm_id
-     - name
      - repository_url
   Sputtering:
+    title: Sputtering
+    is_a: Thing
     class_uri: chmo:CHMO_0001569
     description: Sputtering
     annotations:
@@ -668,8 +681,6 @@ classes:
       openbis_code: SPUT
       openbis_label: Sputtering
     slots:
-     - perm_id
-     - name
      - duration
      - pressure
      - discharge_voltage
@@ -679,11 +690,11 @@ classes:
      - current
      - comments
      - uhv_components
-     - annealing
-     - deposition
      - instrument
      - sample
   SRD:
+    title: SRD
+    is_a: Thing
     description: Sublimation Rate Determination
     class_uri: 
     annotations:
@@ -691,11 +702,11 @@ classes:
       openbis_code: SRD
       openbis_label: Sublimation Rate Determination
     slots:
-     - perm_id
-     - name
      - comments
-     - molecule
+     - has_molecule
   TwoDMeasurement:
+    title: 2D Measurement
+    is_a: Thing
     class_uri:
     description: 2D Measurement
     annotations:
@@ -703,8 +714,6 @@ classes:
       openbis_code: TDMEAS
       openbis_label: 2D Measurement
     slots:
-     - perm_id
-     - name
      - start_time
      - duration
      - bias_setpoint
@@ -747,14 +756,14 @@ classes:
      - p_model
      - wfms_uuid
      - comments
-     - annealing
-     - deposition
      - dft
      - tb
      - instrument
      - sample
      - tip_sensor
   Storage:
+    title: Storage
+    is_a: Thing
     class_uri: ncit:NCIT_C16143
     description: Storage
     annotations:
@@ -762,11 +771,11 @@ classes:
       openbis_code: STORG
       openbis_label: Storage
     slots:
-     - perm_id
-     - name
      - comments
      - room
   OneDMeasurement:
+    title: 1D Measurement
+    is_a: Thing
     class_uri: fairmat_sts:nxsts
     description: 1D Measurement
     annotations:
@@ -774,8 +783,6 @@ classes:
       openbis_code: ODMEAS
       openbis_label: 1D Measurement
     slots:
-     - perm_id
-     - name
      - start_time
      - duration
      - experiment_type
@@ -839,13 +846,13 @@ classes:
      - sample_temperature
      - wfms_uuid
      - comments
-     - annealing
-     - deposition
      - instrument
      - sample
      - tip_sensor
      - two_d_measurement
   Supplier:
+    title: Supplier
+    is_a: Thing
     class_uri: ncit:NCIT_C43530
     description: Supplier
     annotations:
@@ -853,12 +860,12 @@ classes:
       openbis_code: SUPPL
       openbis_label: Supplier
     slots:
-     - perm_id
-     - name
      - email
      - work_phone
      - address
   SystemStatus:
+    title: System Status
+    is_a: Thing
     class_uri:
     description: System Status
     annotations:
@@ -866,11 +873,11 @@ classes:
       openbis_code: SYSSTAT
       openbis_label: System Status
     slots:
-     - perm_id
-     - name
      - description
      - instrument
   Simulation:
+    title: Simulation
+    is_a: Thing
     class_uri:
     description: Simulation
     annotations:
@@ -878,11 +885,11 @@ classes:
       openbis_code: SIMUL
       openbis_label: Simulation
     slots:
-     - perm_id
-     - name
      - wfms_url
      - wfms_uuid
   TightBinding:
+    title: Tight Binding
+    is_a: Thing
     class_uri:
     description: Tight Binding
     annotations:
@@ -890,8 +897,6 @@ classes:
       openbis_code: TB
       openbis_label: Tight Binding
     slots:
-     - perm_id
-     - name
      - wfms_url
      - wfms_uuid
      - atoms_positions
@@ -903,6 +908,8 @@ classes:
      - comments
     #  - dft?
   TipPreparation:
+    title: Tip Preparation
+    is_a: Thing
     class_uri:
     description: Tip Preparation
     annotations:
@@ -910,13 +917,13 @@ classes:
       openbis_code: TIPPREP
       openbis_label: Tip Preparation
     slots:
-     - perm_id
-     - name
      - description
      - tip_preparation_type
      - tip_sensor
      - authors
   TipSensor:
+    title: Tip Sensor
+    is_a: Thing
     class_uri: emmo_chameo:Probe
     description: Tip Sensor
     annotations:
@@ -924,8 +931,6 @@ classes:
       openbis_code: TIPSENS
       openbis_label: Tip Sensor
     slots:
-     - perm_id
-     - name
      - tip_sensor_type
      - wire_material
      - holder_id
@@ -939,6 +944,8 @@ classes:
      - manufacturer
      - comments
   Transfer:
+    title: Transfer
+    is_a: Thing
     class_uri: ncit:NCIT_C48167
     description: Transference
     annotations:
@@ -946,13 +953,13 @@ classes:
       openbis_code: TRANSF
       openbis_label: Transference
     slots:
-     - perm_id
-     - name
      - description
      - location_before
      - location_after
      - sample
   UHVComponent:
+    title: UHV Component
+    is_a: Thing
     class_uri:
     description: Ultra High Vacuum Component
     annotations:
@@ -960,8 +967,6 @@ classes:
       openbis_code: UHVCOMP
       openbis_label: UHV Component
     slots:
-     - perm_id
-     - name
      - description
      - uhv_component_type
      - empa_id
@@ -971,6 +976,8 @@ classes:
      - comments
      - manufacturer
   WaferSubstrate:
+    title: Wafer Substrate
+    is_a: Thing
     class_uri:
     description: Wafer Substrate
     annotations:
@@ -978,8 +985,6 @@ classes:
       openbis_code: WAFSUBS
       openbis_label: Wafer Substrate
     slots:
-     - perm_id
-     - name
      - batch
      - sample_plate
      - substrates
@@ -999,6 +1004,7 @@ classes:
      - storage
      - chemist
   PiezoConfigurationSettings:
+    title: Piezo Configuration Settings
     class_uri:
     description: Piezo configuration settings
     annotations:
@@ -1013,6 +1019,7 @@ classes:
      - drift_settings
      - drift_correction_status
   SensitivitySettings:
+    title: Sensitivity Settings
     class_uri:
     description: Sensitivity settings
     annotations:
@@ -1022,6 +1029,7 @@ classes:
      - y_coordinate
      - z_coordinate
   HVGainSettings:
+    title: HV gain settings
     class_uri:
     description: HV gain settings
     annotations:
@@ -1031,6 +1039,7 @@ classes:
      - y_coordinate
      - z_coordinate
   ScanSlope:
+    title: Scan Slope
     class_uri:
     description: Scan slope axis
     annotations:
@@ -1039,6 +1048,7 @@ classes:
      - x_coordinate
      - y_coordinate
   CurvatureRadius:
+    title: Curvature radius
     class_uri:
     description: Curvature radius axis
     annotations:
@@ -1047,6 +1057,7 @@ classes:
      - x_coordinate
      - y_coordinate
   SecondOrderCorrection:
+    title: Second order correction
     class_uri:
     description: Second order correction axis
     annotations:
@@ -1055,6 +1066,7 @@ classes:
      - x_coordinate
      - y_coordinate
   DriftSettings:
+    title: Drift settings
     class_uri:
     description: Drift settings
     annotations:
@@ -1064,6 +1076,7 @@ classes:
      - y_coordinate
      - z_coordinate
   ScanSettings:
+    title: Scan settings
     class_uri:
     description: Scan settings
     annotations:
@@ -1078,6 +1091,7 @@ classes:
      - scan_speed
      - direction_speed
   ScanOffset:
+    title: Scan offset
     class_uri:
     description: Scan offset axis
     annotations:
@@ -1086,6 +1100,7 @@ classes:
      - x_coordinate
      - y_coordinate
   ScanTime:
+    title: Scan time
     class_uri:
     description: Scan time by axis
     annotations:
@@ -1094,6 +1109,7 @@ classes:
      - x_coordinate
      - y_coordinate
   ScanRange:
+    title: Scan range
     class_uri:
     description: Scan range by axis
     annotations:
@@ -1102,6 +1118,7 @@ classes:
      - x_coordinate
      - y_coordinate
   ScanPixels:
+    title: Scan pixels
     class_uri:
     description: Scan pixels by axis
     annotations:
@@ -1110,6 +1127,7 @@ classes:
      - x_coordinate
      - y_coordinate
   ScanSpeed:
+    title: Scan speed
     class_uri:
     description: Speed speed by axis
     annotations:
@@ -1118,6 +1136,7 @@ classes:
      - forward_speed
      - backward_speed
   OscillationControlSettings:
+    title: Oscillation control settings
     class_uri:
     description: Oscillation control settings
     annotations:
@@ -1137,6 +1156,7 @@ classes:
      - output_settings
      - pll_setup_settings
   DemodulationSettings:
+    title: Demodulation settings
     class_uri:
     description: Demodulation settings
     annotations:
@@ -1149,6 +1169,7 @@ classes:
      - harmonics
      - filters_orders
   PhaseSettings:
+    title: Phase settings
     class_uri:
     description: Phase settings
     annotations:
@@ -1158,6 +1179,7 @@ classes:
      - i_gain
      - controller_on
   AmplitudeSettings:
+    title: Amplitude settings
     class_uri:
     description: Amplitude settings
     annotations:
@@ -1168,6 +1190,7 @@ classes:
      - i_gain
      - controller_on
   OutputSettings:
+    title: Output settings
     class_uri:
     description: Output settings
     annotations:
@@ -1177,6 +1200,7 @@ classes:
      - output_active
      - output_add
   PLLSetupSettings:
+    title: PLL setup settings
     class_uri:
     description: PLL setup settings
     annotations:
@@ -1187,6 +1211,7 @@ classes:
      - demodulation_bw_pha
      - amplitude_excitation_ratio
   PeriodicBoundaryConditions:
+    title: Periodic boundary conditions
     class_uri:
     description: Periodic boundary conditions
     annotations:
@@ -1196,6 +1221,7 @@ classes:
      - y_coordinate
      - z_coordinate
   AtomsPositions:
+    title: Atoms positions
     class_uri:
     description: Atoms positions and atoms symbols
     annotations:
@@ -1206,6 +1232,7 @@ classes:
      - z_coordinate
      - atom_symbol
   KPointsConditions:
+    title: K-points conditions
     class_uri:
     description: K-points conditions
     annotations:
@@ -1215,6 +1242,7 @@ classes:
      - y_coordinate
      - z_coordinate
   BSEnergy:
+    title: Band Structure energy
     class_uri:
     description: Band structure energy
     annotations:
@@ -1223,6 +1251,7 @@ classes:
      - charge
      - magnetic_momentum
   EvaporatorSlot:
+    title: Evaporator slot
     class_uri:
     description: Evaporator slot
     annotations:
@@ -1231,6 +1260,7 @@ classes:
      - evaporator_number
      - details
   OutputPopulationAnalysis:
+    title: Output population analysis
     class_uri:
     description: Output population analysis details
     annotations:
@@ -1239,6 +1269,7 @@ classes:
      - charge
      - magnetic_momentum
   ForceConvergenceThreshold:
+    title: Force convergence threshold
     class_uri:
     description: Force convergence threshold
     annotations:
@@ -1247,6 +1278,7 @@ classes:
      - charge
      - magnetic_momentum
   Layers2DDetails:
+    title: 2D layers details
     class_uri:
     description: details of 2D layers
     annotations:
@@ -1257,6 +1289,7 @@ classes:
      - dopants
      - coverage
   SubstratesDetails:
+    title: Substrates details
     class_uri:
     description: details of substrates
     annotations:
@@ -1267,14 +1300,17 @@ classes:
      - dopants
      - coverage
   QuantityValue:
+    title: Quantity value
     class_uri: qudt:quantityValue
     description: Value together with unit
     annotations:
       openbis_object: false
     slots:
+     - type
      - has_value
      - has_unit
   EvaporationTemperature:
+    title: Evaporation temperature
     description: evaporation temperature details
     annotations:
       openbis_object: false
@@ -1283,6 +1319,7 @@ classes:
      - device
      - datetime
   VacuumSystemStatusSettings:
+    title: Vacuum system status settings
     description: vacuum system settings
     annotations:
       openbis_object: false
@@ -1292,6 +1329,7 @@ classes:
      - fel_chamber
      - comments
   CryoSystemStatusSettings:
+    title: Cryostat system status settings
     description: cryo system settings
     annotations:
       openbis_object: false
@@ -1300,6 +1338,7 @@ classes:
      - liquid_helium
      - liquid_nitrogen_refill_date
   PrincipalChamberSettings:
+    title: Principal Chamber settings
     description: principal chamber settings
     annotations:
       openbis_object: false
@@ -1307,6 +1346,7 @@ classes:
      - pressure
      - tsp_filament_used
   AnalysisChamberSettings:
+    title: Analysis chamber settings
     description: analysis chamber settings
     annotations:
       openbis_object: false
@@ -1314,6 +1354,7 @@ classes:
      - pressure
      - tsp_filament_used
   FELChamberSettings:
+    title: FEL chamber settings
     description: FEL chamber settings
     annotations:
       openbis_object: false
@@ -1566,7 +1607,11 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  type:
+    designates_type: true
+    range: string
   perm_id:
+    identifier: true
     description: permanent ID
     range: string
     slot_uri: schema:identifier
@@ -1752,7 +1797,7 @@ slots:
       openbis_label: Value
   has_unit:
     description: Unit
-    range: string
+    range: uriorcurie
     slot_uri: qudt:hasUnit
     annotations:
       openbis_type: VARCHAR
@@ -3419,24 +3464,25 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Institution
-  annealing:
+  is_annealed:
     range: Annealing
     description: annealing
-    slot_uri: chmo:CHMO_0001465
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Annealing
-  sputtering:
+  is_sputtered:
     range: Sputtering
     description: sputtering
-    slot_uri: chmo:CHMO_0001569
+    slot_uri:
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Sputtering
-  deposition:
+  underwent_molecular_deposition:
     range: Deposition
     description: deposition
-    slot_uri: chmo:CHMO_0001310
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Deposition
@@ -3468,17 +3514,15 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Tight binding
-  crystal:
+  has_crystal:
     range: Crystal
     description: crystal
-    slot_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
     annotations:
       openbis_type: OBJECT
       openbis_label: Crystal
-  molecule:
+  has_molecule:
     range: Molecule
     description: molecule
-    slot_uri: schema:MolecularEntity
     annotations:
       openbis_type: OBJECT
       openbis_label: Molecule
@@ -3571,13 +3615,13 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Geometry optimisation
-  layered_2d_material:
+  has_layered_2d_material:
     range: Layered2DMaterial
     description: 2D layered material
     annotations:
       openbis_type: OBJECT
       openbis_label: 2D layered material
-  wafer_substrate:
+  has_wafer_substrate:
     range: WaferSubstrate
     description: wafer substrate
     annotations:
@@ -3586,6 +3630,7 @@ slots:
   sample:
     range: Sample
     description: sample
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Sample

@@ -1,49 +1,27 @@
 {
-  "molecules": [
+  "samples": [
     {
-      "name": "Methane",
-      "iupac_name": "methane",
-      "sum_formula": "CH4",
-      "smiles": "C",
-      "empa_number": 500,
-      "batch": "a",
-      "evaporation_temperatures": [
-        {
-          "temperature": {
-            "has_value": 500.0,
-            "has_unit": "K"
-          },
-          "device": "ARPES",
-          "datetime": "2024-04-30T12:30:30Z"
+      "perm_id": "23123-09",
+      "name": "ola",
+      "type": "Sample",
+      "is_sputtered": {
+        "perm_id": "213131-98",
+        "name": "Sputter 1",
+        "type": "Sputtering",
+        "duration": {
+          "type": "QuantityValue",
+          "has_value": 9.0,
+          "has_unit": "unit:SEC"
         },
-        {
-          "temperature": {
-            "has_value": 510.0,
-            "has_unit": "K"
-          },
-          "device": "ARPES",
-          "datetime": "2024-05-02T12:30:30Z"
-        }
-      ],
-      "amount": {
-        "has_value": 50.0,
-        "has_unit": "mg"
-      },
-      "receive_date": "2024-04-29",
-      "chemist": {
-        "name": "Empa",
-        "person": {
-          "email": "empa@empa.ch",
-          "work_phone": "0798989899"
-        }
-      },
-      "storage": {
-        "name": "Empa",
-        "room": {
-          "name": "La037",
-          "institution": {
-            "name": "Empa"
-          }
+        "discharge_voltage": {
+          "type": "QuantityValue",
+          "has_value": 9.0,
+          "has_unit": "unit:V"
+        },
+        "sample": {
+          "perm_id": "21313-90",
+          "name": "ola2",
+          "type": "Sample"
         }
       }
     }
@@ -138,10 +116,6 @@
     "angle": {
       "@type": "@id",
       "@id": "emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235"
-    },
-    "annealing": {
-      "@type": "@id",
-      "@id": "chmo:CHMO_0001465"
     },
     "atom_symbol": {
       "@id": "emmo:EMMO_eb77076b_a104_42ac_a065_798b2d2809ad"
@@ -448,10 +422,6 @@
       "@type": "@id",
       "@id": "cryo_system_status"
     },
-    "crystal": {
-      "@type": "@id",
-      "@id": "emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19"
-    },
     "current": {
       "@type": "@id",
       "@id": "emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88"
@@ -510,10 +480,6 @@
     "density_tolerance": {
       "@type": "xsd:double",
       "@id": "density_tolerance"
-    },
-    "deposition": {
-      "@type": "@id",
-      "@id": "chmo:CHMO_0001310"
     },
     "deposition_time": {
       "@type": "@id",
@@ -793,12 +759,29 @@
       "@type": "@id",
       "@id": "harmonics"
     },
+    "has_crystal": {
+      "@type": "@id",
+      "@id": "has_crystal"
+    },
+    "has_layered_2d_material": {
+      "@type": "@id",
+      "@id": "has_layered_2d_material"
+    },
+    "has_molecule": {
+      "@type": "@id",
+      "@id": "has_molecule"
+    },
     "has_unit": {
+      "@type": "@id",
       "@id": "qudt:hasUnit"
     },
     "has_value": {
       "@type": "xsd:double",
-      "@id": "qudt:hasQuantityKind"
+      "@id": "qudt:value"
+    },
+    "has_wafer_substrate": {
+      "@type": "@id",
+      "@id": "has_wafer_substrate"
     },
     "hazardous": {
       "@type": "xsd:boolean",
@@ -853,6 +836,14 @@
       "@type": "@id",
       "@id": "fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-integration-time-field"
     },
+    "is_annealed": {
+      "@type": "@id",
+      "@id": "is_annealed"
+    },
+    "is_sputtered": {
+      "@type": "@id",
+      "@id": "is_sputtered"
+    },
     "iupac_name": {
       "@id": "schema:iupacName"
     },
@@ -862,10 +853,6 @@
     },
     "lattice_type": {
       "@id": "lattice_type"
-    },
-    "layered_2d_material": {
-      "@type": "@id",
-      "@id": "layered_2d_material"
     },
     "layers_2d": {
       "@type": "@id",
@@ -977,10 +964,6 @@
     "model": {
       "@id": "schema:model"
     },
-    "molecule": {
-      "@type": "@id",
-      "@id": "schema:MolecularEntity"
-    },
     "molecule_temperature": {
       "@type": "@id",
       "@id": "molecule_temperature"
@@ -1088,9 +1071,7 @@
       "@type": "@id",
       "@id": "periodic_boundary_conditions"
     },
-    "perm_id": {
-      "@id": "schema:identifier"
-    },
+    "perm_id": "@id",
     "person": {
       "@type": "@id",
       "@id": "schema:Person"
@@ -1273,10 +1254,6 @@
       "@type": "xsd:boolean",
       "@id": "spin_polarised_calculation"
     },
-    "sputtering": {
-      "@type": "@id",
-      "@id": "chmo:CHMO_0001569"
-    },
     "stabilisation_time": {
       "@type": "@id",
       "@id": "stabilisation_time"
@@ -1366,6 +1343,9 @@
       "@type": "@id",
       "@id": "chmo:CHMO_0000132"
     },
+    "type": {
+      "@id": "type"
+    },
     "uhv_component_type": {
       "@context": {
         "@vocab": "@null",
@@ -1374,6 +1354,10 @@
         "meaning": "@id"
       },
       "@id": "uhv_component_type"
+    },
+    "underwent_molecular_deposition": {
+      "@type": "@id",
+      "@id": "underwent_molecular_deposition"
     },
     "up_densities": {
       "@type": "xsd:integer",
@@ -1396,10 +1380,6 @@
     "voltage": {
       "@type": "@id",
       "@id": "emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845"
-    },
-    "wafer_substrate": {
-      "@type": "@id",
-      "@id": "wafer_substrate"
     },
     "weight_after": {
       "@type": "@id",
@@ -1514,6 +1494,9 @@
     },
     "Annealing": {
       "@id": "chmo:CHMO_0001465"
+    },
+    "Any": {
+      "@id": "linkml:Any"
     },
     "AtomisticModel": {
       "@id": "emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213"
@@ -1739,6 +1722,9 @@
     },
     "SystemStatus": {
       "@id": "SystemStatus"
+    },
+    "Thing": {
+      "@id": "schema:Thing"
     },
     "TightBinding": {
       "@id": "TightBinding"

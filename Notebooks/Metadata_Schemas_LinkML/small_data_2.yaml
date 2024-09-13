@@ -1,0 +1,16 @@
+samples:
+  - name: ola
+    perm_id: 23123-09
+    is_sputtered:
+      name: Sputter 1
+      perm_id: 213131-98
+      type: Sputtering
+      duration:
+        has_value: 9.0
+        has_unit: unit:SEC
+      discharge_voltage:
+        has_value: 9.0
+        has_unit: unit:V
+      sample:
+        name: ola2
+        perm_id: 21313-90
