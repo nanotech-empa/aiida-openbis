@@ -18,7 +18,7 @@
           "has_value": 9.0,
           "has_unit": "unit:V"
         },
-        "sample": {
+        "has_sample": {
           "perm_id": "21313-90",
           "name": "ola2",
           "type": "Sample"
@@ -124,17 +124,9 @@
       "@type": "xsd:double",
       "@id": "chebi:CHEBI_33250"
     },
-    "atomistic_models": {
-      "@type": "@id",
-      "@id": "emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213"
-    },
     "atoms_positions": {
       "@type": "@id",
       "@id": "atoms_positions"
-    },
-    "authors": {
-      "@type": "@id",
-      "@id": "authors"
     },
     "backward_speed": {
       "@type": "@id",
@@ -187,10 +179,6 @@
       "@type": "@id",
       "@id": "ncit:NCIT_C60757"
     },
-    "cangasbottles": {
-      "@type": "@id",
-      "@id": "cangasbottles"
-    },
     "cas_number": {
       "@id": "emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff"
     },
@@ -208,10 +196,6 @@
     "charge": {
       "@type": "xsd:double",
       "@id": "charge"
-    },
-    "chemist": {
-      "@type": "@id",
-      "@id": "occo:OCCO_19203100"
     },
     "chemist_molecule_name": {
       "@id": "schema:alternateName"
@@ -234,6 +218,10 @@
     "atomisticmodels": {
       "@type": "@id",
       "@id": "atomisticmodels"
+    },
+    "authors": {
+      "@type": "@id",
+      "@id": "authors"
     },
     "band_structures": {
       "@type": "@id",
@@ -265,7 +253,7 @@
     },
     "drafts": {
       "@type": "@id",
-      "@id": "ncit:NCIT_C85255"
+      "@id": "drafts"
     },
     "empirical_modellings": {
       "@type": "@id",
@@ -273,7 +261,7 @@
     },
     "errors": {
       "@type": "@id",
-      "@id": "ncit:NCIT_C43369"
+      "@id": "errors"
     },
     "fillcryostats": {
       "@type": "@id",
@@ -285,7 +273,7 @@
     },
     "grants": {
       "@type": "@id",
-      "@id": "schema:Grant"
+      "@id": "grants"
     },
     "hydrogen_crackers": {
       "@type": "@id",
@@ -325,7 +313,7 @@
     },
     "one_d_measurements": {
       "@type": "@id",
-      "@id": "fairmat_sts:nxsts"
+      "@id": "one_d_measurements"
     },
     "optics": {
       "@type": "@id",
@@ -349,7 +337,7 @@
     },
     "results": {
       "@type": "@id",
-      "@id": "emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e"
+      "@id": "results"
     },
     "rooms": {
       "@type": "@id",
@@ -361,7 +349,7 @@
     },
     "softwares": {
       "@type": "@id",
-      "@id": "schema:SoftwareSourceCode"
+      "@id": "softwares"
     },
     "sputterings": {
       "@type": "@id",
@@ -397,7 +385,7 @@
     },
     "two_d_measurements": {
       "@type": "@id",
-      "@id": "chmo:CHMO_0000132"
+      "@id": "two_d_measurements"
     },
     "uhv_components": {
       "@type": "@id",
@@ -506,10 +494,6 @@
       },
       "@id": "ncit:NCIT_C43190"
     },
-    "dft": {
-      "@type": "@id",
-      "@id": "emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a"
-    },
     "diameter": {
       "@type": "@id",
       "@id": "ncit:NCIT_C25285"
@@ -594,10 +578,6 @@
     "empa_number": {
       "@type": "xsd:integer",
       "@id": "empa_number"
-    },
-    "empirical_modelling": {
-      "@type": "@id",
-      "@id": "empirical_modelling"
     },
     "end_date": {
       "@type": "xsd:date",
@@ -748,10 +728,6 @@
       "@type": "xsd:double",
       "@id": "geometry_constraints_increments"
     },
-    "geometry_optimisations": {
-      "@type": "@id",
-      "@id": "geometry_optimisations"
-    },
     "hamiltonian": {
       "@id": "hamiltonian"
     },
@@ -759,17 +735,145 @@
       "@type": "@id",
       "@id": "harmonics"
     },
+    "has_atomistic_models": {
+      "@type": "@id",
+      "@id": "has_atomistic_models"
+    },
+    "has_authors": {
+      "@type": "@id",
+      "@id": "has_authors"
+    },
+    "has_cangasbottles": {
+      "@type": "@id",
+      "@id": "has_cangasbottles"
+    },
+    "has_chemist": {
+      "@type": "@id",
+      "@id": "occo:OCCO_19203100"
+    },
     "has_crystal": {
       "@type": "@id",
       "@id": "has_crystal"
+    },
+    "has_dft": {
+      "@type": "@id",
+      "@id": "has_dft"
+    },
+    "has_drafts": {
+      "@type": "@id",
+      "@id": "has_drafts"
+    },
+    "has_empirical_modelling": {
+      "@type": "@id",
+      "@id": "has_empirical_modelling"
+    },
+    "has_errors": {
+      "@type": "@id",
+      "@id": "has_errors"
+    },
+    "has_geometry_optimisations": {
+      "@type": "@id",
+      "@id": "has_geometry_optimisations"
+    },
+    "has_grants": {
+      "@type": "@id",
+      "@id": "has_grants"
+    },
+    "has_institution": {
+      "@type": "@id",
+      "@id": "has_institution"
+    },
+    "has_instrument": {
+      "@type": "@id",
+      "@id": "has_instrument"
     },
     "has_layered_2d_material": {
       "@type": "@id",
       "@id": "has_layered_2d_material"
     },
+    "has_location_after": {
+      "@type": "@id",
+      "@id": "has_location_after"
+    },
+    "has_location_before": {
+      "@type": "@id",
+      "@id": "has_location_before"
+    },
+    "has_maintenance": {
+      "@type": "@id",
+      "@id": "has_maintenance"
+    },
+    "has_manufacturer": {
+      "@type": "@id",
+      "@id": "has_manufacturer"
+    },
+    "has_molecular_deposition": {
+      "@type": "@id",
+      "@id": "has_molecular_deposition"
+    },
     "has_molecule": {
       "@type": "@id",
       "@id": "has_molecule"
+    },
+    "has_one_d_measurement": {
+      "@type": "@id",
+      "@id": "has_one_d_measurement"
+    },
+    "has_one_d_measurements": {
+      "@type": "@id",
+      "@id": "has_one_d_measurements"
+    },
+    "has_person": {
+      "@type": "@id",
+      "@id": "has_person"
+    },
+    "has_precursor_molecules": {
+      "@type": "@id",
+      "@id": "has_precursor_molecules"
+    },
+    "has_results": {
+      "@type": "@id",
+      "@id": "has_results"
+    },
+    "has_room": {
+      "@type": "@id",
+      "@id": "has_room"
+    },
+    "has_sample": {
+      "@type": "@id",
+      "@id": "has_sample"
+    },
+    "has_softwares": {
+      "@type": "@id",
+      "@id": "schema:SoftwareSourceCode"
+    },
+    "has_storage": {
+      "@type": "@id",
+      "@id": "has_storage"
+    },
+    "has_supplier": {
+      "@type": "@id",
+      "@id": "has_supplier"
+    },
+    "has_tb": {
+      "@type": "@id",
+      "@id": "has_tb"
+    },
+    "has_tip_sensor": {
+      "@type": "@id",
+      "@id": "has_tip_sensor"
+    },
+    "has_two_d_measurement": {
+      "@type": "@id",
+      "@id": "has_two_d_measurement"
+    },
+    "has_two_d_measurements": {
+      "@type": "@id",
+      "@id": "has_two_d_measurements"
+    },
+    "has_uhv_components": {
+      "@type": "@id",
+      "@id": "has_uhv_components"
     },
     "has_unit": {
       "@type": "@id",
@@ -824,14 +928,6 @@
       "@type": "xsd:double",
       "@id": "inputs"
     },
-    "institution": {
-      "@type": "@id",
-      "@id": "schema:Organization"
-    },
-    "instrument": {
-      "@type": "@id",
-      "@id": "ncit:NCIT_C16742"
-    },
     "integration_time": {
       "@type": "@id",
       "@id": "fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-integration-time-field"
@@ -869,14 +965,6 @@
     "liquid_nitrogen_refill_date": {
       "@type": "xsd:dateTime",
       "@id": "liquid_nitrogen_refill_date"
-    },
-    "location_after": {
-      "@type": "@id",
-      "@id": "location_after"
-    },
-    "location_before": {
-      "@type": "@id",
-      "@id": "location_before"
     },
     "lock_in_amplitude": {
       "@type": "@id",
@@ -933,14 +1021,6 @@
     "magnetic_momentum": {
       "@type": "xsd:double",
       "@id": "magnetic_momentum"
-    },
-    "maintenance": {
-      "@type": "@id",
-      "@id": "ncit:NCIT_C53297"
-    },
-    "manufacturer": {
-      "@type": "@id",
-      "@id": "ncit:NCIT_C25392"
     },
     "material": {
       "@id": "schema:material"
@@ -1007,10 +1087,6 @@
       "@type": "@id",
       "@id": "on_site_hubbard_repulsion_u"
     },
-    "one_d_measurement": {
-      "@type": "@id",
-      "@id": "fairmat_sts:nxsts"
-    },
     "one_ten": {
       "@type": "xsd:boolean",
       "@id": "one_ten"
@@ -1072,10 +1148,6 @@
       "@id": "periodic_boundary_conditions"
     },
     "perm_id": "@id",
-    "person": {
-      "@type": "@id",
-      "@id": "schema:Person"
-    },
     "phase_settings": {
       "@type": "@id",
       "@id": "phase_settings"
@@ -1105,10 +1177,6 @@
         "meaning": "@id"
       },
       "@id": "plot_group_by"
-    },
-    "precursor_molecules": {
-      "@type": "@id",
-      "@id": "schema:MolecularEntity"
     },
     "pressure": {
       "@type": "@id",
@@ -1154,14 +1222,6 @@
     "resonance_frequency": {
       "@type": "@id",
       "@id": "resonance_frequency"
-    },
-    "room": {
-      "@type": "@id",
-      "@id": "schema:Room"
-    },
-    "sample": {
-      "@type": "@id",
-      "@id": "sample"
     },
     "sample_plate": {
       "@id": "emmo_nano:EMMO_69c892cc-b9c4-53cd-8e5e-216c57e2592f"
@@ -1269,10 +1329,6 @@
     "state": {
       "@id": "state"
     },
-    "storage": {
-      "@type": "@id",
-      "@id": "ncit:NCIT_C16143"
-    },
     "substance": {
       "@id": "schema:Substance"
     },
@@ -1287,16 +1343,8 @@
     "sum_formula": {
       "@id": "schema:molecularFormula"
     },
-    "supplier": {
-      "@type": "@id",
-      "@id": "ncit:NCIT_C43530"
-    },
     "supplier_own_name": {
       "@id": "schema:alternateName"
-    },
-    "tb": {
-      "@type": "@id",
-      "@id": "tb"
     },
     "temperature": {
       "@type": "@id",
@@ -1314,10 +1362,6 @@
         "meaning": "@id"
       },
       "@id": "tip_preparation_type"
-    },
-    "tip_sensor": {
-      "@type": "@id",
-      "@id": "emmo_chameo:Probe"
     },
     "tip_sensor_type": {
       "@context": {
@@ -1339,10 +1383,6 @@
     "tsp_filament_used": {
       "@id": "tsp_filament_used"
     },
-    "two_d_measurement": {
-      "@type": "@id",
-      "@id": "chmo:CHMO_0000132"
-    },
     "type": {
       "@id": "type"
     },
@@ -1354,10 +1394,6 @@
         "meaning": "@id"
       },
       "@id": "uhv_component_type"
-    },
-    "underwent_molecular_deposition": {
-      "@type": "@id",
-      "@id": "underwent_molecular_deposition"
     },
     "up_densities": {
       "@type": "xsd:integer",

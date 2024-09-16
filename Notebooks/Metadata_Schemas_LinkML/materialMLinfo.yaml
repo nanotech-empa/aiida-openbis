@@ -64,9 +64,9 @@ classes:
      - temperature
      - current
      - comments
-     - uhv_components
-     - instrument
-     - sample
+     - has_uhv_components
+     - has_instrument
+     - has_sample
   AtomisticModel:
     title: Atomistic Model
     is_a: Thing
@@ -95,11 +95,11 @@ classes:
       openbis_code: AUTH
       openbis_label: Author
     slots:
-     - person
-     - institution
+     - has_person
+     - has_institution
   BandStructure:
     title: Band Structure
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Band Structure
     annotations:
@@ -109,12 +109,9 @@ classes:
     slots:
      - k_points_conditions
      - bs_energies
-     - wfms_uuid
-     - wfms_url
-     - comments
-     - atomistic_models
-     - dft
-     - tb
+     - has_atomistic_models
+     - has_dft
+     - has_tb
   CanGasBottle:
     title: Can Gas Bottle
     is_a: Thing
@@ -128,7 +125,7 @@ classes:
      - description
      - pressure
      - state
-     - supplier
+     - has_supplier
      - comments
   Chemist:
     title: Chemist
@@ -140,8 +137,8 @@ classes:
       openbis_code: CHEM
       openbis_label: Chemist
     slots:
-     - person
-     - supplier
+     - has_person
+     - has_supplier
   Crystal:
     title: Crystal
     is_a: Thing
@@ -169,8 +166,8 @@ classes:
      - receive_date
      - reference_number
      - comments
-     - storage
-     - supplier
+     - has_storage
+     - has_supplier
   Deposition:
     title: Deposition
     is_a: Thing
@@ -189,12 +186,12 @@ classes:
      - evaporator_slot
      - comments
      - has_molecule
-     - uhv_components
-     - instrument
-     - sample
+     - has_uhv_components
+     - has_instrument
+     - has_sample
   DFT: 
     title: DFT
-    is_a: Thing
+    is_a: Simulation
     class_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
     description: Density Functional Theory
     annotations:
@@ -202,8 +199,6 @@ classes:
       openbis_code: DFT
       openbis_label: DFT
     slots:
-     - wfms_uuid
-     - wfms_url
      - fermi_energy
      - scf_convergence_threshold
      - xc_functional
@@ -219,7 +214,6 @@ classes:
      - force_multiplicity
      - output_mulliken_population_analysis
      - output_hirshfeld_population_analysis
-     - comments
   Dosing:
     title: Dosing
     is_a: Thing
@@ -235,8 +229,8 @@ classes:
      - pressure
      - temperature
      - comments
-     - instrument
-     - sample
+     - has_instrument
+     - has_sample
   Draft:
     title: Draft
     is_a: Thing
@@ -249,19 +243,16 @@ classes:
     slots:
      - draft_type
      - comments
-     - results
+     - has_results
   EmpiricalModelling:
     title: Empirical Modelling
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Empirical Modelling
     annotations:
       openbis_object: true
       openbis_code: EM
       openbis_label: Empirical Modelling
-    slots:
-     - wfms_uuid
-     - wfms_url
   Errors:
     title: Errors
     is_a: Thing
@@ -273,8 +264,8 @@ classes:
       openbis_label: Errors
     slots:
      - description
-     - instrument
-     - uhv_components
+     - has_instrument
+     - has_uhv_components
   FillCryostat:
     title: Fill Cryostat
     is_a: Thing
@@ -290,11 +281,11 @@ classes:
      - substance
      - dewar
      - comments
-     - uhv_components
-     - instrument
+     - has_uhv_components
+     - has_instrument
   GeometryOptimisation:
     title: Geometry Optimisation
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Geometry optimisation
     annotations:
@@ -302,14 +293,11 @@ classes:
       openbis_code: GEOOPT
       openbis_label: Geometry Optimisation
     slots:
-     - wfms_uuid
-     - wfms_url
      - force_convergence_threshold
      - geometry_constraints
-     - comments
-     - atomistic_models
-     - dft
-     - empirical_modelling
+     - has_atomistic_models
+     - has_dft
+     - has_empirical_modelling
   Grant:
     title: Grant
     is_a: Thing
@@ -339,8 +327,8 @@ classes:
     slots:
      - sum_formula
      - comments
-     - uhv_components
-     - instrument
+     - has_uhv_components
+     - has_instrument
   Institution:
     title: Institution
     is_a: Thing
@@ -368,10 +356,10 @@ classes:
      - documentation_website
      - receive_date
      - comments
-     - uhv_components
-     - room
-     - manufacturer
-     - tip_sensor
+     - has_uhv_components
+     - has_room
+     - has_manufacturer
+     - has_tip_sensor
   Layered2DMaterial:
     title: Layered 2D Material
     is_a: Thing
@@ -401,8 +389,8 @@ classes:
      - receive_date
      - supplier_own_name
      - comments
-     - storage
-     - chemist
+     - has_storage
+     - has_chemist
   Maintenance:
     title: Maintenance
     is_a: Thing
@@ -422,8 +410,8 @@ classes:
     #  - next_maintenance_planed ?
     #  - recomissioning ?
      - comments
-     - uhv_components
-     - instrument
+     - has_uhv_components
+     - has_instrument
   Manufacturer:
     title: Manufacturer
     is_a: Thing
@@ -438,7 +426,7 @@ classes:
      - work_phone
   MinimumEnergyPotential:
     title: Minimum Energy Potential
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Minimum Energy Potential
     annotations:
@@ -446,19 +434,16 @@ classes:
       openbis_code: MEP
       openbis_label: Minimum Energy Potential
     slots:
-     - wfms_uuid
-     - wfms_url
      - method_type
      - number_geometries
      - energy_barrier
      - energies
      - geometry_constraints
      - geometry_constraints_increments
-     - comments
-     - atomistic_models
+     - has_atomistic_models
   MeanFieldHubbard:
     title: Mean Field Hubbard
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Mean Field Hubbard
     annotations:
@@ -466,8 +451,6 @@ classes:
       openbis_code: MFH
       openbis_label: Mean Field Hubbard
     slots:
-     - wfms_uuid
-     - wfms_url
      - on_site_hubbard_repulsion_u
      - density_tolerance
      - charge
@@ -477,8 +460,7 @@ classes:
      - down_electrons
      - convergence_coefficient
      - number_k_points
-     - comments
-     - tb
+     - has_tb
   Molecule:
     title: Molecule
     is_a: Thing
@@ -509,9 +491,9 @@ classes:
      - amount
      - receive_date
      - comments
-     - chemist
-     - storage
-     - precursor_molecules
+     - has_chemist
+     - has_storage
+     - has_precursor_molecules
   Notes:
     title: Notes
     is_a: Thing
@@ -534,7 +516,7 @@ classes:
       openbis_label: Optical component
   PDOS:
     title: PDOS
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Projected Density of States
     annotations:
@@ -542,8 +524,6 @@ classes:
       openbis_code: PDOS
       openbis_label: PDOS
     slots:
-     - wfms_uuid
-     - wfms_url
      - atomic_selections
      - energies
      - orbitals_selections
@@ -551,13 +531,12 @@ classes:
      - plot_contributions
      - plot_group_by
      - degauss_energy
-     - comments
-     - atomistic_models
-     - dft
-     - tb
+     - has_atomistic_models
+     - has_dft
+     - has_tb
   PotentialEnergyCalculation:
     title: Potential Energy Calculation
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Potential Energy Calculation
     annotations:
@@ -565,12 +544,10 @@ classes:
       openbis_code: PEC
       openbis_label: Potential Energy Calculation
     slots:
-     - wfms_uuid
-     - wfms_url
      - energy
-     - dft
-     - tb
-     - empirical_modelling
+     - has_dft
+     - has_tb
+     - has_empirical_modelling
   Person:
     title: Person
     is_a: Thing
@@ -613,9 +590,9 @@ classes:
      - url
      - dataset_url
      - comments
-     - grants
-     - drafts
-     - authors
+     - has_grants
+     - has_drafts
+     - has_authors
   Result:
     title: Results
     is_a: Thing
@@ -628,10 +605,10 @@ classes:
     slots:
      - description
      - comments
-     - one_d_measurements
-     - two_d_measurements
-     - geometry_optimisations
-     - softwares
+     - has_one_d_measurements
+     - has_two_d_measurements
+     - has_geometry_optimisations
+     - has_softwares
   Room:
     title: Room
     is_a: Thing
@@ -643,7 +620,7 @@ classes:
       openbis_label: Room
     slots:
      - comments
-     - institution
+     - has_institution
   Sample:
     title: Sample
     is_a: Thing
@@ -656,7 +633,7 @@ classes:
     slots:
      - is_sputtered
      - is_annealed
-     - underwent_molecular_deposition
+     - has_molecular_deposition
      - has_crystal
      - has_layered_2d_material
      - has_wafer_substrate
@@ -689,9 +666,9 @@ classes:
      - angle
      - current
      - comments
-     - uhv_components
-     - instrument
-     - sample
+     - has_uhv_components
+     - has_instrument
+     - has_sample
   SRD:
     title: SRD
     is_a: Thing
@@ -756,11 +733,11 @@ classes:
      - p_model
      - wfms_uuid
      - comments
-     - dft
-     - tb
-     - instrument
-     - sample
-     - tip_sensor
+     - has_dft
+     - has_tb
+     - has_instrument
+     - has_sample
+     - has_tip_sensor
   Storage:
     title: Storage
     is_a: Thing
@@ -772,7 +749,7 @@ classes:
       openbis_label: Storage
     slots:
      - comments
-     - room
+     - has_room
   OneDMeasurement:
     title: 1D Measurement
     is_a: Thing
@@ -846,10 +823,10 @@ classes:
      - sample_temperature
      - wfms_uuid
      - comments
-     - instrument
-     - sample
-     - tip_sensor
-     - two_d_measurement
+     - has_instrument
+     - has_sample
+     - has_tip_sensor
+     - has_two_d_measurement
   Supplier:
     title: Supplier
     is_a: Thing
@@ -874,7 +851,7 @@ classes:
       openbis_label: System Status
     slots:
      - description
-     - instrument
+     - has_instrument
   Simulation:
     title: Simulation
     is_a: Thing
@@ -887,9 +864,10 @@ classes:
     slots:
      - wfms_url
      - wfms_uuid
+     - comments
   TightBinding:
     title: Tight Binding
-    is_a: Thing
+    is_a: Simulation
     class_uri:
     description: Tight Binding
     annotations:
@@ -897,15 +875,12 @@ classes:
       openbis_code: TB
       openbis_label: Tight Binding
     slots:
-     - wfms_url
-     - wfms_uuid
      - atoms_positions
      - cell_vectors
      - hoppings
      - k_points_conditions
      - lattice_type
      - hamiltonian
-     - comments
     #  - dft?
   TipPreparation:
     title: Tip Preparation
@@ -919,8 +894,8 @@ classes:
     slots:
      - description
      - tip_preparation_type
-     - tip_sensor
-     - authors
+     - has_tip_sensor
+     - has_authors
   TipSensor:
     title: Tip Sensor
     is_a: Thing
@@ -941,7 +916,7 @@ classes:
      - reference_number
      - device_parameters
      - receive_date
-     - manufacturer
+     - has_manufacturer
      - comments
   Transfer:
     title: Transfer
@@ -954,9 +929,9 @@ classes:
       openbis_label: Transference
     slots:
      - description
-     - location_before
-     - location_after
-     - sample
+     - has_location_before
+     - has_location_after
+     - has_sample
   UHVComponent:
     title: UHV Component
     is_a: Thing
@@ -974,7 +949,7 @@ classes:
      - serial_number
      - receive_date
      - comments
-     - manufacturer
+     - has_manufacturer
   WaferSubstrate:
     title: Wafer Substrate
     is_a: Thing
@@ -1001,8 +976,8 @@ classes:
      - other_storage_condition_specification
      - receive_date
      - comments
-     - storage
-     - chemist
+     - has_storage
+     - has_chemist
   PiezoConfigurationSettings:
     title: Piezo Configuration Settings
     class_uri:
@@ -2774,7 +2749,7 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Energies
-  chemist:
+  has_chemist:
     range: Chemist
     description: chemist
     slot_uri: occo:OCCO_19203100
@@ -3427,40 +3402,38 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: On-site Hubbard repulsion U
-  precursor_molecules:
+  has_precursor_molecules:
     range: Molecule
     description: precursor molecules
     multivalued: true
     inlined_as_list: true
-    slot_uri: schema:MolecularEntity
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Precursor molecules
-  supplier:
+  has_supplier:
     range: Supplier
     description: supplier
-    slot_uri: ncit:NCIT_C43530
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Supplier
-  storage:
+  has_storage:
     range: Storage
     description: storage
-    slot_uri: ncit:NCIT_C16143
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Storage
-  room:
+  has_room:
     range: Room
     description: room
-    slot_uri: schema:Room
     annotations:
       openbis_type: OBJECT
       openbis_label: Room
-  institution:
+  has_institution:
     range: Institution
     description: institution
-    slot_uri: schema:Organization
     annotations:
       openbis_type: OBJECT
       openbis_label: Institution
@@ -3479,14 +3452,14 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Sputtering
-  underwent_molecular_deposition:
+  has_molecular_deposition:
     range: Deposition
     description: deposition
     slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Deposition
-  uhv_components:
+  has_uhv_components:
     range: UHVComponent
     description: ultra high vacuum components
     inlined_as_list: true
@@ -3494,21 +3467,20 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: UHV components
-  instrument:
+  has_instrument:
     range: Instrument
     description: instrument
-    slot_uri: ncit:NCIT_C16742
+    slot_uri:
     annotations:
       openbis_type: OBJECT
       openbis_label: Instrument
-  dft:
+  has_dft:
     range: DFT
     description: density functional theory
-    slot_uri: emmo_da:83a69cf2-00c1-58b8-915b-76cb3549890a
     annotations:
       openbis_type: OBJECT
       openbis_label: DFT
-  tb:
+  has_tb:
     range: TightBinding
     description: tight binding
     annotations:
@@ -3526,79 +3498,71 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Molecule
-  person:
+  has_person:
     range: Person
     description: person
-    slot_uri: schema:Person
     annotations:
       openbis_type: OBJECT
       openbis_label: Person
-  atomistic_models:
+  has_atomistic_models:
     range: AtomisticModel
     description: atomistic models
     inlined_as_list: true
     multivalued: true
-    slot_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
     annotations:
       openbis_type: OBJECT
       openbis_label: Atomistic models
-  manufacturer:
+  has_manufacturer:
     range: Manufacturer
     description: manufacturer
-    slot_uri: ncit:NCIT_C25392
     annotations:
       openbis_type: OBJECT
       openbis_label: Manufacturer
-  tip_sensor:
+  has_tip_sensor:
     range: TipSensor
     description: tip sensor
-    slot_uri: emmo_chameo:Probe
     annotations:
       openbis_type: OBJECT
       openbis_label: Tip sensor
-  results:
+  has_results:
     range: Result
     description: results
     multivalued: true
     inlined_as_list: true
-    slot_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
     annotations:
       openbis_type: OBJECT
       openbis_label: Results
-  empirical_modelling:
+  has_empirical_modelling:
     range: EmpiricalModelling
     description: empirical modelling
     annotations:
       openbis_type: OBJECT
       openbis_label: Empirical modelling
-  grants:
+  has_grants:
     range: Grant
     description: grants
     multivalued: true
     inlined_as_list: true
-    slot_uri: schema:Grant
     annotations:
       openbis_type: OBJECT
       openbis_label: Grants
-  drafts:
+  has_drafts:
     range: Draft
     description: drafts
     multivalued: true
     inlined_as_list: true
-    slot_uri: ncit:NCIT_C85255
     annotations:
       openbis_type: OBJECT
       openbis_label: Drafts
-  authors:
+  has_authors:
     range: Author
     description: authors
     multivalued: true
     inlined_as_list: true
-    slot_uri: ncit:NCIT_C42781
     annotations:
       openbis_type: OBJECT
       openbis_label: Authors
-  softwares:
+  has_softwares:
     range: Software
     description: softwares
     multivalued: true
@@ -3607,7 +3571,7 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Softwares
-  geometry_optimisations:
+  has_geometry_optimisations:
     range: GeometryOptimisation
     description: geometry optimisations
     multivalued: true
@@ -3627,14 +3591,14 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Wafer substrate
-  sample:
+  has_sample:
     range: Sample
     description: sample
     inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Sample
-  cangasbottles:
+  has_cangasbottles:
     range: CanGasBottle
     description: bottle/can of gas
     multivalued: true
@@ -3642,65 +3606,59 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Bottle/Can of gas
-  maintenance:
+  has_maintenance:
     range: Maintenance
     description: maintenance
     multivalued: true
     inlined_as_list: true
-    slot_uri: ncit:NCIT_C53297
     annotations:
       openbis_type: OBJECT
       openbis_label: Maintenance
-  errors:
+  has_errors:
     range: Errors
     description: errors and problems
     multivalued: true
     inlined_as_list: true
-    slot_uri: ncit:NCIT_C43369
     annotations:
       openbis_type: OBJECT
       openbis_label: Errors and problems
-  location_before:
+  has_location_before:
     description: location of the sample before the transfer
     range: Room
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (before)
-  location_after:
+  has_location_after:
     description: location of the sample after the transfer
     range: Room
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (after)
-  one_d_measurement:
+  has_one_d_measurement:
     range: OneDMeasurement
     description: 1D measurement
-    slot_uri: fairmat_sts:nxsts
     annotations:
       openbis_type: OBJECT
       openbis_label: 1D Measurement
-  one_d_measurements:
+  has_one_d_measurements:
     range: OneDMeasurement
     description: 1D measurements
     multivalued: true
     inlined_as_list: true
-    slot_uri: fairmat_sts:nxsts
     annotations:
       openbis_type: OBJECT
       openbis_label: 1D Measurements
-  two_d_measurements:
+  has_two_d_measurements:
     range: TwoDMeasurement
     description: 2D measurements
     multivalued: true
     inlined_as_list: true
-    slot_uri: chmo:CHMO_0000132
     annotations:
       openbis_type: OBJECT
       openbis_label: 2D Measurements
-  two_d_measurement:
+  has_two_d_measurement:
     range: TwoDMeasurement
     description: 2D measurement
-    slot_uri: chmo:CHMO_0000132
     annotations:
       openbis_type: OBJECT
       openbis_label: 2D Measurement

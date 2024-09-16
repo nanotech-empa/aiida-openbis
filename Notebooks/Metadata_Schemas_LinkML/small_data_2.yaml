@@ -11,6 +11,6 @@ samples:
       discharge_voltage:
         has_value: 9.0
         has_unit: unit:V
-      sample:
+      has_sample:
         name: ola2
         perm_id: 21313-90

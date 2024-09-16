@@ -145,7 +145,7 @@ Bruno's questions:
     We need a button to return to the galley and buttons to move through the different measurement inside the same gallery.
     
     Ask Simone about this: Who is in charge of the automatic import? Selection of the correct collection and correct sample.
-    Jupyter notebook to display measurments (check https://github.com/nanotech-empa/simpleNFB). Ask Eve about details.
+    Jupyter notebook to display measurements (check https://github.com/nanotech-empa/simpleNFB). Ask Eve about details.
     Create a meeting with me, Carlo, Bruno, and developers from openBIS
 
 13-9-2024:
@@ -158,4 +158,8 @@ I also have to discuss with Nukorn about the @reverse that appears in the JSON-L
 
 IMPORTANT: I attended a meeting (openBIS community). In that meeting, a project called openBISmantic was presented. In this project they use RO-crate to import/export things from openBIS.
 
-Update our LinkML schema
+Update our LinkML schema: Change property names such as molecule and crystal to has_molecule and has_crystal. Continue next week.
+
+16-9-2024:
+
+Update LinkML schema.
