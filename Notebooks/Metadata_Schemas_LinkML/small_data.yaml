@@ -21,20 +21,20 @@ molecules:
     amount:
       has_value: 50
       has_unit: mg
-    chemist:
+    has_chemist:
       perm_id: 2312312312313-86
       name: Empa
-      person:
+      has_person:
         name: Empa
         perm_id: 2312312312313-86
         work_phone: 0798989899
         email: empa@empa.ch
-    storage:
+    has_storage:
       perm_id: 2312312312313-86
       name: Empa
-      room:
+      has_room:
         perm_id: 2312312312313-86
         name: La037
-        institution:
+        has_institution:
           perm_id: 2312312312313-86
           name: Empa

@@ -2753,6 +2753,7 @@ slots:
     range: Chemist
     description: chemist
     slot_uri: occo:OCCO_19203100
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Chemist
@@ -3421,19 +3422,21 @@ slots:
   has_storage:
     range: Storage
     description: storage
-    slot_uri:
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Storage
   has_room:
     range: Room
     description: room
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Room
   has_institution:
     range: Institution
     description: institution
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Institution
@@ -3501,6 +3504,7 @@ slots:
   has_person:
     range: Person
     description: person
+    inlined: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Person

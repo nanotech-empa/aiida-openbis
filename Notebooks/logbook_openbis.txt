@@ -163,3 +163,10 @@ Update our LinkML schema: Change property names such as molecule and crystal to 
 16-9-2024:
 
 Update LinkML schema.
+Create a Jupyter notebook to register new sample preparations:
+- Create a new sample (Create a new experiment with sample preparation and create a new sample in the sample collection)
+- Sputter sample (Sputtering object and create a new sample after the sputtering. Link also the instrument)
+- Anneal sample (Annealing object and ....)
+- Deposition on sample (Deposition object, molecule, etc.)
+- Upload a measurement.
+- Every time I need to upload a value with an unit, lets allow the user to select out of a list?
