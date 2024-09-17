@@ -170,3 +170,7 @@ Create a Jupyter notebook to register new sample preparations:
 - Deposition on sample (Deposition object, molecule, etc.)
 - Upload a measurement.
 - Every time I need to upload a value with an unit, lets allow the user to select out of a list?
+
+17-9-2024:
+
+Working on the openbis connection app (sample preparation and measurement)
