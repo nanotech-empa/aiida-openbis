@@ -1,5 +1,6 @@
 molecules:
   - name: "Methane"
+    perm_id: "123"
     empa_number: 500
     batch: a
     iupac_name: methane
@@ -20,16 +21,21 @@ molecules:
     amount:
       has_value: 50
       has_unit: mg
-    chemist:
+    has_chemist:
       name: Empa
-      person:
+      perm_id: "123"
+      has_person:
+        perm_id: "123"
         work_phone: 0798989899
         email: empa@empa.ch
-    storage:
+    has_storage:
       name: Empa
-      room:
+      perm_id: "123"
+      has_room:
+        perm_id: "123"
         name: La037
-        institution:
+        has_institution:
+          perm_id: "123"
           name: Empa
     precursor_molecules:
       - name: Methane2
