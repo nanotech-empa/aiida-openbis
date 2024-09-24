@@ -174,3 +174,17 @@ Create a Jupyter notebook to register new sample preparations:
 17-9-2024:
 
 Working on the openbis connection app (sample preparation and measurement)
+
+24-9-2024:
+
+Meeting with Carlo
+
+- Create sample:
+> Check whether sample name is already existant. (Done)
+> Autocompletion libraries for text boxes where researchers have to write, e.g., names.
+
+Sputtering:
+> Order the experiment by reversed time. (Done)
+> If we select a sample, the experiment is automatically selected. When there is a sample that belongs to two experiments, just show these two on the dropdown.
+> Sample out name should be proposed by the system and then the researcher should be allowed to change. (Done)
+> Edit objects
