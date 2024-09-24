@@ -188,3 +188,5 @@ Sputtering:
 > If we select a sample, the experiment is automatically selected. When there is a sample that belongs to two experiments, just show these two on the dropdown.
 > Sample out name should be proposed by the system and then the researcher should be allowed to change. (Done)
 > Edit objects
+
+IMPORTANT: Delete images after importing them from openBIS.
