@@ -463,126 +463,139 @@ def get_2D_measurement_props(full_sxm_filepath):
     }
     return properties
 
-parser = argparse.ArgumentParser(description = 'Upload Nanonis files into openBIS.')
+def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid, sample_permid, instrument_permid = None):
+    o = get_instance(openbis_url)
 
-# Define the arguments with flags
-parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = None)
-parser.add_argument('-d', '--data_folder', type=str, help='Path to the data folder', default = 'data')
-parser.add_argument('-c', '--collection_permid', type=str, help='Collection ID', default = '20240805121017676-1377')
-parser.add_argument('-s', '--sample_permid', type=str, help='Sample ID', default = '20240809165355701-1394')
+    measurement_files = [f for f in os.listdir(data_folder)]
+    production = True
 
-args = parser.parse_args()
+    if production:
+        measurement_datetimes = []
 
-openbis_url = args.openbis_url
-data_folder = args.data_folder
-collection_permid = args.collection_permid
-sample_permid = args.sample_permid
+        for f in measurement_files:
+            if f.endswith(".sxm"):
+                img = spm(f"{data_folder}/{f}")
+                img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
+                measurement_datetimes.append(img_datetime)
+                
+            elif f.endswith(".dat"):
+                img = spm(f"{data_folder}/{f}")
+                img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+                measurement_datetimes.append(img_datetime)
 
-if not openbis_url:
-    print(f'Usage: python3 nanonis_importer.py -o <OPENBIS_URL> -d <PATH_TO_DATA_FOLDER> -c <COLLECTION_ID> -s <SAMPLE_ID>')
-    print(f'Using default parameters')
-    print(f'URL: {DEFAULT_URL}')
-    print(f'Data folder: {data_folder}')
-    print(f'Default collection ID: {collection_permid}')
-    print(f'Default sample ID: {sample_permid}')
+        # Sort files by datetime
+        sorted_measurement_files = [x for _, x in sorted(zip(measurement_datetimes, measurement_files))]
 
-o = get_instance(openbis_url)
-
-measurement_files = [f for f in os.listdir(data_folder)]
-production = True
-
-if production:
-    measurement_datetimes = []
-
-    for f in measurement_files:
-        if f.endswith(".sxm"):
-            img = spm(f"{data_folder}/{f}")
-            img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
-            measurement_datetimes.append(img_datetime)
-            
-        elif f.endswith(".dat"):
-            img = spm(f"{data_folder}/{f}")
-            img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
-            measurement_datetimes.append(img_datetime)
-
-    # Sort files by datetime
-    sorted_measurement_files = [x for _, x in sorted(zip(measurement_datetimes, measurement_files))]
-
-    # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files.
-    grouped_measurement_files = []
-    group = []
-    for i,f in enumerate(sorted_measurement_files):
-        if f.endswith(".sxm"):
-            if len(group) > 0:
-                grouped_measurement_files.append(group)
-                group = []
-            grouped_measurement_files.append([f])
-        elif f.endswith(".dat"):
-            group.append(f)
-
-    if len(group) > 0:
-        grouped_measurement_files.append(group)
+        # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files.
+        grouped_measurement_files = []
         group = []
+        for i,f in enumerate(sorted_measurement_files):
+            if f.endswith(".sxm"):
+                if len(group) > 0:
+                    grouped_measurement_files.append(group)
+                    group = []
+                grouped_measurement_files.append([f])
+            elif f.endswith(".dat"):
+                group.append(f)
 
-    if collection_permid:
-        for group in grouped_measurement_files:
-            if group[0].endswith(".sxm"):
-                print(f"SXM file: {group[0]}")
-                twoD_measurement_sample = o.new_sample(
-                    type = "2D_MEASUREMENT", 
-                    experiment = collection_permid, 
-                    props = get_2D_measurement_props(os.path.join(data_folder, group[0])),
-                    parents = [sample_permid]
-                )
-                twoD_measurement_sample.save()
-                file_path = os.path.join(data_folder, group[0])
-                try:
-                    demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
-                except:
-                    print(f"Cannot upload {group[0]}.")
-            else:
-                
-                # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
-                dat_files_types = []
-                for dat_file in group:
-                    dat_data = spm(f"{data_folder}/{dat_file}")
-                    dat_files_types.append(get_dat_type(dat_data.header))
-                
-                grouped = defaultdict(list)
+        if len(group) > 0:
+            grouped_measurement_files.append(group)
+            group = []
 
-                for item1, item2 in zip(group, dat_files_types):
-                    grouped[item2].append(item1)
-
-                dat_files_grouped_by_type = list(grouped.values())
-                # ---------------
-                
-                for dat_files_group in dat_files_grouped_by_type:
-                    oneD_measurement_sample = o.new_sample(
-                        type = "1D_MEASUREMENT", 
-                        experiment = collection_permid,
-                        props = {"$name": "Experimental 1D Measurement"},
-                        parents = [sample_permid]
+        if collection_permid:
+            for group in grouped_measurement_files:
+                if group[0].endswith(".sxm"):
+                    print(f"SXM file: {group[0]}")
+                    if instrument_permid is None:
+                        measurement_parents = [sample_permid]
+                    else:
+                        measurement_parents = [sample_permid, instrument_permid]
+                    twoD_measurement_sample = o.new_sample(
+                        type = "2D_MEASUREMENT", 
+                        experiment = collection_permid, 
+                        props = get_2D_measurement_props(os.path.join(data_folder, group[0])),
+                        parents = measurement_parents
                     )
-                    oneD_measurement_sample.save()
+                    twoD_measurement_sample.save()
+                    file_path = os.path.join(data_folder, group[0])
+                    try:
+                        demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
+                    except:
+                        print(f"Cannot upload {group[0]}.")
+                else:
                     
-                    dat_files_directory = os.path.join(data_folder, "dat_files")
-                    os.mkdir(dat_files_directory)
+                    # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
+                    dat_files_types = []
+                    for dat_file in group:
+                        dat_data = spm(f"{data_folder}/{dat_file}")
+                        dat_files_types.append(get_dat_type(dat_data.header))
                     
-                    for dat_file in dat_files_group:
-                        shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
-                    
-                    demo_dat_flow(o, dat_files_directory, collection_permid, oneD_measurement_sample.permId)
-                    
-                    shutil.rmtree(dat_files_directory)
-                    
-    o.logout()
+                    grouped = defaultdict(list)
 
-# If the openBIS microscopy app does not work as expected (you are not able to change plots inside openBIS),
-# open openBIS app container (image: openbis/openbis-server:alpha) and install python together with some libraries.
-# For the installation follow the following steps:
-# 1. Open terminal of openBIS container
-# 2. Run:
-#    2.1. apt-get update
-#    2.2. apt install software-properties-common -y
-#    2.3. apt install python3-pip -y
-#    2.4. pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt
+                    for item1, item2 in zip(group, dat_files_types):
+                        grouped[item2].append(item1)
+
+                    dat_files_grouped_by_type = list(grouped.values())
+                    # ---------------
+                    
+                    for dat_files_group in dat_files_grouped_by_type:
+                        if instrument_permid is None:
+                            measurement_parents = [sample_permid]
+                        else:
+                            measurement_parents = [sample_permid, instrument_permid]
+                        oneD_measurement_sample = o.new_sample(
+                            type = "1D_MEASUREMENT", 
+                            experiment = collection_permid,
+                            props = {"$name": "Experimental 1D Measurement"},
+                            parents = measurement_parents
+                        )
+                        oneD_measurement_sample.save()
+                        
+                        dat_files_directory = os.path.join(data_folder, "dat_files")
+                        os.mkdir(dat_files_directory)
+                        
+                        for dat_file in dat_files_group:
+                            shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
+                        
+                        demo_dat_flow(o, dat_files_directory, collection_permid, oneD_measurement_sample.permId)
+                        
+                        shutil.rmtree(dat_files_directory)
+                        
+        o.logout()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description = 'Upload Nanonis files into openBIS.')
+
+    # Define the arguments with flags
+    parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = None)
+    parser.add_argument('-d', '--data_folder', type=str, help='Path to the data folder', default = 'data')
+    parser.add_argument('-c', '--collection_permid', type=str, help='Collection ID', default = '20240805121017676-1377')
+    parser.add_argument('-s', '--sample_permid', type=str, help='Sample ID', default = '20240809165355701-1394')
+
+    args = parser.parse_args()
+
+    openbis_url = args.openbis_url
+    data_folder = args.data_folder
+    collection_permid = args.collection_permid
+    sample_permid = args.sample_permid
+
+    if not openbis_url:
+        print(f'Usage: python3 nanonis_importer.py -o <OPENBIS_URL> -d <PATH_TO_DATA_FOLDER> -c <COLLECTION_ID> -s <SAMPLE_ID>')
+        print(f'Using default parameters')
+        print(f'URL: {DEFAULT_URL}')
+        print(f'Data folder: {data_folder}')
+        print(f'Default collection ID: {collection_permid}')
+        print(f'Default sample ID: {sample_permid}')
+
+    measurement_files = [f for f in os.listdir(data_folder)]
+    upload_measurements_into_openbis(openbis_url, measurement_files, collection_permid, sample_permid)
+
+    # If the openBIS microscopy app does not work as expected (you are not able to change plots inside openBIS),
+    # open openBIS app container (image: openbis/openbis-server:alpha) and install python together with some libraries.
+    # For the installation follow the following steps:
+    # 1. Open terminal of openBIS container
+    # 2. Run:
+    #    2.1. apt-get update
+    #    2.2. apt install software-properties-common -y
+    #    2.3. apt install python3-pip -y
+    #    2.4. pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt

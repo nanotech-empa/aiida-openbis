@@ -189,4 +189,8 @@ Sputtering:
 > Sample out name should be proposed by the system and then the researcher should be allowed to change. (Done)
 > Edit objects
 
-IMPORTANT: Delete images after importing them from openBIS.
+25-9-2024:
+Worked on openbis connection app
+
+26-9-2024:
+Worked on openbis connection app
