@@ -36,6 +36,8 @@ classes:
   Any:
     title: Any
     class_uri: linkml:Any
+    annotations:
+      openbis_object: false
   Thing:
     title: Thing
     class_uri: schema:Thing
@@ -48,6 +50,8 @@ classes:
         required: true
       perm_id:
         required: true
+    annotations:
+      openbis_object: false
   Annealing:
     title: Annealing
     is_a: Thing
@@ -64,7 +68,6 @@ classes:
      - temperature
      - current
      - comments
-     - has_uhv_components
      - has_instrument
      - has_sample
   AtomisticModel:
@@ -138,7 +141,7 @@ classes:
       openbis_label: Chemist
     slots:
      - has_person
-     - has_supplier
+     - has_institution
   Crystal:
     title: Crystal
     is_a: Thing
@@ -186,7 +189,6 @@ classes:
      - evaporator_slot
      - comments
      - has_molecule
-     - has_uhv_components
      - has_instrument
      - has_sample
   DFT: 
@@ -391,6 +393,7 @@ classes:
      - comments
      - has_storage
      - has_chemist
+     - has_supplier
   Maintenance:
     title: Maintenance
     is_a: Thing
@@ -492,6 +495,7 @@ classes:
      - receive_date
      - comments
      - has_chemist
+     - has_supplier
      - has_storage
      - has_precursor_molecules
   Notes:
@@ -666,7 +670,6 @@ classes:
      - angle
      - current
      - comments
-     - has_uhv_components
      - has_instrument
      - has_sample
   SRD:
@@ -826,7 +829,7 @@ classes:
      - has_instrument
      - has_sample
      - has_tip_sensor
-     - has_two_d_measurement
+     - has_two_d_measurements
   Supplier:
     title: Supplier
     is_a: Thing
@@ -1585,6 +1588,8 @@ slots:
   type:
     designates_type: true
     range: string
+    annotations:
+      openbis_type: Not used
   perm_id:
     identifier: true
     description: permanent ID
@@ -2749,14 +2754,6 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Energies
-  has_chemist:
-    range: Chemist
-    description: chemist
-    slot_uri: occo:OCCO_19203100
-    inlined: true
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: Chemist
   atomic_selections:
     description: list of group of atoms on which projections of the orbitals are computed
     range: double
@@ -3403,6 +3400,14 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: On-site Hubbard repulsion U
+  has_chemist:
+    range: Chemist
+    description: chemist
+    slot_uri: occo:OCCO_19203100
+    inlined: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Chemist
   has_precursor_molecules:
     range: Molecule
     description: precursor molecules
@@ -3410,7 +3415,7 @@ slots:
     inlined_as_list: true
     slot_uri:
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Precursor molecules
   has_supplier:
     range: Supplier
@@ -3445,7 +3450,7 @@ slots:
     description: annealing
     slot_uri:
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Annealing
   is_sputtered:
     range: Sputtering
@@ -3453,14 +3458,14 @@ slots:
     slot_uri:
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Sputtering
   has_molecular_deposition:
     range: Deposition
     description: deposition
     slot_uri:
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Deposition
   has_uhv_components:
     range: UHVComponent
@@ -3475,31 +3480,31 @@ slots:
     description: instrument
     slot_uri:
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Instrument
   has_dft:
     range: DFT
     description: density functional theory
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: DFT
   has_tb:
     range: TightBinding
     description: tight binding
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Tight binding
   has_crystal:
     range: Crystal
     description: crystal
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Crystal
   has_molecule:
     range: Molecule
     description: molecule
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Molecule
   has_person:
     range: Person
@@ -3514,7 +3519,7 @@ slots:
     inlined_as_list: true
     multivalued: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Atomistic models
   has_manufacturer:
     range: Manufacturer
@@ -3534,13 +3539,13 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Results
   has_empirical_modelling:
     range: EmpiricalModelling
     description: empirical modelling
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Empirical modelling
   has_grants:
     range: Grant
@@ -3556,7 +3561,7 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Drafts
   has_authors:
     range: Author
@@ -3564,7 +3569,7 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Authors
   has_softwares:
     range: Software
@@ -3581,26 +3586,26 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Geometry optimisation
   has_layered_2d_material:
     range: Layered2DMaterial
     description: 2D layered material
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: 2D layered material
   has_wafer_substrate:
     range: WaferSubstrate
     description: wafer substrate
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Wafer substrate
   has_sample:
     range: Sample
     description: sample
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Sample
   has_cangasbottles:
     range: CanGasBottle
@@ -3608,7 +3613,7 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Bottle/Can of gas
   has_maintenance:
     range: Maintenance
@@ -3638,19 +3643,13 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (after)
-  has_one_d_measurement:
-    range: OneDMeasurement
-    description: 1D measurement
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: 1D Measurement
   has_one_d_measurements:
     range: OneDMeasurement
     description: 1D measurements
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: 1D Measurements
   has_two_d_measurements:
     range: TwoDMeasurement
@@ -3658,14 +3657,8 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: 2D Measurements
-  has_two_d_measurement:
-    range: TwoDMeasurement
-    description: 2D measurement
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: 2D Measurement
 
 enums:
   PModelEnum:

@@ -5,6 +5,7 @@ import yaml
 import json
 import pandas as pd
 import numpy as np
+import argparse
 from pybis import Openbis
 import warnings
 import string
@@ -166,6 +167,9 @@ class OpenBisDatabase:
             "managedInternally": False
         }
         
+        if property_type_dict["dataType"] == "OBJECT":
+            property_type_dict["dataType"] = "SAMPLE"
+        
         if property_type_dict["dataType"] == "MULTILINE_VARCHAR":
             property_type_dict["metaData"] = {"custom_widget": "Word Processor"}
         
@@ -181,14 +185,14 @@ class OpenBisDatabase:
         if property_type == "description":
             return "description"
         
-        if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT"]:
+        if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)"]:
             property_type_dict = self.generate_property_type_dictionary(property_type)
             create_property_type_in_openbis(self.session, property_type_dict)
             return property_type
         else:
             return None
     
-    def setup_openbis_database(self):
+    def setup_openbis_database(self, collections_config_filepath: str):
         # Create object types in openBIS following the LinkML schema
         for _, object in self.objects_schema["classes"].items():
             object_property_types = []
@@ -198,6 +202,13 @@ class OpenBisDatabase:
                 
                 # Evaluate whether the object contains properties
                 if "slots" in object:
+                    
+                    # Get all the property types until the last parent class
+                    object_copy = object
+                    while "is_a" in object_copy:
+                        parent_object = self.objects_schema["classes"][object_copy["is_a"]]
+                        object["slots"].extend(parent_object["slots"])
+                        object_copy = parent_object
                     
                     # Create property types needed for intialiasing the openBIS object type
                     for property_type in object["slots"]:
@@ -215,7 +226,6 @@ class OpenBisDatabase:
         create_experiment_type_in_openbis(self.session)
         
         # Create collections in openBIS
-        collections_config_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "scripts", "collections_config.json")
         collections_config = read_json(collections_config_filepath)
         
         # Create spaces in openBIS
@@ -235,21 +245,39 @@ class OpenBisDatabase:
 # Set up openBIS environment
 if __name__ == "__main__":
     # Read command line arguments
-    openbis_url = sys.argv[1]
-    openbis_user = sys.argv[2]
-    openbis_pw = sys.argv[3]
     
-    # Create openBIS database instance
-    openbis_database = OpenBisDatabase(openbis_url, openbis_user)
+    parser = argparse.ArgumentParser(description = 'Setup the openBIS database (create objects types, collections, etc.).')
 
-    # Connect to openBIS
-    openbis_database.connect(openbis_pw)
+    # Define the arguments with flags
+    parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = 'https://local.openbis.ch/openbis')
+    parser.add_argument('-u', '--openbis_user', type=str, help='OpenBIS User', default = 'admin')
+    parser.add_argument('-pw', '--openbis_pw', type=str, help='OpenBIS Password', default = '123456789')
+    parser.add_argument('-r', '--root_folder_path', type=str, help='Folder obtained from GitHub that contains all the directories necessary to setup openBIS, like schema, scripts, etc.', default = None)
 
-    # Load LinkML schema
-    yaml_filepath = os.path.join(os.sep, "home", "jovyan", "aiida-openbis", "Notebooks", "Metadata_Schemas_LinkML", "materialMLinfo.yaml")
-    openbis_database.set_schema(read_yaml(yaml_filepath))
+    args = parser.parse_args()
+    
+    openbis_url = args.openbis_url
+    openbis_user = args.openbis_user
+    openbis_pw = args.openbis_pw
+    root_folder_path = args.root_folder_path
+    
+    if not root_folder_path:
+        print("Root folder path was not specified.")
+        print(f'Usage: python3 setup_openbis_using_linkml.py -o <OPENBIS_URL> -u <OPENBIS_USER> -pw <OPENBIS_PW> -r <ROOT_FOLDER>')
+    
+    else:
+        # Create openBIS database instance
+        openbis_database = OpenBisDatabase(openbis_url, openbis_user)
 
-    # Setup openBIS database (create object types, experiment type, and collections)
-    openbis_database.setup_openbis_database()
+        # Connect to openBIS
+        openbis_database.connect(openbis_pw)
+
+        # Load LinkML schema
+        schema_filepath = os.path.join(root_folder_path, "Metadata_Schemas_LinkML", "materialMLinfo.yaml")
+        openbis_database.set_schema(read_yaml(schema_filepath))
+
+        # Setup openBIS database (create object types, experiment type, and collections)
+        collections_config_filepath = os.path.join(root_folder_path, "scripts", "collections_config.json")
+        openbis_database.setup_openbis_database(collections_config_filepath)
 
     #TODO: Document the class and functions and try to simplify

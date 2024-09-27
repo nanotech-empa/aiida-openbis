@@ -106,11 +106,11 @@
         "MATERIALS": {
             "description": "Materials",
             "projects": {
-                "2D_MATERIALS": {
-                    "description": "2D Materials",
+                "2D_LAYERED_MATERIALS": {
+                    "description": "2D-Layer Materials",
                     "experiments": {
-                        "2D_MATERIAL_COLLECTION": {
-                            "name": "2D Materials"
+                        "2D_LAYERED_MATERIAL_COLLECTION": {
+                            "name": "2D-Layer Materials"
                         }
                     }
                 },

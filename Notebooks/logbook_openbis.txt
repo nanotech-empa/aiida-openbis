@@ -194,3 +194,4 @@ Worked on openbis connection app
 
 26-9-2024:
 Worked on openbis connection app
+Work on openbis setup script. Objects should be placed as a property type of other objects instead of parent-child connection. This last one should one be used for processes and samples.
