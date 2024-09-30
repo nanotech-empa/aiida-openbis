@@ -201,3 +201,20 @@ Converged all importer scripts into just one file.
 
 30-9-2024:
 Generalise code and remove repetitions from the experiment uploader app.
+
+Meeting with Carlo (30/09/2024)
+
+- When the images are uploaded into openBIS, if it is not possible to generate the image (square with a cross in the middle), create a button to refresh all of them.
+- From the preview, we need a button to go back to the gallery view. 
+- From the preview, we would like to have two buttons (two arrows) to move among the different datasets present in the gallery.
+- On the preview/object view, metadata is missing (there is no parameters, etc.). Concerning the parameters, if we have multiple dat files, what happens? Are they shared among all of them?
+- Comments should be editable.
+- What is the difference between images and previews (Preview view).
+- "Reference plot" panel with the 2D measurement added to the 1D measurements. What should be visualised? Use functionalities (Ask Bruno lab).
+- Integrate the automatic selection of measurement channels into the microscopy app python scripts. Additionally, update the script to use the new libraries developed by Bruno's lab. 
+- What should be entered when uploading an image from matthias,
+- I should be able to upload an image directly from the file and not from the command line, like uploading a dataset.
+- Image plugin should be added by default to openBIS instead of having to add it to the plugin list.
+
+- Ask Sasha about the connection to openBIS on the backend.
+- To discuss with Bruno: What should be in property type list and what should be seen in hierarchy graph?
