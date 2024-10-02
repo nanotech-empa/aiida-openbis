@@ -32,15 +32,14 @@ class AppWidgets():
         self.support_files_uploader = widgets.FileUpload(multiple = True)
         
         self.materials_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '350px'))
-        self.material_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
+        self.material_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
         self.material_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
         self.material_metadata_boxes = widgets.HBox([self.materials_dropdown, self.material_details_textbox, self.material_image_box])
 
-        self.material_selection_radio_button = widgets.RadioButtons(description = 'Material', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'))
-        self.material_selection_radio_button.style = {'description_width': '100px'}
+        self.material_selection_radio_button = self.get_radio_button(description = 'Material', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'), description_width = "100px")
         
         self.samples_dropdown = self.get_dropdown_box(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), description_width = '110px')
-        self.sample_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
+        self.sample_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
         self.sample_metadata_boxes = widgets.HBox([self.samples_dropdown, self.sample_details_textbox])
 
         self.instruments_dropdown = self.get_dropdown_box(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
@@ -75,7 +74,7 @@ class AppWidgets():
         self.angle_hbox = widgets.HBox([self.angle_value_floatbox, self.angle_unit_dropdown])
         
         self.molecules_dropdown = self.get_dropdown_box(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), description_width = "110px")
-        self.molecule_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
+        self.molecule_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
         self.molecule_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
         self.molecule_metadata_boxes = widgets.HBox([self.molecules_dropdown, self.molecule_details_textbox, self.molecule_image_box])
 
@@ -113,14 +112,9 @@ class AppWidgets():
         
             self.method_properties = widgets.HBox([self.properties_on_left, self.properties_on_right])
 
-        self.comments_textbox = widgets.Textarea(value = '', placeholder = "Write comments here...", description = 'Comments', disabled = False, layout = widgets.Layout(width = '993px', height = '200px'))
-        self.comments_textbox.style = {'description_width': '110px'}
-
-        self.method_name_textbox = widgets.Text(value = '', placeholder = f"Write {method_type} task name here...", description = 'Name', disabled = False, layout = widgets.Layout(width = '400px'))
-        self.method_name_textbox.style = {'description_width': '110px'}
-
-        self.sample_out_name_textbox = widgets.Text(value = '', placeholder = "Write sample name here...", description = 'Name', disabled = False, layout = widgets.Layout(width = '400px'))
-        self.sample_out_name_textbox.style = {'description_width': '110px'}
+        self.comments_textbox = self.get_textarea_box(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", description_width = "110px")
+        self.method_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...", description_width = "110px")
+        self.sample_out_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write sample name here...", description_width = "110px")
         
         self.measurements_files_import = widgets.FileUpload(accept = '.sxm, .dat', multiple = True)
         
@@ -184,6 +178,32 @@ class AppWidgets():
               
         self.open_notebooks_htmlbox = widgets.HTML(self.open_notebooks_html_disable_code)
     
+    @staticmethod
+    def get_textarea_box(description, disabled, layout, placeholder = '', description_width = '', value = ''):
+        textarea_box = widgets.Textarea(value = value, description = description, disabled = disabled, layout = layout, placeholder = placeholder)
+        if description_width != '':
+            textarea_box.style = {'description_width': description_width}
+        
+        return textarea_box
+    
+    @staticmethod
+    def get_text_box(description, disabled, layout, placeholder = '', description_width = '', value = ''):
+        text_box = widgets.Text(value = value, description = description, disabled = disabled, layout = layout, placeholder = placeholder)
+        if description_width != '':
+            text_box.style = {'description_width': description_width}
+        
+        return text_box
+        
+    
+    @staticmethod
+    def get_radio_button(description, disabled, layout, description_width = '', options = None):
+        if options is None:
+            radio_button = widgets.RadioButtons(description = description, disabled = disabled, layout = layout)
+        else:
+            radio_button = widgets.RadioButtons(description = description, disabled = disabled, layout = layout, options = options)
+        if description_width != '':
+            radio_button.style = {'description_width': description_width}
+        return radio_button
     
     @staticmethod
     def get_dropdown_box(description, disabled, layout, description_width = '', options = None, value = ''):
