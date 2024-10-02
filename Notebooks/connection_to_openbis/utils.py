@@ -29,8 +29,9 @@ class AppWidgets():
         self.samples_collection_openbis_path = samples_collection_openbis_path
         self.measurement_file_extensions = [".sxm", ".dat"]
         
-        self.materials_dropdown = widgets.Dropdown(description='Crystal', disabled=False, layout = widgets.Layout(width = '350px'))
-        self.materials_dropdown.style = {'description_width': '100px'}
+        self.support_files_uploader = widgets.FileUpload(multiple = True)
+        
+        self.materials_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '350px'))
         self.material_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
         self.material_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
         self.material_metadata_boxes = widgets.HBox([self.materials_dropdown, self.material_details_textbox, self.material_image_box])
@@ -38,76 +39,60 @@ class AppWidgets():
         self.material_selection_radio_button = widgets.RadioButtons(description = 'Material', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'))
         self.material_selection_radio_button.style = {'description_width': '100px'}
         
-        self.samples_dropdown = widgets.Dropdown(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'))
-        self.samples_dropdown.style = {'description_width': '110px'}
-        self.sample_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '590px', height = '300px'))
+        self.samples_dropdown = self.get_dropdown_box(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), description_width = '110px')
+        self.sample_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
         self.sample_metadata_boxes = widgets.HBox([self.samples_dropdown, self.sample_details_textbox])
 
-        self.instruments_dropdown = widgets.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'))
-        self.instruments_dropdown.style = {'description_width': '110px'}
+        self.instruments_dropdown = self.get_dropdown_box(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        self.experiments_dropdown = self.get_dropdown_box(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
 
-        self.experiments_dropdown = widgets.Dropdown(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'))
-        self.experiments_dropdown.style = {'description_width': '110px'}
-
-        self.duration_value_floatbox = widgets.FloatText(value = 0, description = 'Duration', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.duration_value_floatbox.style = {'description_width': '110px'}
-        self.duration_unit_dropdown = widgets.Dropdown(value = 'sec', description = '', disabled = False, options = ["sec", "min", "hrs"], layout = widgets.Layout(width = '100px'))
+        self.duration_value_floatbox = self.get_floattext_box(description='Duration', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.duration_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.duration_hbox = widgets.HBox([self.duration_value_floatbox, self.duration_unit_dropdown])
 
-        self.pressure_value_floatbox = widgets.FloatText(value = 0, description = 'Pressure', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.pressure_value_floatbox.style = {'description_width': '110px'}
-        self.pressure_unit_dropdown = widgets.Dropdown(value = 'mBar', description = '', disabled = False, options = ["mBar", "Bar", "Pa", "kPa"], layout = widgets.Layout(width = '100px'))
+        self.pressure_value_floatbox = self.get_floattext_box(description='Pressure', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.pressure_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["mBar", "Bar", "Pa", "kPa"], value = "mBar")
         self.pressure_hbox = widgets.HBox([self.pressure_value_floatbox, self.pressure_unit_dropdown])
 
-        self.discharge_voltage_value_floatbox = widgets.FloatText(value = 0, description = 'Discharge voltage', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.discharge_voltage_value_floatbox.style = {'description_width': '110px'}
-        self.discharge_voltage_unit_dropdown = widgets.Dropdown(value = 'kV', description = '', disabled = False, options = ["kV"], layout = widgets.Layout(width = '100px'))
+        self.discharge_voltage_value_floatbox = self.get_floattext_box(description='Discharge voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.discharge_voltage_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["V", "kV"], value = "kV")
         self.discharge_voltage_hbox = widgets.HBox([self.discharge_voltage_value_floatbox, self.discharge_voltage_unit_dropdown])
         
-        self.voltage_value_floatbox = widgets.FloatText(value = 0, description = 'Voltage', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.voltage_value_floatbox.style = {'description_width': '110px'}
-        self.voltage_unit_dropdown = widgets.Dropdown(value = 'V', description = '', disabled = False, options = ["V", "mV", "uV"], layout = widgets.Layout(width = '100px'))
+        self.voltage_value_floatbox = self.get_floattext_box(description='Voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.voltage_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uV", "mV", "V"], value = "V")
         self.voltage_hbox = widgets.HBox([self.voltage_value_floatbox, self.voltage_unit_dropdown])
         
-        self.temperature_value_floatbox = widgets.FloatText(value = 0, description = 'Temperature', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.temperature_value_floatbox.style = {'description_width': '110px'}
-        self.temperature_unit_dropdown = widgets.Dropdown(value = 'K', description = '', disabled = False, options = ["K", "oC", "oF"], layout = widgets.Layout(width = '100px'))
+        self.temperature_value_floatbox = self.get_floattext_box(description='Temperature', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.temperature_hbox = widgets.HBox([self.temperature_value_floatbox, self.temperature_unit_dropdown])
 
-        self.current_value_floatbox = widgets.FloatText(value = 0, description = 'Current', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.current_value_floatbox.style = {'description_width': '110px'}
-        self.current_unit_dropdown = widgets.Dropdown(value = 'A', description = '', disabled = False, options = ["A", "mA", "uA"], layout = widgets.Layout(width = '100px'))
+        self.current_value_floatbox = self.get_floattext_box(description='Current', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.current_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uA", "mA", "A"], value = "A")
         self.current_hbox = widgets.HBox([self.current_value_floatbox, self.current_unit_dropdown])
         
-        self.angle_value_floatbox = widgets.FloatText(value = 0, description = 'Angle', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.angle_value_floatbox.style = {'description_width': '110px'}
-        self.angle_unit_dropdown = widgets.Dropdown(value = 'deg', description = '', disabled = False, options = ["deg", "rad"], layout = widgets.Layout(width = '100px'))
+        self.angle_value_floatbox = self.get_floattext_box(description='Angle', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.angle_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["deg", "rad"], value = "deg")
         self.angle_hbox = widgets.HBox([self.angle_value_floatbox, self.angle_unit_dropdown])
         
-        self.molecules_dropdown = widgets.Dropdown(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'))
-        self.molecules_dropdown.style = {'description_width': '110px'}
+        self.molecules_dropdown = self.get_dropdown_box(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), description_width = "110px")
         self.molecule_details_textbox = widgets.Textarea(value = '', description = '', disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
         self.molecule_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
         self.molecule_metadata_boxes = widgets.HBox([self.molecules_dropdown, self.molecule_details_textbox, self.molecule_image_box])
 
-        self.stabilisation_time_value_floatbox = widgets.FloatText(value = 0, description = 'Stabilisation time', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.stabilisation_time_value_floatbox.style = {'description_width': '110px'}
-        self.stabilisation_time_unit_dropdown = widgets.Dropdown(value = 'sec', description = '', disabled = False, options = ["sec", "min", "hrs"], layout = widgets.Layout(width = '100px'))
+        self.stabilisation_time_value_floatbox = self.get_floattext_box(description='Stabilisation time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
+        self.stabilisation_time_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.stabilisation_time_hbox = widgets.HBox([self.stabilisation_time_value_floatbox, self.stabilisation_time_unit_dropdown])
 
-        self.deposition_time_value_floatbox = widgets.FloatText(value = 0, description = 'Deposition time', disabled = False, layout = widgets.Layout(width = '200px'))
-        self.deposition_time_value_floatbox.style = {'description_width': '110px'}
-        self.deposition_time_unit_dropdown = widgets.Dropdown(value = 'sec', description = '', disabled = False, options = ["sec", "min", "hrs"], layout = widgets.Layout(width = '100px'))
+        self.deposition_time_value_floatbox = self.get_floattext_box(description='Deposition time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
+        self.deposition_time_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.deposition_time_hbox = widgets.HBox([self.deposition_time_value_floatbox, self.deposition_time_unit_dropdown])
         
-        self.substrate_temperature_value_floatbox = widgets.FloatText(value = 0, description = 'Substrate temperature', disabled = False, layout = widgets.Layout(width = '250px'))
-        self.substrate_temperature_value_floatbox.style = {'description_width': '150px'}
-        self.substrate_temperature_unit_dropdown = widgets.Dropdown(value = 'K', description = '', disabled = False, options = ["K", "oC", "oF"], layout = widgets.Layout(width = '100px'))
+        self.substrate_temperature_value_floatbox = self.get_floattext_box(description='Substrate temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
+        self.substrate_temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.substrate_temperature_hbox = widgets.HBox([self.substrate_temperature_value_floatbox, self.substrate_temperature_unit_dropdown])
 
-        self.molecule_temperature_value_floatbox = widgets.FloatText(value = 0, description = 'Molecule temperature', disabled = False, layout = widgets.Layout(width = '250px'))
-        self.molecule_temperature_value_floatbox.style = {'description_width': '150px'}
-        self.molecule_temperature_unit_dropdown = widgets.Dropdown(value = 'K', description = '', disabled = False, options = ["K", "oC", "oF"], layout = widgets.Layout(width = '100px'))
+        self.molecule_temperature_value_floatbox = self.get_floattext_box(description='Molecule temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
+        self.molecule_temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.molecule_temperature_hbox = widgets.HBox([self.molecule_temperature_value_floatbox, self.molecule_temperature_unit_dropdown])
 
         self.evaporation_slot_value_intslider = widgets.IntSlider(value = 1, description = 'Evaporation slot', min = 1, max = 6, disabled = False, layout = widgets.Layout(width = '300px'))
@@ -166,12 +151,13 @@ class AppWidgets():
                     <li><a href="create_sample.ipynb" style="color: gray;" target="_blank">Create a new sample</a></li>
                     <li><a href="sputtering.ipynb" style="color: gray;" target="_blank">Sputter sample</a></li>
                     <li><a href="annealing.ipynb" style="color: gray;" target="_blank">Anneal sample</a></li>
+                    <li><a href="deposition.ipynb" style="color: gray;" target="_blank">Deposit a molecule on a sample</a></li>
+                    <li><a href="measurement.ipynb" style="color: gray;" target="_blank">Measure a sample</a></li>
                 </ul>
             </div>
             <div style="flex: 1; padding: 10px;">
                 <ul>
-                    <li><a href="deposition.ipynb" style="color: gray;" target="_blank">Deposit a molecule on a sample</a></li>
-                    <li><a href="measurement.ipynb" style="color: gray;" target="_blank">Measure a sample</a></li>
+                    <li><a href="" style="color: gray;" target="_blank">Edit openBIS objects</a></li>
                 </ul>
             </div>
         </div>
@@ -184,17 +170,42 @@ class AppWidgets():
                         <li><a href="create_sample.ipynb" target="_blank">Create a new sample</a></li>
                         <li><a href="sputtering.ipynb" target="_blank">Sputter sample</a></li>
                         <li><a href="annealing.ipynb" target="_blank">Anneal sample</a></li>
-                    </ul>
-                </div>
-                <div style="flex: 1; padding: 10px;">
-                    <ul>
                         <li><a href="deposition.ipynb" target="_blank">Deposit a molecule on a sample</a></li>
                         <li><a href="measurement.ipynb" target="_blank">Measure a sample</a></li>
                     </ul>
                 </div>
+                <div style="flex: 1; padding: 10px;">
+                    <ul>
+                        <li><a href="" target="_blank">Edit openBIS objects</a></li>
+                    </ul>
+                </div>
             </div>
             '''
+              
         self.open_notebooks_htmlbox = widgets.HTML(self.open_notebooks_html_disable_code)
+    
+    
+    @staticmethod
+    def get_dropdown_box(description, disabled, layout, description_width = '', options = None, value = ''):
+        if options is None:
+            dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout)
+        else:
+            if value == '':
+                dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout, options = options)
+            else:
+                dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout, options = options, value = value)
+            
+        if description_width == '':
+            dropdown_box.style = {'description_width': description_width}
+            
+        return dropdown_box
+    
+    @staticmethod
+    def get_floattext_box(description, disabled, layout, description_width = '', value = 0):
+        floattext_box = widgets.FloatText(description=description, disabled=disabled, layout = layout, value = value)
+        if description_width != '':
+            floattext_box.style = {'description_width': description_width}
+        return floattext_box
     
     # Function to create sample object inside openBIS using information selected in the app
     def create_sample_action(self, b):
@@ -214,8 +225,8 @@ class AppWidgets():
                                     props = {"$name": self.sample_out_name_textbox.value},
                                     parents = sample_parents).save()
             print("Upload successful!")
-    
-    def connect_openbis(self, token_filename):
+            
+    def connect_openbis(self):
         eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
         eln_config.parent.mkdir(
             parents=True, exist_ok=True
@@ -225,8 +236,9 @@ class AppWidgets():
             config = json.load(file)
         
         eln_url = "https://local.openbis.ch"
+        self.session_data = {"url": eln_url, "token": config[eln_url]["token"]}
         self.openbis_session = Openbis(eln_url, verify_certificates = False)
-        self.openbis_session.set_token(config[eln_url]["token"])
+        self.openbis_session.set_token(self.session_data["token"])
     
     # Function to handle changes in the materials dropdown
     def load_material_metadata(self, change):
@@ -282,17 +294,14 @@ class AppWidgets():
         else: 
             if self.material_selection_radio_button.value == "Crystal":
                 materials = self.openbis_session.get_objects(type = "CRYSTAL")
-                self.materials_dropdown.description = "Crystal"
                 materials_placeholder = "Select crystal..."
 
             elif self.material_selection_radio_button.value == "Wafer substrate":
                 materials = self.openbis_session.get_objects(type = "WAFER_SUBSTRATE")
-                self.materials_dropdown.description = "Wafer substrate"
                 materials_placeholder = "Select wafer substrate..."
                 
             elif self.material_selection_radio_button.value == "2D-layer material":
                 materials = self.openbis_session.get_objects(type = "2D_LAYERED_MATERIAL")
-                self.materials_dropdown.description = "2D-layer material"
                 materials_placeholder = "Select 2D-layer material..."
                 
             materials_names_permids = [(f"{material.props['$name']} ({material.permId})", material.permId) for material in materials]
@@ -305,6 +314,20 @@ class AppWidgets():
             display(self.material_metadata_boxes)
             
         display(self.increase_buttons_size)
+    
+    def upload_datasets(self, method_object):
+        for filename, file_info in self.support_files_uploader.value.items():
+            with open(filename, 'wb') as f:  # Save file content
+                f.write(file_info['content'])
+                
+            ds_new = self.openbis_session.new_dataset(
+                type       = 'RAW_DATA',
+                sample     = method_object,
+                files      = [filename]
+            )
+            ds_new.save()
+            
+            os.remove(filename)
     
     def create_sputtering_action(self,b):
         samples = self.openbis_session.get_objects(type = "SAMPLE")
@@ -337,6 +360,8 @@ class AppWidgets():
                                                         props = object_properties,
                                                         parents = sample_parents)
                 sputter_task.save()
+                
+                self.upload_datasets(sputter_task)
 
                 self.openbis_session.new_object(type = "SAMPLE",
                                         collection = self.samples_collection_openbis_path,
@@ -373,6 +398,8 @@ class AppWidgets():
                                                         props = object_properties,
                                                         parents = sample_parents)
                 anneal_task.save()
+                
+                self.upload_datasets(anneal_task)
 
                 self.openbis_session.new_object(type = "SAMPLE",
                                         collection = self.samples_collection_openbis_path,
@@ -412,6 +439,8 @@ class AppWidgets():
                                                         props = object_properties,
                                                         parents = sample_parents)
                 deposition_task.save()
+                
+                self.upload_datasets(deposition_task)
 
                 self.openbis_session.new_object(type = "SAMPLE",
                                         collection = self.samples_collection_openbis_path,

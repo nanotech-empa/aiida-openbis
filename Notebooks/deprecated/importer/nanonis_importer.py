@@ -23,7 +23,8 @@ import math
 from pybis import Openbis
 import numpy as np
 
-from spmpy import Spm as spm
+from spmpy_terry import spm
+import spmpy_terry as spmpy
 from datetime import datetime
 import json
 import shutil
@@ -244,7 +245,7 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
 
 def create_dat_dataset(openbis, folder_path, file_prefix='', sample=None, experiment=None):
     assert experiment is not None or sample is not None, "Either sample or experiment needs to be provided!"
-    data = spm.importall(folder_path, file_prefix, 'spec')
+    data = spmpy.importall(folder_path, file_prefix, 'spec')
     imaging_control = imaging.ImagingControl(openbis)
 
     for d in data:
@@ -586,7 +587,8 @@ if __name__ == "__main__":
         print(f'Default collection ID: {collection_permid}')
         print(f'Default sample ID: {sample_permid}')
 
-    upload_measurements_into_openbis(openbis_url, data_folder, collection_permid, sample_permid)
+    measurement_files = [f for f in os.listdir(data_folder)]
+    upload_measurements_into_openbis(openbis_url, measurement_files, collection_permid, sample_permid)
 
     # If the openBIS microscopy app does not work as expected (you are not able to change plots inside openBIS),
     # open openBIS app container (image: openbis/openbis-server:alpha) and install python together with some libraries.
