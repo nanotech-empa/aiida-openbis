@@ -33,11 +33,6 @@ imports:
 default_prefix: materialsML
   
 classes:
-  Any:
-    title: Any
-    class_uri: linkml:Any
-    annotations:
-      openbis_object: false
   Thing:
     title: Thing
     class_uri: schema:Thing

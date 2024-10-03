@@ -21,7 +21,7 @@ def close_notebook(b):
     display(Javascript('window.location.replace("home.ipynb")'))
 
 class AppWidgets():
-    def __init__(self, method_type, raw_materials_types = None, process_sample_types = None, samples_collection_openbis_path = ""):
+    def __init__(self, method_type, raw_materials_types = [], process_sample_types = [], samples_collection_openbis_path = ""):
         self.openbis_session = None
         self.method_type = method_type
         self.raw_materials_types = raw_materials_types
@@ -99,16 +99,21 @@ class AppWidgets():
         self.evaporation_slot_details_textbox = widgets.Text(value = '', description = '', placeholder= "Write evaporator slot details...", disabled = False, layout = widgets.Layout(width = '300px'))
         self.evaporation_slot_hbox = widgets.HBox([self.evaporation_slot_value_intslider, self.evaporation_slot_details_textbox])
         
-        if method_type in ["sputtering", "annealing", "deposition"]:
-            if method_type == "sputtering":
+        self.molecule_formula_textbox = self.get_text_box(description = "Substance", disabled = False, layout = widgets.Layout(width = '350px'), placeholder = f"Write substance formula here...", description_width = "110px")
+        
+        if self.method_type.upper() in self.process_sample_types:
+            if self.method_type == "sputtering":
                 self.properties_on_left = widgets.VBox([self.duration_hbox, self.pressure_hbox, self.discharge_voltage_hbox, self.voltage_hbox])
                 self.properties_on_right = widgets.VBox([self.temperature_hbox, self.angle_hbox, self.current_hbox])
-            elif method_type == "annealing":
+            elif self.method_type == "annealing":
                 self.properties_on_left = widgets.VBox([self.duration_hbox, self.pressure_hbox, self.voltage_hbox])
                 self.properties_on_right = widgets.VBox([self.temperature_hbox, self.current_hbox])
-            elif method_type == "deposition":
+            elif self.method_type == "deposition":
                 self.properties_on_left = widgets.VBox([self.stabilisation_time_hbox, self.deposition_time_hbox, self.pressure_hbox])
                 self.properties_on_right = widgets.VBox([self.substrate_temperature_hbox, self.molecule_temperature_hbox, self.evaporation_slot_hbox])
+            elif self.method_type == "dosing":
+                self.properties_on_left = widgets.VBox([self.molecule_formula_textbox, self.pressure_hbox])
+                self.properties_on_right = widgets.VBox([self.pressure_hbox, self.temperature_hbox])
         
             self.method_properties = widgets.HBox([self.properties_on_left, self.properties_on_right])
 
@@ -142,11 +147,16 @@ class AppWidgets():
         <div id="box" style="display: flex; pointer-events: none;">
             <div style="flex: 1; padding: 10px;">
                 <ul>
-                    <li><a href="create_sample.ipynb" style="color: gray;" target="_blank">Create a new sample</a></li>
-                    <li><a href="sputtering.ipynb" style="color: gray;" target="_blank">Sputter sample</a></li>
-                    <li><a href="annealing.ipynb" style="color: gray;" target="_blank">Anneal sample</a></li>
-                    <li><a href="deposition.ipynb" style="color: gray;" target="_blank">Deposit a molecule on a sample</a></li>
-                    <li><a href="measurement.ipynb" style="color: gray;" target="_blank">Measure a sample</a></li>
+                    <li><a href="create_sample.ipynb" style="color: gray;" target="_blank">Sample creation</a></li>
+                    <li><a href="sputtering.ipynb" style="color: gray;" target="_blank">Sputtering</a></li>
+                    <li><a href="annealing.ipynb" style="color: gray;" target="_blank">Annealing</a></li>
+                    <li><a href="deposition.ipynb" style="color: gray;" target="_blank">Molecule deposition</a></li>
+                    <li><a href="measurement.ipynb" style="color: gray;" target="_blank">Sample measurement</a></li>
+                    <li><a href="" style="color: gray;" target="_blank">Other sample preparation task</a></li>
+                    <li><a href="dosing.ipynb" style="color: gray;" target="_blank">Dosing</a></li>
+                    <li><a href="" style="color: gray;" target="_blank">Sublimation rate determination</a></li>
+                    <li><a href="" style="color: gray;" target="_blank">Comments/Notes</a></li>
+                    <li><a href="" style="color: gray;" target="_blank">Calibration/Optimisation</a></li>
                 </ul>
             </div>
             <div style="flex: 1; padding: 10px;">
@@ -161,11 +171,16 @@ class AppWidgets():
             <div style="display: flex;">
                 <div style="flex: 1; padding: 10px;">
                     <ul>
-                        <li><a href="create_sample.ipynb" target="_blank">Create a new sample</a></li>
-                        <li><a href="sputtering.ipynb" target="_blank">Sputter sample</a></li>
-                        <li><a href="annealing.ipynb" target="_blank">Anneal sample</a></li>
-                        <li><a href="deposition.ipynb" target="_blank">Deposit a molecule on a sample</a></li>
-                        <li><a href="measurement.ipynb" target="_blank">Measure a sample</a></li>
+                        <li><a href="create_sample.ipynb" target="_blank">Sample creation</a></li>
+                        <li><a href="sputtering.ipynb" target="_blank">Sputtering</a></li>
+                        <li><a href="annealing.ipynb" target="_blank">Annealing</a></li>
+                        <li><a href="deposition.ipynb" target="_blank">Molecule deposition</a></li>
+                        <li><a href="measurement.ipynb" target="_blank">Sample measurement</a></li>
+                        <li><a href="" target="_blank">Other sample preparation task</a></li>
+                        <li><a href="dosing.ipynb" target="_blank">Dosing</a></li>
+                        <li><a href="" target="_blank">Sublimation rate determination</a></li>
+                        <li><a href="" target="_blank">Comments/Notes</a></li>
+                        <li><a href="" target="_blank">Calibration/Optimisation</a></li>
                     </ul>
                 </div>
                 <div style="flex: 1; padding: 10px;">
@@ -226,6 +241,41 @@ class AppWidgets():
         if description_width != '':
             floattext_box.style = {'description_width': description_width}
         return floattext_box
+
+    @staticmethod
+    def read_file(filename):
+        file = open(filename, "rb")
+        return file.read()
+
+    def connect_openbis(self):
+        eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
+        eln_config.parent.mkdir(
+            parents=True, exist_ok=True
+        )  # making sure that the folder exists.
+
+        config = read_json(eln_config)
+        eln_url = "https://local.openbis.ch"
+        self.session_data = {"url": eln_url, "token": config[eln_url]["token"]}
+        self.openbis_session = Openbis(eln_url, verify_certificates = False)
+        self.openbis_session.set_token(self.session_data["token"])
+
+    def create_openbis_object(self, object_type, collection_id, object_props, object_parents):
+        openbis_object = self.openbis_session.new_object(
+            type = object_type, 
+            collection = collection_id,
+            props = object_props,
+            parents = object_parents
+        ).save()
+        return openbis_object
+
+    def create_openbis_collection(self, collection_code, collection_type, collection_project, collection_props):
+        measurements_collection = self.openbis_session.new_collection(
+            code = collection_code,
+            type = collection_type,
+            project = collection_project,
+            props = collection_props
+        ).save()
+        return measurements_collection
     
     # Function to create sample object inside openBIS using information selected in the app
     def create_sample_action(self, b):
@@ -240,33 +290,15 @@ class AppWidgets():
             else:
                 sample_parents = [self.materials_dropdown.value]
             
-            self.openbis_session.new_object(type = "SAMPLE", 
-                                    collection = self.samples_collection_openbis_path,
-                                    props = {"$name": self.sample_out_name_textbox.value},
-                                    parents = sample_parents).save()
+            sample_props = {"$name": self.sample_out_name_textbox.value}
+            _ = self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, sample_parents)
             print("Upload successful!")
-            
-    def connect_openbis(self):
-        eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
-        eln_config.parent.mkdir(
-            parents=True, exist_ok=True
-        )  # making sure that the folder exists.
-
-        with open(eln_config) as file:
-            config = json.load(file)
-        
-        eln_url = "https://local.openbis.ch"
-        self.session_data = {"url": eln_url, "token": config[eln_url]["token"]}
-        self.openbis_session = Openbis(eln_url, verify_certificates = False)
-        self.openbis_session.set_token(self.session_data["token"])
     
     # Function to handle changes in the materials dropdown
     def load_material_metadata(self, change):
-        if self.materials_dropdown.value is None:
+        if self.materials_dropdown.value == -1:
             self.material_details_textbox.value = ''
-            file = open("images/white_screen.jpg", "rb")
-            image = file.read()
-            self.material_image_box.value = image
+            self.material_image_box.value = self.read_file("images/white_screen.jpg")
         else:
             if self.material_selection_radio_button.value == "Crystal":
                 property_list = [("Name", "$name"), ("Material", "material"), ("Face", "face"), ("Sample Plate", "sample_plate"), ("Diameter", "diameter"), ("Height", "height"), ("Specifications", "specifications")]
@@ -279,16 +311,12 @@ class AppWidgets():
             material_dataset = material_object.get_datasets()[0]
             
             if material_dataset is None:
-                file = open("images/white_screen.jpg", "rb")
-                image = file.read()
-                self.material_image_box.value = image
+                self.material_image_box.value = self.read_file("images/white_screen.jpg")
             else:
                 material_dataset.download(destination = "images")
                 material_dataset_filenames = material_dataset.file_list
                 material_image_filepath = material_dataset_filenames[0]
-                file = open(f"images/{material_dataset.permId}/{material_image_filepath}", "rb")
-                image = file.read()
-                self.material_image_box.value = image
+                self.material_image_box.value = self.read_file(f"images/{material_dataset.permId}/{material_image_filepath}")
             
             material_metadata = material_object.props.all()
             material_metadata_string = ""
@@ -323,9 +351,9 @@ class AppWidgets():
             elif self.material_selection_radio_button.value == "2D-layer material":
                 materials = self.openbis_session.get_objects(type = "2D_LAYERED_MATERIAL")
                 materials_placeholder = "Select 2D-layer material..."
-                
+            
             materials_names_permids = [(f"{material.props['$name']} ({material.permId})", material.permId) for material in materials]
-            materials_names_permids.insert(0, (materials_placeholder, None))
+            materials_names_permids.insert(0, (materials_placeholder, -1))
             self.materials_dropdown.options = materials_names_permids
             self.materials_dropdown.observe(self.load_material_metadata, names = 'value')
                 
@@ -349,133 +377,64 @@ class AppWidgets():
             
             os.remove(filename)
     
-    def create_sputtering_action(self,b):
+    def create_process_action(self,b):
         samples = self.openbis_session.get_objects(type = "SAMPLE")
         samples_names = [sample.props["$name"] for sample in samples]
         
         if self.sample_out_name_textbox.value in samples_names:
             display(Javascript(f"alert('{'Sample name already exists!'}')"))
         else:
-            if self.experiments_dropdown.value is None:
+            if self.experiments_dropdown.value == -1:
                 print("Select an experiment.")
-            elif self.samples_dropdown.value is None:
+            elif self.samples_dropdown.value == -1:
                 print("Select a sample.")
-            elif self.instruments_dropdown.value is None:
+            elif self.instruments_dropdown.value == -1:
                 print("Select an instrument.")
-            else:
-                sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value]
-                object_properties = {}
-                object_properties["$name"] = self.method_name_textbox.value
-                object_properties["duration"] = json.dumps({"value": self.duration_value_floatbox.value, "unit": self.duration_unit_dropdown.value})
-                object_properties["pressure"] = json.dumps({"value": self.pressure_value_floatbox.value, "unit": self.pressure_unit_dropdown.value})
-                object_properties["discharge_voltage"] = json.dumps({"value": self.discharge_voltage_value_floatbox.value, "unit": self.discharge_voltage_unit_dropdown.value})
-                object_properties["voltage"] = json.dumps({"value": self.voltage_value_floatbox.value, "unit": self.voltage_unit_dropdown.value})
-                object_properties["temperature"] = json.dumps({"value": self.temperature_value_floatbox.value, "unit": self.temperature_unit_dropdown.value})
-                object_properties["angle"] = json.dumps({"value": self.angle_value_floatbox.value, "unit": self.angle_unit_dropdown.value})
-                object_properties["current"] = json.dumps({"value": self.current_value_floatbox.value, "unit": self.current_unit_dropdown.value})
-                object_properties["comments"] = self.comments_textbox.value
-                
-                sputter_task = self.openbis_session.new_object(type = "SPUTTERING", 
-                                                        collection = self.experiments_dropdown.value,
-                                                        props = object_properties,
-                                                        parents = sample_parents)
-                sputter_task.save()
-                
-                self.upload_datasets(sputter_task)
-
-                self.openbis_session.new_object(type = "SAMPLE",
-                                        collection = self.samples_collection_openbis_path,
-                                        props = {"$name": self.sample_out_name_textbox.value},
-                                        parents = [sputter_task]).save()
-                print("Upload successful!")
-    
-    def create_annealing_action(self,b):
-        samples = self.openbis_session.get_objects(type = "SAMPLE")
-        samples_names = [sample.props["$name"] for sample in samples]
-        
-        if self.sample_out_name_textbox.value in samples_names:
-            display(Javascript(f"alert('{'Sample name already exists!'}')"))
-        else:
-            if self.experiments_dropdown.value is None:
-                print("Select an experiment.")
-            elif self.samples_dropdown.value is None:
-                print("Select a sample.")
-            elif self.instruments_dropdown.value is None:
-                print("Select an instrument.")
-            else:
-                sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value]
-                object_properties = {}
-                object_properties["$name"] = self.method_name_textbox.value
-                object_properties["duration"] = json.dumps({"value": self.duration_value_floatbox.value, "unit": self.duration_unit_dropdown.value})
-                object_properties["pressure"] = json.dumps({"value": self.pressure_value_floatbox.value, "unit": self.pressure_unit_dropdown.value})
-                object_properties["voltage"] = json.dumps({"value": self.voltage_value_floatbox.value, "unit": self.voltage_unit_dropdown.value})
-                object_properties["temperature"] = json.dumps({"value": self.temperature_value_floatbox.value, "unit": self.temperature_unit_dropdown.value})
-                object_properties["current"] = json.dumps({"value": self.current_value_floatbox.value, "unit": self.current_unit_dropdown.value})
-                object_properties["comments"] = self.comments_textbox.value
-                
-                anneal_task = self.openbis_session.new_object(type = "ANNEALING", 
-                                                        collection = self.experiments_dropdown.value,
-                                                        props = object_properties,
-                                                        parents = sample_parents)
-                anneal_task.save()
-                
-                self.upload_datasets(anneal_task)
-
-                self.openbis_session.new_object(type = "SAMPLE",
-                                        collection = self.samples_collection_openbis_path,
-                                        props = {"$name": self.sample_out_name_textbox.value},
-                                        parents = [anneal_task]).save()
-                print("Upload successful!")
-    
-    def create_deposition_action(self, b):
-        samples = self.openbis_session.get_objects(type = "SAMPLE")
-        samples_names = [sample.props["$name"] for sample in samples]
-        
-        if self.sample_out_name_textbox.value in samples_names:
-            display(Javascript(f"alert('{'Sample name already exists!'}')"))
-        else:
-            if self.experiments_dropdown.value is None:
-                print("Select an experiment.")
-            elif self.samples_dropdown.value is None:
-                print("Select a sample.")
-            elif self.instruments_dropdown.value is None:
-                print("Select an instrument.")
-            elif self.molecules_dropdown.value is None:
+            elif self.molecules_dropdown.value == -1 and self.method_type == "deposition":
                 print("Select a molecule.")
             else:
-                sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value, self.molecules_dropdown.value]
+                if self.method_type == "deposition":
+                    sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value, self.molecules_dropdown.value]
+                else:
+                    sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value]
+                
                 object_properties = {}
                 object_properties["$name"] = self.method_name_textbox.value
-                object_properties["stabilisation_time"] = json.dumps({"value": self.stabilisation_time_value_floatbox.value, "unit": self.stabilisation_time_unit_dropdown.value})
-                object_properties["deposition_time"] = json.dumps({"value": self.deposition_time_value_floatbox.value, "unit": self.deposition_time_unit_dropdown.value})
-                object_properties["pressure"] = json.dumps({"value": self.pressure_value_floatbox.value, "unit": self.pressure_unit_dropdown.value})
-                object_properties["substrate_temperature"] = json.dumps({"value": self.substrate_temperature_value_floatbox.value, "unit": self.substrate_temperature_unit_dropdown.value})
-                object_properties["molecule_temperature"] = json.dumps({"value": self.molecule_temperature_value_floatbox.value, "unit": self.molecule_temperature_unit_dropdown.value})
-                object_properties["evaporator_slot"] = json.dumps({"evaporator_number": self.evaporation_slot_value_intslider.value, "details": self.evaporation_slot_details_textbox.value})
                 object_properties["comments"] = self.comments_textbox.value
+                object_properties["pressure"] = json.dumps({"value": self.pressure_value_floatbox.value, "unit": self.pressure_unit_dropdown.value})
                 
-                deposition_task = self.openbis_session.new_object(type = "DEPOSITION", 
-                                                        collection = self.experiments_dropdown.value,
-                                                        props = object_properties,
-                                                        parents = sample_parents)
-                deposition_task.save()
-                
-                self.upload_datasets(deposition_task)
+                if self.method_type in ["sputtering", "annealing", "dosing"]:
+                    object_properties["duration"] = json.dumps({"value": self.duration_value_floatbox.value, "unit": self.duration_unit_dropdown.value})
+                    object_properties["temperature"] = json.dumps({"value": self.temperature_value_floatbox.value, "unit": self.temperature_unit_dropdown.value})
+                    
+                    if self.method_type in ["sputtering", "annealing"]:
+                        object_properties["voltage"] = json.dumps({"value": self.voltage_value_floatbox.value, "unit": self.voltage_unit_dropdown.value})
+                        object_properties["current"] = json.dumps({"value": self.current_value_floatbox.value, "unit": self.current_unit_dropdown.value})
 
-                self.openbis_session.new_object(type = "SAMPLE",
-                                        collection = self.samples_collection_openbis_path,
-                                        props = {"$name": self.sample_out_name_textbox.value},
-                                        parents = [deposition_task]).save()
+                        if self.method_type == "sputtering":
+                            object_properties["discharge_voltage"] = json.dumps({"value": self.discharge_voltage_value_floatbox.value, "unit": self.discharge_voltage_unit_dropdown.value})
+                            object_properties["angle"] = json.dumps({"value": self.angle_value_floatbox.value, "unit": self.angle_unit_dropdown.value})
+
+                elif self.method_type in ["deposition"]:
+                    object_properties["stabilisation_time"] = json.dumps({"value": self.stabilisation_time_value_floatbox.value, "unit": self.stabilisation_time_unit_dropdown.value})
+                    object_properties["deposition_time"] = json.dumps({"value": self.deposition_time_value_floatbox.value, "unit": self.deposition_time_unit_dropdown.value})
+                    object_properties["substrate_temperature"] = json.dumps({"value": self.substrate_temperature_value_floatbox.value, "unit": self.substrate_temperature_unit_dropdown.value})
+                    object_properties["molecule_temperature"] = json.dumps({"value": self.molecule_temperature_value_floatbox.value, "unit": self.molecule_temperature_unit_dropdown.value})
+                    object_properties["evaporator_slot"] = json.dumps({"evaporator_number": self.evaporation_slot_value_intslider.value, "details": self.evaporation_slot_details_textbox.value})
+                
+                method_object = self.create_openbis_object(self.method_type.upper(), self.experiments_dropdown.value, object_properties, sample_parents)
+                method_object.save()
+                self.upload_datasets(method_object)
+                sample_props = {"$name": self.sample_out_name_textbox.value}
+                _ = self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, [method_object])
                 print("Upload successful!")
     
     # Function to handle changes in the materials dropdown
     def load_molecule_metadata(self, change):
         
-        if self.molecules_dropdown.value is None:
+        if self.molecules_dropdown.value == -1:
             self.molecule_details_textbox.value = ''
-            file = open("images/white_screen.jpg", "rb")
-            image = file.read()
-            self.molecule_image_box.value = image
+            self.molecule_image_box.value = self.read_file("images/white_screen.jpg")
         else:
             property_list = [("Name", "$name"), ("IUPAC name", "iupac_name"), ("Sum formula", "sum_formula"), ("SMILES", "smiles"), ("Empa number", "empa_number"), ("Batch", "batch"), ("Amount", "amount"), ("Comments", "comments")]
             
@@ -483,16 +442,12 @@ class AppWidgets():
             material_dataset = material_object.get_datasets(type = "ELN_PREVIEW")[0]
             
             if material_dataset is None:
-                file = open("images/white_screen.jpg", "rb")
-                image = file.read()
-                self.molecule_image_box.value = image
+                self.molecule_image_box.value = self.read_file("images/white_screen.jpg")
             else:
                 material_dataset.download(destination = "images")
                 material_dataset_filenames = material_dataset.file_list
                 material_image_filepath = material_dataset_filenames[0]
-                file = open(f"images/{material_dataset.permId}/{material_image_filepath}", "rb")
-                image = file.read()
-                self.molecule_image_box.value = image
+                self.molecule_image_box.value = self.read_file(f"images/{material_dataset.permId}/{material_image_filepath}")
             
             material_metadata = material_object.props.all()
             material_metadata_string = ""
@@ -508,10 +463,12 @@ class AppWidgets():
             self.molecule_details_textbox.value = material_metadata_string
 
     def load_sample_metadata(self, change):
-        if self.samples_dropdown.value is None:
+        if self.samples_dropdown.value == -1:
+            self.experiments_dropdown.value = -1
+            self.instruments_dropdown.value = -1
             self.sample_details_textbox.value = ''
             
-            if self.method_type in ["sputtering", "annealing", "deposition"]:
+            if self.method_type.upper() in self.process_sample_types:
                 self.sample_out_name_textbox.value = ''
         else:
             sample_object = self.openbis_session.get_object(self.samples_dropdown.value)
@@ -554,7 +511,7 @@ class AppWidgets():
             if last_sample_process is not None:
                 last_sample_process_object = self.openbis_session.get_object(last_sample_process)
                 
-                if self.method_type in ["sputtering", "annealing", "deposition"]:
+                if self.method_type.upper() in self.process_sample_types:
                     # Automatically select the experiment where the last sample process task was saved
                     last_sample_process_experiment_id = last_sample_process_object.attrs.experiment
                     last_sample_process_experiment = self.openbis_session.get_experiment(last_sample_process_experiment_id)
@@ -569,7 +526,7 @@ class AppWidgets():
             
             self.sample_details_textbox.value = sample_metadata_string
             
-            if self.method_type in ["sputtering", "annealing", "deposition"]:
+            if self.method_type.upper() in self.process_sample_types:
                 self.sample_out_name_textbox.value = f"{sample_object.props['$name']}_{self.method_name_textbox.value}"
 
     def get_parents_recursive(self, object, object_parents_metadata):
@@ -583,7 +540,7 @@ class AppWidgets():
         return object_parents_metadata
 
     def update_text(self, change):
-        if self.samples_dropdown.value is not None:
+        if self.samples_dropdown.value != -1:
             selected_sample_name = next(label for label, val in self.samples_dropdown.options if val == self.samples_dropdown.value)
             self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.method_name_textbox.value}"
     
@@ -622,13 +579,8 @@ class AppWidgets():
                 print("Upload successful!")
                 
             elif sample_project:
-                measurements_collection = self.openbis_session.new_collection(code = f"MEASUREMENTS_COLLECTION_{sample_object.code}", 
-                                                                        type = "COLLECTION", 
-                                                                        project = sample_project,
-                                                                        props = {"$name": f"Measurements from Sample {sample_object.props['$name']}",
-                                                                                "$default_collection_view": "IMAGING_GALLERY_VIEW"}
-                                                                        )
-                measurements_collection.save()
+                collection_props = {"$name": f"Measurements from Sample {sample_object.props['$name']}", "$default_collection_view": "IMAGING_GALLERY_VIEW"}
+                measurements_collection = self.create_openbis_collection(f"MEASUREMENTS_COLLECTION_{sample_object.code}", "COLLECTION", sample_project, collection_props)
                 nanonis_importer.upload_measurements_into_openbis(self.session_data['url'], data_folder, measurements_collection.permId, sample_object.permId, self.instruments_dropdown.value)
                 print("Upload successful!")
                 

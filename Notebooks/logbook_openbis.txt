@@ -218,3 +218,20 @@ Meeting with Carlo (30/09/2024)
 
 - Ask Sasha about the connection to openBIS on the backend.
 - To discuss with Bruno: What should be in property type list and what should be seen in hierarchy graph?
+
+
+3-10-2024:
+
+Elog notes:
+    - Fill Cryostat: Dewar, weight before and after, substance, instrument, comments
+    - System Status (Pressure reading): Instrument with plots, comments
+    - Errors and Problems: Instrument, comments, sample
+    - Transfer: Place before, Place after, sample
+    - Sample Preparation (Other): Instrument, sample, comments
+    - Comment/Note: comments, instrument, sample
+    - Maintenance: comments, instrument, sample
+    - Calibration/Optimisation: comments, instrument, technique (QCM), sample, PC-pressure, rate (Ang/min), Temperature, Evaporator slot, PID
+    - Dosing: comments, instrument, sample, molecule (substance), duration, pressure
+    - SRD: comments, support files, molecule
+    - System Handover (NEEDED????): Instrument, Vacuum system status, cryo-system status, cangas bottles, additional notes/observations, newly occurring errors, work performed during tip time
+    

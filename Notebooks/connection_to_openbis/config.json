@@ -1,0 +1,5 @@
+{
+    "raw_materials_types": ["CRYSTAL", "WAFER_SUBSTRATE", "2D_LAYERED_MATERIAL", "MOLECULE"],
+    "process_sample_types": ["SPUTTERING", "ANNEALING", "DEPOSITION", "DOSING"],
+    "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION"
+}
