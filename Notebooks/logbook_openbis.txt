@@ -210,6 +210,7 @@ Meeting with Carlo (30/09/2024)
 - On the preview/object view, metadata is missing (there is no parameters, etc.). Concerning the parameters, if we have multiple dat files, what happens? Are they shared among all of them?
 - Comments should be editable.
 - What is the difference between images and previews (Preview view).
+
 - "Reference plot" panel with the 2D measurement added to the 1D measurements. What should be visualised? Use functionalities (Ask Bruno lab).
 - Integrate the automatic selection of measurement channels into the microscopy app python scripts. Additionally, update the script to use the new libraries developed by Bruno's lab. 
 - What should be entered when uploading an image from matthias,
@@ -234,4 +235,18 @@ Elog notes:
     - Dosing: comments, instrument, sample, molecule (substance), duration, pressure
     - SRD: comments, support files, molecule
     - System Handover (NEEDED????): Instrument, Vacuum system status, cryo-system status, cangas bottles, additional notes/observations, newly occurring errors, work performed during tip time
-    
+
+Meeting with Bruno:
+    Only show dat parameters if a group of dat files
+    Sort by name, date, etc.
+    The samples created during a sample preparation should not be shown. Just the one used in the measurement.
+    Select molecule in openbis and it appears in aiidalab.
+    Ask Simone about dynamic functions while the creation of objects.
+
+4-10-2024:
+Send updated Python Uploader to Adam
+Send examples files to populate the gallery.
+Measurement properties are not going to be saved inside an object but rather inside the config file.
+
+7-10-2024:
+Correct 

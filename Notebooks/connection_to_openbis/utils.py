@@ -8,6 +8,9 @@ from ipyfilechooser import FileChooser
 import sys
 sys.path.append('/home/jovyan/aiida-openbis/Notebooks/importer')
 import nanonis_importer
+import pandas as pd
+from datetime import datetime
+import numpy as np
 
 def read_json(filename):
     with open(filename, 'r') as file:
@@ -34,13 +37,27 @@ class AppWidgets():
         self.materials_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '350px'))
         self.material_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
         self.material_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
-        self.material_metadata_boxes = widgets.HBox([self.materials_dropdown, self.material_details_textbox, self.material_image_box])
+        self.material_metadata_boxes = widgets.HBox([self.material_details_textbox, self.material_image_box])
 
-        self.material_selection_radio_button = self.get_radio_button(description = 'Material', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'), description_width = "100px")
+        self.material_selection_radio_button = self.get_radio_button(description = '', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'), description_width = "100px")
+        material_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.material_sorting_checkboxes = widgets.HBox([e for e in material_sorting_checkboxes_list])
         
         self.samples_dropdown = self.get_dropdown_box(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), description_width = '110px')
         self.sample_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
-        self.sample_metadata_boxes = widgets.HBox([self.samples_dropdown, self.sample_details_textbox])
+        
+        sample_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.sample_sorting_checkboxes = widgets.HBox([e for e in sample_sorting_checkboxes_list])
+        
+        self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
 
         self.instruments_dropdown = self.get_dropdown_box(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
         self.experiments_dropdown = self.get_dropdown_box(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
@@ -194,6 +211,11 @@ class AppWidgets():
         self.open_notebooks_htmlbox = widgets.HTML(self.open_notebooks_html_disable_code)
     
     @staticmethod
+    def get_check_box(description, disabled, layout, indent = False, value = ''):
+        check_box = widgets.Checkbox(value = value, description = description, disabled = disabled, layout = layout, indent = indent)
+        return check_box
+    
+    @staticmethod
     def get_textarea_box(description, disabled, layout, placeholder = '', description_width = '', value = ''):
         textarea_box = widgets.Textarea(value = value, description = description, disabled = disabled, layout = layout, placeholder = placeholder)
         if description_width != '':
@@ -209,7 +231,6 @@ class AppWidgets():
         
         return text_box
         
-    
     @staticmethod
     def get_radio_button(description, disabled, layout, description_width = '', options = None):
         if options is None:
@@ -246,7 +267,50 @@ class AppWidgets():
     def read_file(filename):
         file = open(filename, "rb")
         return file.read()
+    
+    @staticmethod
+    def sort_dropdown(df, columns, ascending_columns):
+        df = df.sort_values(by = columns, ascending = ascending_columns)
+        return list(df.itertuples(index = False, name = None))
+    
+    def sort_materials_dropdown(self):
+        dropdown_list = self.materials_dropdown.options[1:] # Default -1 message should not be sorted.
+        df = pd.DataFrame(dropdown_list, columns = ['Name', 'PermID'])
+        
+        if self.material_sorting_checkboxes.children[1].value == True and self.material_sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dropdown(df, ['Name', 'PermID'], [True, False])
+            
+        elif self.material_sorting_checkboxes.children[1].value == True:
+            dropdown_list = self.sort_dropdown(df, ['Name'], [True])
+            
+        elif self.material_sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dropdown(df, ['PermID'], [False])
+            
+        dropdown_list.insert(0, self.materials_dropdown.options[0])
+        self.materials_dropdown.options = dropdown_list
+    
+    def sort_materials_dropdown_on_change(self, change):
+        self.sort_materials_dropdown()
+        
+    def sort_samples_dropdown(self):
+        dropdown_list = list(self.samples_dropdown.options[1:]) # Default -1 message should not be sorted.
+        df = pd.DataFrame(dropdown_list, columns = ['Name', 'PermID'])
+        
+        if self.sample_sorting_checkboxes.children[1].value == True and self.sample_sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dropdown(df, ['Name', 'PermID'], [True, False])
+            
+        elif self.sample_sorting_checkboxes.children[1].value == True:
+            dropdown_list = self.sort_dropdown(df, ['Name'], [True])
+            
+        elif self.sample_sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dropdown(df, ['PermID'], [False])
+        
+        dropdown_list.insert(0, self.samples_dropdown.options[0])
+        self.samples_dropdown.options = dropdown_list
 
+    def sort_samples_dropdown_on_change(self, change):
+        self.sort_samples_dropdown()
+    
     def connect_openbis(self):
         eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
         eln_config.parent.mkdir(
@@ -265,7 +329,8 @@ class AppWidgets():
             collection = collection_id,
             props = object_props,
             parents = object_parents
-        ).save()
+        )
+        openbis_object.save()
         return openbis_object
 
     def create_openbis_collection(self, collection_code, collection_type, collection_project, collection_props):
@@ -274,7 +339,8 @@ class AppWidgets():
             type = collection_type,
             project = collection_project,
             props = collection_props
-        ).save()
+        )
+        measurements_collection.save()
         return measurements_collection
     
     # Function to create sample object inside openBIS using information selected in the app
@@ -285,7 +351,7 @@ class AppWidgets():
         if self.sample_out_name_textbox.value in samples_names:
             display(Javascript(f"alert('{'Sample name already exists!'}')"))
         else:
-            if self.materials_dropdown.value is None or self.material_selection_radio_button.value == "No material":
+            if self.materials_dropdown.value == -1 or self.material_selection_radio_button.value == "No material":
                 sample_parents = []
             else:
                 sample_parents = [self.materials_dropdown.value]
@@ -338,7 +404,6 @@ class AppWidgets():
         if self.material_selection_radio_button.value == "No material":
             clear_output()
             display(self.material_selection_radio_button)
-            
         else: 
             if self.material_selection_radio_button.value == "Crystal":
                 materials = self.openbis_session.get_objects(type = "CRYSTAL")
@@ -355,10 +420,19 @@ class AppWidgets():
             materials_names_permids = [(f"{material.props['$name']} ({material.permId})", material.permId) for material in materials]
             materials_names_permids.insert(0, (materials_placeholder, -1))
             self.materials_dropdown.options = materials_names_permids
+            self.materials_dropdown.value = -1
+            
+            # Dropdown list must be sorted when changing material type
+            self.sort_materials_dropdown()
+            
             self.materials_dropdown.observe(self.load_material_metadata, names = 'value')
-                
+            
+            self.material_sorting_checkboxes.children[1].observe(self.sort_materials_dropdown_on_change, names = 'value')
+            self.material_sorting_checkboxes.children[2].observe(self.sort_materials_dropdown_on_change, names = 'value')
+            
             clear_output()
             display(self.material_selection_radio_button)
+            display(widgets.HBox([self.materials_dropdown, self.material_sorting_checkboxes]))
             display(self.material_metadata_boxes)
             
         display(self.increase_buttons_size)
@@ -423,7 +497,6 @@ class AppWidgets():
                     object_properties["evaporator_slot"] = json.dumps({"evaporator_number": self.evaporation_slot_value_intslider.value, "details": self.evaporation_slot_details_textbox.value})
                 
                 method_object = self.create_openbis_object(self.method_type.upper(), self.experiments_dropdown.value, object_properties, sample_parents)
-                method_object.save()
                 self.upload_datasets(method_object)
                 sample_props = {"$name": self.sample_out_name_textbox.value}
                 _ = self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, [method_object])
@@ -528,6 +601,52 @@ class AppWidgets():
             
             if self.method_type.upper() in self.process_sample_types:
                 self.sample_out_name_textbox.value = f"{sample_object.props['$name']}_{self.method_name_textbox.value}"
+    
+    def load_experiment_list(self):
+        experiments = self.openbis_session.get_collections(type = "EXPERIMENT")
+        experiments_names_permids = [(f"{experiment.props['$name']} ({experiment.attrs.identifier})", experiment.permId) for experiment in experiments]
+        experiments_names_permids.insert(0, ('Select an experiment...', -1))
+        self.experiments_dropdown.options = experiments_names_permids
+        self.experiments_dropdown.value = -1
+    
+    def load_sample_list(self):
+        samples = self.openbis_session.get_objects(type = "SAMPLE")
+        samples_names_permids = [(sample.props['$name'], sample.permId) for sample in samples]
+        samples_names_permids.insert(0, ('Select an input sample...', -1))
+        self.samples_dropdown.options = samples_names_permids
+        self.samples_dropdown.value = -1
+        self.sort_samples_dropdown()
+        
+        self.sample_sorting_checkboxes.children[1].observe(self.sort_samples_dropdown_on_change, names = 'value')
+        self.sample_sorting_checkboxes.children[2].observe(self.sort_samples_dropdown_on_change, names = 'value')
+    
+    def load_instrument_list(self):
+        instruments = self.openbis_session.get_objects(type = "INSTRUMENT")
+        instruments_names_permids = [(f"{instrument.props['$name']} ({instrument.attrs.permId})", instrument.permId) for instrument in instruments]
+        instruments_names_permids.insert(0, ('Select an instrument...', -1))
+        self.instruments_dropdown.options = instruments_names_permids
+        self.instruments_dropdown.value = -1
+    
+    def load_molecule_list(self):
+        molecules = self.openbis_session.get_objects(type = "MOLECULE")
+        molecules_names_permids = [(f"{molecule.props['$name']} ({molecule.attrs.permId})", molecule.permId) for molecule in molecules]
+        # molecules_empa_numbers = [np.nan if molecule.props['empa_number'] is None else int(molecule.props['empa_number']) for molecule in molecules]
+        # molecules_batches = [np.nan if molecule.props['batch'] is None else molecule.props['batch'] for molecule in molecules]
+        # molecules_names_permids = [x for _, _, x in sorted(zip(molecules_empa_numbers, molecules_batches, molecules_names_permids), key = lambda item: (item[0], item[1]), reverse=True)]
+        molecules_names_permids.insert(0, ('Select a molecule...', -1))
+        self.molecules_dropdown.options = molecules_names_permids
+        self.molecules_dropdown.value = -1
+    
+    def load_dropdown_lists(self):
+        # Populate dropdown lists
+        self.load_sample_list()
+        self.load_instrument_list()
+        
+        if self.method_type.upper() in self.process_sample_types:
+            self.load_experiment_list()
+            
+            if self.method_type.upper() == "DEPOSITION":
+                self.load_molecule_list()
 
     def get_parents_recursive(self, object, object_parents_metadata):
         if object.attrs.type in self.process_sample_types or object.attrs.type in self.raw_materials_types:
