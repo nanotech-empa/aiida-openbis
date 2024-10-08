@@ -630,6 +630,7 @@ classes:
       openbis_code: SAMP
       openbis_label: Sample
     slots:
+     - exists
      - is_sputtered
      - is_annealed
      - has_molecular_deposition
@@ -1580,6 +1581,13 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  exists:
+      description: exists
+      range: boolean
+      slot_uri:
+      annotations:
+        openbis_type: BOOLEAN
+        openbis_label: Exists
   type:
     designates_type: true
     range: string

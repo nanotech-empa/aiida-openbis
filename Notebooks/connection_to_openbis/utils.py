@@ -60,8 +60,37 @@ class AppWidgets():
         self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
 
         self.instruments_dropdown = self.get_dropdown_box(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        instrument_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.instrument_sorting_checkboxes = widgets.HBox([e for e in instrument_sorting_checkboxes_list])
+        self.instruments_dropdown_boxes = widgets.VBox([self.instruments_dropdown, self.instrument_sorting_checkboxes])
+        
+        self.create_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = widgets.Layout(width = '50px', height = '25px'))
+        self.save_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
+        self.cancel_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
+        self.new_experiment_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...", description_width = "80px")
+        self.projects_dropdown = self.get_dropdown_box(description='Project', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        project_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.project_sorting_checkboxes = widgets.HBox([e for e in project_sorting_checkboxes_list])
+        self.projects_dropdown_boxes = widgets.VBox([self.projects_dropdown, self.project_sorting_checkboxes])
+        
         self.experiments_dropdown = self.get_dropdown_box(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
-
+        experiment_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.experiment_sorting_checkboxes = widgets.HBox([e for e in experiment_sorting_checkboxes_list])
+        self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
+        self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
+        
         self.duration_value_floatbox = self.get_floattext_box(description='Duration', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
         self.duration_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.duration_hbox = widgets.HBox([self.duration_value_floatbox, self.duration_unit_dropdown])
@@ -93,7 +122,14 @@ class AppWidgets():
         self.molecules_dropdown = self.get_dropdown_box(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), description_width = "110px")
         self.molecule_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
         self.molecule_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
-        self.molecule_metadata_boxes = widgets.HBox([self.molecules_dropdown, self.molecule_details_textbox, self.molecule_image_box])
+        molecule_sorting_checkboxes_list = [
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
+            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
+            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+        ]
+        self.molecule_sorting_checkboxes = widgets.HBox([e for e in molecule_sorting_checkboxes_list])
+        
+        self.molecule_metadata_boxes = widgets.HBox([widgets.VBox([self.molecules_dropdown, self.molecule_sorting_checkboxes]), self.molecule_details_textbox, self.molecule_image_box])
 
         self.stabilisation_time_value_floatbox = self.get_floattext_box(description='Stabilisation time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
         self.stabilisation_time_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
@@ -156,6 +192,9 @@ class AppWidgets():
             .fa-home {
                 font-size: 2em !important; /* Increase icon size */
             }
+            .fa-times {
+                font-size: 2em !important; /* Increase icon size */
+            }
         </style>
         """)
         
@@ -209,6 +248,11 @@ class AppWidgets():
             '''
               
         self.open_notebooks_htmlbox = widgets.HTML(self.open_notebooks_html_disable_code)
+        
+        # Assign functions to widgets
+        self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
+        self.cancel_new_experiment_button.on_click(self.cancel_new_experiment_button_on_click)
+        self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
     
     @staticmethod
     def get_check_box(description, disabled, layout, indent = False, value = ''):
@@ -269,47 +313,82 @@ class AppWidgets():
         return file.read()
     
     @staticmethod
-    def sort_dropdown(df, columns, ascending_columns):
+    def sort_dataframe(df, columns, ascending_columns):
         df = df.sort_values(by = columns, ascending = ascending_columns)
+        return AppWidgets.dataframe_to_list_of_tuples(df)
+
+    @staticmethod
+    def dataframe_to_list_of_tuples(df):
         return list(df.itertuples(index = False, name = None))
     
-    def sort_materials_dropdown(self):
-        dropdown_list = self.materials_dropdown.options[1:] # Default -1 message should not be sorted.
+    def create_new_experiment_button_on_click(self, b):
+        
+        clear_output()
+        self.load_project_list()
+        display(self.experiments_dropdown_boxes, self.new_experiment_name_textbox, self.projects_dropdown_boxes,
+                widgets.HBox([self.save_new_experiment_button, self.cancel_new_experiment_button]), 
+                self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+    
+    def cancel_new_experiment_button_on_click(self, b):
+        clear_output()
+        display(self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+    
+    def save_new_experiment_button_on_click(self, b):
+        self.create_experiment_in_openbis(self.projects_dropdown.value, self.new_experiment_name_textbox.value)
+        clear_output()
+        self.load_experiment_list()
+        display(self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+        
+    def sort_dropdown(self, sorting_checkboxes, dropdown_box):
+        dropdown_list = list(dropdown_box.options[1:]) # Default -1 message should not be sorted.
         df = pd.DataFrame(dropdown_list, columns = ['Name', 'PermID'])
         
-        if self.material_sorting_checkboxes.children[1].value == True and self.material_sorting_checkboxes.children[2].value == True:
-            dropdown_list = self.sort_dropdown(df, ['Name', 'PermID'], [True, False])
+        if sorting_checkboxes.children[1].value == True and sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dataframe(df, ['Name', 'PermID'], [True, False])
             
-        elif self.material_sorting_checkboxes.children[1].value == True:
-            dropdown_list = self.sort_dropdown(df, ['Name'], [True])
+        elif sorting_checkboxes.children[1].value == True:
+            dropdown_list = self.sort_dataframe(df, ['Name'], [True])
             
-        elif self.material_sorting_checkboxes.children[2].value == True:
-            dropdown_list = self.sort_dropdown(df, ['PermID'], [False])
+        elif sorting_checkboxes.children[2].value == True:
+            dropdown_list = self.sort_dataframe(df, ['PermID'], [False])
             
-        dropdown_list.insert(0, self.materials_dropdown.options[0])
-        self.materials_dropdown.options = dropdown_list
+        dropdown_list.insert(0, dropdown_box.options[0])
+        dropdown_box.options = dropdown_list
     
     def sort_materials_dropdown_on_change(self, change):
-        self.sort_materials_dropdown()
-        
-    def sort_samples_dropdown(self):
-        dropdown_list = list(self.samples_dropdown.options[1:]) # Default -1 message should not be sorted.
-        df = pd.DataFrame(dropdown_list, columns = ['Name', 'PermID'])
-        
-        if self.sample_sorting_checkboxes.children[1].value == True and self.sample_sorting_checkboxes.children[2].value == True:
-            dropdown_list = self.sort_dropdown(df, ['Name', 'PermID'], [True, False])
-            
-        elif self.sample_sorting_checkboxes.children[1].value == True:
-            dropdown_list = self.sort_dropdown(df, ['Name'], [True])
-            
-        elif self.sample_sorting_checkboxes.children[2].value == True:
-            dropdown_list = self.sort_dropdown(df, ['PermID'], [False])
-        
-        dropdown_list.insert(0, self.samples_dropdown.options[0])
-        self.samples_dropdown.options = dropdown_list
+        self.sort_dropdown(self.material_sorting_checkboxes, self.materials_dropdown)
 
     def sort_samples_dropdown_on_change(self, change):
-        self.sort_samples_dropdown()
+        self.sort_dropdown(self.sample_sorting_checkboxes, self.samples_dropdown)
+
+    def sort_experiments_dropdown_on_change(self, change):
+        self.sort_dropdown(self.experiment_sorting_checkboxes, self.experiments_dropdown)
+
+    def sort_instruments_dropdown_on_change(self, change):
+        self.sort_dropdown(self.instrument_sorting_checkboxes, self.instruments_dropdown)
+
+    def sort_molecules_dropdown_on_change(self, change):
+        self.sort_dropdown(self.molecule_sorting_checkboxes, self.molecules_dropdown)
+    
+    def sort_projects_dropdown_on_change(self, change):
+        self.sort_dropdown(self.project_sorting_checkboxes, self.projects_dropdown)
+    
+    def get_next_experiment_code(self):
+        experiments = self.openbis_session.get_experiments(type = "EXPERIMENT")
+        experiment_number = 0
+        for experiment in experiments:
+            experiment_number = max(int(experiment.code.rsplit('_')[-1]), experiment_number)
+        
+        experiment_number += 1
+        experiment_code_without_number = experiment.code.rsplit('_')[0]
+        experiment_code = f"{experiment_code_without_number}_{experiment_number}"
+        return experiment_code
+    
+    def create_experiment_in_openbis(self, project_id, experiment_name):
+        experiment_code = self.get_next_experiment_code()
+        experiment = self.openbis_session.new_experiment(code = experiment_code, type = "EXPERIMENT", project = project_id)
+        experiment.set_props({"$name": experiment_name})
+        experiment.save()
     
     def connect_openbis(self):
         eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
@@ -356,7 +435,7 @@ class AppWidgets():
             else:
                 sample_parents = [self.materials_dropdown.value]
             
-            sample_props = {"$name": self.sample_out_name_textbox.value}
+            sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
             _ = self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, sample_parents)
             print("Upload successful!")
     
@@ -423,7 +502,7 @@ class AppWidgets():
             self.materials_dropdown.value = -1
             
             # Dropdown list must be sorted when changing material type
-            self.sort_materials_dropdown()
+            self.sort_dropdown(self.material_sorting_checkboxes, self.materials_dropdown)
             
             self.materials_dropdown.observe(self.load_material_metadata, names = 'value')
             
@@ -438,7 +517,8 @@ class AppWidgets():
         display(self.increase_buttons_size)
     
     def upload_datasets(self, method_object):
-        for filename, file_info in self.support_files_uploader.value.items():
+        for file_info in self.support_files_uploader.value:
+            filename = file_info['name']
             with open(filename, 'wb') as f:  # Save file content
                 f.write(file_info['content'])
                 
@@ -498,7 +578,15 @@ class AppWidgets():
                 
                 method_object = self.create_openbis_object(self.method_type.upper(), self.experiments_dropdown.value, object_properties, sample_parents)
                 self.upload_datasets(method_object)
-                sample_props = {"$name": self.sample_out_name_textbox.value}
+                
+                # --- Turn off sample in visibility ---
+                parent_sample = self.openbis_session.get_object(self.samples_dropdown.value)
+                parent_sample.props["exists"] = False
+                parent_sample.save()
+                # -------------------------------------
+                
+                sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
+                
                 _ = self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, [method_object])
                 print("Upload successful!")
     
@@ -588,6 +676,10 @@ class AppWidgets():
                     # Automatically select the experiment where the last sample process task was saved
                     last_sample_process_experiment_id = last_sample_process_object.attrs.experiment
                     last_sample_process_experiment = self.openbis_session.get_experiment(last_sample_process_experiment_id)
+                    
+                    if self.experiments_dropdown.value != -1:
+                        display(Javascript(f"alert('{'Experiment was changed!'}')"))
+                        
                     self.experiments_dropdown.value =  last_sample_process_experiment.permId
                 
                 # Automatically select the instrument used in the last sample process task
@@ -600,7 +692,10 @@ class AppWidgets():
             self.sample_details_textbox.value = sample_metadata_string
             
             if self.method_type.upper() in self.process_sample_types:
-                self.sample_out_name_textbox.value = f"{sample_object.props['$name']}_{self.method_name_textbox.value}"
+                if len(self.method_name_textbox.value) > 0:
+                    self.sample_out_name_textbox.value = f"{sample_object.props['$name']}_{self.method_name_textbox.value}"
+                else:
+                    self.sample_out_name_textbox.value = sample_object.props['$name']
     
     def load_experiment_list(self):
         experiments = self.openbis_session.get_collections(type = "EXPERIMENT")
@@ -608,14 +703,31 @@ class AppWidgets():
         experiments_names_permids.insert(0, ('Select an experiment...', -1))
         self.experiments_dropdown.options = experiments_names_permids
         self.experiments_dropdown.value = -1
+        self.sort_dropdown(self.experiment_sorting_checkboxes, self.experiments_dropdown)
+        
+        self.experiment_sorting_checkboxes.children[1].observe(self.sort_experiments_dropdown_on_change, names = 'value')
+        self.experiment_sorting_checkboxes.children[2].observe(self.sort_experiments_dropdown_on_change, names = 'value')
+    
+    def load_project_list(self):
+        projects = self.openbis_session.get_projects()
+        projects_ids_permids = [(project.attrs.identifier, project.permId) for project in projects]
+        projects_ids_permids.insert(0, ('Select a project...', -1))
+        self.projects_dropdown.options = projects_ids_permids
+        self.projects_dropdown.value = -1
+        self.sort_dropdown(self.project_sorting_checkboxes, self.projects_dropdown)
+        
+        self.project_sorting_checkboxes.children[1].observe(self.sort_projects_dropdown_on_change, names = 'value')
+        self.project_sorting_checkboxes.children[2].observe(self.sort_projects_dropdown_on_change, names = 'value')
     
     def load_sample_list(self):
         samples = self.openbis_session.get_objects(type = "SAMPLE")
-        samples_names_permids = [(sample.props['$name'], sample.permId) for sample in samples]
+        selected_samples = self.filter_samples(samples)
+        
+        samples_names_permids = [(sample.props['$name'], sample.permId) for sample in selected_samples]
         samples_names_permids.insert(0, ('Select an input sample...', -1))
         self.samples_dropdown.options = samples_names_permids
         self.samples_dropdown.value = -1
-        self.sort_samples_dropdown()
+        self.sort_dropdown(self.sample_sorting_checkboxes, self.samples_dropdown)
         
         self.sample_sorting_checkboxes.children[1].observe(self.sort_samples_dropdown_on_change, names = 'value')
         self.sample_sorting_checkboxes.children[2].observe(self.sort_samples_dropdown_on_change, names = 'value')
@@ -626,6 +738,11 @@ class AppWidgets():
         instruments_names_permids.insert(0, ('Select an instrument...', -1))
         self.instruments_dropdown.options = instruments_names_permids
         self.instruments_dropdown.value = -1
+        
+        self.sort_dropdown(self.instrument_sorting_checkboxes, self.instruments_dropdown)
+        
+        self.instrument_sorting_checkboxes.children[1].observe(self.sort_instruments_dropdown_on_change, names = 'value')
+        self.instrument_sorting_checkboxes.children[2].observe(self.sort_instruments_dropdown_on_change, names = 'value')
     
     def load_molecule_list(self):
         molecules = self.openbis_session.get_objects(type = "MOLECULE")
@@ -636,6 +753,11 @@ class AppWidgets():
         molecules_names_permids.insert(0, ('Select a molecule...', -1))
         self.molecules_dropdown.options = molecules_names_permids
         self.molecules_dropdown.value = -1
+        
+        self.sort_dropdown(self.molecule_sorting_checkboxes, self.molecules_dropdown)
+        
+        self.molecule_sorting_checkboxes.children[1].observe(self.sort_molecules_dropdown_on_change, names = 'value')
+        self.molecule_sorting_checkboxes.children[2].observe(self.sort_molecules_dropdown_on_change, names = 'value')
     
     def load_dropdown_lists(self):
         # Populate dropdown lists
@@ -661,7 +783,11 @@ class AppWidgets():
     def update_text(self, change):
         if self.samples_dropdown.value != -1:
             selected_sample_name = next(label for label, val in self.samples_dropdown.options if val == self.samples_dropdown.value)
-            self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.method_name_textbox.value}"
+            
+            if len(self.method_name_textbox.value) > 0:
+                self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.method_name_textbox.value}"
+            else:
+                self.sample_out_name_textbox.value = selected_sample_name
     
     def upload_measurements_to_openbis(self, b):
         measurements_collection = None
@@ -708,3 +834,19 @@ class AppWidgets():
                 
         else:
             print(f"Folder contains unrecognised files. Please remove files whose extension does not belong to the following list: .sxm, .dat.")
+            
+    def filter_samples(self, samples):
+        """
+        Function for hiding intermediate samples which result 
+        from the different steps of samples preparation.
+
+        Args:
+            samples (_type_): _description_
+        """
+        selected_samples = []
+        for sample in samples:
+            sample = self.openbis_session.get_object(sample.permId)
+            if sample.props["exists"] == "true":
+                selected_samples.append(sample)
+        
+        return selected_samples
