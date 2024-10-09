@@ -34,36 +34,36 @@ class AppWidgets():
         
         self.support_files_uploader = widgets.FileUpload(multiple = True)
         
-        self.materials_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '350px'))
-        self.material_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
+        self.materials_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '350px'))
+        self.material_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
         self.material_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
         self.material_metadata_boxes = widgets.HBox([self.material_details_textbox, self.material_image_box])
 
-        self.material_selection_radio_button = self.get_radio_button(description = '', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'), description_width = "100px")
+        self.material_selection_radio_button = self.Radiobuttons("100px", description = '', options=['No material', 'Crystal', 'Wafer substrate', '2D-layer material'], disabled = False, layout = widgets.Layout(width = '300px'))
         material_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.material_sorting_checkboxes = widgets.HBox([e for e in material_sorting_checkboxes_list])
         
-        self.samples_dropdown = self.get_dropdown_box(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), description_width = '110px')
-        self.sample_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
+        self.samples_dropdown = self.Dropdown("110px", description='Sample', disabled=False, layout = widgets.Layout(width = '400px'))
+        self.sample_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
         
         sample_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.sample_sorting_checkboxes = widgets.HBox([e for e in sample_sorting_checkboxes_list])
         
         self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
 
-        self.instruments_dropdown = self.get_dropdown_box(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        self.instruments_dropdown = self.Dropdown("110px", description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'))
         instrument_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.instrument_sorting_checkboxes = widgets.HBox([e for e in instrument_sorting_checkboxes_list])
         self.instruments_dropdown_boxes = widgets.VBox([self.instruments_dropdown, self.instrument_sorting_checkboxes])
@@ -71,80 +71,80 @@ class AppWidgets():
         self.create_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = widgets.Layout(width = '50px', height = '25px'))
         self.save_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
         self.cancel_new_experiment_button = widgets.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
-        self.new_experiment_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...", description_width = "80px")
-        self.projects_dropdown = self.get_dropdown_box(description='Project', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        self.new_experiment_name_textbox = self.Textbox("80px", description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...")
+        self.projects_dropdown = self.Dropdown("110px", description='Project', disabled=False, layout = widgets.Layout(width = '993px'))
         project_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.project_sorting_checkboxes = widgets.HBox([e for e in project_sorting_checkboxes_list])
         self.projects_dropdown_boxes = widgets.VBox([self.projects_dropdown, self.project_sorting_checkboxes])
         
-        self.experiments_dropdown = self.get_dropdown_box(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), description_width = '110px')
+        self.experiments_dropdown = self.Dropdown("110px", description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'))
         experiment_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.experiment_sorting_checkboxes = widgets.HBox([e for e in experiment_sorting_checkboxes_list])
         self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
         self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
         
-        self.duration_value_floatbox = self.get_floattext_box(description='Duration', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.duration_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
+        self.duration_value_floatbox = self.FloatText("110px", description='Duration', disabled=False, layout = widgets.Layout(width = '200px'), value = 0)
+        self.duration_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.duration_hbox = widgets.HBox([self.duration_value_floatbox, self.duration_unit_dropdown])
 
-        self.pressure_value_floatbox = self.get_floattext_box(description='Pressure', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.pressure_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["mBar", "Bar", "Pa", "kPa"], value = "mBar")
+        self.pressure_value_floatbox = self.FloatText("110px", description='Pressure', disabled=False, layout = widgets.Layout(width = '200px'), value = 0)
+        self.pressure_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["mBar", "Bar", "Pa", "kPa"], value = "mBar")
         self.pressure_hbox = widgets.HBox([self.pressure_value_floatbox, self.pressure_unit_dropdown])
 
-        self.discharge_voltage_value_floatbox = self.get_floattext_box(description='Discharge voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.discharge_voltage_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["V", "kV"], value = "kV")
+        self.discharge_voltage_value_floatbox = self.FloatText("110px", description='Discharge voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0)
+        self.discharge_voltage_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["V", "kV"], value = "kV")
         self.discharge_voltage_hbox = widgets.HBox([self.discharge_voltage_value_floatbox, self.discharge_voltage_unit_dropdown])
         
-        self.voltage_value_floatbox = self.get_floattext_box(description='Voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.voltage_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uV", "mV", "V"], value = "V")
+        self.voltage_value_floatbox = self.FloatText("110px", description='Voltage', disabled=False, layout = widgets.Layout(width = '200px'), value = 0)
+        self.voltage_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uV", "mV", "V"], value = "V")
         self.voltage_hbox = widgets.HBox([self.voltage_value_floatbox, self.voltage_unit_dropdown])
         
-        self.temperature_value_floatbox = self.get_floattext_box(description='Temperature', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
+        self.temperature_value_floatbox = self.FloatText("110px", description='Temperature', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.temperature_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.temperature_hbox = widgets.HBox([self.temperature_value_floatbox, self.temperature_unit_dropdown])
 
-        self.current_value_floatbox = self.get_floattext_box(description='Current', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.current_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uA", "mA", "A"], value = "A")
+        self.current_value_floatbox = self.FloatText("110px", description='Current', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.current_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["uA", "mA", "A"], value = "A")
         self.current_hbox = widgets.HBox([self.current_value_floatbox, self.current_unit_dropdown])
         
-        self.angle_value_floatbox = self.get_floattext_box(description='Angle', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
-        self.angle_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["deg", "rad"], value = "deg")
+        self.angle_value_floatbox = self.FloatText("110px", description='Angle', disabled=False, layout = widgets.Layout(width = '200px'), value = 0, description_width = "110px")
+        self.angle_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["deg", "rad"], value = "deg")
         self.angle_hbox = widgets.HBox([self.angle_value_floatbox, self.angle_unit_dropdown])
         
-        self.molecules_dropdown = self.get_dropdown_box(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), description_width = "110px")
-        self.molecule_details_textbox = self.get_textarea_box(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
+        self.molecules_dropdown = self.Dropdown("110px", description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'))
+        self.molecule_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
         self.molecule_image_box = widgets.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
         molecule_sorting_checkboxes_list = [
             widgets.Label(value = "Sort by:", layout = widgets.Layout(width = '130px', justify_content='flex-end')),
-            self.get_check_box(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px')),
-            self.get_check_box(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'))
+            self.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = '60px'), indent = False),
+            self.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = '200px'), indent = False)
         ]
         self.molecule_sorting_checkboxes = widgets.HBox([e for e in molecule_sorting_checkboxes_list])
         
         self.molecule_metadata_boxes = widgets.HBox([widgets.VBox([self.molecules_dropdown, self.molecule_sorting_checkboxes]), self.molecule_details_textbox, self.molecule_image_box])
 
-        self.stabilisation_time_value_floatbox = self.get_floattext_box(description='Stabilisation time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
-        self.stabilisation_time_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
+        self.stabilisation_time_value_floatbox = self.FloatText("110px", description='Stabilisation time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
+        self.stabilisation_time_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.stabilisation_time_hbox = widgets.HBox([self.stabilisation_time_value_floatbox, self.stabilisation_time_unit_dropdown])
 
-        self.deposition_time_value_floatbox = self.get_floattext_box(description='Deposition time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
-        self.deposition_time_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
+        self.deposition_time_value_floatbox = self.FloatText("110px", description='Deposition time', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "110px")
+        self.deposition_time_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["sec", "min", "hrs"], value = "sec")
         self.deposition_time_hbox = widgets.HBox([self.deposition_time_value_floatbox, self.deposition_time_unit_dropdown])
         
-        self.substrate_temperature_value_floatbox = self.get_floattext_box(description='Substrate temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
-        self.substrate_temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
+        self.substrate_temperature_value_floatbox = self.FloatText("110px", description='Substrate temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
+        self.substrate_temperature_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.substrate_temperature_hbox = widgets.HBox([self.substrate_temperature_value_floatbox, self.substrate_temperature_unit_dropdown])
 
-        self.molecule_temperature_value_floatbox = self.get_floattext_box(description='Molecule temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
-        self.molecule_temperature_unit_dropdown = self.get_dropdown_box(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
+        self.molecule_temperature_value_floatbox = self.FloatText("110px", description='Molecule temperature', disabled=False, layout = widgets.Layout(width = '250px'), value = 0, description_width = "150px")
+        self.molecule_temperature_unit_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '100px'), options = ["oF", "oC", "K"], value = "K")
         self.molecule_temperature_hbox = widgets.HBox([self.molecule_temperature_value_floatbox, self.molecule_temperature_unit_dropdown])
 
         self.evaporation_slot_value_intslider = widgets.IntSlider(value = 1, description = 'Evaporation slot', min = 1, max = 6, disabled = False, layout = widgets.Layout(width = '300px'))
@@ -152,7 +152,7 @@ class AppWidgets():
         self.evaporation_slot_details_textbox = widgets.Text(value = '', description = '', placeholder= "Write evaporator slot details...", disabled = False, layout = widgets.Layout(width = '300px'))
         self.evaporation_slot_hbox = widgets.HBox([self.evaporation_slot_value_intslider, self.evaporation_slot_details_textbox])
         
-        self.molecule_formula_textbox = self.get_text_box(description = "Substance", disabled = False, layout = widgets.Layout(width = '350px'), placeholder = f"Write substance formula here...", description_width = "110px")
+        self.molecule_formula_textbox = self.Textbox("110px", description = "Substance", disabled = False, layout = widgets.Layout(width = '350px'), placeholder = f"Write substance formula here...")
         
         if self.method_type.upper() in self.process_sample_types:
             if self.method_type == "sputtering":
@@ -170,9 +170,9 @@ class AppWidgets():
         
             self.method_properties = widgets.HBox([self.properties_on_left, self.properties_on_right])
 
-        self.comments_textbox = self.get_textarea_box(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", description_width = "110px")
-        self.method_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...", description_width = "110px")
-        self.sample_out_name_textbox = self.get_text_box(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write sample name here...", description_width = "110px")
+        self.comments_textbox = self.Textarea("110px", description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...")
+        self.method_name_textbox = self.Textbox("110px", description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...")
+        self.sample_out_name_textbox = self.Textbox("110px", description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write sample name here...")
         
         self.measurements_files_import = widgets.FileUpload(accept = '.sxm, .dat', multiple = True)
         
@@ -255,56 +255,42 @@ class AppWidgets():
         self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
     
     @staticmethod
-    def get_check_box(description, disabled, layout, indent = False, value = ''):
-        check_box = widgets.Checkbox(value = value, description = description, disabled = disabled, layout = layout, indent = indent)
-        return check_box
+    def Checkbox(**kwargs):
+        return widgets.Checkbox(**kwargs)
     
     @staticmethod
-    def get_textarea_box(description, disabled, layout, placeholder = '', description_width = '', value = ''):
-        textarea_box = widgets.Textarea(value = value, description = description, disabled = disabled, layout = layout, placeholder = placeholder)
-        if description_width != '':
-            textarea_box.style = {'description_width': description_width}
-        
+    def Textarea(*args, **kwargs):
+        textarea_box = widgets.Textarea(**kwargs)
+        if len(args) > 0:
+            textarea_box.style = {'description_width': args[0]}
         return textarea_box
-    
+
     @staticmethod
-    def get_text_box(description, disabled, layout, placeholder = '', description_width = '', value = ''):
-        text_box = widgets.Text(value = value, description = description, disabled = disabled, layout = layout, placeholder = placeholder)
-        if description_width != '':
-            text_box.style = {'description_width': description_width}
-        
+    def Textbox(*args, **kwargs):
+        text_box = widgets.Text(**kwargs)
+        if len(args) > 0:
+            text_box.style = {'description_width': args[0]}
         return text_box
         
     @staticmethod
-    def get_radio_button(description, disabled, layout, description_width = '', options = None):
-        if options is None:
-            radio_button = widgets.RadioButtons(description = description, disabled = disabled, layout = layout)
-        else:
-            radio_button = widgets.RadioButtons(description = description, disabled = disabled, layout = layout, options = options)
-        if description_width != '':
-            radio_button.style = {'description_width': description_width}
-        return radio_button
-    
+    def Radiobuttons(*args, **kwargs):
+        radio_buttons = widgets.RadioButtons(**kwargs)
+        if len(args) > 0:
+            radio_buttons.style = {'description_width': args[0]}
+        return radio_buttons
+
     @staticmethod
-    def get_dropdown_box(description, disabled, layout, description_width = '', options = None, value = ''):
-        if options is None:
-            dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout)
-        else:
-            if value == '':
-                dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout, options = options)
-            else:
-                dropdown_box = widgets.Dropdown(description=description, disabled=disabled, layout = layout, options = options, value = value)
-            
-        if description_width == '':
-            dropdown_box.style = {'description_width': description_width}
-            
+    def Dropdown(*args, **kwargs):
+        dropdown_box = widgets.Dropdown(**kwargs)
+        if len(args) > 0:
+            dropdown_box.style = {'description_width': args[0]}
         return dropdown_box
-    
+
     @staticmethod
-    def get_floattext_box(description, disabled, layout, description_width = '', value = 0):
-        floattext_box = widgets.FloatText(description=description, disabled=disabled, layout = layout, value = value)
-        if description_width != '':
-            floattext_box.style = {'description_width': description_width}
+    def FloatText(*args, **kwargs):
+        floattext_box = widgets.FloatText(**kwargs)
+        if len(args) > 0:
+            floattext_box.style = {'description_width': args[0]}
         return floattext_box
 
     @staticmethod
