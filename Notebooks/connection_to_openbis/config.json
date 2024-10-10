@@ -1,5 +1,132 @@
 {
     "raw_materials_types": ["CRYSTAL", "WAFER_SUBSTRATE", "2D_LAYERED_MATERIAL", "MOLECULE"],
     "process_sample_types": ["SPUTTERING", "ANNEALING", "DEPOSITION", "DOSING"],
-    "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION"
+    "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
+    "measurement_file_extensions": [".sxm", ".dat"],
+    "property_lists": {
+        "materials": {
+            "Crystal": [
+                ["Name", "$name"],
+                ["Material", "material"], 
+                ["Face", "face"], 
+                ["Sample Plate", "sample_plate"],
+                ["Diameter", "diameter"], 
+                ["Height", "height"], 
+                ["Specifications", "specifications"]
+            ],
+            "Wafer substrate": [
+                ["Name", "$name"],
+                ["Substrates", "substrates"], 
+                ["Sample Plate", "sample_plate"], 
+                ["Diameter", "diameter"],  
+                ["Height", "height"],  
+                ["Thickness", "thickness"]
+            ],
+            "2D-layer material": [
+                ["Name", "$name"], 
+                ["Sample Plate", "sample_plate"], 
+                ["2D Layers", "layers_2d"], 
+                ["Substrates", "substrates"], 
+                ["Width", "width"], 
+                ["Length", "length"], 
+                ["Thickness", "thickness"]
+            ],
+            "Molecule": [
+                ["Name", "$name"],
+                ["IUPAC name", "iupac_name"],
+                ["Sum formula", "sum_formula"],
+                ["SMILES", "smiles"],
+                ["Empa number", "empa_number"],
+                ["Batch", "batch"],
+                ["Amount", "amount"],
+                ["Comments", "comments"]
+            ]
+        },
+        "qunit_properties": ["diameter", "height", "width", "thickness", "amount"]
+    },
+    "materials_options": ["No material", "Crystal", "Wafer substrate", "2D-layer material"],
+    "properties": {
+        "duration": {
+            "units": ["sec", "min", "hrs"]
+        },
+        "pressure": {
+            "units": ["mBar", "Bar", "Pa", "kPa"]
+        },
+        "discharge_voltage": {
+            "units": ["V", "kV"]
+        },
+        "voltage": {
+            "units": ["uV", "mV", "V"]
+        },
+        "temperature": {
+            "units": ["oC", "K"]
+        },
+        "current": {
+            "units": ["uA", "mA", "A"]
+        },
+        "angle": {
+            "units": ["deg", "rad"]
+        },
+        "stabilisation_time": {
+            "units": ["sec", "min", "hrs"]
+        },
+        "deposition_time": {
+            "units": ["sec", "min", "hrs"]
+        },
+        "substrate_temperature": {
+            "units": ["oC", "K"]
+        },
+        "molecule_temperature": {
+            "units": ["oC", "K"]
+        }
+    },
+    "home_page": {
+        "enable_links": [
+            "<div style='display: flex;'>",
+            "<div style='flex: 1; padding: 10px;'>",
+            "<ul>",
+            "<li><a href='create_sample.ipynb' target='_blank'>Sample creation</a></li>",
+            "<li><a href='sputtering.ipynb' target='_blank'>Sputtering</a></li>",
+            "<li><a href='annealing.ipynb' target='_blank'>Annealing</a></li>",
+            "<li><a href='deposition.ipynb' target='_blank'>Molecule deposition</a></li>",
+            "<li><a href='measurement.ipynb' target='_blank'>Sample measurement</a></li>",
+            "<li><a href='' target='_blank'>Other sample preparation task</a></li>",
+            "<li><a href='dosing.ipynb' target='_blank'>Dosing</a></li>",
+            "<li><a href='' target='_blank'>Sublimation rate determination</a></li>",
+            "<li><a href='' target='_blank'>Comments/Notes</a></li>",
+            "<li><a href='' target='_blank'>Calibration/Optimisation</a></li>",
+            "</ul>",
+            "</div>",
+            "<div style='flex: 1; padding: 10px;'>",
+            "<ul>",
+            "<li><a href='' target='_blank'>Edit openBIS objects</a></li>",
+            "</ul>",
+            "</div>",
+            "</div>"
+        ],
+        "disable_links": [
+            "<div id='box' style='display: flex; pointer-events: none;'>",
+            "<div style='flex: 1; padding: 10px;'>",
+            "<ul>",
+            "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Sample creation</a></li>",
+            "<li><a href='sputtering.ipynb' style='color: gray;' target='_blank'>Sputtering</a></li>",
+            "<li><a href='annealing.ipynb' style='color: gray;' target='_blank'>Annealing</a></li>",
+            "<li><a href='deposition.ipynb' style='color: gray;' target='_blank'>Molecule deposition</a></li>",
+            "<li><a href='measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
+            "<li><a href='' style='color: gray;' target='_blank'>Other sample preparation task</a></li>",
+            "<li><a href='dosing.ipynb' style='color: gray;' target='_blank'>Dosing</a></li>",
+            "<li><a href='' style='color: gray;' target='_blank'>Sublimation rate determination</a></li>",
+            "<li><a href='' style='color: gray;' target='_blank'>Comments/Notes</a></li>",
+            "<li><a href='' style='color: gray;' target='_blank'>Calibration/Optimisation</a></li>",
+            "</ul>",
+            "</div>",
+            "<div style='flex: 1; padding: 10px;'>",
+            "<ul>",
+            "<li><a href='' style='color: gray;' target='_blank'>Edit openBIS objects</a></li>",
+            "</ul>",
+            "</div>",
+            "</div>"
+        ]
+    }
+
 }
