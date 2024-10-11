@@ -37,7 +37,7 @@
             "description": "analysis chamber settings",
             "properties": {
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
                 "tsp_filament_used": {
@@ -48,6 +48,37 @@
             "title": "AnalysisChamberSettings",
             "type": "object"
         },
+        "AngleQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with angle unit",
+            "properties": {
+                "has_angle_unit": {
+                    "$ref": "#/$defs/AngleUnitsEnum",
+                    "description": "Angle unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "AngleQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "AngleQuantityValue",
+            "type": "object"
+        },
+        "AngleUnitsEnum": {
+            "description": "angle units",
+            "enum": [
+                "deg",
+                "rad"
+            ],
+            "title": "AngleUnitsEnum",
+            "type": "string"
+        },
         "Annealing": {
             "additionalProperties": false,
             "description": "Annealing",
@@ -57,20 +88,20 @@
                     "type": "string"
                 },
                 "current": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current"
                 },
-                "deposition": {
-                    "$ref": "#/$defs/Deposition",
-                    "description": "deposition"
-                },
                 "duration": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
                 },
                 "name": {
                     "description": "name",
@@ -81,33 +112,28 @@
                     "type": "string"
                 },
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
-                },
-                "sputtering": {
-                    "$ref": "#/$defs/Sputtering",
-                    "description": "sputtering"
-                },
                 "temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "temperature"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Annealing"
+                    ],
+                    "type": "string"
                 },
                 "voltage": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "voltage"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Annealing",
             "type": "object"
         },
@@ -133,13 +159,13 @@
                     "description": "comments",
                     "type": "string"
                 },
-                "crystal": {
-                    "$ref": "#/$defs/Crystal",
-                    "description": "crystal"
+                "has_crystal": {
+                    "description": "crystal",
+                    "type": "string"
                 },
-                "molecule": {
-                    "$ref": "#/$defs/Molecule",
-                    "description": "molecule"
+                "has_molecule": {
+                    "description": "molecule",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -157,11 +183,21 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "AtomisticModel"
+                    ],
+                    "type": "string"
+                },
                 "wfms_uuid": {
                     "description": "wfms uuid",
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "AtomisticModel",
             "type": "object"
         },
@@ -193,9 +229,13 @@
             "additionalProperties": false,
             "description": "Author",
             "properties": {
-                "institution": {
+                "has_institution": {
                     "$ref": "#/$defs/Institution",
                     "description": "institution"
+                },
+                "has_person": {
+                    "$ref": "#/$defs/Person",
+                    "description": "person"
                 },
                 "name": {
                     "description": "name",
@@ -205,11 +245,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "person": {
-                    "$ref": "#/$defs/Person",
-                    "description": "person"
+                "type": {
+                    "enum": [
+                        "Author"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Author",
             "type": "object"
         },
@@ -233,13 +279,6 @@
             "additionalProperties": false,
             "description": "Band Structure",
             "properties": {
-                "atomistic_models": {
-                    "description": "atomistic models",
-                    "items": {
-                        "$ref": "#/$defs/AtomisticModel"
-                    },
-                    "type": "array"
-                },
                 "bs_energies": {
                     "$ref": "#/$defs/BSEnergy",
                     "description": "band structure energies"
@@ -248,9 +287,20 @@
                     "description": "comments",
                     "type": "string"
                 },
-                "dft": {
-                    "$ref": "#/$defs/DFT",
-                    "description": "density functional theory"
+                "has_atomistic_models": {
+                    "description": "atomistic models",
+                    "items": {
+                        "$ref": "#/$defs/AtomisticModel"
+                    },
+                    "type": "array"
+                },
+                "has_dft": {
+                    "description": "density functional theory",
+                    "type": "string"
+                },
+                "has_tb": {
+                    "description": "tight binding",
+                    "type": "string"
                 },
                 "k_points_conditions": {
                     "$ref": "#/$defs/KPointsConditions",
@@ -264,9 +314,11 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "tb": {
-                    "$ref": "#/$defs/TightBinding",
-                    "description": "tight binding"
+                "type": {
+                    "enum": [
+                        "BandStructure"
+                    ],
+                    "type": "string"
                 },
                 "wfms_url": {
                     "description": "wfms url",
@@ -277,6 +329,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "BandStructure",
             "type": "object"
         },
@@ -292,6 +348,10 @@
                     "description": "description",
                     "type": "string"
                 },
+                "has_supplier": {
+                    "description": "supplier",
+                    "type": "string"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
@@ -301,18 +361,24 @@
                     "type": "string"
                 },
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
                 "state": {
                     "description": "state",
                     "type": "string"
                 },
-                "supplier": {
-                    "$ref": "#/$defs/Supplier",
-                    "description": "supplier"
+                "type": {
+                    "enum": [
+                        "CanGasBottle"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "CanGasBottle",
             "type": "object"
         },
@@ -320,6 +386,14 @@
             "additionalProperties": false,
             "description": "Chemist/Synthesiser",
             "properties": {
+                "has_institution": {
+                    "$ref": "#/$defs/Institution",
+                    "description": "institution"
+                },
+                "has_person": {
+                    "$ref": "#/$defs/Person",
+                    "description": "person"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
@@ -328,15 +402,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "person": {
-                    "$ref": "#/$defs/Person",
-                    "description": "person"
-                },
-                "supplier": {
-                    "$ref": "#/$defs/Supplier",
-                    "description": "supplier"
+                "type": {
+                    "enum": [
+                        "Chemist"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Chemist",
             "type": "object"
         },
@@ -684,7 +760,7 @@
                     "type": "string"
                 },
                 "temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "temperature"
                 }
             },
@@ -714,6 +790,14 @@
                 "fridge": {
                     "description": "fridge",
                     "type": "boolean"
+                },
+                "has_storage": {
+                    "$ref": "#/$defs/Storage",
+                    "description": "storage"
+                },
+                "has_supplier": {
+                    "description": "supplier",
+                    "type": "string"
                 },
                 "hazardous": {
                     "description": "hazardous",
@@ -772,17 +856,51 @@
                     "description": "specifications",
                     "type": "string"
                 },
-                "storage": {
-                    "$ref": "#/$defs/Storage",
-                    "description": "storage"
-                },
-                "supplier": {
-                    "$ref": "#/$defs/Supplier",
-                    "description": "supplier"
+                "type": {
+                    "enum": [
+                        "Crystal"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Crystal",
             "type": "object"
+        },
+        "CurrentQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with current unit",
+            "properties": {
+                "has_current_unit": {
+                    "$ref": "#/$defs/CurrentUnitsEnum",
+                    "description": "Current unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "CurrentQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "CurrentQuantityValue",
+            "type": "object"
+        },
+        "CurrentUnitsEnum": {
+            "description": "current units",
+            "enum": [
+                "A",
+                "mA",
+                "uA"
+            ],
+            "title": "CurrentUnitsEnum",
+            "type": "string"
         },
         "CurvatureRadius": {
             "additionalProperties": false,
@@ -875,6 +993,12 @@
                     "description": "output value of the eigenvalue of the square operator to control spin contamination",
                     "type": "number"
                 },
+                "type": {
+                    "enum": [
+                        "DFT"
+                    ],
+                    "type": "string"
+                },
                 "wfms_url": {
                     "description": "wfms url",
                     "type": "string"
@@ -888,6 +1012,10 @@
                     "description": "approximation used for the exchanged correlation functional"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "DFT",
             "type": "object"
         },
@@ -945,32 +1073,32 @@
             "additionalProperties": false,
             "description": "Deposition",
             "properties": {
-                "annealing": {
-                    "$ref": "#/$defs/Annealing",
-                    "description": "annealing"
-                },
                 "comments": {
                     "description": "comments",
                     "type": "string"
                 },
                 "deposition_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "deposition time"
                 },
                 "evaporator_slot": {
                     "$ref": "#/$defs/EvaporatorSlot",
                     "description": "evaporator slot"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
                 },
-                "molecule": {
-                    "$ref": "#/$defs/Molecule",
-                    "description": "molecule"
+                "has_molecule": {
+                    "description": "molecule",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
                 },
                 "molecule_temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "molecule temperature"
                 },
                 "name": {
@@ -982,29 +1110,28 @@
                     "type": "string"
                 },
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
-                },
                 "stabilisation_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "stabilisation time"
                 },
                 "substrate_temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "substrate temperature"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Deposition"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Deposition",
             "type": "object"
         },
@@ -1046,12 +1173,16 @@
                     "type": "string"
                 },
                 "duration": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
                 },
                 "name": {
                     "description": "name",
@@ -1062,22 +1193,28 @@
                     "type": "string"
                 },
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
-                },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
                 },
                 "sum_formula": {
                     "description": "sum formula",
                     "type": "string"
                 },
                 "temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "temperature"
+                },
+                "type": {
+                    "enum": [
+                        "Dosing"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Dosing",
             "type": "object"
         },
@@ -1093,6 +1230,13 @@
                     "$ref": "#/$defs/DraftTypeEnum",
                     "description": "draft type"
                 },
+                "has_results": {
+                    "description": "results",
+                    "items": {
+                        "$ref": "#/$defs/Result"
+                    },
+                    "type": "array"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
@@ -1101,14 +1245,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "results": {
-                    "description": "results",
-                    "items": {
-                        "$ref": "#/$defs/Result"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Draft"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Draft",
             "type": "object"
         },
@@ -1141,16 +1288,58 @@
             "title": "DriftSettings",
             "type": "object"
         },
+        "DurationQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with duration unit",
+            "properties": {
+                "has_duration_unit": {
+                    "$ref": "#/$defs/DurationUnitsEnum",
+                    "description": "Duration unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "DurationQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "DurationQuantityValue",
+            "type": "object"
+        },
+        "DurationUnitsEnum": {
+            "description": "duration units",
+            "enum": [
+                "sec",
+                "min",
+                "hr"
+            ],
+            "title": "DurationUnitsEnum",
+            "type": "string"
+        },
         "EmpiricalModelling": {
             "additionalProperties": false,
             "description": "Empirical Modelling",
             "properties": {
+                "comments": {
+                    "description": "comments",
+                    "type": "string"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
                 },
                 "perm_id": {
                     "description": "permanent ID",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "EmpiricalModelling"
+                    ],
                     "type": "string"
                 },
                 "wfms_url": {
@@ -1162,6 +1351,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "EmpiricalModelling",
             "type": "object"
         },
@@ -1173,9 +1366,16 @@
                     "description": "description",
                     "type": "string"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_uhv_components": {
+                    "description": "ultra high vacuum components",
+                    "items": {
+                        "$ref": "#/$defs/UHVComponent"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "name",
@@ -1185,14 +1385,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Errors"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Errors",
             "type": "object"
         },
@@ -1210,7 +1413,7 @@
                     "type": "string"
                 },
                 "temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "temperature"
                 }
             },
@@ -1247,7 +1450,7 @@
             "description": "FEL chamber settings",
             "properties": {
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 }
             },
@@ -1275,9 +1478,16 @@
                     "$ref": "#/$defs/DewarEnum",
                     "description": "dewar"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_uhv_components": {
+                    "description": "ultra high vacuum components",
+                    "items": {
+                        "$ref": "#/$defs/UHVComponent"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "name",
@@ -1291,22 +1501,25 @@
                     "description": "substance",
                     "type": "string"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "FillCryostat"
+                    ],
+                    "type": "string"
                 },
                 "weight_after": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/MassQuantityValue",
                     "description": "weight after"
                 },
                 "weight_before": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/MassQuantityValue",
                     "description": "weight before"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "FillCryostat",
             "type": "object"
         },
@@ -1338,24 +1551,9 @@
             "additionalProperties": false,
             "description": "Geometry optimisation",
             "properties": {
-                "atomistic_models": {
-                    "description": "atomistic models",
-                    "items": {
-                        "$ref": "#/$defs/AtomisticModel"
-                    },
-                    "type": "array"
-                },
                 "comments": {
                     "description": "comments",
                     "type": "string"
-                },
-                "dft": {
-                    "$ref": "#/$defs/DFT",
-                    "description": "density functional theory"
-                },
-                "empirical_modelling": {
-                    "$ref": "#/$defs/EmpiricalModelling",
-                    "description": "empirical modelling"
                 },
                 "force_convergence_threshold": {
                     "$ref": "#/$defs/ForceConvergenceThreshold",
@@ -1368,12 +1566,33 @@
                     },
                     "type": "array"
                 },
+                "has_atomistic_models": {
+                    "description": "atomistic models",
+                    "items": {
+                        "$ref": "#/$defs/AtomisticModel"
+                    },
+                    "type": "array"
+                },
+                "has_dft": {
+                    "description": "density functional theory",
+                    "type": "string"
+                },
+                "has_empirical_modelling": {
+                    "description": "empirical modelling",
+                    "type": "string"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
                 },
                 "perm_id": {
                     "description": "permanent ID",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "GeometryOptimisation"
+                    ],
                     "type": "string"
                 },
                 "wfms_url": {
@@ -1385,6 +1604,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "GeometryOptimisation",
             "type": "object"
         },
@@ -1429,8 +1652,18 @@
                     "description": "start date",
                     "format": "date",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Grant"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Grant",
             "type": "object"
         },
@@ -1462,9 +1695,16 @@
                     "description": "comments",
                     "type": "string"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_uhv_components": {
+                    "description": "ultra high vacuum components",
+                    "items": {
+                        "$ref": "#/$defs/UHVComponent"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "name",
@@ -1478,14 +1718,17 @@
                     "description": "sum formula",
                     "type": "string"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "HydrogenCracker"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "HydrogenCracker",
             "type": "object"
         },
@@ -1508,8 +1751,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Institution"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Institution",
             "type": "object"
         },
@@ -1530,9 +1783,24 @@
                     "description": "empa id",
                     "type": "string"
                 },
-                "manufacturer": {
-                    "$ref": "#/$defs/Manufacturer",
-                    "description": "manufacturer"
+                "has_manufacturer": {
+                    "description": "manufacturer",
+                    "type": "string"
+                },
+                "has_room": {
+                    "$ref": "#/$defs/Room",
+                    "description": "room"
+                },
+                "has_tip_sensor": {
+                    "description": "tip sensor",
+                    "type": "string"
+                },
+                "has_uhv_components": {
+                    "description": "ultra high vacuum components",
+                    "items": {
+                        "$ref": "#/$defs/UHVComponent"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "name",
@@ -1547,26 +1815,21 @@
                     "format": "date",
                     "type": "string"
                 },
-                "room": {
-                    "$ref": "#/$defs/Room",
-                    "description": "room"
-                },
                 "serial_number": {
                     "description": "serial number",
                     "type": "string"
                 },
-                "tip_sensor": {
-                    "$ref": "#/$defs/TipSensor",
-                    "description": "tip sensor"
-                },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Instrument"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Instrument",
             "type": "object"
         },
@@ -1599,10 +1862,6 @@
                     "pattern": "^[a-z]$",
                     "type": "string"
                 },
-                "chemist": {
-                    "$ref": "#/$defs/Chemist",
-                    "description": "chemist"
-                },
                 "comments": {
                     "description": "comments",
                     "type": "string"
@@ -1619,6 +1878,18 @@
                 "fridge": {
                     "description": "fridge",
                     "type": "boolean"
+                },
+                "has_chemist": {
+                    "$ref": "#/$defs/Chemist",
+                    "description": "chemist"
+                },
+                "has_storage": {
+                    "$ref": "#/$defs/Storage",
+                    "description": "storage"
+                },
+                "has_supplier": {
+                    "description": "supplier",
+                    "type": "string"
                 },
                 "hazardous": {
                     "description": "hazardous",
@@ -1672,10 +1943,6 @@
                     "description": "sample plate",
                     "type": "string"
                 },
-                "storage": {
-                    "$ref": "#/$defs/Storage",
-                    "description": "storage"
-                },
                 "substrates": {
                     "description": "substrates",
                     "items": {
@@ -1691,11 +1958,21 @@
                     "$ref": "#/$defs/QuantityValue",
                     "description": "thickness"
                 },
+                "type": {
+                    "enum": [
+                        "Layered2DMaterial"
+                    ],
+                    "type": "string"
+                },
                 "width": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "width"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Layered2DMaterial",
             "type": "object"
         },
@@ -1743,9 +2020,16 @@
                     "description": "description",
                     "type": "string"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_uhv_components": {
+                    "description": "ultra high vacuum components",
+                    "items": {
+                        "$ref": "#/$defs/UHVComponent"
+                    },
+                    "type": "array"
                 },
                 "name": {
                     "description": "name",
@@ -1755,14 +2039,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Maintenance"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Maintenance",
             "type": "object"
         },
@@ -1783,12 +2070,44 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "Manufacturer"
+                    ],
+                    "type": "string"
+                },
                 "work_phone": {
                     "description": "work phone",
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Manufacturer",
+            "type": "object"
+        },
+        "MassQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with mass unit",
+            "properties": {
+                "has_mass_unit": {
+                    "$ref": "#/$defs/MassUnitsEnum",
+                    "description": "Mass unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "MassQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "MassQuantityValue",
             "type": "object"
         },
         "MassUnitsEnum": {
@@ -1829,6 +2148,10 @@
                     "description": "down electrons",
                     "type": "integer"
                 },
+                "has_tb": {
+                    "description": "tight binding",
+                    "type": "string"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
@@ -1845,9 +2168,11 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "tb": {
-                    "$ref": "#/$defs/TightBinding",
-                    "description": "tight binding"
+                "type": {
+                    "enum": [
+                        "MeanFieldHubbard"
+                    ],
+                    "type": "string"
                 },
                 "up_densities": {
                     "description": "up densities",
@@ -1866,6 +2191,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "MeanFieldHubbard",
             "type": "object"
         },
@@ -1882,13 +2211,6 @@
             "additionalProperties": false,
             "description": "Minimum Energy Potential",
             "properties": {
-                "atomistic_models": {
-                    "description": "atomistic models",
-                    "items": {
-                        "$ref": "#/$defs/AtomisticModel"
-                    },
-                    "type": "array"
-                },
                 "comments": {
                     "description": "comments",
                     "type": "string"
@@ -1918,6 +2240,13 @@
                     },
                     "type": "array"
                 },
+                "has_atomistic_models": {
+                    "description": "atomistic models",
+                    "items": {
+                        "$ref": "#/$defs/AtomisticModel"
+                    },
+                    "type": "array"
+                },
                 "method_type": {
                     "$ref": "#/$defs/MethodTypeEnum",
                     "description": "method type"
@@ -1934,6 +2263,12 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "MinimumEnergyPotential"
+                    ],
+                    "type": "string"
+                },
                 "wfms_url": {
                     "description": "wfms url",
                     "type": "string"
@@ -1943,6 +2278,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "MinimumEnergyPotential",
             "type": "object"
         },
@@ -1951,7 +2290,7 @@
             "description": "Molecule",
             "properties": {
                 "amount": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/MassQuantityValue",
                     "description": "amount"
                 },
                 "batch": {
@@ -1962,10 +2301,6 @@
                 "cas_number": {
                     "description": "cas number",
                     "type": "string"
-                },
-                "chemist": {
-                    "$ref": "#/$defs/Chemist",
-                    "description": "chemist"
                 },
                 "chemist_molecule_name": {
                     "description": "chemist molecule name",
@@ -1994,6 +2329,25 @@
                 "fridge": {
                     "description": "fridge",
                     "type": "boolean"
+                },
+                "has_chemist": {
+                    "$ref": "#/$defs/Chemist",
+                    "description": "chemist"
+                },
+                "has_precursor_molecules": {
+                    "description": "precursor molecules",
+                    "items": {
+                        "$ref": "#/$defs/Molecule"
+                    },
+                    "type": "array"
+                },
+                "has_storage": {
+                    "$ref": "#/$defs/Storage",
+                    "description": "storage"
+                },
+                "has_supplier": {
+                    "description": "supplier",
+                    "type": "string"
                 },
                 "hazardous": {
                     "description": "hazardous",
@@ -2031,13 +2385,6 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "precursor_molecules": {
-                    "description": "precursor molecules",
-                    "items": {
-                        "$ref": "#/$defs/Molecule"
-                    },
-                    "type": "array"
-                },
                 "receive_date": {
                     "description": "received date",
                     "format": "date",
@@ -2047,12 +2394,14 @@
                     "description": "smiles",
                     "type": "string"
                 },
-                "storage": {
-                    "$ref": "#/$defs/Storage",
-                    "description": "storage"
-                },
                 "sum_formula": {
                     "description": "sum formula",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Molecule"
+                    ],
                     "type": "string"
                 },
                 "vial": {
@@ -2062,6 +2411,7 @@
                 }
             },
             "required": [
+                "perm_id",
                 "name"
             ],
             "title": "Molecule",
@@ -2082,8 +2432,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Notes"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Notes",
             "type": "object"
         },
@@ -2103,10 +2463,6 @@
                     "$ref": "#/$defs/QuantityValue",
                     "description": "acquisition coordinate axis z"
                 },
-                "annealing": {
-                    "$ref": "#/$defs/Annealing",
-                    "description": "annealing"
-                },
                 "backward_sweep": {
                     "description": "whether one wants to measure the backward (return) sweep or the forward only",
                     "type": "boolean"
@@ -2116,11 +2472,11 @@
                     "description": "bias calibration factor"
                 },
                 "bias_calibration_offset": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "bias calibration offset"
                 },
                 "bias_setpoint": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "bias setpoint"
                 },
                 "bias_spectroscopy_reset_bias": {
@@ -2159,7 +2515,7 @@
                     "description": "current calibration factor"
                 },
                 "current_calibration_offset": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current calibration offset"
                 },
                 "current_gain": {
@@ -2167,19 +2523,15 @@
                     "description": "current gain"
                 },
                 "current_setpoint": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current setpoint"
                 },
-                "deposition": {
-                    "$ref": "#/$defs/Deposition",
-                    "description": "deposition"
-                },
                 "duration": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration"
                 },
                 "end_settling_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "time to wait after the sweep has finished and the bias is ramped to the initial value"
                 },
                 "experiment_type": {
@@ -2211,15 +2563,30 @@
                     "description": "final z"
                 },
                 "first_settling_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "additional time to wait (in addition to the Settling Time) after the bias has ramped to the starting point of the sweep"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
+                },
+                "has_tip_sensor": {
+                    "description": "tip sensor",
+                    "type": "string"
+                },
+                "has_two_d_measurements": {
+                    "description": "2D measurements",
+                    "items": {
+                        "$ref": "#/$defs/TwoDMeasurement"
+                    },
+                    "type": "array"
                 },
                 "integration_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "time during which the data are acquired and averaged"
                 },
                 "lock_in_amplitude": {
@@ -2312,16 +2679,12 @@
                     "description": "record the Z position during Z averaging time at the end of the sweep (after Z control time)",
                     "type": "boolean"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
-                },
                 "sample_temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "sample temperature"
                 },
                 "settling_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "time to wait after changing the bias to the next level and before starting to acquire data"
                 },
                 "start_time": {
@@ -2329,24 +2692,22 @@
                     "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
                     "type": "string"
                 },
-                "tip_sensor": {
-                    "$ref": "#/$defs/TipSensor",
-                    "description": "tip sensor"
-                },
-                "two_d_measurement": {
-                    "$ref": "#/$defs/TwoDMeasurement",
-                    "description": "2D measurement"
+                "type": {
+                    "enum": [
+                        "OneDMeasurement"
+                    ],
+                    "type": "string"
                 },
                 "wfms_uuid": {
                     "description": "wfms uuid",
                     "type": "string"
                 },
                 "z_avg_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration between which the Z position is recorded and averaged before and after the sweep"
                 },
                 "z_control_time": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "time during which the Z-controller is enabled once a sweep has finished"
                 },
                 "z_controller_i_gain": {
@@ -2390,10 +2751,14 @@
                     "description": "Sweep distance"
                 },
                 "z_spectroscopy_time_between_forward_backward": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "time to wait in seconds between the forward and the backward sweep"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "OneDMeasurement",
             "type": "object"
         },
@@ -2408,8 +2773,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "OpticalComponent"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "OpticalComponent",
             "type": "object"
         },
@@ -2524,13 +2899,6 @@
                     },
                     "type": "array"
                 },
-                "atomistic_models": {
-                    "description": "atomistic models",
-                    "items": {
-                        "$ref": "#/$defs/AtomisticModel"
-                    },
-                    "type": "array"
-                },
                 "comments": {
                     "description": "comments",
                     "type": "string"
@@ -2539,16 +2907,27 @@
                     "$ref": "#/$defs/QuantityValue",
                     "description": "Gaussian broadening energy"
                 },
-                "dft": {
-                    "$ref": "#/$defs/DFT",
-                    "description": "density functional theory"
-                },
                 "energies": {
                     "description": "energy of each replica of the system identifying the minimum energy path",
                     "items": {
                         "$ref": "#/$defs/QuantityValue"
                     },
                     "type": "array"
+                },
+                "has_atomistic_models": {
+                    "description": "atomistic models",
+                    "items": {
+                        "$ref": "#/$defs/AtomisticModel"
+                    },
+                    "type": "array"
+                },
+                "has_dft": {
+                    "description": "density functional theory",
+                    "type": "string"
+                },
+                "has_tb": {
+                    "description": "tight binding",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -2573,9 +2952,11 @@
                     "$ref": "#/$defs/PlotGroupByEnum",
                     "description": "group by index or by periodic element"
                 },
-                "tb": {
-                    "$ref": "#/$defs/TightBinding",
-                    "description": "tight binding"
+                "type": {
+                    "enum": [
+                        "PDOS"
+                    ],
+                    "type": "string"
                 },
                 "wfms_url": {
                     "description": "wfms url",
@@ -2586,6 +2967,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "PDOS",
             "type": "object"
         },
@@ -2668,6 +3053,12 @@
                     "description": "username",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "Person"
+                    ],
+                    "type": "string"
+                },
                 "work_phone": {
                     "description": "work phone",
                     "type": "string"
@@ -2677,6 +3068,10 @@
                     "type": "boolean"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Person",
             "type": "object"
         },
@@ -2763,17 +3158,25 @@
             "additionalProperties": false,
             "description": "Potential Energy Calculation",
             "properties": {
-                "dft": {
-                    "$ref": "#/$defs/DFT",
-                    "description": "density functional theory"
-                },
-                "empirical_modelling": {
-                    "$ref": "#/$defs/EmpiricalModelling",
-                    "description": "empirical modelling"
+                "comments": {
+                    "description": "comments",
+                    "type": "string"
                 },
                 "energy": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "energy"
+                },
+                "has_dft": {
+                    "description": "density functional theory",
+                    "type": "string"
+                },
+                "has_empirical_modelling": {
+                    "description": "empirical modelling",
+                    "type": "string"
+                },
+                "has_tb": {
+                    "description": "tight binding",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -2783,9 +3186,11 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "tb": {
-                    "$ref": "#/$defs/TightBinding",
-                    "description": "tight binding"
+                "type": {
+                    "enum": [
+                        "PotentialEnergyCalculation"
+                    ],
+                    "type": "string"
                 },
                 "wfms_url": {
                     "description": "wfms url",
@@ -2796,15 +3201,52 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "PotentialEnergyCalculation",
             "type": "object"
+        },
+        "PressureQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with pressure unit",
+            "properties": {
+                "has_pressure_unit": {
+                    "$ref": "#/$defs/PressureUnitsEnum",
+                    "description": "Pressure unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "PressureQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "PressureQuantityValue",
+            "type": "object"
+        },
+        "PressureUnitsEnum": {
+            "description": "pressure units",
+            "enum": [
+                "mBar",
+                "Bar",
+                "Pa",
+                "kPa"
+            ],
+            "title": "PressureUnitsEnum",
+            "type": "string"
         },
         "PrincipalChamberSettings": {
             "additionalProperties": false,
             "description": "principal chamber settings",
             "properties": {
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
                 "tsp_filament_used": {
@@ -2830,8 +3272,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Protocol"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Protocol",
             "type": "object"
         },
@@ -2842,13 +3294,6 @@
                 "abstract": {
                     "description": "abstract",
                     "type": "string"
-                },
-                "authors": {
-                    "description": "authors",
-                    "items": {
-                        "$ref": "#/$defs/Author"
-                    },
-                    "type": "array"
                 },
                 "comments": {
                     "description": "comments",
@@ -2863,14 +3308,21 @@
                     "description": "doi",
                     "type": "string"
                 },
-                "drafts": {
+                "has_authors": {
+                    "description": "authors",
+                    "items": {
+                        "$ref": "#/$defs/Author"
+                    },
+                    "type": "array"
+                },
+                "has_drafts": {
                     "description": "drafts",
                     "items": {
                         "$ref": "#/$defs/Draft"
                     },
                     "type": "array"
                 },
-                "grants": {
+                "has_grants": {
                     "description": "grants",
                     "items": {
                         "$ref": "#/$defs/Grant"
@@ -2885,6 +3337,12 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "Publication"
+                    ],
+                    "type": "string"
+                },
                 "url": {
                     "description": "url",
                     "pattern": "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})",
@@ -2895,6 +3353,10 @@
                     "type": "integer"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Publication",
             "type": "object"
         },
@@ -2903,12 +3365,18 @@
             "description": "Value together with unit",
             "properties": {
                 "has_unit": {
-                    "description": "Unit",
+                    "description": "unit",
                     "type": "string"
                 },
                 "has_value": {
                     "description": "Value",
                     "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "QuantityValue"
+                    ],
+                    "type": "string"
                 }
             },
             "title": "QuantityValue",
@@ -2926,10 +3394,31 @@
                     "description": "description",
                     "type": "string"
                 },
-                "geometry_optimisations": {
+                "has_geometry_optimisations": {
                     "description": "geometry optimisations",
                     "items": {
                         "$ref": "#/$defs/GeometryOptimisation"
+                    },
+                    "type": "array"
+                },
+                "has_one_d_measurements": {
+                    "description": "1D measurements",
+                    "items": {
+                        "$ref": "#/$defs/OneDMeasurement"
+                    },
+                    "type": "array"
+                },
+                "has_softwares": {
+                    "description": "softwares",
+                    "items": {
+                        "$ref": "#/$defs/Software"
+                    },
+                    "type": "array"
+                },
+                "has_two_d_measurements": {
+                    "description": "2D measurements",
+                    "items": {
+                        "$ref": "#/$defs/TwoDMeasurement"
                     },
                     "type": "array"
                 },
@@ -2937,32 +3426,21 @@
                     "description": "name",
                     "type": "string"
                 },
-                "one_d_measurements": {
-                    "description": "1D measurements",
-                    "items": {
-                        "$ref": "#/$defs/OneDMeasurement"
-                    },
-                    "type": "array"
-                },
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "softwares": {
-                    "description": "softwares",
-                    "items": {
-                        "$ref": "#/$defs/Software"
-                    },
-                    "type": "array"
-                },
-                "two_d_measurements": {
-                    "description": "2D measurements",
-                    "items": {
-                        "$ref": "#/$defs/TwoDMeasurement"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Result"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Result",
             "type": "object"
         },
@@ -2974,7 +3452,7 @@
                     "description": "comments",
                     "type": "string"
                 },
-                "institution": {
+                "has_institution": {
                     "$ref": "#/$defs/Institution",
                     "description": "institution"
                 },
@@ -2985,8 +3463,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Room"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Room",
             "type": "object"
         },
@@ -2998,9 +3486,9 @@
                     "description": "comments",
                     "type": "string"
                 },
-                "molecule": {
-                    "$ref": "#/$defs/Molecule",
-                    "description": "molecule"
+                "has_molecule": {
+                    "description": "molecule",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -3009,8 +3497,18 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "SRD"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "SRD",
             "type": "object"
         },
@@ -3018,13 +3516,33 @@
             "additionalProperties": false,
             "description": "Sample being measured",
             "properties": {
-                "crystal": {
-                    "$ref": "#/$defs/Crystal",
-                    "description": "crystal"
+                "exists": {
+                    "description": "exists",
+                    "type": "boolean"
                 },
-                "layered_2d_material": {
-                    "$ref": "#/$defs/Layered2DMaterial",
-                    "description": "2D layered material"
+                "has_crystal": {
+                    "description": "crystal",
+                    "type": "string"
+                },
+                "has_layered_2d_material": {
+                    "description": "2D layered material",
+                    "type": "string"
+                },
+                "has_molecular_deposition": {
+                    "description": "deposition",
+                    "type": "string"
+                },
+                "has_wafer_substrate": {
+                    "description": "wafer substrate",
+                    "type": "string"
+                },
+                "is_annealed": {
+                    "description": "annealing",
+                    "type": "string"
+                },
+                "is_sputtered": {
+                    "$ref": "#/$defs/Sputtering",
+                    "description": "sputtering"
                 },
                 "name": {
                     "description": "name",
@@ -3034,11 +3552,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "wafer_substrate": {
-                    "$ref": "#/$defs/WaferSubstrate",
-                    "description": "wafer substrate"
+                "type": {
+                    "enum": [
+                        "Sample"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Sample",
             "type": "object"
         },
@@ -3095,7 +3619,7 @@
             "description": "Scan settings",
             "properties": {
                 "angle": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/AngleQuantityValue",
                     "description": "angle"
                 },
                 "direction_speed": {
@@ -3221,12 +3745,22 @@
             "additionalProperties": false,
             "description": "Simulation",
             "properties": {
+                "comments": {
+                    "description": "comments",
+                    "type": "string"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
                 },
                 "perm_id": {
                     "description": "permanent ID",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Simulation"
+                    ],
                     "type": "string"
                 },
                 "wfms_url": {
@@ -3238,6 +3772,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Simulation",
             "type": "object"
         },
@@ -3257,8 +3795,18 @@
                     "description": "dataset url",
                     "pattern": "(https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\\\.[^\\\\s]{2,}|https?:\\/\\/(?:www\\\\.|(?!www))[a-zA-Z0-9]+\\\\.[^\\\\s]{2,}|www\\\\.[a-zA-Z0-9]+\\\\.[^\\\\s]{2,})",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Software"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Software",
             "type": "object"
         },
@@ -3267,36 +3815,32 @@
             "description": "Sputtering",
             "properties": {
                 "angle": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/AngleQuantityValue",
                     "description": "angle"
-                },
-                "annealing": {
-                    "$ref": "#/$defs/Annealing",
-                    "description": "annealing"
                 },
                 "comments": {
                     "description": "comments",
                     "type": "string"
                 },
                 "current": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current"
                 },
-                "deposition": {
-                    "$ref": "#/$defs/Deposition",
-                    "description": "deposition"
-                },
                 "discharge_voltage": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "discharge voltage"
                 },
                 "duration": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
                 },
                 "name": {
                     "description": "name",
@@ -3307,29 +3851,28 @@
                     "type": "string"
                 },
                 "pressure": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/PressureQuantityValue",
                     "description": "pressure"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
-                },
                 "temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "temperature"
                 },
-                "uhv_components": {
-                    "description": "ultra high vacuum components",
-                    "items": {
-                        "$ref": "#/$defs/UHVComponent"
-                    },
-                    "type": "array"
+                "type": {
+                    "enum": [
+                        "Sputtering"
+                    ],
+                    "type": "string"
                 },
                 "voltage": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "voltage"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Sputtering",
             "type": "object"
         },
@@ -3341,6 +3884,10 @@
                     "description": "comments",
                     "type": "string"
                 },
+                "has_room": {
+                    "$ref": "#/$defs/Room",
+                    "description": "room"
+                },
                 "name": {
                     "description": "name",
                     "type": "string"
@@ -3349,11 +3896,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "room": {
-                    "$ref": "#/$defs/Room",
-                    "description": "room"
+                "type": {
+                    "enum": [
+                        "Storage"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Storage",
             "type": "object"
         },
@@ -3402,11 +3955,21 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "Supplier"
+                    ],
+                    "type": "string"
+                },
                 "work_phone": {
                     "description": "work phone",
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Supplier",
             "type": "object"
         },
@@ -3418,9 +3981,9 @@
                     "description": "description",
                     "type": "string"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -3429,9 +3992,77 @@
                 "perm_id": {
                     "description": "permanent ID",
                     "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "SystemStatus"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "SystemStatus",
+            "type": "object"
+        },
+        "TemperatureQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with temperature unit",
+            "properties": {
+                "has_temperature_unit": {
+                    "$ref": "#/$defs/TemperatureUnitsEnum",
+                    "description": "Temperature unit"
+                },
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "type": {
+                    "enum": [
+                        "TemperatureQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "TemperatureQuantityValue",
+            "type": "object"
+        },
+        "TemperatureUnitsEnum": {
+            "description": "temperature units",
+            "enum": [
+                "K",
+                "oC",
+                "oF"
+            ],
+            "title": "TemperatureUnitsEnum",
+            "type": "string"
+        },
+        "Thing": {
+            "additionalProperties": false,
+            "description": "",
+            "properties": {
+                "name": {
+                    "description": "name",
+                    "type": "string"
+                },
+                "perm_id": {
+                    "description": "permanent ID",
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "Thing"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "perm_id",
+                "name"
+            ],
+            "title": "Thing",
             "type": "object"
         },
         "TightBinding": {
@@ -3486,6 +4117,12 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "TightBinding"
+                    ],
+                    "type": "string"
+                },
                 "wfms_url": {
                     "description": "wfms url",
                     "type": "string"
@@ -3495,6 +4132,10 @@
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "TightBinding",
             "type": "object"
         },
@@ -3502,15 +4143,19 @@
             "additionalProperties": false,
             "description": "Tip Preparation",
             "properties": {
-                "authors": {
+                "description": {
+                    "description": "description",
+                    "type": "string"
+                },
+                "has_authors": {
                     "description": "authors",
                     "items": {
                         "$ref": "#/$defs/Author"
                     },
                     "type": "array"
                 },
-                "description": {
-                    "description": "description",
+                "has_tip_sensor": {
+                    "description": "tip sensor",
                     "type": "string"
                 },
                 "name": {
@@ -3525,11 +4170,17 @@
                     "$ref": "#/$defs/TipPreparationTypeEnum",
                     "description": "tip preparation type"
                 },
-                "tip_sensor": {
-                    "$ref": "#/$defs/TipSensor",
-                    "description": "tip sensor"
+                "type": {
+                    "enum": [
+                        "TipPreparation"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "TipPreparation",
             "type": "object"
         },
@@ -3554,6 +4205,10 @@
                     "description": "device parameters",
                     "type": "string"
                 },
+                "has_manufacturer": {
+                    "description": "manufacturer",
+                    "type": "string"
+                },
                 "holder_id": {
                     "description": "holder id",
                     "type": "string"
@@ -3561,10 +4216,6 @@
                 "length": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "length"
-                },
-                "manufacturer": {
-                    "$ref": "#/$defs/Manufacturer",
-                    "description": "manufacturer"
                 },
                 "name": {
                     "description": "name",
@@ -3599,11 +4250,21 @@
                     "$ref": "#/$defs/TipSensorTypeEnum",
                     "description": "tip sensor type"
                 },
+                "type": {
+                    "enum": [
+                        "TipSensor"
+                    ],
+                    "type": "string"
+                },
                 "wire_material": {
                     "description": "wire material",
                     "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "TipSensor",
             "type": "object"
         },
@@ -3623,13 +4284,17 @@
                     "description": "description",
                     "type": "string"
                 },
-                "location_after": {
-                    "$ref": "#/$defs/Room",
-                    "description": "location of the sample after the transfer"
+                "has_location_after": {
+                    "description": "location of the sample after the transfer",
+                    "type": "string"
                 },
-                "location_before": {
-                    "$ref": "#/$defs/Room",
-                    "description": "location of the sample before the transfer"
+                "has_location_before": {
+                    "description": "location of the sample before the transfer",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
                 },
                 "name": {
                     "description": "name",
@@ -3639,11 +4304,17 @@
                     "description": "permanent ID",
                     "type": "string"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
+                "type": {
+                    "enum": [
+                        "Transfer"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "Transfer",
             "type": "object"
         },
@@ -3655,20 +4326,16 @@
                     "$ref": "#/$defs/QuantityValue",
                     "description": "amplitude"
                 },
-                "annealing": {
-                    "$ref": "#/$defs/Annealing",
-                    "description": "annealing"
-                },
                 "bias_calibration_factor": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "bias calibration factor"
                 },
                 "bias_calibration_offset": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "bias calibration offset"
                 },
                 "bias_setpoint": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/VoltageQuantityValue",
                     "description": "bias setpoint"
                 },
                 "comments": {
@@ -3688,7 +4355,7 @@
                     "description": "current calibration factor"
                 },
                 "current_calibration_offset": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current calibration offset"
                 },
                 "current_gain": {
@@ -3696,23 +4363,15 @@
                     "description": "current gain"
                 },
                 "current_setpoint": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/CurrentQuantityValue",
                     "description": "current setpoint"
                 },
                 "de": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "step between the E-min and E-max"
                 },
-                "deposition": {
-                    "$ref": "#/$defs/Deposition",
-                    "description": "deposition"
-                },
-                "dft": {
-                    "$ref": "#/$defs/DFT",
-                    "description": "density functional theory"
-                },
                 "duration": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/DurationQuantityValue",
                     "description": "duration"
                 },
                 "dwell_time": {
@@ -3743,9 +4402,25 @@
                     "$ref": "#/$defs/QuantityValue",
                     "description": "full width at half maximum"
                 },
-                "instrument": {
-                    "$ref": "#/$defs/Instrument",
-                    "description": "instrument"
+                "has_dft": {
+                    "description": "density functional theory",
+                    "type": "string"
+                },
+                "has_instrument": {
+                    "description": "instrument",
+                    "type": "string"
+                },
+                "has_sample": {
+                    "$ref": "#/$defs/Sample",
+                    "description": "sample"
+                },
+                "has_tb": {
+                    "description": "tight binding",
+                    "type": "string"
+                },
+                "has_tip_sensor": {
+                    "description": "tip sensor",
+                    "type": "string"
                 },
                 "name": {
                     "description": "name",
@@ -3768,19 +4443,15 @@
                     "description": "piezo configuration settings"
                 },
                 "recording_temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "recording temperature"
                 },
                 "resonance_frequency": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "resonance frequency"
                 },
-                "sample": {
-                    "$ref": "#/$defs/Sample",
-                    "description": "sample"
-                },
                 "sample_temperature": {
-                    "$ref": "#/$defs/QuantityValue",
+                    "$ref": "#/$defs/TemperatureQuantityValue",
                     "description": "sample temperature"
                 },
                 "scan_dx": {
@@ -3804,13 +4475,11 @@
                     "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$",
                     "type": "string"
                 },
-                "tb": {
-                    "$ref": "#/$defs/TightBinding",
-                    "description": "tight binding"
-                },
-                "tip_sensor": {
-                    "$ref": "#/$defs/TipSensor",
-                    "description": "tip sensor"
+                "type": {
+                    "enum": [
+                        "TwoDMeasurement"
+                    ],
+                    "type": "string"
                 },
                 "wfms_uuid": {
                     "description": "wfms uuid",
@@ -3845,6 +4514,10 @@
                     "description": "z position"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "TwoDMeasurement",
             "type": "object"
         },
@@ -3864,9 +4537,9 @@
                     "description": "empa id",
                     "type": "string"
                 },
-                "manufacturer": {
-                    "$ref": "#/$defs/Manufacturer",
-                    "description": "manufacturer"
+                "has_manufacturer": {
+                    "description": "manufacturer",
+                    "type": "string"
                 },
                 "model": {
                     "description": "model",
@@ -3889,11 +4562,21 @@
                     "description": "serial number",
                     "type": "string"
                 },
+                "type": {
+                    "enum": [
+                        "UHVComponent"
+                    ],
+                    "type": "string"
+                },
                 "uhv_component_type": {
                     "$ref": "#/$defs/UHVComponentTypeEnum",
                     "description": "uhv component type"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "UHVComponent",
             "type": "object"
         },
@@ -3941,6 +4624,39 @@
             "title": "VacuumSystemStatusSettings",
             "type": "object"
         },
+        "VoltageQuantityValue": {
+            "additionalProperties": false,
+            "description": "Value together with voltage unit",
+            "properties": {
+                "has_value": {
+                    "description": "Value",
+                    "type": "number"
+                },
+                "has_voltage_unit": {
+                    "$ref": "#/$defs/VoltageUnitsEnum",
+                    "description": "Voltage unit"
+                },
+                "type": {
+                    "enum": [
+                        "VoltageQuantityValue"
+                    ],
+                    "type": "string"
+                }
+            },
+            "title": "VoltageQuantityValue",
+            "type": "object"
+        },
+        "VoltageUnitsEnum": {
+            "description": "voltage units",
+            "enum": [
+                "V",
+                "mV",
+                "uV",
+                "kV"
+            ],
+            "title": "VoltageUnitsEnum",
+            "type": "string"
+        },
         "WaferSubstrate": {
             "additionalProperties": false,
             "description": "Wafer Substrate",
@@ -3949,10 +4665,6 @@
                     "description": "batch",
                     "pattern": "^[a-z]$",
                     "type": "string"
-                },
-                "chemist": {
-                    "$ref": "#/$defs/Chemist",
-                    "description": "chemist"
                 },
                 "comments": {
                     "description": "comments",
@@ -3969,6 +4681,14 @@
                 "fridge": {
                     "description": "fridge",
                     "type": "boolean"
+                },
+                "has_chemist": {
+                    "$ref": "#/$defs/Chemist",
+                    "description": "chemist"
+                },
+                "has_storage": {
+                    "$ref": "#/$defs/Storage",
+                    "description": "storage"
                 },
                 "hazardous": {
                     "description": "hazardous",
@@ -4015,10 +4735,6 @@
                     "description": "sample plate",
                     "type": "string"
                 },
-                "storage": {
-                    "$ref": "#/$defs/Storage",
-                    "description": "storage"
-                },
                 "substrates": {
                     "description": "substrates",
                     "items": {
@@ -4029,8 +4745,18 @@
                 "thickness": {
                     "$ref": "#/$defs/QuantityValue",
                     "description": "thickness"
+                },
+                "type": {
+                    "enum": [
+                        "WaferSubstrate"
+                    ],
+                    "type": "string"
                 }
             },
+            "required": [
+                "perm_id",
+                "name"
+            ],
             "title": "WaferSubstrate",
             "type": "object"
         },

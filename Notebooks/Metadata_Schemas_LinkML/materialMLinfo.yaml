@@ -1283,6 +1283,76 @@ classes:
      - type
      - has_value
      - has_unit
+  TemperatureQuantityValue:
+    title: Temperature quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with temperature unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_temperature_unit
+  PressureQuantityValue:
+    title: Pressure quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with pressure unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_pressure_unit
+  CurrentQuantityValue:
+    title: Current quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with current unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_current_unit
+  AngleQuantityValue:
+    title: Angle quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with angle unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_angle_unit
+  VoltageQuantityValue:
+    title: Voltage quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with voltage unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_voltage_unit
+  DurationQuantityValue:
+    title: Duration quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with duration unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_duration_unit
+  MassQuantityValue:
+    title: Mass quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with mass unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_mass_unit
   EvaporationTemperature:
     title: Evaporation temperature
     description: evaporation temperature details
@@ -1753,7 +1823,7 @@ slots:
       openbis_label: Molecule name (given by Chemist)
   amount:
     description: amount
-    range: QuantityValue
+    range: MassQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Amount
@@ -1778,12 +1848,61 @@ slots:
     annotations:
       openbis_type: REAL
       openbis_label: Value
+  has_temperature_unit:
+    description: Temperature unit
+    range: TemperatureUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_duration_unit:
+    description: Duration unit
+    range: DurationUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
   has_unit:
-    description: Unit
-    range: uriorcurie
+    description: unit
+    range: string
     slot_uri: qudt:hasUnit
     annotations:
       openbis_type: VARCHAR
+      openbis_label: Unit
+  has_mass_unit:
+    description: Mass unit
+    range: MassUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_angle_unit:
+    description: Angle unit
+    range: AngleUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_current_unit:
+    description: Current unit
+    range: CurrentUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_voltage_unit:
+    description: Voltage unit
+    range: VoltageUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_pressure_unit:
+    description: Pressure unit
+    range: PressureUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
   device:
     description: device
@@ -1793,7 +1912,7 @@ slots:
       openbis_label: Device
   temperature:
     description: temperature
-    range: QuantityValue
+    range: TemperatureQuantityValue
     slot_uri: ncit:NCIT_C25206
     annotations:
       openbis_type: JSON
@@ -1806,28 +1925,28 @@ slots:
       openbis_label: Datetime
   duration:
     description: duration
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: ncit:NCIT_C25330
     annotations:
       openbis_type: JSON
       openbis_label: Duration
   pressure:
     description: pressure
-    range: QuantityValue
+    range: PressureQuantityValue
     slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
     annotations:
       openbis_type: JSON
       openbis_label: Pressure
   voltage:
     description: voltage
-    range: QuantityValue
+    range: VoltageQuantityValue
     slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
     annotations:
       openbis_type: JSON
       openbis_label: Voltage
   current:
     description: current
-    range: QuantityValue
+    range: CurrentQuantityValue
     slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
     annotations:
       openbis_type: JSON
@@ -1841,7 +1960,7 @@ slots:
       openbis_label: Start time
   bias_setpoint:
     description: bias setpoint
-    range: QuantityValue
+    range: VoltageQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-field
     annotations:
       openbis_type: JSON
@@ -1855,14 +1974,14 @@ slots:
       openbis_label: Bias calibration factor
   bias_calibration_offset:
     description: bias calibration offset
-    range: QuantityValue
+    range: VoltageQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-offset-field
     annotations:
       openbis_type: JSON
       openbis_label: Bias calibration offset
   current_setpoint:
     description: current setpoint
-    range: QuantityValue
+    range: CurrentQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-field
     annotations:
       openbis_type: JSON
@@ -1876,7 +1995,7 @@ slots:
       openbis_label: Current calibration factor
   current_calibration_offset:
     description: current calibration offset
-    range: QuantityValue
+    range: CurrentQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-offset-field
     annotations:
       openbis_type: JSON
@@ -1978,7 +2097,7 @@ slots:
       openbis_label: Field
   angle:
     description: angle
-    range: QuantityValue
+    range: AngleQuantityValue
     slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
     annotations:
       openbis_type: JSON
@@ -2253,13 +2372,13 @@ slots:
       openbis_label: Dwell time
   sample_temperature:
     description: sample temperature
-    range: QuantityValue
+    range: TemperatureQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Sample temperature
   recording_temperature:
     description: recording temperature
-    range: QuantityValue
+    range: TemperatureQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Recording temperature
@@ -2427,25 +2546,25 @@ slots:
       openbis_label: Reference number
   stabilisation_time:
     description: stabilisation time
-    range: QuantityValue
+    range: DurationQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Stabilisation time
   deposition_time:
     description: deposition time
-    range: QuantityValue
+    range: DurationQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Deposition time
   substrate_temperature:
     description: substrate temperature
-    range: QuantityValue
+    range: TemperatureQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Substrate temperature
   molecule_temperature:
     description: molecule temperature
-    range: QuantityValue
+    range: TemperatureQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Molecule temperature
@@ -2566,13 +2685,13 @@ slots:
       openbis_label: Draft type
   weight_before:
     description: weight before
-    range: QuantityValue
+    range: MassQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Weight before
   weight_after:
     description: weight after
-    range: QuantityValue
+    range: MassQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Weight after
@@ -2865,7 +2984,7 @@ slots:
       openbis_label: Repository URL
   discharge_voltage:
     description: discharge voltage
-    range: QuantityValue
+    range: VoltageQuantityValue
     slot_uri: emmo_electrochemistry:electrochemistry_c7b26177_21bf_4787_b656_8e78edf27f88
     annotations:
       openbis_type: JSON
@@ -2977,42 +3096,42 @@ slots:
       openbis_label: Number of pixels
   z_avg_time:
     description: duration between which the Z position is recorded and averaged before and after the sweep
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-z-avg-time-field
     annotations:
       openbis_type: JSON
       openbis_label: Z average time
   first_settling_time:
     description: additional time to wait (in addition to the Settling Time) after the bias has ramped to the starting point of the sweep
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-first-settling-time-field
     annotations:
       openbis_type: JSON
       openbis_label: First settling time
   settling_time:
     description: time to wait after changing the bias to the next level and before starting to acquire data
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-settling-time-field
     annotations:
       openbis_type: JSON
       openbis_label: Settling time
   integration_time:
     description: time during which the data are acquired and averaged
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-integration-time-field
     annotations:
       openbis_type: JSON
       openbis_label: Integration time
   end_settling_time:
     description: time to wait after the sweep has finished and the bias is ramped to the initial value
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-end-settling-time-field
     annotations:
       openbis_type: JSON
       openbis_label: End settling time
   z_control_time:
     description: time during which the Z-controller is enabled once a sweep has finished
-    range: QuantityValue
+    range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-time-field
     annotations:
       openbis_type: JSON
@@ -3110,7 +3229,7 @@ slots:
       openbis_label: Sweep distance (Z spectroscopy)
   z_spectroscopy_time_between_forward_backward:
     description: time to wait in seconds between the forward and the backward sweep
-    range: QuantityValue
+    range: DurationQuantityValue
     annotations:
       openbis_type: JSON
       openbis_label: Time between forward and backward (Z spectroscopy)
@@ -3955,16 +4074,141 @@ enums:
     permissible_values:
       mg:
         meaning: unit:MilliGM
-        description: milligrams
+        description: milligram
         annotations:
-          openbis_label: Milligrams
+          openbis_label: Milligram
       g:
         meaning: unit:GM
-        description: grams
+        description: gram
         annotations:
-          openbis_label: Grams
+          openbis_label: Gram
       kg:
         meaning: unit:KiloGM
-        description: kilograms
+        description: kilogram
         annotations:
-          openbis_label: Kilograms
+          openbis_label: Kilogram
+  PressureUnitsEnum:
+    description: pressure units
+    annotations:
+      openbis_label: Pressure units vocabulary
+    permissible_values:
+      mBar:
+        meaning: unit:MilliBAR
+        description: millibar
+        annotations:
+          openbis_label: Millibar
+      Bar:
+        meaning: unit:BAR
+        description: bar
+        annotations:
+          openbis_label: Grams
+      Pa:
+        meaning: unit:PA
+        description: pascal
+        annotations:
+          openbis_label: Pascal
+      kPa:
+        meaning: unit:KiloPA
+        description: kilopascal
+        annotations:
+          openbis_label: Kilopascal
+  TemperatureUnitsEnum:
+    description: temperature units
+    annotations:
+      openbis_label: Temperature units vocabulary
+    permissible_values:
+      K:
+        meaning: unit:K
+        description: kelvin
+        annotations:
+          openbis_label: Kelvin
+      oC:
+        meaning: unit:DEG_C
+        description: celsius
+        annotations:
+          openbis_label: Celsius
+      oF:
+        meaning: unit:DEG_F
+        description: fahrenheit
+        annotations:
+          openbis_label: Fahrenheit
+  DurationUnitsEnum:
+    description: duration units
+    annotations:
+      openbis_label: Duration units vocabulary
+    permissible_values:
+      sec:
+        meaning: unit:SEC
+        description: second
+        annotations:
+          openbis_label: Second
+      min:
+        meaning: unit:MIN
+        description: minute
+        annotations:
+          openbis_label: Minute
+      hr:
+        meaning: unit:HR
+        description: hour
+        annotations:
+          openbis_label: Hour
+  CurrentUnitsEnum:
+    description: current units
+    annotations:
+      openbis_label: Current units vocabulary
+    permissible_values:
+      A:
+        meaning: unit:A
+        description: ampere
+        annotations:
+          openbis_label: Ampere
+      mA:
+        meaning: unit:MilliA
+        description: milliampere
+        annotations:
+          openbis_label: Milliampere
+      uA:
+        meaning: unit:MicroA
+        description: microampere
+        annotations:
+          openbis_label: Microampere
+  VoltageUnitsEnum:
+    description: voltage units
+    annotations:
+      openbis_label: Voltage units vocabulary
+    permissible_values:
+      V:
+        meaning: unit:V
+        description: volt
+        annotations:
+          openbis_label: Volt
+      mV:
+        meaning: unit:MilliV
+        description: millivolt
+        annotations:
+          openbis_label: Millivolt
+      uV:
+        meaning: unit:MicroV
+        description: microvolt
+        annotations:
+          openbis_label: Microvolt
+      kV:
+        meaning: unit:KiloV
+        description: kilovolt
+        annotations:
+          openbis_label: Kilovolt
+  AngleUnitsEnum:
+    description: angle units
+    annotations:
+      openbis_label: Angle units vocabulary
+    permissible_values:
+      deg:
+        meaning: unit:DEG
+        description: degree
+        annotations:
+          openbis_label: Degree
+      rad:
+        meaning: unit:RAD
+        description: radian
+        annotations:
+          openbis_label: Radian
