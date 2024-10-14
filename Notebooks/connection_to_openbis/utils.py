@@ -10,10 +10,14 @@ sys.path.append('/home/jovyan/aiida-openbis/Notebooks/importer')
 import nanonis_importer
 import pandas as pd
 import numpy as np
+import yaml
 
 def read_json(filename):
     with open(filename, 'r') as file:
         return json.load(file)
+
+def read_yaml(filepath: str):
+    return yaml.safe_load(open(filepath, 'r'))
 
 def create_json(json_content, filename):
     with open(filename, 'w') as file:
@@ -24,139 +28,176 @@ def close_notebook(b):
 
 class AppWidgets():
     def __init__(self, method_type, config_filename):
-        self.config = read_json(config_filename)
-        self.openbis_session = None
         self.method_type = method_type
-        self.raw_materials_types = self.config["raw_materials_types"]
-        self.process_sample_types = self.config["process_sample_types"]
-        self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
-        self.measurement_file_extensions = self.config["measurement_file_extensions"]
+        self.openbis_session, self.session_data = self.connect_openbis()
+        self.config = read_json(config_filename)
         
-        self.support_files_uploader = widgets.FileUpload(multiple = True)
-        
-        self.materials_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '350px'))
-        self.material_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
-        self.material_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
-        self.material_metadata_boxes = widgets.HBox([self.material_details_textbox, self.material_image_box])
-        self.material_selection_radio_button = self.Radiobuttons(description = '', options = self.config["materials_options"], disabled = False, layout = widgets.Layout(width = '300px'), style = {'description_width': "100px"})
-        material_sorting_checkboxes_list = self.SortingCheckboxes("50px", "60px", "200px")
-        self.material_sorting_checkboxes = widgets.HBox([e for e in material_sorting_checkboxes_list])
-        
-        self.samples_dropdown = self.Dropdown(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), style = {'description_width': "110px"})
-        self.sample_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
-        sample_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
-        self.sample_sorting_checkboxes = widgets.HBox([e for e in sample_sorting_checkboxes_list])
-        self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
+        if self.method_type == "home":
+            # Home page configuration
+            self.openbis_connection_status_htmlbox = self.HTML(value = '')
+            if self.openbis_session:
+                self.openbis_connection_status_htmlbox.value = "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>"
+                self.open_notebooks_html_enable_code = ''.join(self.config["home_page"]["enable_links"])
+                self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_enable_code)
+            else:
+                self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
+                self.openbis_connection_status_htmlbox.value = "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
+                self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_disable_code)
+        else:
+            self.raw_materials_types = self.config["raw_materials_types"]
+            self.process_sample_types = self.config["process_sample_types"]
+            self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
+            self.measurement_file_extensions = self.config["measurement_file_extensions"]
+            
+            self.openbis_schema = read_yaml("/home/jovyan/aiida-openbis/Notebooks/Metadata_Schemas_LinkML/materialMLinfo.yaml")
+            
+            self.support_files_uploader = widgets.FileUpload(multiple = True)
+            
+            self.materials_dropdown = self.Dropdown(description='', disabled=False, layout = widgets.Layout(width = '350px'))
+            self.material_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
+            self.material_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
+            self.material_metadata_boxes = widgets.HBox([self.material_details_textbox, self.material_image_box])
+            self.material_selection_radio_button = self.Radiobuttons(description = '', options = self.config["materials_options"], disabled = False, layout = widgets.Layout(width = '300px'), style = {'description_width': "100px"})
+            material_sorting_checkboxes_list = self.SortingCheckboxes("50px", "60px", "200px")
+            self.material_sorting_checkboxes = widgets.HBox([e for e in material_sorting_checkboxes_list])
+            
+            self.samples_dropdown = self.Dropdown(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), style = {'description_width': "110px"})
+            self.sample_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
+            sample_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
+            self.sample_sorting_checkboxes = widgets.HBox([e for e in sample_sorting_checkboxes_list])
+            self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
 
-        self.instruments_dropdown = self.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
-        instrument_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
-        self.instrument_sorting_checkboxes = widgets.HBox([e for e in instrument_sorting_checkboxes_list])
-        self.instruments_dropdown_boxes = widgets.VBox([self.instruments_dropdown, self.instrument_sorting_checkboxes])
-        
-        self.create_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = widgets.Layout(width = '50px', height = '25px'))
-        self.save_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
-        self.cancel_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
-        self.new_experiment_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...", style = {'description_width': "110px"})
-        
-        self.projects_dropdown = self.Dropdown(description='Project', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
-        project_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
-        self.project_sorting_checkboxes = widgets.HBox([e for e in project_sorting_checkboxes_list])
-        self.projects_dropdown_boxes = widgets.VBox([self.projects_dropdown, self.project_sorting_checkboxes])
-        
-        self.experiments_dropdown = self.Dropdown(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
-        experiment_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
-        self.experiment_sorting_checkboxes = widgets.HBox([e for e in experiment_sorting_checkboxes_list])
-        self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
-        self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
-        
-        # Quantity properties widgets
-        self.duration_hbox = self.QuantityValuePropertyBox("Duration", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["duration"]["units"], "sec")
-        self.pressure_hbox = self.QuantityValuePropertyBox("Pressure", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["pressure"]["units"], "mBar")
-        self.discharge_voltage_hbox = self.QuantityValuePropertyBox("Discharge voltage", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["discharge_voltage"]["units"], "kV")
-        self.voltage_hbox = self.QuantityValuePropertyBox("Voltage", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["voltage"]["units"], "V")
-        self.temperature_hbox = self.QuantityValuePropertyBox("Temperature", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["temperature"]["units"], "K")
-        self.current_hbox = self.QuantityValuePropertyBox("Current", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["current"]["units"], "A")
-        self.angle_hbox = self.QuantityValuePropertyBox("Angle", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["angle"]["units"], "deg")
-        self.stabilisation_time_hbox = self.QuantityValuePropertyBox("Stabilisation time", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["stabilisation_time"]["units"], "sec")
-        self.deposition_time_hbox = self.QuantityValuePropertyBox("Deposition time", widgets.Layout(width = '200px'), 0, {'description_width': "110px"}, widgets.Layout(width = '100px'), self.config["properties"]["deposition_time"]["units"], "sec")
-        self.substrate_temperature_hbox = self.QuantityValuePropertyBox("Substrate temperature", widgets.Layout(width = '250px'), 0, {'description_width': "150px"}, widgets.Layout(width = '100px'), self.config["properties"]["substrate_temperature"]["units"], "K")
-        self.molecule_temperature_hbox = self.QuantityValuePropertyBox("Angle", widgets.Layout(width = '250px'), 0, {'description_width': "150px"}, widgets.Layout(width = '100px'), self.config["properties"]["molecule_temperature"]["units"], "K")
+            self.instruments_dropdown = self.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+            instrument_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
+            self.instrument_sorting_checkboxes = widgets.HBox([e for e in instrument_sorting_checkboxes_list])
+            self.instruments_dropdown_boxes = widgets.VBox([self.instruments_dropdown, self.instrument_sorting_checkboxes])
+            
+            self.create_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = widgets.Layout(width = '50px', height = '25px'))
+            self.save_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
+            self.cancel_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
+            self.new_experiment_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...", style = {'description_width': "110px"})
+            
+            self.projects_dropdown = self.Dropdown(description='Project', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+            project_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
+            self.project_sorting_checkboxes = widgets.HBox([e for e in project_sorting_checkboxes_list])
+            self.projects_dropdown_boxes = widgets.VBox([self.projects_dropdown, self.project_sorting_checkboxes])
+            
+            self.experiments_dropdown = self.Dropdown(description='Experiment', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+            experiment_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
+            self.experiment_sorting_checkboxes = widgets.HBox([e for e in experiment_sorting_checkboxes_list])
+            self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
+            self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
+            
+            self.molecules_dropdown = self.Dropdown(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), style = {'description_width': "110px"})
+            self.molecule_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
+            self.molecule_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
+            molecule_sorting_checkboxes_list = self.SortingCheckboxes("170px", "60px", "200px")
+            self.molecule_sorting_checkboxes = widgets.HBox([e for e in molecule_sorting_checkboxes_list])
+            self.molecule_metadata_boxes = widgets.HBox([widgets.VBox([self.molecules_dropdown, self.molecule_sorting_checkboxes]), self.molecule_details_textbox, self.molecule_image_box])
 
-        self.molecules_dropdown = self.Dropdown(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), style = {'description_width': "110px"})
-        self.molecule_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
-        self.molecule_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
-        molecule_sorting_checkboxes_list = self.SortingCheckboxes("170px", "60px", "200px")
-        self.molecule_sorting_checkboxes = widgets.HBox([e for e in molecule_sorting_checkboxes_list])
-        self.molecule_metadata_boxes = widgets.HBox([widgets.VBox([self.molecules_dropdown, self.molecule_sorting_checkboxes]), self.molecule_details_textbox, self.molecule_image_box])
-
-        self.evaporation_slot_value_intslider = self.IntSlider(value = 1, description = 'Evaporation slot', min = 1, max = 6, disabled = False, layout = widgets.Layout(width = '300px'), style = {'description_width': "150px"})
-        self.evaporation_slot_details_textbox = self.Text(value = '', description = '', placeholder= "Write evaporator slot details...", disabled = False, layout = widgets.Layout(width = '300px'))
-        self.evaporation_slot_hbox = widgets.HBox([self.evaporation_slot_value_intslider, self.evaporation_slot_details_textbox])
-        self.molecule_formula_textbox = self.Text(description = "Substance", disabled = False, layout = widgets.Layout(width = '350px'), placeholder = f"Write substance formula here...", style = {'description_width': "110px"})
-        
-        # Properties according to the process
-        method_mapping = {
-            "sputtering": {
-                "left": [self.duration_hbox, self.pressure_hbox, self.discharge_voltage_hbox, self.voltage_hbox],
-                "right": [self.temperature_hbox, self.angle_hbox, self.current_hbox]
-            },
-            "annealing": {
-                "left": [self.duration_hbox, self.pressure_hbox, self.voltage_hbox],
-                "right": [self.temperature_hbox, self.current_hbox]
-            },
-            "deposition": {
-                "left": [self.stabilisation_time_hbox, self.deposition_time_hbox, self.pressure_hbox],
-                "right": [self.substrate_temperature_hbox, self.molecule_temperature_hbox, self.evaporation_slot_hbox]
-            },
-            "dosing": {
-                "left": [self.molecule_formula_textbox, self.pressure_hbox],
-                "right": [self.pressure_hbox, self.temperature_hbox]
+            self.method_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...", style = {'description_width': "150px"})
+            self.comments_textbox = self.Textarea(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
+            
+            # Quantity properties widgets
+            self.property_widgets = {
+                "duration": self.QuantityValuePropertyWidget("Duration", widgets.Layout(width = self.config["properties"]["duration"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["duration"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["duration"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["duration"]["units"], self.config["properties"]["duration"]["units"][0]),
+                
+                "pressure": self.QuantityValuePropertyWidget("Pressure", widgets.Layout(width = self.config["properties"]["pressure"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["pressure"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["pressure"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["pressure"]["units"], self.config["properties"]["pressure"]["units"][0]),
+                
+                "discharge_voltage": self.QuantityValuePropertyWidget("Discharge voltage", widgets.Layout(width = self.config["properties"]["discharge_voltage"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["discharge_voltage"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["discharge_voltage"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["discharge_voltage"]["units"], self.config["properties"]["discharge_voltage"]["units"][0]),
+                
+                "voltage": self.QuantityValuePropertyWidget("Voltage", widgets.Layout(width = self.config["properties"]["voltage"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["voltage"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["voltage"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["voltage"]["units"], self.config["properties"]["voltage"]["units"][0]),
+                
+                "temperature": self.QuantityValuePropertyWidget("Temperature", widgets.Layout(width = self.config["properties"]["temperature"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["temperature"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["temperature"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["temperature"]["units"], self.config["properties"]["temperature"]["units"][0]),
+                
+                "current": self.QuantityValuePropertyWidget("Current", widgets.Layout(width = self.config["properties"]["current"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["current"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["current"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["current"]["units"], self.config["properties"]["current"]["units"][0]),
+                
+                "angle": self.QuantityValuePropertyWidget("Angle", widgets.Layout(width = self.config["properties"]["angle"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["angle"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["angle"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["angle"]["units"], self.config["properties"]["angle"]["units"][0]),
+                
+                "stabilisation_time": self.QuantityValuePropertyWidget("Stabilisation time", widgets.Layout(width = self.config["properties"]["stabilisation_time"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["stabilisation_time"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["stabilisation_time"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["stabilisation_time"]["units"], self.config["properties"]["stabilisation_time"]["units"][0]),
+                
+                "deposition_time": self.QuantityValuePropertyWidget("Deposition time", widgets.Layout(width = self.config["properties"]["deposition_time"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["deposition_time"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["deposition_time"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["deposition_time"]["units"], self.config["properties"]["deposition_time"]["units"][0]),
+                
+                "substrate_temperature": self.QuantityValuePropertyWidget("Substrate temperature", widgets.Layout(width = self.config["properties"]["substrate_temperature"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["substrate_temperature"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["substrate_temperature"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["substrate_temperature"]["units"], self.config["properties"]["substrate_temperature"]["units"][0]),
+                
+                "molecule_temperature": self.QuantityValuePropertyWidget("Angle", widgets.Layout(width = self.config["properties"]["angle"]["box_layout"]["width"]), 
+                                                             0, {'description_width': self.config["properties"]["angle"]["box_layout"]["description_width"]}, 
+                                                             widgets.Layout(width = self.config["properties"]["angle"]["dropdown_layout"]["width"]), 
+                                                             self.config["properties"]["angle"]["units"], self.config["properties"]["angle"]["units"][0]),
+                "sum_formula": self.Text(description = "Substance", disabled = False, layout = widgets.Layout(width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
+                                         placeholder = f"Write substance formula here...", style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}),
+                
+                "evaporator_slot": self.EvaporationSlotPropertyWidget(1, 'Evaporation slot', [1,6], widgets.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
+                                                                      {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
+                                                                      "Write evaporator slot details...", widgets.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"]))
             }
-        }
-        
-        # Get the properties based on the method type
-        method = method_mapping.get(self.method_type)
+            
+            if self.method_type in self.config["objects"].keys():
+                items = [self.property_widgets[prop] for prop in self.config["objects"][self.method_type]["properties"]]
+                self.method_properties = widgets.VBox(items)
 
-        # Check if the method type exists in the dictionary
-        if self.method_type.upper() in self.process_sample_types:
-            self.properties_on_left = widgets.VBox(method["left"])
-            self.properties_on_right = widgets.VBox(method["right"])
-            self.method_properties = widgets.HBox([self.properties_on_left, self.properties_on_right])
-
-        self.comments_textbox = self.Textarea(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "110px"})
-        self.method_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...", style = {'description_width': "110px"})
-        self.sample_out_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write sample name here...", style = {'description_width': "110px"})
-        self.create_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '100px', height = '50px'))
-        self.quit_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Main menu', icon = 'home', layout = widgets.Layout(width = '100px', height = '50px'))
-        self.bottom_buttons_hbox = widgets.HBox([self.create_button, self.quit_button])
-        self.folder_selector = self.FileChooser(path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
-        
-        # Home page configuration
-        self.openbis_connection_status_htmlbox = self.HTML(value = '')
-        self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
-        self.open_notebooks_html_enable_code = ''.join(self.config["home_page"]["enable_links"])
-        self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_disable_code)
-        
-        # Assign functions to widgets
-        self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
-        self.cancel_new_experiment_button.on_click(self.cancel_new_experiment_button_on_click)
-        self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
-        
-        # Increase buttons icons' size
-        self.increase_buttons_size = HTML("""
-        <style>
-            .fa-save {
-                font-size: 2em !important; /* Increase icon size */
-            }
-            .fa-home {
-                font-size: 2em !important; /* Increase icon size */
-            }
-            .fa-times {
-                font-size: 2em !important; /* Increase icon size */
-            }
-        </style>
-        """)
-        display(self.increase_buttons_size)
+            self.sample_out_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write sample name here...", style = {'description_width': "110px"})
+            self.create_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = widgets.Layout(width = '100px', height = '50px'))
+            self.quit_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Main menu', icon = 'home', layout = widgets.Layout(width = '100px', height = '50px'))
+            self.bottom_buttons_hbox = widgets.HBox([self.create_button, self.quit_button])
+            self.folder_selector = self.FileChooser(path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
+            
+            # Assign functions to widgets
+            self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
+            self.cancel_new_experiment_button.on_click(self.cancel_new_experiment_button_on_click)
+            self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
+            
+            # Increase buttons icons' size
+            self.increase_buttons_size = HTML("""
+            <style>
+                .fa-save {
+                    font-size: 2em !important; /* Increase icon size */
+                }
+                .fa-home {
+                    font-size: 2em !important; /* Increase icon size */
+                }
+                .fa-times {
+                    font-size: 2em !important; /* Increase icon size */
+                }
+            </style>
+            """)
+            display(self.increase_buttons_size)
+    
+    @staticmethod
+    def EvaporationSlotPropertyWidget(*args):
+        evaporation_slot_value_intslider = AppWidgets.IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][1], disabled = False, layout = args[3], style = args[4])
+        evaporation_slot_details_textbox = AppWidgets.Text(value = '', description = '', placeholder= args[5], disabled = False, layout = args[6])
+        return widgets.HBox([evaporation_slot_value_intslider, evaporation_slot_details_textbox])
     
     @staticmethod
     def SortingCheckboxes(*args):
@@ -167,7 +208,7 @@ class AppWidgets():
         ]
     
     @staticmethod
-    def QuantityValuePropertyBox(*args):
+    def QuantityValuePropertyWidget(*args):
         value_floatbox = AppWidgets.FloatText(description=args[0], disabled=False, layout = args[1], value = args[2], style = args[3])
         unit_dropdown = AppWidgets.Dropdown(description='', disabled=False, layout = args[4], options = args[5], value = args[6])
         return widgets.HBox([value_floatbox, unit_dropdown])
@@ -234,6 +275,23 @@ class AppWidgets():
     @staticmethod
     def dataframe_to_list_of_tuples(df):
         return list(df.itertuples(index = False, name = None))
+
+    @staticmethod
+    def connect_openbis():
+        try:
+            eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
+            eln_config.parent.mkdir(parents=True, exist_ok=True)  # making sure that the folder exists.
+            config = read_json(eln_config)
+            eln_url = "https://local.openbis.ch"
+            eln_token = config[eln_url]["token"]
+            session_data = {"url": eln_url, "token": eln_token}
+            openbis_session = Openbis(eln_url, verify_certificates = False)
+            openbis_session.set_token(eln_token)
+        except ValueError:
+            openbis_session = None
+            session_data = {}
+        
+        return openbis_session, session_data
     
     def create_new_experiment_button_on_click(self, b):
         clear_output()
@@ -281,18 +339,6 @@ class AppWidgets():
         experiment_code = self.get_next_experiment_code()
         experiment = self.openbis_session.new_experiment(code = experiment_code, type = "EXPERIMENT", project = project_id, props = {"$name": experiment_name})
         experiment.save()
-    
-    def connect_openbis(self):
-        eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
-        eln_config.parent.mkdir(parents=True, exist_ok=True)  # making sure that the folder exists.
-
-        config = read_json(eln_config)
-        eln_url = "https://local.openbis.ch"
-        eln_token = config[eln_url]["token"]
-        
-        self.session_data = {"url": eln_url, "token": eln_token}
-        self.openbis_session = Openbis(eln_url, verify_certificates = False)
-        self.openbis_session.set_token(eln_token)
     
     def create_openbis_object(self, **kwargs):
         openbis_object = self.openbis_session.new_object(**kwargs)
@@ -420,35 +466,17 @@ class AppWidgets():
         object_properties = {
             "$name": self.method_name_textbox.value,
             "comments": self.comments_textbox.value,
-            "pressure": json.dumps({"value": self.pressure_value_floatbox.value, "unit": self.pressure_unit_dropdown.value}),
-        }
+            }
+        
+        for prop in self.config["objects"][self.method_type]["properties"]:
+            if prop == "evaporator_slot":
+                object_properties[prop] = {"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value}
+            elif prop == "sum_formula":
+                object_properties[prop] = self.property_widgets[prop]
+            else:
+                object_properties[prop] = {"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value}
 
-        # Add additional properties based on method type
-        if self.method_type in ["sputtering", "annealing", "dosing"]:
-            object_properties.update({
-                "duration": json.dumps({"value": self.duration_value_floatbox.value, "unit": self.duration_unit_dropdown.value}),
-                "temperature": json.dumps({"value": self.temperature_value_floatbox.value, "unit": self.temperature_unit_dropdown.value}),
-            })
-            if self.method_type in ["sputtering", "annealing"]:
-                object_properties.update({
-                    "voltage": json.dumps({"value": self.voltage_value_floatbox.value, "unit": self.voltage_unit_dropdown.value}),
-                    "current": json.dumps({"value": self.current_value_floatbox.value, "unit": self.current_unit_dropdown.value}),
-                })
-                if self.method_type == "sputtering":
-                    object_properties.update({
-                        "discharge_voltage": json.dumps({"value": self.discharge_voltage_value_floatbox.value, "unit": self.discharge_voltage_unit_dropdown.value}),
-                        "angle": json.dumps({"value": self.angle_value_floatbox.value, "unit": self.angle_unit_dropdown.value}),
-                    })
-        elif self.method_type == "deposition":
-            object_properties.update({
-                "stabilisation_time": json.dumps({"value": self.stabilisation_time_value_floatbox.value, "unit": self.stabilisation_time_unit_dropdown.value}),
-                "deposition_time": json.dumps({"value": self.deposition_time_value_floatbox.value, "unit": self.deposition_time_unit_dropdown.value}),
-                "substrate_temperature": json.dumps({"value": self.substrate_temperature_value_floatbox.value, "unit": self.substrate_temperature_unit_dropdown.value}),
-                "molecule_temperature": json.dumps({"value": self.molecule_temperature_value_floatbox.value, "unit": self.molecule_temperature_unit_dropdown.value}),
-                "evaporator_slot": json.dumps({"evaporator_number": self.evaporation_slot_value_intslider.value, "details": self.evaporation_slot_details_textbox.value}),
-            })
-
-        method_object = self.create_openbis_object(self.method_type.upper(), self.experiments_dropdown.value, object_properties, sample_parents)
+        method_object = self.create_openbis_object(type = self.method_type.upper(), collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
         self.upload_datasets(method_object)
 
         # Turn off sample visibility
@@ -457,7 +485,7 @@ class AppWidgets():
         parent_sample.save()
 
         sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
-        self.create_openbis_object("SAMPLE", self.samples_collection_openbis_path, sample_props, [method_object])
+        self.create_openbis_object(type = "SAMPLE", collection = self.samples_collection_openbis_path, props = sample_props, parents = [method_object])
         print("Upload successful!")
     
     # Function to handle changes in the materials dropdown
@@ -563,7 +591,8 @@ class AppWidgets():
             items = self.openbis_session.get_objects(type = type)
             if type == "SAMPLE":
                 items = self.filter_samples(items)
-            if type == "MOLECULE":
+                items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
+            elif type == "MOLECULE":
                 items_names_permids = [(f"{item.props['empa_number']}{item.props['batch']} ({item.permId})", item.permId) for item in items]
             else:
                 items_names_permids = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]

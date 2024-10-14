@@ -47,37 +47,175 @@
     "materials_options": ["No material", "Crystal", "Wafer substrate", "2D-layer material"],
     "properties": {
         "duration": {
-            "units": ["sec", "min", "hrs"]
+            "description": "Duration",
+            "units": ["sec", "min", "hrs"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "pressure": {
-            "units": ["mBar", "Bar", "Pa", "kPa"]
+            "description": "Pressure",
+            "units": ["mBar", "Bar", "Pa", "kPa"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "discharge_voltage": {
-            "units": ["V", "kV"]
+            "description": "Discharge voltage",
+            "units": ["V", "kV"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "voltage": {
-            "units": ["uV", "mV", "V"]
+            "description": "Voltage",
+            "units": ["uV", "mV", "V"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "temperature": {
-            "units": ["oC", "K"]
+            "description": "Temperature",
+            "units": ["oC", "K"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "current": {
-            "units": ["uA", "mA", "A"]
+            "description": "Current",
+            "units": ["uA", "mA", "A"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "angle": {
-            "units": ["deg", "rad"]
+            "units": ["deg", "rad"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "stabilisation_time": {
-            "units": ["sec", "min", "hrs"]
+            "units": ["sec", "min", "hrs"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "deposition_time": {
-            "units": ["sec", "min", "hrs"]
+            "units": ["sec", "min", "hrs"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "substrate_temperature": {
-            "units": ["oC", "K"]
+            "units": ["oC", "K"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "molecule_temperature": {
-            "units": ["oC", "K"]
+            "units": ["oC", "K"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "sum_formula": {
+            "box_layout":{
+                "width": "350px",
+                "description_width": "150px"
+            }
+        },
+        "evaporator_slot": {
+            "box_layout":{
+                "width": "300px"
+            },
+            "slider_layout":{
+                "width": "350px",
+                "description_width": "150px"
+            }
+        }
+    },
+    "objects": {
+        "sputtering": {
+            "properties": [
+                "duration", 
+                "pressure",
+                "discharge_voltage",
+                "voltage",
+                "temperature",
+                "angle",
+                "current"
+            ]
+        },
+        "annealing": {
+            "properties": [
+                "duration", 
+                "pressure",
+                "voltage",
+                "temperature",
+                "current"
+            ]
+        },
+        "deposition": {
+            "properties": [
+                "stabilisation_time", 
+                "deposition_time",
+                "pressure",
+                "substrate_temperature",
+                "molecule_temperature",
+                "evaporator_slot"
+            ]
+        },
+        "dosing": {
+            "properties": [
+                "sum_formula", 
+                "duration",
+                "pressure",
+                "temperature"
+            ]
         }
     },
     "home_page": {
@@ -128,5 +266,4 @@
             "</div>"
         ]
     }
-
 }
