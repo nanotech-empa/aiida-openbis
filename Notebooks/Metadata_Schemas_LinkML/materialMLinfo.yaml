@@ -81,8 +81,8 @@ classes:
      - periodic_boundary_conditions
      - optimised
      - wfms_uuid
-     - has_crystal
-     - has_molecule
+     - uses_crystal
+     - uses_molecule
   Author:
     title: Author
     is_a: Thing
@@ -183,7 +183,7 @@ classes:
      - molecule_temperature
      - evaporator_slot
      - comments
-     - has_molecule
+     - uses_substance
      - has_instrument
      - has_sample
   DFT: 
@@ -221,13 +221,13 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - sum_formula
      - duration
      - pressure
      - temperature
      - comments
      - has_instrument
      - has_sample
+     - uses_molecule
   Draft:
     title: Draft
     is_a: Thing
@@ -275,7 +275,7 @@ classes:
     slots:
      - weight_before
      - weight_after
-     - substance
+     - has_molecule
      - dewar
      - comments
      - has_uhv_components
@@ -322,10 +322,10 @@ classes:
       openbis_code: HYDCRAC
       openbis_label: Hydrogen Cracker
     slots:
-     - sum_formula
      - comments
      - has_uhv_components
      - has_instrument
+     - has_molecule
   Institution:
     title: Institution
     is_a: Thing
@@ -473,25 +473,6 @@ classes:
      - sum_formula
      - smiles
      - cas_number
-     - empa_number
-     - batch
-     - vial
-     - hazardous
-     - hazardous_specification
-     - evaporation_temperatures
-     - fridge
-     - no_light
-     - dry
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - chemist_molecule_name
-     - amount
-     - receive_date
-     - comments
-     - has_chemist
-     - has_supplier
-     - has_storage
      - has_precursor_molecules
   Notes:
     title: Notes
@@ -634,7 +615,7 @@ classes:
      - is_sputtered
      - is_annealed
      - has_molecular_deposition
-     - has_crystal
+     - uses_crystal
      - has_layered_2d_material
      - has_wafer_substrate
   Software:
@@ -679,7 +660,37 @@ classes:
       openbis_label: Sublimation Rate Determination
     slots:
      - comments
+     - uses_substance
+  Substance:
+    title: Substance
+    is_a: Thing
+    class_uri: 
+    description: Substance
+    annotations:
+      openbis_object: true
+      openbis_code: SUBST
+      openbis_label: Substance
+    slots:
+     - empa_number
+     - batch
+     - vial
+     - hazardous
+     - hazardous_specification
+     - evaporation_temperatures
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - chemist_molecule_name
+     - amount
+     - receive_date
+     - comments
      - has_molecule
+     - has_chemist
+     - has_storage
+     - has_supplier
   TwoDMeasurement:
     title: 2D Measurement
     is_a: Thing
@@ -1590,6 +1601,11 @@ classes:
         inlined_as_list: true
         range: SRD
         description: sublimation rate determination objects container
+      substances:
+        multivalued: true
+        inlined_as_list: true
+        range: Substance
+        description: substances container
       two_d_measurements:
         multivalued: true
         inlined_as_list: true
@@ -2695,13 +2711,6 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Weight after
-  substance:
-    description: substance
-    range: string
-    slot_uri: schema:Substance
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Substance
   serial_number:
     description: serial number
     range: string
@@ -3616,17 +3625,29 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Tight binding
-  has_crystal:
+  uses_crystal:
     range: Crystal
     description: crystal
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Crystal
-  has_molecule:
+  uses_molecule:
     range: Molecule
     description: molecule
     annotations:
       openbis_type: OBJECT (PARENT)
+      openbis_label: Molecule
+  uses_substance:
+    range: Substance
+    description: substance
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Substance
+  has_molecule:
+    range: Molecule
+    description: molecule
+    annotations:
+      openbis_type: OBJECT
       openbis_label: Molecule
   has_person:
     range: Person

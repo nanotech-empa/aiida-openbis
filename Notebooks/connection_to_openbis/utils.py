@@ -11,6 +11,7 @@ import nanonis_importer
 import pandas as pd
 import numpy as np
 import yaml
+import shutil
 
 def read_json(filename):
     with open(filename, 'r') as file:
@@ -88,7 +89,7 @@ class AppWidgets():
             self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
             self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
             
-            self.molecules_dropdown = self.Dropdown(description='Molecule', disabled=False, layout = widgets.Layout(width = '350px'), style = {'description_width': "110px"})
+            self.molecules_dropdown = self.Dropdown(description='Substance', disabled=False, layout = widgets.Layout(width = '350px'), style = {'description_width': "110px"})
             self.molecule_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
             self.molecule_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
             molecule_sorting_checkboxes_list = self.SortingCheckboxes("170px", "60px", "200px")
@@ -99,68 +100,41 @@ class AppWidgets():
             self.comments_textbox = self.Textarea(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
             
             # Quantity properties widgets
-            self.property_widgets = {
-                "duration": self.QuantityValuePropertyWidget("Duration", widgets.Layout(width = self.config["properties"]["duration"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["duration"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["duration"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["duration"]["units"], self.config["properties"]["duration"]["units"][0]),
-                
-                "pressure": self.QuantityValuePropertyWidget("Pressure", widgets.Layout(width = self.config["properties"]["pressure"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["pressure"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["pressure"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["pressure"]["units"], self.config["properties"]["pressure"]["units"][0]),
-                
-                "discharge_voltage": self.QuantityValuePropertyWidget("Discharge voltage", widgets.Layout(width = self.config["properties"]["discharge_voltage"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["discharge_voltage"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["discharge_voltage"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["discharge_voltage"]["units"], self.config["properties"]["discharge_voltage"]["units"][0]),
-                
-                "voltage": self.QuantityValuePropertyWidget("Voltage", widgets.Layout(width = self.config["properties"]["voltage"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["voltage"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["voltage"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["voltage"]["units"], self.config["properties"]["voltage"]["units"][0]),
-                
-                "temperature": self.QuantityValuePropertyWidget("Temperature", widgets.Layout(width = self.config["properties"]["temperature"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["temperature"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["temperature"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["temperature"]["units"], self.config["properties"]["temperature"]["units"][0]),
-                
-                "current": self.QuantityValuePropertyWidget("Current", widgets.Layout(width = self.config["properties"]["current"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["current"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["current"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["current"]["units"], self.config["properties"]["current"]["units"][0]),
-                
-                "angle": self.QuantityValuePropertyWidget("Angle", widgets.Layout(width = self.config["properties"]["angle"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["angle"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["angle"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["angle"]["units"], self.config["properties"]["angle"]["units"][0]),
-                
-                "stabilisation_time": self.QuantityValuePropertyWidget("Stabilisation time", widgets.Layout(width = self.config["properties"]["stabilisation_time"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["stabilisation_time"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["stabilisation_time"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["stabilisation_time"]["units"], self.config["properties"]["stabilisation_time"]["units"][0]),
-                
-                "deposition_time": self.QuantityValuePropertyWidget("Deposition time", widgets.Layout(width = self.config["properties"]["deposition_time"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["deposition_time"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["deposition_time"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["deposition_time"]["units"], self.config["properties"]["deposition_time"]["units"][0]),
-                
-                "substrate_temperature": self.QuantityValuePropertyWidget("Substrate temperature", widgets.Layout(width = self.config["properties"]["substrate_temperature"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["substrate_temperature"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["substrate_temperature"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["substrate_temperature"]["units"], self.config["properties"]["substrate_temperature"]["units"][0]),
-                
-                "molecule_temperature": self.QuantityValuePropertyWidget("Angle", widgets.Layout(width = self.config["properties"]["angle"]["box_layout"]["width"]), 
-                                                             0, {'description_width': self.config["properties"]["angle"]["box_layout"]["description_width"]}, 
-                                                             widgets.Layout(width = self.config["properties"]["angle"]["dropdown_layout"]["width"]), 
-                                                             self.config["properties"]["angle"]["units"], self.config["properties"]["angle"]["units"][0]),
-                "sum_formula": self.Text(description = "Substance", disabled = False, layout = widgets.Layout(width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
-                                         placeholder = f"Write substance formula here...", style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}),
-                
-                "evaporator_slot": self.EvaporationSlotPropertyWidget(1, 'Evaporation slot', [1,6], widgets.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
-                                                                      {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
-                                                                      "Write evaporator slot details...", widgets.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"]))
-            }
+            self.properties = ["duration", "pressure", "discharge_voltage", "voltage", "temperature",
+                               "current", "angle", "stabilisation_time", "deposition_time", "substrate_temperature",
+                               "molecule_temperature"]
+            self.property_widgets = {}
+            
+            for prop in self.properties:
+                if self.config["properties"][prop]["property_type"] == "quantity_value":
+                    self.property_widgets[prop] = self.FloatTextwithDropdownWidget(
+                        self.config["properties"][prop]["description"], 
+                        widgets.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
+                        0, 
+                        {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
+                        widgets.Layout(width = self.config["properties"][prop]["dropdown_layout"]["width"]), 
+                        self.config["properties"][prop]["units"], 
+                        self.config["properties"][prop]["units"][0]
+                    )
+            
+            self.property_widgets["sum_formula"] = self.Text(
+                description = "Substance sum formula", 
+                disabled = False, 
+                layout = widgets.Layout(
+                    width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
+                    placeholder = f"Write substance formula here...",
+                    style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}
+                )
+            
+            self.property_widgets["evaporator_slot"] = self.IntSliderwithTextWidget(
+                1, 
+                self.config["properties"]["evaporator_slot"]["description"], 
+                [1,6], 
+                widgets.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
+                {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
+                "Write evaporator slot details...", 
+                widgets.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"])
+            )
             
             if self.method_type in self.config["objects"].keys():
                 items = [self.property_widgets[prop] for prop in self.config["objects"][self.method_type]["properties"]]
@@ -193,11 +167,19 @@ class AppWidgets():
             """)
             display(self.increase_buttons_size)
     
+    # @staticmethod
+    # def DropdownwithSortingCheckboxesWidget(*args):
+    #     dropdown = AppWidgets.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+    #     sorting_checkboxes_list = AppWidgets.SortingCheckboxes("130px", "60px", "200px")
+    #     widgets = [dropdown]
+    #     widgets.extend(sorting_checkboxes_list)
+    #     return widgets.VBox(widgets)
+    
     @staticmethod
-    def EvaporationSlotPropertyWidget(*args):
-        evaporation_slot_value_intslider = AppWidgets.IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][1], disabled = False, layout = args[3], style = args[4])
-        evaporation_slot_details_textbox = AppWidgets.Text(value = '', description = '', placeholder= args[5], disabled = False, layout = args[6])
-        return widgets.HBox([evaporation_slot_value_intslider, evaporation_slot_details_textbox])
+    def IntSliderwithTextWidget(*args):
+        intslider = AppWidgets.IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][1], disabled = False, layout = args[3], style = args[4])
+        textbox = AppWidgets.Text(value = '', description = '', placeholder= args[5], disabled = False, layout = args[6])
+        return widgets.HBox([intslider, textbox])
     
     @staticmethod
     def SortingCheckboxes(*args):
@@ -208,10 +190,10 @@ class AppWidgets():
         ]
     
     @staticmethod
-    def QuantityValuePropertyWidget(*args):
-        value_floatbox = AppWidgets.FloatText(description=args[0], disabled=False, layout = args[1], value = args[2], style = args[3])
-        unit_dropdown = AppWidgets.Dropdown(description='', disabled=False, layout = args[4], options = args[5], value = args[6])
-        return widgets.HBox([value_floatbox, unit_dropdown])
+    def FloatTextwithDropdownWidget(*args):
+        floatbox = AppWidgets.FloatText(description=args[0], disabled=False, layout = args[1], value = args[2], style = args[3])
+        dropdown = AppWidgets.Dropdown(description='', disabled=False, layout = args[4], options = args[5], value = args[6])
+        return widgets.HBox([floatbox, dropdown])
     
     @staticmethod
     def IntSlider(**kwargs):
@@ -378,6 +360,7 @@ class AppWidgets():
         if material_dataset:
             material_dataset.download(destination="images")
             self.material_image_box.value = self.read_file(f"images/{material_dataset.permId}/{material_dataset.file_list[0]}")
+            shutil.rmtree(f"images/{material_dataset.permId}")
         else:
             self.material_image_box.value = self.read_file("images/white_screen.jpg")
         
@@ -455,7 +438,7 @@ class AppWidgets():
             return
         
         if self.molecules_dropdown.value == -1 and self.method_type == "deposition":
-            print("Select a molecule.")
+            print("Select a substance.")
             return
 
         # Prepare sample parents based on method type
@@ -488,21 +471,28 @@ class AppWidgets():
         self.create_openbis_object(type = "SAMPLE", collection = self.samples_collection_openbis_path, props = sample_props, parents = [method_object])
         print("Upload successful!")
     
-    # Function to handle changes in the materials dropdown
+    # Function to handle changes in the substances dropdown
     def load_molecule_metadata(self, change):
         if self.molecules_dropdown.value == -1:
             self.molecule_details_textbox.value = ''
             self.molecule_image_box.value = self.read_file("images/white_screen.jpg")
             return
         
-        property_list = self.config["property_lists"]["materials"]["Molecule"]
+        # Get substance metadata
+        property_list = self.config["property_lists"]["materials"]["Substance"]
+        molecule_property_list = self.config["property_lists"]["materials"]["Molecule"]
         material_object = self.openbis_session.get_object(self.molecules_dropdown.value)
-        material_dataset = material_object.get_datasets(type="ELN_PREVIEW")[0]
+        
+        # Get molecule image
+        molecule_object = self.openbis_session.get_object(material_object.props.all()['has_molecule'])
+        molecule_metadata = molecule_object.props.all()
+        molecule_dataset = molecule_object.get_datasets(type="ELN_PREVIEW")[0]
 
-        if material_dataset:
-            material_dataset.download(destination="images")
-            material_image_filepath = material_dataset.file_list[0]
-            self.molecule_image_box.value = self.read_file(f"images/{material_dataset.permId}/{material_image_filepath}")
+        if molecule_dataset:
+            molecule_dataset.download(destination="images")
+            material_image_filepath = molecule_dataset.file_list[0]
+            self.molecule_image_box.value = self.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
+            shutil.rmtree(f"images/{molecule_dataset.permId}/")
         else:
             self.molecule_image_box.value = self.read_file("images/white_screen.jpg")
 
@@ -513,6 +503,11 @@ class AppWidgets():
             if key in self.config["property_lists"]["qunit_properties"] and value is not None:
                 value = json.loads(value)
                 material_metadata_string += f"{name}: {value['value']} {value['unit']}\n"
+            elif key == "has_molecule":
+                material_metadata_string += f"Molecule:\n"
+                for prop_name, key in molecule_property_list:
+                    prop_value = molecule_metadata.get(key)
+                    material_metadata_string += f"- {prop_name}: {prop_value}\n"
             else:
                 material_metadata_string += f"{name}: {value}\n"
 
@@ -538,8 +533,20 @@ class AppWidgets():
         while parent_idx < number_parents:
             parent_metadata = sample_parents_metadata[parent_idx]
             if parent_metadata[0] == "DEPOSITION":
-                next_parent_metadata = sample_parents_metadata[parent_idx + 1]
-                sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]}) [{next_parent_metadata[0]} ({next_parent_metadata[3]}, {next_parent_metadata[1]}, {next_parent_metadata[4]})]"
+                deposition_object = self.openbis_session.get_object(parent_metadata[1])
+                
+                # Get substance used in the specific deposition
+                substance_metadata = []
+                for parent_id in deposition_object.parents:
+                    deposition_parent_object = self.openbis_session.get_object(parent_id)
+                    if deposition_parent_object.type == "SUBSTANCE":
+                        deposition_parent_object_metadata = deposition_parent_object.props.all()
+                        substance_metadata = [deposition_parent_object_metadata["$name"], deposition_parent_object.permId]
+                        
+                if substance_metadata: # If deposition does not contain any substance, the app must not try to display it
+                    sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]}) [{substance_metadata[0]} ({substance_metadata[1]})]"
+                else:
+                    sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
                 parent_idx += 1
             else:
                 sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
@@ -549,7 +556,7 @@ class AppWidgets():
                 # Get the last sample preparation method performed on the sample in order to search the correct experiment where the sample is being used.
                 if last_sample_process is None:
                     last_sample_process = parent_metadata[1]
-            else:
+            elif parent_metadata[0] in self.raw_materials_types:
                 sample_strings["materials"].append(sample_metadata_string)
                 
             parent_idx += 1
@@ -592,7 +599,7 @@ class AppWidgets():
             if type == "SAMPLE":
                 items = self.filter_samples(items)
                 items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
-            elif type == "MOLECULE":
+            elif type == "SUBSTANCE":
                 items_names_permids = [(f"{item.props['empa_number']}{item.props['batch']} ({item.permId})", item.permId) for item in items]
             else:
                 items_names_permids = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]
@@ -611,12 +618,11 @@ class AppWidgets():
         if self.method_type.upper() in self.process_sample_types:
             self.load_list("EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
             if self.method_type.upper() == "DEPOSITION":
-                self.load_list("MOLECULE", self.molecules_dropdown, self.molecule_sorting_checkboxes, "molecule")
+                self.load_list("SUBSTANCE", self.molecules_dropdown, self.molecule_sorting_checkboxes, "substance")
 
     def get_parents_recursive(self, object, object_parents_metadata):
-        if object.attrs.type in self.process_sample_types + self.raw_materials_types:
-            object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate, 
-                                            object.props['$name'], object.props['sum_formula']])
+        object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate,object.props['$name']])
+        
         for parent in object.parents:
             self.get_parents_recursive(self.openbis_session.get_object(parent), object_parents_metadata)
         return object_parents_metadata

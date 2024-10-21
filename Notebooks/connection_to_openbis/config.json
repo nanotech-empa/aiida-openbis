@@ -1,5 +1,5 @@
 {
-    "raw_materials_types": ["CRYSTAL", "WAFER_SUBSTRATE", "2D_LAYERED_MATERIAL", "MOLECULE"],
+    "raw_materials_types": ["CRYSTAL", "WAFER_SUBSTRATE", "2D_LAYERED_MATERIAL"],
     "process_sample_types": ["SPUTTERING", "ANNEALING", "DEPOSITION", "DOSING"],
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
@@ -32,13 +32,16 @@
                 ["Thickness", "thickness"]
             ],
             "Molecule": [
-                ["Name", "$name"],
                 ["IUPAC name", "iupac_name"],
                 ["Sum formula", "sum_formula"],
-                ["SMILES", "smiles"],
+                ["SMILES", "smiles"]
+            ],
+            "Substance": [
+                ["Name", "$name"],
                 ["Empa number", "empa_number"],
                 ["Batch", "batch"],
                 ["Amount", "amount"],
+                ["Molecule", "has_molecule"],
                 ["Comments", "comments"]
             ]
         },
@@ -49,6 +52,7 @@
         "duration": {
             "description": "Duration",
             "units": ["sec", "min", "hrs"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -60,6 +64,7 @@
         "pressure": {
             "description": "Pressure",
             "units": ["mBar", "Bar", "Pa", "kPa"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -71,6 +76,7 @@
         "discharge_voltage": {
             "description": "Discharge voltage",
             "units": ["V", "kV"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -82,6 +88,7 @@
         "voltage": {
             "description": "Voltage",
             "units": ["uV", "mV", "V"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -93,6 +100,7 @@
         "temperature": {
             "description": "Temperature",
             "units": ["oC", "K"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -104,6 +112,7 @@
         "current": {
             "description": "Current",
             "units": ["uA", "mA", "A"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -113,7 +122,9 @@
             }
         },
         "angle": {
+            "description": "Angle",
             "units": ["deg", "rad"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -123,7 +134,9 @@
             }
         },
         "stabilisation_time": {
+            "description": "Stabilisation time",
             "units": ["sec", "min", "hrs"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -133,7 +146,9 @@
             }
         },
         "deposition_time": {
+            "description": "Deposition time",
             "units": ["sec", "min", "hrs"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -143,7 +158,9 @@
             }
         },
         "substrate_temperature": {
+            "description": "Substrate temperature",
             "units": ["oC", "K"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -153,7 +170,9 @@
             }
         },
         "molecule_temperature": {
+            "description": "Molecule temperature",
             "units": ["oC", "K"],
+            "property_type": "quantity_value",
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -163,12 +182,14 @@
             }
         },
         "sum_formula": {
+            "description": "Substance sum formula",
             "box_layout":{
                 "width": "350px",
                 "description_width": "150px"
             }
         },
         "evaporator_slot": {
+            "description": "Evaporator slot",
             "box_layout":{
                 "width": "300px"
             },

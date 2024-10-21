@@ -13,7 +13,7 @@ import argparse
 warnings.filterwarnings("ignore")
 
 # Global variables
-MATERIALS_TYPES_LIST = ["crystal", "2d-layer material", "molecule"]
+MATERIALS_TYPES_LIST = ["crystal", "2d-layer material", "substance"]
 
 # Functions
 
@@ -276,7 +276,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = 'https://local.openbis.ch/openbis')
     parser.add_argument('-u', '--openbis_user', type=str, help='OpenBIS User', default = 'admin')
     parser.add_argument('-pw', '--openbis_pw', type=str, help='OpenBIS Password', default = '123456789')
-    parser.add_argument('-type', '--material_type', type=str, help='Material type (Crystal, Molecule, 2D-Layer Material, ...)', default = None)
+    parser.add_argument('-type', '--material_type', type=str, help='Material type (crystal, substance, 2D-layer material, ...)', default = None)
     parser.add_argument('-xls', '--materials_filepath', type=str, help='Excel file with inventory', default = None)
     parser.add_argument('-cdxml', '--molecules_structures_path', type=str, help='Folder with CDXML files of the molecules', default = None)
 
@@ -318,11 +318,11 @@ if __name__ == "__main__":
                     available_materials_openbis = [material.props.all()["$name"] for material in session.get_samples(type = material_openbis_object_type)]
                 
                 # Molecules
-                elif material_type == "molecule":
+                elif material_type == "substance":
                     if molecules_structures_path:
                         df = get_substances(materials_filepath)
                         molecules_filepaths = get_full_filepath(molecules_structures_path)
-                        material_openbis_object_type = "MOLECULE"
+                        material_openbis_object_type = "SUBSTANCE"
                         available_materials_openbis = [f"{molecule.props.all()['empa_number']}{molecule.props.all()['batch']}" for molecule in session.get_samples(type = material_openbis_object_type)]
                     else:
                         all_input_correct = False
@@ -335,7 +335,7 @@ if __name__ == "__main__":
                             material_name = item["Acronym"]
                         elif material_type == "crystal":
                             material_name = item["Elog Name"]
-                        elif material_type == "molecule":
+                        elif material_type == "substance":
                             molecule_cdxml_found = False
                             
                             for molecule_filepath in molecules_filepaths:
@@ -356,10 +356,10 @@ if __name__ == "__main__":
                         if material_name not in available_materials_openbis:
                             # For the moment I am going to skip the materials with no name. However, this should be solved in the future because every object must have a name.
                             if is_nan(material_name) == False:
-                                # Molecule object is much more complex than the other materials. Therefore, it is separated.
-                                if material_type == "molecule":
+                                # Substance object is much more complex than the other materials. Therefore, it is separated.
+                                if material_type == "substance":
                                     molecule_metadata_dict = {}
-                                    # It does not make sense to continue processing the molecule if the cdxml file does not exist
+                                    # It does not make sense to continue processing the substance if the cdxml file does not exist
                                     if molecule_cdxml_found:
                                         cdxml_molecule = read_file(molecule_filepath)
                                         molecules = rdkit.Chem.MolsFromCDXML(cdxml_molecule)
@@ -380,10 +380,29 @@ if __name__ == "__main__":
                                             material_metadata_dict = get_supplier_infomation(material_metadata_dict)
                                             material_metadata_dict = get_chemist_information(material_metadata_dict)
                                             
+                                            molecule_properties = ['$name', 'iupac_name', 'sum_formula',
+                                                                   'smiles', 'cas_number']
+                                            
+                                            molecule_metadata_dict = {key: material_metadata_dict[key] for key in molecule_properties if key in material_metadata_dict}
+                                            
                                             # Create molecule object
                                             molecule_object = create_object_openbis(
                                                 session, 
                                                 "MOLECULE", 
+                                                f"/MATERIALS/MOLECULES/MOLECULE_COLLECTION", 
+                                                molecule_metadata_dict,
+                                                parents = []
+                                            )
+                                            
+                                            for key in molecule_properties:
+                                                if key != '$name': # Name can be the same
+                                                    material_metadata_dict.pop(key, None)
+                                            
+                                            material_metadata_dict['has_molecule'] = molecule_object.identifier
+                                            
+                                            material_object = create_object_openbis(
+                                                session,
+                                                material_openbis_object_type, 
                                                 f"/MATERIALS/{material_openbis_object_type}S/{material_openbis_object_type}_COLLECTION", 
                                                 material_metadata_dict,
                                                 parents = []
@@ -445,8 +464,8 @@ if __name__ == "__main__":
                     print("Folder with molecule structures was not introduced.")
                     print(f'Usage: python3 import_materials_to_openbis.py -o <OPENBIS_URL> -u <OPENBIS_USER> -pw <OPENBIS_PW> -type <MATERIAL_TYPE> -xls <MATERIAL_METADATA_EXCEL_FILEPATH> -cdxml <MOLECULE_CDXML_FILES_FOLDERPATH>')
         else:
-            print("Unrecognised material types. Allowed material types: Crystal, 2D-Layer Material, ...")
+            print("Unrecognised material types. Allowed material types: crystal, substance, 2d-layer material, ...")
             print(f'Usage: python3 import_materials_to_openbis.py -o <OPENBIS_URL> -u <OPENBIS_USER> -pw <OPENBIS_PW> -type <MATERIAL_TYPE> -xls <MATERIAL_METADATA_EXCEL_FILEPATH> -cdxml <MOLECULE_CDXML_FILES_FOLDERPATH>')
     else:
-        print("Specify the material type. Ex.: Crystal, Molecule, 2D-Layer Material, ...")
+        print("Specify the material type. Ex.: crystal, substance, 2d-layer material, ...")
         print(f'Usage: python3 import_materials_to_openbis.py -o <OPENBIS_URL> -u <OPENBIS_USER> -pw <OPENBIS_PW> -type <MATERIAL_TYPE> -xls <MATERIAL_METADATA_EXCEL_FILEPATH> -cdxml <MOLECULE_CDXML_FILES_FOLDERPATH>')
