@@ -33,7 +33,10 @@ class AppWidgets():
         self.openbis_session, self.session_data = self.connect_openbis()
         self.config = read_json(config_filename)
         
-        if self.method_type == "home":
+        # Needed for refreshing the widgets needed to create new experiments
+        self.select_experiment_output = widgets.Output()
+        
+        if self.method_type == "Home":
             # Home page configuration
             self.openbis_connection_status_htmlbox = self.HTML(value = '')
             if self.openbis_session:
@@ -45,7 +48,11 @@ class AppWidgets():
                 self.openbis_connection_status_htmlbox.value = "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
                 self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_disable_code)
         else:
-            self.raw_materials_types = self.config["raw_materials_types"]
+            self.raw_materials_types = [] 
+            for object_key, object_info in self.config["objects"].items():
+                if object_info["object_type"] == "raw_material":
+                    self.raw_materials_types.append(object_info["openbis_object_type"])
+                    
             self.process_sample_types = self.config["process_sample_types"]
             self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
             self.measurement_file_extensions = self.config["measurement_file_extensions"]
@@ -58,17 +65,19 @@ class AppWidgets():
             self.material_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '425px', height = '200px'))
             self.material_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=widgets.Layout(border='solid 1px #cccccc'))
             self.material_metadata_boxes = widgets.HBox([self.material_details_textbox, self.material_image_box])
-            self.material_selection_radio_button = self.Radiobuttons(description = '', options = self.config["materials_options"], disabled = False, layout = widgets.Layout(width = '300px'), style = {'description_width': "100px"})
+            raw_materials_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "raw_material"]
+            raw_materials_options.insert(0, "No material")
+            self.material_selection_radio_button = self.Radiobuttons(description = '', options = raw_materials_options, disabled = False, layout = widgets.Layout(width = '300px'), style = {'description_width': "100px"})
             material_sorting_checkboxes_list = self.SortingCheckboxes("50px", "60px", "200px")
             self.material_sorting_checkboxes = widgets.HBox([e for e in material_sorting_checkboxes_list])
             
-            self.samples_dropdown = self.Dropdown(description='Sample', disabled=False, layout = widgets.Layout(width = '400px'), style = {'description_width': "110px"})
+            self.samples_dropdown = self.Dropdown(description='Sample', disabled=False, layout = widgets.Layout(width = '385px'), style = {'description_width': "110px"})
             self.sample_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '589px', height = '300px'))
             sample_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
             self.sample_sorting_checkboxes = widgets.HBox([e for e in sample_sorting_checkboxes_list])
             self.sample_metadata_boxes = widgets.HBox([widgets.VBox([self.samples_dropdown, self.sample_sorting_checkboxes]), self.sample_details_textbox])
 
-            self.instruments_dropdown = self.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+            self.instruments_dropdown = self.Dropdown(description='Instrument', disabled=False, layout = widgets.Layout(width = '982px'), style = {'description_width': "110px"})
             instrument_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
             self.instrument_sorting_checkboxes = widgets.HBox([e for e in instrument_sorting_checkboxes_list])
             self.instruments_dropdown_boxes = widgets.VBox([self.instruments_dropdown, self.instrument_sorting_checkboxes])
@@ -78,7 +87,7 @@ class AppWidgets():
             self.cancel_new_experiment_button = self.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = widgets.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
             self.new_experiment_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write experiment name here...", style = {'description_width': "110px"})
             
-            self.projects_dropdown = self.Dropdown(description='Project', disabled=False, layout = widgets.Layout(width = '993px'), style = {'description_width': "110px"})
+            self.projects_dropdown = self.Dropdown(description='Project', disabled=False, layout = widgets.Layout(width = '982px'), style = {'description_width': "110px"})
             project_sorting_checkboxes_list = self.SortingCheckboxes("130px", "60px", "200px")
             self.project_sorting_checkboxes = widgets.HBox([e for e in project_sorting_checkboxes_list])
             self.projects_dropdown_boxes = widgets.VBox([self.projects_dropdown, self.project_sorting_checkboxes])
@@ -89,7 +98,7 @@ class AppWidgets():
             self.experiments_dropdown_details = widgets.HBox([self.experiments_dropdown, self.create_new_experiment_button])
             self.experiments_dropdown_boxes = widgets.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
             
-            self.molecules_dropdown = self.Dropdown(description='Substance', disabled=False, layout = widgets.Layout(width = '350px'), style = {'description_width': "110px"})
+            self.molecules_dropdown = self.Dropdown(description='Substance', disabled=False, layout = widgets.Layout(width = '335px'), style = {'description_width': "110px"})
             self.molecule_details_textbox = self.Textarea(description = "", disabled = True, layout = widgets.Layout(width = '415px', height = '250px'))
             self.molecule_image_box = self.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=widgets.Layout(border='solid 1px #cccccc'))
             molecule_sorting_checkboxes_list = self.SortingCheckboxes("170px", "60px", "200px")
@@ -108,7 +117,7 @@ class AppWidgets():
             for prop in self.properties:
                 if self.config["properties"][prop]["property_type"] == "quantity_value":
                     self.property_widgets[prop] = self.FloatTextwithDropdownWidget(
-                        self.config["properties"][prop]["description"], 
+                        self.config["properties"][prop]["title"], 
                         widgets.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
                         0, 
                         {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
@@ -128,7 +137,7 @@ class AppWidgets():
             
             self.property_widgets["evaporator_slot"] = self.IntSliderwithTextWidget(
                 1, 
-                self.config["properties"]["evaporator_slot"]["description"], 
+                self.config["properties"]["evaporator_slot"]["title"], 
                 [1,6], 
                 widgets.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
                 {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
@@ -276,21 +285,36 @@ class AppWidgets():
         return openbis_session, session_data
     
     def create_new_experiment_button_on_click(self, b):
-        clear_output()
-        self.load_list("PROJECT", self.projects_dropdown, self.project_sorting_checkboxes, "project")
-        display(self.experiments_dropdown_boxes, self.new_experiment_name_textbox, self.projects_dropdown_boxes,
-                widgets.HBox([self.save_new_experiment_button, self.cancel_new_experiment_button]), 
-                self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+        with self.select_experiment_output:
+            clear_output()
+            self.load_list("PROJECT", self.projects_dropdown, self.project_sorting_checkboxes, "project")
+            display_list = [self.experiments_dropdown_boxes, self.new_experiment_name_textbox, self.projects_dropdown_boxes,
+                            widgets.HBox([self.save_new_experiment_button, self.cancel_new_experiment_button]), 
+                            self.sample_metadata_boxes, self.instruments_dropdown_boxes]
+            
+            if self.method_type == "Deposition":
+                display_list.append(self.molecule_metadata_boxes)
+            display(widgets.VBox(display_list))
     
     def cancel_new_experiment_button_on_click(self, b):
-        clear_output()
-        display(self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+        with self.select_experiment_output:
+            clear_output()
+            display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
+            
+            if self.method_type == "Deposition":
+                display_list.append(self.molecule_metadata_boxes)
+            display(widgets.VBox(display_list))
     
     def save_new_experiment_button_on_click(self, b):
         self.create_experiment_in_openbis(self.projects_dropdown.value, self.new_experiment_name_textbox.value)
-        clear_output()
-        self.load_list("EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
-        display(self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes)
+        with self.select_experiment_output:
+            clear_output()
+            self.load_list("EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
+            display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
+            
+            if self.method_type == "Deposition":
+                display_list.append(self.molecule_metadata_boxes)
+            display(widgets.VBox(display_list))
         
     def sort_dropdown(self, sorting_checkboxes, dropdown_box):
         dropdown_list = list(dropdown_box.options[1:]) # Default -1 message should not be sorted.
@@ -351,31 +375,36 @@ class AppWidgets():
             self.material_image_box.value = self.read_file("images/white_screen.jpg")
             return
         
-        property_lists = self.config["property_lists"]["materials"]
-        property_list = property_lists.get(self.material_selection_radio_button.value, [])
+        # Get selected object properties information from config file
+        selected_object = self.material_selection_radio_button.value
+        selected_object_properties = self.config["objects"][selected_object]["properties"]
         
+        # Get material object information and dataset
         material_object = self.openbis_session.get_object(self.materials_dropdown.value)
         material_dataset = material_object.get_datasets()[0]
         
+        # Get the object image preview
         if material_dataset:
             material_dataset.download(destination="images")
             self.material_image_box.value = self.read_file(f"images/{material_dataset.permId}/{material_dataset.file_list[0]}")
             shutil.rmtree(f"images/{material_dataset.permId}")
         else:
             self.material_image_box.value = self.read_file("images/white_screen.jpg")
-        
+
+        # Make a string with the property values of the object
         material_metadata = material_object.props.all()
         material_metadata_string = ""
-        for prop_name, prop_key in property_list:
-            if prop_key in self.config["property_lists"]["qunit_properties"]:
+        for prop_key in selected_object_properties:
+            prop_title = self.config["properties"][prop_key]["title"]
+            if self.config["properties"][prop_key]["property_type"] == "quantity_value":
                 value = material_metadata.get(prop_key)
                 if value:
                     prop_dict = json.loads(value)
-                    material_metadata_string += f"{prop_name}: {prop_dict['value']} {prop_dict['unit']}\n"
+                    material_metadata_string += f"{prop_title}: {prop_dict['value']} {prop_dict['unit']}\n"
                 else:
-                    material_metadata_string += f"{prop_name}: {value}\n"
+                    material_metadata_string += f"{prop_title}: {value}\n"
             else:
-                material_metadata_string += f"{prop_name}: {material_metadata.get(prop_key)}\n"
+                material_metadata_string += f"{prop_title}: {material_metadata.get(prop_key)}\n"
 
         self.material_details_textbox.value = material_metadata_string
     
@@ -383,12 +412,11 @@ class AppWidgets():
         self.material_details_textbox.value = ''
         clear_output()
         display(self.material_selection_radio_button)
-
-        material_types = {
-            "Crystal": ("CRYSTAL", "Select crystal..."),
-            "Wafer substrate": ("WAFER_SUBSTRATE", "Select wafer substrate..."),
-            "2D-layer material": ("2D_LAYERED_MATERIAL", "Select 2D-layer material...")
-        }
+        
+        material_types = {}
+        for object_key, object_info in self.config["objects"].items():
+            if object_info["object_type"] == "raw_material":
+                material_types[object_key] = (object_info["openbis_object_type"], object_info["placeholder"])
 
         material_type = self.material_selection_radio_button.value
         if material_type == "No material":
@@ -437,13 +465,13 @@ class AppWidgets():
             print("Select an instrument.")
             return
         
-        if self.molecules_dropdown.value == -1 and self.method_type == "deposition":
+        if self.molecules_dropdown.value == -1 and self.method_type == "Deposition":
             print("Select a substance.")
             return
 
         # Prepare sample parents based on method type
         sample_parents = [self.samples_dropdown.value, self.instruments_dropdown.value]
-        if self.method_type == "deposition":
+        if self.method_type == "Deposition":
             sample_parents.append(self.molecules_dropdown.value)
 
         object_properties = {
@@ -453,13 +481,13 @@ class AppWidgets():
         
         for prop in self.config["objects"][self.method_type]["properties"]:
             if prop == "evaporator_slot":
-                object_properties[prop] = {"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value}
+                object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
             elif prop == "sum_formula":
                 object_properties[prop] = self.property_widgets[prop]
             else:
-                object_properties[prop] = {"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value}
+                object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
 
-        method_object = self.create_openbis_object(type = self.method_type.upper(), collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
+        method_object = self.create_openbis_object(type = self.config["objects"][self.method_type]["openbis_object_type"], collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
         self.upload_datasets(method_object)
 
         # Turn off sample visibility
@@ -479,8 +507,8 @@ class AppWidgets():
             return
         
         # Get substance metadata
-        property_list = self.config["property_lists"]["materials"]["Substance"]
-        molecule_property_list = self.config["property_lists"]["materials"]["Molecule"]
+        property_list = self.config["objects"]["Substance"]["properties"]
+        molecule_property_list = self.config["objects"]["Molecule"]["properties"]
         material_object = self.openbis_session.get_object(self.molecules_dropdown.value)
         
         # Get molecule image
@@ -498,18 +526,20 @@ class AppWidgets():
 
         material_metadata = material_object.props.all()
         material_metadata_string = ""
-        for name, key in property_list:
-            value = material_metadata.get(key)
-            if key in self.config["property_lists"]["qunit_properties"] and value is not None:
+        for prop_key in property_list:
+            prop_title = self.config["properties"][prop_key]["title"]
+            value = material_metadata.get(prop_key)
+            if self.config["properties"][prop_key]["property_type"] == "quantity_value" and value is not None:
                 value = json.loads(value)
-                material_metadata_string += f"{name}: {value['value']} {value['unit']}\n"
-            elif key == "has_molecule":
+                material_metadata_string += f"{prop_title}: {value['value']} {value['unit']}\n"
+            elif prop_key == "has_molecule":
                 material_metadata_string += f"Molecule:\n"
-                for prop_name, key in molecule_property_list:
-                    prop_value = molecule_metadata.get(key)
-                    material_metadata_string += f"- {prop_name}: {prop_value}\n"
+                for prop_key in molecule_property_list:
+                    prop_title = self.config["properties"][prop_key]["title"]
+                    prop_value = molecule_metadata.get(prop_key)
+                    material_metadata_string += f"- {prop_title}: {prop_value}\n"
             else:
-                material_metadata_string += f"{name}: {value}\n"
+                material_metadata_string += f"{prop_title}: {value}\n"
 
         self.molecule_details_textbox.value = material_metadata_string
 
@@ -519,7 +549,7 @@ class AppWidgets():
             self.instruments_dropdown.value = -1
             self.sample_details_textbox.value = ''
             
-            if self.method_type.upper() in self.process_sample_types:
+            if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
                 self.sample_out_name_textbox.value = ''
             return
         
@@ -569,12 +599,13 @@ class AppWidgets():
         if last_sample_process:
             last_sample_process_object = self.openbis_session.get_object(last_sample_process)
             
-            if self.method_type.upper() in self.process_sample_types:
-                # Automatically select the experiment where the last sample process task was saved
-                last_sample_process_experiment = self.openbis_session.get_experiment(last_sample_process_object.attrs.experiment)
-                if self.experiments_dropdown.value != -1:
-                    display(Javascript(f"alert('{'Experiment was changed!'}')"))
-                self.experiments_dropdown.value =  last_sample_process_experiment.permId
+            if self.method_type in self.config["objects"].keys():
+                if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+                    # Automatically select the experiment where the last sample process task was saved
+                    last_sample_process_experiment = self.openbis_session.get_experiment(last_sample_process_object.attrs.experiment)
+                    if self.experiments_dropdown.value != -1:
+                        display(Javascript(f"alert('{'Experiment was changed!'}')"))
+                    self.experiments_dropdown.value =  last_sample_process_experiment.permId
             
             # Automatically select the instrument used in the last sample process task
             for parent in last_sample_process_object.parents:
@@ -583,9 +614,10 @@ class AppWidgets():
                     self.instruments_dropdown.value = parent_object.permId
         
         self.sample_details_textbox.value = sample_metadata_string
-        if self.method_type.upper() in self.process_sample_types:
-            sample_name = sample_object.props['$name']
-            self.sample_out_name_textbox.value = f"{sample_name}_{self.method_name_textbox.value}" if self.method_name_textbox.value else sample_name
+        if self.method_type in self.config["objects"].keys():
+            if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+                sample_name = sample_object.props['$name']
+                self.sample_out_name_textbox.value = f"{sample_name}_{self.method_name_textbox.value}" if self.method_name_textbox.value else sample_name
             
     def load_list(self, type, dropdown, sorting_checkboxes, label):
         if type == "EXPERIMENT":
@@ -615,10 +647,11 @@ class AppWidgets():
         # Populate dropdown lists
         self.load_list("SAMPLE", self.samples_dropdown, self.sample_sorting_checkboxes, "sample")
         self.load_list("INSTRUMENT", self.instruments_dropdown, self.instrument_sorting_checkboxes, "instrument")
-        if self.method_type.upper() in self.process_sample_types:
-            self.load_list("EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
-            if self.method_type.upper() == "DEPOSITION":
-                self.load_list("SUBSTANCE", self.molecules_dropdown, self.molecule_sorting_checkboxes, "substance")
+        if self.method_type in self.config["objects"].keys():
+            if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+                self.load_list("EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
+                if self.config["objects"][self.method_type]["openbis_object_type"] == "DEPOSITION":
+                    self.load_list("SUBSTANCE", self.molecules_dropdown, self.molecule_sorting_checkboxes, "substance")
 
     def get_parents_recursive(self, object, object_parents_metadata):
         object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate,object.props['$name']])

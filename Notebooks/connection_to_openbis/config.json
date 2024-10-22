@@ -3,54 +3,81 @@
     "process_sample_types": ["SPUTTERING", "ANNEALING", "DEPOSITION", "DOSING"],
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
-    "property_lists": {
-        "materials": {
-            "Crystal": [
-                ["Name", "$name"],
-                ["Material", "material"], 
-                ["Face", "face"], 
-                ["Sample Plate", "sample_plate"],
-                ["Diameter", "diameter"], 
-                ["Height", "height"], 
-                ["Specifications", "specifications"]
-            ],
-            "Wafer substrate": [
-                ["Name", "$name"],
-                ["Substrates", "substrates"], 
-                ["Sample Plate", "sample_plate"], 
-                ["Diameter", "diameter"],  
-                ["Height", "height"],  
-                ["Thickness", "thickness"]
-            ],
-            "2D-layer material": [
-                ["Name", "$name"], 
-                ["Sample Plate", "sample_plate"], 
-                ["2D Layers", "layers_2d"], 
-                ["Substrates", "substrates"], 
-                ["Width", "width"], 
-                ["Length", "length"], 
-                ["Thickness", "thickness"]
-            ],
-            "Molecule": [
-                ["IUPAC name", "iupac_name"],
-                ["Sum formula", "sum_formula"],
-                ["SMILES", "smiles"]
-            ],
-            "Substance": [
-                ["Name", "$name"],
-                ["Empa number", "empa_number"],
-                ["Batch", "batch"],
-                ["Amount", "amount"],
-                ["Molecule", "has_molecule"],
-                ["Comments", "comments"]
-            ]
-        },
-        "qunit_properties": ["diameter", "height", "width", "thickness", "amount"]
-    },
-    "materials_options": ["No material", "Crystal", "Wafer substrate", "2D-layer material"],
     "properties": {
+        "$name": {
+            "title": "Name",
+            "property_type": "string"
+        },
+        "material": {
+            "title": "Material",
+            "property_type": "string"
+        },
+        "face": {
+            "title": "Face",
+            "property_type": "string"
+        },
+        "sample_plate": {
+            "title": "Sample Plate",
+            "property_type": "string"
+        },
+        "specifications": {
+            "title": "Specifications",
+            "property_type": "string"
+        },
+        "substrates": {
+            "title": "Substrates",
+            "property_type": "json"
+        },
+        "layers_2d": {
+            "title": "2D Layers",
+            "property_type": "json"
+        },
+        "iupac_name": {
+            "title": "IUPAC Name",
+            "property_type": "string"
+        },
+        "smiles": {
+            "title": "SMILES",
+            "property_type": "string"
+        },
+        "empa_number": {
+            "title": "Empa number",
+            "property_type": "integer"
+        },
+        "batch": {
+            "title": "Batch",
+            "property_type": "string"
+        },
+        "has_molecule": {
+            "title": "Molecule",
+            "property_type": "object (molecule)"
+        },
+        "comments": {
+            "title": "Comments",
+            "property_type": "string"
+        },
+        "diameter": {
+            "title": "Diameter",
+            "property_type": "quantity_value"
+        },
+        "height": {
+            "title": "Height",
+            "property_type": "quantity_value"
+        },
+        "width": {
+            "title": "Width",
+            "property_type": "quantity_value"
+        },
+        "thickness": {
+            "title": "Thickness",
+            "property_type": "quantity_value"
+        },
+        "amount": {
+            "title": "Amount",
+            "property_type": "quantity_value"
+        },
         "duration": {
-            "description": "Duration",
+            "title": "Duration",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -62,7 +89,7 @@
             }
         },
         "pressure": {
-            "description": "Pressure",
+            "title": "Pressure",
             "units": ["mBar", "Bar", "Pa", "kPa"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -74,7 +101,7 @@
             }
         },
         "discharge_voltage": {
-            "description": "Discharge voltage",
+            "title": "Discharge voltage",
             "units": ["V", "kV"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -86,7 +113,7 @@
             }
         },
         "voltage": {
-            "description": "Voltage",
+            "title": "Voltage",
             "units": ["uV", "mV", "V"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -98,7 +125,7 @@
             }
         },
         "temperature": {
-            "description": "Temperature",
+            "title": "Temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -110,7 +137,7 @@
             }
         },
         "current": {
-            "description": "Current",
+            "title": "Current",
             "units": ["uA", "mA", "A"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -122,7 +149,7 @@
             }
         },
         "angle": {
-            "description": "Angle",
+            "title": "Angle",
             "units": ["deg", "rad"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -134,7 +161,7 @@
             }
         },
         "stabilisation_time": {
-            "description": "Stabilisation time",
+            "title": "Stabilisation time",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -146,7 +173,7 @@
             }
         },
         "deposition_time": {
-            "description": "Deposition time",
+            "title": "Deposition time",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -158,7 +185,7 @@
             }
         },
         "substrate_temperature": {
-            "description": "Substrate temperature",
+            "title": "Substrate temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -170,7 +197,7 @@
             }
         },
         "molecule_temperature": {
-            "description": "Molecule temperature",
+            "title": "Molecule temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
             "box_layout":{
@@ -182,14 +209,16 @@
             }
         },
         "sum_formula": {
-            "description": "Substance sum formula",
+            "title": "Substance sum formula",
+            "property_type": "string",
             "box_layout":{
                 "width": "350px",
                 "description_width": "150px"
             }
         },
         "evaporator_slot": {
-            "description": "Evaporator slot",
+            "title": "Evaporator slot",
+            "property_type": "integer",
             "box_layout":{
                 "width": "300px"
             },
@@ -200,7 +229,71 @@
         }
     },
     "objects": {
-        "sputtering": {
+        "Crystal": {
+            "placeholder": "Select crystal...",
+            "openbis_object_type": "CRYSTAL",
+            "object_type": "raw_material",
+            "properties": [
+                "$name",
+                "material",
+                "face",
+                "sample_plate",
+                "diameter",
+                "height",
+                "specifications"
+            ]
+        },
+        "Wafer substrate": {
+            "placeholder": "Select wafer substrate...",
+            "openbis_object_type": "WAFER_SUBSTRATE",
+            "object_type": "raw_material",
+            "properties": [
+                "$name",
+                "substrates",
+                "sample_plate",
+                "diameter",
+                "height",
+                "thickness"
+            ]
+        },
+        "2D-layer material": {
+            "placeholder": "Select 2D-layer material...",
+            "openbis_object_type": "2D_LAYERED_MATERIAL",
+            "object_type": "raw_material",
+            "properties": [
+                "$name",
+                "sample_plate",
+                "layers_2d",
+                "substrates",
+                "width",
+                "length",
+                "thickness"
+            ]
+        },
+        "Molecule": {
+            "object_type": "material",
+            "openbis_object_type": "MOLECULE",
+            "properties": [
+                "iupac_name",
+                "sum_formula",
+                "smiles"
+            ]
+        },
+        "Substance": {
+            "object_type": "material",
+            "openbis_object_type": "SUBSTANCE",
+            "properties": [
+                "$name",
+                "empa_number",
+                "batch",
+                "amount",
+                "has_molecule",
+                "comments"
+            ]
+        },
+        "Sputtering": {
+            "object_type": "process",
+            "openbis_object_type": "SPUTTERING",
             "properties": [
                 "duration", 
                 "pressure",
@@ -211,7 +304,9 @@
                 "current"
             ]
         },
-        "annealing": {
+        "Annealing": {
+            "object_type": "process",
+            "openbis_object_type": "ANNEALING",
             "properties": [
                 "duration", 
                 "pressure",
@@ -220,7 +315,9 @@
                 "current"
             ]
         },
-        "deposition": {
+        "Deposition": {
+            "object_type": "process",
+            "openbis_object_type": "DEPOSITION",
             "properties": [
                 "stabilisation_time", 
                 "deposition_time",
@@ -230,7 +327,9 @@
                 "evaporator_slot"
             ]
         },
-        "dosing": {
+        "Dosing": {
+            "object_type": "process",
+            "openbis_object_type": "DOSING",
             "properties": [
                 "sum_formula", 
                 "duration",
@@ -245,15 +344,13 @@
             "<div style='flex: 1; padding: 10px;'>",
             "<ul>",
             "<li><a href='create_sample.ipynb' target='_blank'>Sample creation</a></li>",
-            "<li><a href='sputtering.ipynb' target='_blank'>Sputtering</a></li>",
-            "<li><a href='annealing.ipynb' target='_blank'>Annealing</a></li>",
-            "<li><a href='deposition.ipynb' target='_blank'>Molecule deposition</a></li>",
+            "<li><a href='sample_preparation.ipynb' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' target='_blank'>Sample measurement</a></li>",
             "<li><a href='' target='_blank'>Other sample preparation task</a></li>",
-            "<li><a href='dosing.ipynb' target='_blank'>Dosing</a></li>",
             "<li><a href='' target='_blank'>Sublimation rate determination</a></li>",
             "<li><a href='' target='_blank'>Comments/Notes</a></li>",
             "<li><a href='' target='_blank'>Calibration/Optimisation</a></li>",
+            "<li><a href='sample_preparation.ipynb' target='_blank'>Sample Preparation</a></li>",
             "</ul>",
             "</div>",
             "<div style='flex: 1; padding: 10px;'>",
@@ -268,12 +365,9 @@
             "<div style='flex: 1; padding: 10px;'>",
             "<ul>",
             "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Sample creation</a></li>",
-            "<li><a href='sputtering.ipynb' style='color: gray;' target='_blank'>Sputtering</a></li>",
-            "<li><a href='annealing.ipynb' style='color: gray;' target='_blank'>Annealing</a></li>",
-            "<li><a href='deposition.ipynb' style='color: gray;' target='_blank'>Molecule deposition</a></li>",
+            "<li><a href='sample_preparation.ipynb' style='color: gray;' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Other sample preparation task</a></li>",
-            "<li><a href='dosing.ipynb' style='color: gray;' target='_blank'>Dosing</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Sublimation rate determination</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Comments/Notes</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Calibration/Optimisation</a></li>",
