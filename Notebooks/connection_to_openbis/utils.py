@@ -33,31 +33,25 @@ class AppWidgets():
         self.openbis_session, self.session_data = self.connect_openbis()
         self.config = read_json(config_filename)
         
-        # Needed for refreshing the widgets needed to create new experiments
+        # Necessary for refreshing the widgets needed to create new experiments
         self.select_experiment_output = widgets.Output()
         
+        # Home page configuration
         if self.method_type == "Home":
-            # Home page configuration
             self.openbis_connection_status_htmlbox = self.HTML(value = '')
             if self.openbis_session:
-                self.openbis_connection_status_htmlbox.value = "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>"
+                self.openbis_connection_status_htmlbox.value = self.config["home_page"]["enable_status"]
                 self.open_notebooks_html_enable_code = ''.join(self.config["home_page"]["enable_links"])
                 self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_enable_code)
             else:
+                self.openbis_connection_status_htmlbox.value = self.config["home_page"]["disable_status"]
                 self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
-                self.openbis_connection_status_htmlbox.value = "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
                 self.open_notebooks_htmlbox = self.HTML(value = self.open_notebooks_html_disable_code)
         else:
-            self.raw_materials_types = [] 
-            for object_key, object_info in self.config["objects"].items():
-                if object_info["object_type"] == "raw_material":
-                    self.raw_materials_types.append(object_info["openbis_object_type"])
-                    
-            self.process_sample_types = self.config["process_sample_types"]
+            self.raw_materials_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "raw_material"]
+            self.process_sample_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "process"]
             self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
             self.measurement_file_extensions = self.config["measurement_file_extensions"]
-            
-            self.openbis_schema = read_yaml("/home/jovyan/aiida-openbis/Notebooks/Metadata_Schemas_LinkML/materialMLinfo.yaml")
             
             self.support_files_uploader = widgets.FileUpload(multiple = True)
             
@@ -105,7 +99,7 @@ class AppWidgets():
             self.molecule_sorting_checkboxes = widgets.HBox([e for e in molecule_sorting_checkboxes_list])
             self.molecule_metadata_boxes = widgets.HBox([widgets.VBox([self.molecules_dropdown, self.molecule_sorting_checkboxes]), self.molecule_details_textbox, self.molecule_image_box])
 
-            self.method_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write {method_type} task name here...", style = {'description_width': "150px"})
+            self.method_name_textbox = self.Text(description = "Name", disabled = False, layout = widgets.Layout(width = '400px'), placeholder = f"Write task name here...", style = {'description_width': "150px"})
             self.comments_textbox = self.Textarea(description = "Comments", disabled = False, layout = widgets.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
             
             # Quantity properties widgets
@@ -114,7 +108,7 @@ class AppWidgets():
                                "molecule_temperature"]
             self.property_widgets = {}
             
-            for prop in self.properties:
+            for prop in self.config["properties"].keys():
                 if self.config["properties"][prop]["property_type"] == "quantity_value":
                     self.property_widgets[prop] = self.FloatTextwithDropdownWidget(
                         self.config["properties"][prop]["title"], 
@@ -193,7 +187,7 @@ class AppWidgets():
     @staticmethod
     def SortingCheckboxes(*args):
         return [
-            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = args[0], justify_content='flex-end')),
+            widgets.Label(value = "Sort by:", layout = widgets.Layout(width = args[0], display = "flex", justify_content='flex-end')),
             AppWidgets.Checkbox(description = 'Name', value = False, disabled = False, layout = widgets.Layout(width = args[1]), indent = False),
             AppWidgets.Checkbox(description = 'Registration date', value = False, disabled = False, layout = widgets.Layout(width = args[2]), indent = False)
         ]

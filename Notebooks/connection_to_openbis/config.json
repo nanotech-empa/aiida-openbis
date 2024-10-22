@@ -1,6 +1,4 @@
 {
-    "raw_materials_types": ["CRYSTAL", "WAFER_SUBSTRATE", "2D_LAYERED_MATERIAL"],
-    "process_sample_types": ["SPUTTERING", "ANNEALING", "DEPOSITION", "DOSING"],
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
     "properties": {
@@ -58,23 +56,63 @@
         },
         "diameter": {
             "title": "Diameter",
-            "property_type": "quantity_value"
+            "property_type": "quantity_value",
+            "units": ["m", "mm", "um"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "height": {
             "title": "Height",
-            "property_type": "quantity_value"
+            "property_type": "quantity_value",
+            "units": ["m", "mm", "um"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "width": {
             "title": "Width",
-            "property_type": "quantity_value"
+            "property_type": "quantity_value",
+            "units": ["m", "mm", "um"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "thickness": {
             "title": "Thickness",
-            "property_type": "quantity_value"
+            "property_type": "quantity_value",
+            "units": ["m", "mm", "um"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "amount": {
             "title": "Amount",
-            "property_type": "quantity_value"
+            "property_type": "quantity_value",
+            "units": ["l", "ml", "ul", "g", "mg", "ug"],
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
         },
         "duration": {
             "title": "Duration",
@@ -379,6 +417,8 @@
             "</ul>",
             "</div>",
             "</div>"
-        ]
+        ],
+        "enable_status": "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>",
+        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
     }
 }
