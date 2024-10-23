@@ -249,6 +249,7 @@
         "sum_formula": {
             "title": "Substance sum formula",
             "property_type": "string",
+            "placeholder": "Write substance formula here...",
             "box_layout":{
                 "width": "350px",
                 "description_width": "150px"
@@ -257,6 +258,7 @@
         "evaporator_slot": {
             "title": "Evaporator slot",
             "property_type": "integer",
+            "placeholder": "Write evaporator slot details...",
             "box_layout":{
                 "width": "300px"
             },
@@ -420,5 +422,12 @@
         ],
         "enable_status": "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>",
         "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
-    }
+    },
+    "save_home_buttons_settings": [
+        "<style>",
+        ".fa-save {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-home {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-times {font-size: 2em !important; /* Increase icon size */}",
+        "</style>"
+    ]
 }
