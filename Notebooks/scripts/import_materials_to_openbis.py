@@ -317,7 +317,7 @@ if __name__ == "__main__":
                     material_openbis_object_type = "CRYSTAL"
                     available_materials_openbis = [material.props.all()["$name"] for material in session.get_samples(type = material_openbis_object_type)]
                 
-                # Molecules
+                # Substances
                 elif material_type == "substance":
                     if molecules_structures_path:
                         df = get_substances(materials_filepath)
@@ -352,6 +352,9 @@ if __name__ == "__main__":
                             
                             # Identifier is used as a name to generalise (Crystal and 2D-layer material use name to verify if they are already in openBIS.)
                             material_name = molecule_identifier
+                            
+                            # Get updated list of molecules already available in openBIS
+                            available_molecules_openbis = {molecule.props.all()['smiles']:molecule for molecule in session.get_samples(type = "MOLECULE")}
                         
                         if material_name not in available_materials_openbis:
                             # For the moment I am going to skip the materials with no name. However, this should be solved in the future because every object must have a name.
@@ -385,17 +388,42 @@ if __name__ == "__main__":
                                             
                                             molecule_metadata_dict = {key: material_metadata_dict[key] for key in molecule_properties if key in material_metadata_dict}
                                             
-                                            # Create molecule object
-                                            molecule_object = create_object_openbis(
-                                                session, 
-                                                "MOLECULE", 
-                                                f"/MATERIALS/MOLECULES/MOLECULE_COLLECTION", 
-                                                molecule_metadata_dict,
-                                                parents = []
-                                            )
+                                            if molecule_metadata_dict["smiles"] in available_molecules_openbis.keys():
+                                                molecule_object = available_molecules_openbis[molecule_metadata_dict["smiles"]]
+                                            else:
+                                                # Create molecule object
+                                                molecule_object = create_object_openbis(
+                                                    session, 
+                                                    "MOLECULE", 
+                                                    f"/MATERIALS/MOLECULES/MOLECULE_COLLECTION", 
+                                                    molecule_metadata_dict,
+                                                    parents = []
+                                                )
+                                                
+                                                # Generate molecule image
+                                                chem_mol = rdkit.Chem.MolFromSmiles(mol_smiles)
+                                                
+                                                if chem_mol is not None:
+                                                    AllChem.Compute2DCoords(chem_mol) # Add coords to the atoms in the molecule
+                                                    struc_filepath = create_molecule_image(chem_mol)
+                                                    
+                                                    # Send molecule image to openBIS
+                                                    create_dataset_openbis(
+                                                        session, 
+                                                        'ELN_PREVIEW',
+                                                        molecule_object, 
+                                                        struc_filepath
+                                                    )
+                                                    
+                                                else:
+                                                    print(f"Cannot generate molecule image for {molecule_identifier}")
+                                                
+                                                # Send molecule cdxml to openBIS
+                                                create_dataset_openbis(session, 'RAW_DATA', molecule_object, molecule_filepath)
                                             
+                                            # Remove molecules properties from substance object
                                             for key in molecule_properties:
-                                                if key != '$name': # Name can be the same
+                                                if key != '$name': # Name can be the same for both objects
                                                     material_metadata_dict.pop(key, None)
                                             
                                             material_metadata_dict['has_molecule'] = molecule_object.identifier
@@ -407,27 +435,6 @@ if __name__ == "__main__":
                                                 material_metadata_dict,
                                                 parents = []
                                             )
-                                            
-                                            # Generate molecule image
-                                            chem_mol = rdkit.Chem.MolFromSmiles(mol_smiles)
-                                            
-                                            if chem_mol is not None:
-                                                AllChem.Compute2DCoords(chem_mol) # Add coords to the atoms in the molecule
-                                                struc_filepath = create_molecule_image(chem_mol)
-                                                
-                                                # Send molecule image to openBIS
-                                                create_dataset_openbis(
-                                                    session, 
-                                                    'ELN_PREVIEW',
-                                                    molecule_object, 
-                                                    struc_filepath
-                                                )
-                                                
-                                            else:
-                                                print(f"Cannot generate molecule image for {molecule_identifier}")
-                                                
-                                            # Send molecule cdxml to openBIS
-                                            create_dataset_openbis(session, 'RAW_DATA', molecule_object, molecule_filepath)
                                         
                                         elif len(molecules) > 1:
                                             print(f"There are more than one molecule in the file: {molecule_filepath}")  

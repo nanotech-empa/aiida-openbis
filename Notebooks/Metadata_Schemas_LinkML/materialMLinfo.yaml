@@ -221,13 +221,13 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
+     - sum_formula
      - duration
      - pressure
      - temperature
      - comments
      - has_instrument
      - has_sample
-     - uses_molecule
   Draft:
     title: Draft
     is_a: Thing
@@ -322,10 +322,15 @@ classes:
       openbis_code: HYDCRAC
       openbis_label: Hydrogen Cracker
     slots:
+     - sum_formula
+     - duration
+     - temperature
+     - voltage
+     - current
+     - pressure
      - comments
      - has_uhv_components
      - has_instrument
-     - has_molecule
   Institution:
     title: Institution
     is_a: Thing
@@ -357,6 +362,17 @@ classes:
      - has_room
      - has_manufacturer
      - has_tip_sensor
+  LightIrradiation:
+    title: Light Irradiation
+    is_a: Thing
+    class_uri: 
+    description: Light irradiation
+    annotations:
+      openbis_object: true
+      openbis_code: LIGIRR
+      openbis_label: Light Irradiation
+    slots:
+     - comments
   Layered2DMaterial:
     title: Layered 2D Material
     is_a: Thing

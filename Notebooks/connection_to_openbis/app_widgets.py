@@ -1,16 +1,10 @@
 import json
-from pathlib import Path
 import os
 import ipywidgets as ipw
 from IPython.display import display, clear_output
-from pybis import Openbis
-import ipyfilechooser
 import sys
 sys.path.append('/home/jovyan/aiida-openbis/Notebooks/importer')
 import nanonis_importer
-import pandas as pd
-import numpy as np
-import yaml
 import shutil
 import utils
 
@@ -35,8 +29,8 @@ class AppWidgets():
                 self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
                 self.open_notebooks_htmlbox = utils.HTMLbox(value = self.open_notebooks_html_disable_code)
         else:
-            self.raw_materials_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "raw_material"]
-            self.process_sample_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "process"]
+            self.slabs_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
+            self.sample_preparation_sample_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "sample_preparation"]
             self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
             self.measurement_file_extensions = self.config["measurement_file_extensions"]
             
@@ -46,9 +40,9 @@ class AppWidgets():
             self.material_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '425px', height = '200px'))
             self.material_image_box = utils.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=ipw.Layout(border='solid 1px #cccccc'))
             self.material_metadata_boxes = ipw.HBox([self.material_details_textbox, self.material_image_box])
-            raw_materials_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "raw_material"]
-            raw_materials_options.insert(0, "No material")
-            self.material_selection_radio_button = utils.Radiobuttons(description = '', options = raw_materials_options, disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "100px"})
+            slabs_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
+            slabs_options.insert(0, "No material")
+            self.material_selection_radio_button = utils.Radiobuttons(description = '', options = slabs_options, disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "100px"})
             self.material_sorting_checkboxes = utils.SortingCheckboxes("50px", "60px", "200px")
             
             self.samples_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Sample', ipw.Layout(width = '385px'), {'description_width': "110px"}, [-1])
@@ -132,7 +126,7 @@ class AppWidgets():
             display_list = [self.experiments_dropdown_boxes, self.new_experiment_name_textbox, self.projects_dropdown_boxes,
                             ipw.HBox([self.save_new_experiment_button, self.cancel_new_experiment_button]), 
                             self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            if self.method_type == "Deposition":
+            if self.config["objects"][self.method_type]["uses_molecule"]:
                 display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
@@ -140,7 +134,7 @@ class AppWidgets():
         with self.select_experiment_output:
             clear_output()
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            if self.method_type == "Deposition":
+            if self.config["objects"][self.method_type]["uses_molecule"]:
                 display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
@@ -150,7 +144,7 @@ class AppWidgets():
             clear_output()
             utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            if self.method_type == "Deposition":
+            if self.config["objects"][self.method_type]["uses_molecule"]:
                 display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
@@ -213,7 +207,7 @@ class AppWidgets():
         
         material_types = {}
         for object_key, object_info in self.config["objects"].items():
-            if object_info["object_type"] == "raw_material":
+            if object_info["object_type"] == "slab":
                 material_types[object_key] = (object_info["openbis_object_type"], object_info["placeholder"])
 
         material_type = self.material_selection_radio_button.value
@@ -243,7 +237,7 @@ class AppWidgets():
             self.openbis_session.new_dataset(type = 'RAW_DATA', sample = method_object, files = [filename]).save()
             os.remove(filename)
     
-    def create_process_action(self, b):
+    def create_sample_preparation_action(self, b):
         samples_names = [sample.props["$name"] for sample in self.openbis_session.get_objects(type="SAMPLE")]
         
         if self.sample_out_name_textbox.value in samples_names:
@@ -262,13 +256,13 @@ class AppWidgets():
             print("Select an instrument.")
             return
         
-        if self.molecules_dropdown_boxes.children[0].value == -1 and self.method_type == "Deposition":
+        if self.molecules_dropdown_boxes.children[0].value == -1 and self.config["objects"][self.method_type]["uses_molecule"]:
             print("Select a substance.")
             return
 
         # Prepare sample parents based on method type
         sample_parents = [self.samples_dropdown_boxes.children[0].value, self.instruments_dropdown_boxes.children[0].value]
-        if self.method_type == "Deposition":
+        if self.config["objects"][self.method_type]["uses_molecule"]:
             sample_parents.append(self.molecules_dropdown_boxes.children[0].value)
 
         object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
@@ -344,20 +338,20 @@ class AppWidgets():
             self.sample_details_textbox.value = ''
             
             if self.method_type in self.config["objects"].keys():
-                if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+                if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
                     self.sample_out_name_textbox.value = ''
             return
         
         sample_object = self.openbis_session.get_object(self.samples_dropdown_boxes.children[0].value)
         sample_parents_metadata = utils.get_openbis_parents_recursive(self.openbis_session, sample_object, [])
         
-        last_sample_process = None
-        sample_strings = {"processes": [], "materials": []}
+        last_sample_preparation = None
+        sample_strings = {"sample_preparations": [], "materials": []}
         number_parents = len(sample_parents_metadata)
         parent_idx = 0
         while parent_idx < number_parents:
             parent_metadata = sample_parents_metadata[parent_idx]
-            if parent_metadata[0] == "DEPOSITION":
+            if parent_metadata[0] in ["DEPOSITION"]:
                 deposition_object = self.openbis_session.get_object(parent_metadata[1])
                 
                 # Get substance used in the specific deposition
@@ -376,12 +370,12 @@ class AppWidgets():
             else:
                 sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
             
-            if parent_metadata[0] in self.process_sample_types:
-                sample_strings["processes"].append(sample_metadata_string)
+            if parent_metadata[0] in self.sample_preparation_sample_types:
+                sample_strings["sample_preparations"].append(sample_metadata_string)
                 # Get the last sample preparation method performed on the sample in order to search the correct experiment where the sample is being used.
-                if last_sample_process is None:
-                    last_sample_process = parent_metadata[1]
-            elif parent_metadata[0] in self.raw_materials_types:
+                if last_sample_preparation is None:
+                    last_sample_preparation = parent_metadata[1]
+            elif parent_metadata[0] in self.slabs_types:
                 sample_strings["materials"].append(sample_metadata_string)
                 
             parent_idx += 1
@@ -389,32 +383,32 @@ class AppWidgets():
         sample_metadata_string = (f"PermId: {sample_object.attrs.permId}\nMaterial:\n" +
                               "\n".join(sample_strings["materials"]) + 
                               "\nProcesses:\n" + 
-                              "\n".join(sample_strings["processes"]))
+                              "\n".join(sample_strings["sample_preparations"]))
 
-        if last_sample_process:
-            last_sample_process_object = self.openbis_session.get_object(last_sample_process)
+        if last_sample_preparation:
+            last_sample_preparation_object = self.openbis_session.get_object(last_sample_preparation)
             
             if self.method_type in self.config["objects"].keys():
-                if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
-                    # Automatically select the experiment where the last sample process task was saved
-                    last_sample_process_experiment = self.openbis_session.get_experiment(last_sample_process_object.attrs.experiment)
+                if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
+                    # Automatically select the experiment where the last sample preparation task was saved
+                    last_sample_preparation_experiment = self.openbis_session.get_experiment(last_sample_preparation_object.attrs.experiment)
                     # Notify the user in case the experiment changed
-                    if self.experiments_dropdown.value != last_sample_process_experiment.permId and self.experiments_dropdown.value != -1:
+                    if self.experiments_dropdown.value != last_sample_preparation_experiment.permId and self.experiments_dropdown.value != -1:
                         dropdown_options_dict = {key: val for val, key in self.experiments_dropdown.options}
                         previous_experiment_name = dropdown_options_dict.get(self.experiments_dropdown.value)
-                        new_experiment_name = dropdown_options_dict.get(last_sample_process_experiment.permId)
+                        new_experiment_name = dropdown_options_dict.get(last_sample_preparation_experiment.permId)
                         display(utils.Javascript(data = f"alert('{f'Experiment was changed from {previous_experiment_name} to {new_experiment_name}!'}')"))
-                    self.experiments_dropdown.value =  last_sample_process_experiment.permId
+                    self.experiments_dropdown.value =  last_sample_preparation_experiment.permId
             
-            # Automatically select the instrument used in the last sample process task
-            for parent in last_sample_process_object.parents:
+            # Automatically select the instrument used in the last sample preparation task
+            for parent in last_sample_preparation_object.parents:
                 parent_object = self.openbis_session.get_object(parent)
                 if parent_object.type == "INSTRUMENT":
                     self.instruments_dropdown_boxes.children[0].value = parent_object.permId
         
         self.sample_details_textbox.value = sample_metadata_string
         if self.method_type in self.config["objects"].keys():
-            if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+            if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
                 sample_name = sample_object.props['$name']
                 self.sample_out_name_textbox.value = f"{sample_name}_{self.method_name_textbox.value}" if self.method_name_textbox.value else sample_name
     
@@ -423,9 +417,9 @@ class AppWidgets():
         utils.load_openbis_elements_list(self.openbis_session, "SAMPLE", self.samples_dropdown_boxes.children[0], self.samples_dropdown_boxes.children[1], "sample")
         utils.load_openbis_elements_list(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
         if self.method_type in self.config["objects"].keys():
-            if self.config["objects"][self.method_type]["openbis_object_type"] in self.process_sample_types:
+            if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
                 utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
-                if self.config["objects"][self.method_type]["openbis_object_type"] == "DEPOSITION":
+                if self.config["objects"][self.method_type]["openbis_object_type"] in ["DEPOSITION", "HYDROGEN_CRACKER"]:
                     utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
 
     def update_text(self, change):
@@ -451,7 +445,7 @@ class AppWidgets():
         sample_project = next(
             (self.openbis_session.get_object(parent_id).project 
             for parent_id in sample_object.parents 
-            if self.openbis_session.get_object(parent_id).type in self.process_sample_types), 
+            if self.openbis_session.get_object(parent_id).type in self.sample_preparation_sample_types), 
             None
         )
 
