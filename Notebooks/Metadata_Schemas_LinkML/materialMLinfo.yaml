@@ -589,6 +589,23 @@ classes:
      - has_grants
      - has_drafts
      - has_authors
+  QCM:
+    title: QCM
+    is_a: Thing
+    description: Quartz Crystal Microbalance
+    class_uri: 
+    annotations:
+      openbis_object: true
+      openbis_code: QCM
+      openbis_label: Quartz Crystal Microbalance
+    slots:
+     - pressure
+     - rate
+     - temperature
+     - evaporator_slot
+     - pid_controller
+     - comments
+     - uses_substance
   Result:
     title: Results
     is_a: Thing
@@ -1380,6 +1397,16 @@ classes:
      - type
      - has_value
      - has_mass_unit
+  RateQuantityValue:
+    title: Rate quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with rate unit
+    annotations:
+      openbis_object: false
+    slots:
+     - type
+     - has_value
+     - has_rate_unit
   EvaporationTemperature:
     title: Evaporation temperature
     description: evaporation temperature details
@@ -1587,6 +1614,11 @@ classes:
         inlined_as_list: true
         range: Publication
         description: publications container
+      qcms:
+        multivalued: true
+        inlined_as_list: true
+        range: QCM
+        description: quartz crystal microbalance objects container
       results:
         multivalued: true
         inlined_as_list: true
@@ -1890,6 +1922,13 @@ slots:
   has_duration_unit:
     description: Duration unit
     range: DurationUnitsEnum
+    slot_uri: qudt:hasUnit
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  has_rate_unit:
+    description: Rate unit
+    range: RateUnitsEnum
     slot_uri: qudt:hasUnit
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
@@ -3541,6 +3580,20 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: number of k-points
+  rate:
+    description: rate
+    range: RateQuantityValue
+    slot_uri:
+    annotations:
+      openbis_type: JSON
+      openbis_label: Rate
+  pid_controller:
+    description: PID controller values
+    range: string
+    slot_uri:
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: PID controller values
   on_site_hubbard_repulsion_u:
     description: On-site Hubbard repulsion U
     range: QuantityValue
@@ -4249,3 +4302,13 @@ enums:
         description: radian
         annotations:
           openbis_label: Radian
+  RateUnitsEnum:
+    description: rate units
+    annotations:
+      openbis_label: Rate units vocabulary
+    permissible_values:
+      ang-per-min:
+        meaning: 
+        description: angstrom per minute
+        annotations:
+          openbis_label: Angstrom per minute

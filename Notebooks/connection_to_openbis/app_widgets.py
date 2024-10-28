@@ -14,7 +14,7 @@ class AppWidgets():
         self.openbis_session, self.session_data = utils.connect_openbis()
         self.config = utils.read_json(config_filename)
         
-        # Necessary for refreshing the widgets needed to create new experiments
+        # Necessary for refreshing the widgets needed to create new experiments in sample preparation page
         self.select_experiment_output = ipw.Output()
         
         # Home page configuration
@@ -36,13 +36,13 @@ class AppWidgets():
             
             self.support_files_uploader = ipw.FileUpload(multiple = True)
             
-            self.materials_dropdown = utils.Dropdown(description='', disabled=False, layout = ipw.Layout(width = '350px'))
-            self.material_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '425px', height = '200px'))
-            self.material_image_box = utils.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '200px', height = '300px', layout=ipw.Layout(border='solid 1px #cccccc'))
-            self.material_metadata_boxes = ipw.HBox([self.material_details_textbox, self.material_image_box])
             slabs_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
             slabs_options.insert(0, "No material")
             self.material_selection_radio_button = utils.Radiobuttons(description = '', options = slabs_options, disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "100px"})
+            self.materials_dropdown = utils.Dropdown(description='', disabled=False, layout = ipw.Layout(width = '350px'))
+            self.material_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '425px', height = '200px'))
+            self.material_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '200px', height = '300px', layout=ipw.Layout(border='solid 1px #cccccc'))
+            self.material_metadata_boxes = ipw.HBox([self.material_details_textbox, self.material_image_box])
             self.material_sorting_checkboxes = utils.SortingCheckboxes("50px", "60px", "200px")
             
             self.samples_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Sample', ipw.Layout(width = '385px'), {'description_width': "110px"}, [-1])
@@ -64,7 +64,7 @@ class AppWidgets():
             
             self.molecules_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Substance', ipw.Layout(width = '335px'), {'description_width': "110px"}, [-1])
             self.molecule_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
-            self.molecule_image_box = utils.Image(value = open("images/white_screen.jpg", "rb").read(), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
+            self.molecule_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
             self.molecule_metadata_boxes = ipw.HBox([self.molecules_dropdown_boxes, self.molecule_details_textbox, self.molecule_image_box])
 
             self.method_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write task name here...", style = {'description_width': "150px"})
@@ -76,10 +76,20 @@ class AppWidgets():
                 if self.config["properties"][prop]["property_type"] == "quantity_value":
                     self.property_widgets[prop] = utils.FloatTextwithDropdownWidget(
                         self.config["properties"][prop]["title"], ipw.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
-                        0, {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
+                        self.config["properties"][prop]["default_value"],
+                        {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
                         ipw.Layout(width = self.config["properties"][prop]["dropdown_layout"]["width"]), self.config["properties"][prop]["units"], 
-                        self.config["properties"][prop]["units"][0]
+                        self.config["properties"][prop]["default_unit"]
                     )
+            
+            self.property_widgets["pid_controller"] = utils.Text(
+                description = self.config["properties"]["pid_controller"]["title"], 
+                disabled = False, 
+                layout = ipw.Layout(
+                    width = self.config["properties"]["pid_controller"]["box_layout"]["width"]), 
+                    placeholder = self.config["properties"]["pid_controller"]["placeholder"],
+                    style = {'description_width': self.config["properties"]["pid_controller"]["box_layout"]["description_width"]}
+            )
             
             self.property_widgets["sum_formula"] = utils.Text(
                 description = self.config["properties"]["sum_formula"]["title"], 
@@ -91,7 +101,9 @@ class AppWidgets():
                 )
             
             self.property_widgets["evaporator_slot"] = utils.IntSliderwithTextWidget(
-                1, self.config["properties"]["evaporator_slot"]["title"], [1,6], 
+                self.config["properties"]["evaporator_slot"]["default_value"], 
+                self.config["properties"]["evaporator_slot"]["title"], 
+                self.config["properties"]["evaporator_slot"]["values_list"], 
                 ipw.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
                 {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
                 self.config["properties"]["evaporator_slot"]["placeholder"], 
@@ -134,7 +146,8 @@ class AppWidgets():
         with self.select_experiment_output:
             clear_output()
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            if self.config["objects"][self.method_type]["uses_molecule"]:
+            # This flag is needed to check whether molecule interface should be displayed (dropdown and metadata details boxes)
+            if self.config["objects"][self.method_type]["uses_molecule"]: 
                 display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
@@ -144,6 +157,7 @@ class AppWidgets():
             clear_output()
             utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
+            # This flag is needed to check whether molecule interface should be displayed (dropdown and metadata details boxes)
             if self.config["objects"][self.method_type]["uses_molecule"]:
                 display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
@@ -157,14 +171,14 @@ class AppWidgets():
         else:
             sample_parents = [] if self.materials_dropdown.value == -1 or self.material_selection_radio_button.value == "No material" else [self.materials_dropdown.value]
             sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
-            utils.create_openbis_object(type="SAMPLE", collection=self.samples_collection_openbis_path, props=sample_props, parents=sample_parents)
+            utils.create_openbis_object(self.openbis_session, type="SAMPLE", collection=self.samples_collection_openbis_path, props=sample_props, parents=sample_parents)
             print("Upload successful!")
     
     # Function to handle changes in the materials dropdown
     def load_material_metadata(self, change):
         if self.materials_dropdown.value == -1:
             self.material_details_textbox.value = ''
-            self.material_image_box.value = utils.read_file("images/white_screen.jpg")
+            self.material_image_box.value = utils.read_file(self.config["default_image_filepath"])
             return
         
         # Get selected object properties information from config file
@@ -179,9 +193,10 @@ class AppWidgets():
         if material_dataset:
             material_dataset.download(destination="images")
             self.material_image_box.value = utils.read_file(f"images/{material_dataset.permId}/{material_dataset.file_list[0]}")
+            # Erase file after downloading it
             shutil.rmtree(f"images/{material_dataset.permId}")
         else:
-            self.material_image_box.value = utils.read_file("images/white_screen.jpg")
+            self.material_image_box.value = utils.read_file(self.config["default_image_filepath"])
 
         # Make a string with the property values of the object
         material_metadata = material_object.props.all()
@@ -214,7 +229,7 @@ class AppWidgets():
         if material_type == "No material":
             return
 
-        material_class, placeholder = material_types.get(material_type, (None, None))
+        material_class, placeholder = material_types.get(material_type)
         if material_class:
             materials = self.openbis_session.get_objects(type = material_class)
             materials_names_permids = [(f"{mat.props['$name']} ({mat.permId})", mat.permId) for mat in materials]
@@ -231,11 +246,44 @@ class AppWidgets():
             display(self.material_metadata_boxes)
     
     def upload_datasets(self, method_object):
-        for file_info in self.support_files_uploader.value:
-            filename = file_info['name']
+        for filename in self.support_files_uploader.value:
+            file_info = self.support_files_uploader.value[filename]
             utils.save_file(file_info['content'], filename)
             self.openbis_session.new_dataset(type = 'RAW_DATA', sample = method_object, files = [filename]).save()
             os.remove(filename)
+    
+    def create_calibration_optimisation_action(self, b):
+        if self.experiments_dropdown.value == -1:
+            print("Select an experiment.")
+            return
+        
+        if self.instruments_dropdown_boxes.children[0].value == -1:
+            print("Select an instrument.")
+            return
+        
+        if self.molecules_dropdown_boxes.children[0].value == -1 and self.config["objects"][self.method_type]["uses_molecule"]:
+            print("Select a substance.")
+            return
+
+        # Prepare sample parents based on method type
+        object_parents = [self.instruments_dropdown_boxes.children[0].value]
+        if self.config["objects"][self.method_type]["uses_molecule"]:
+            object_parents.append(self.molecules_dropdown_boxes.children[0].value)
+
+        object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
+        
+        for prop in self.config["objects"][self.method_type]["properties"]:
+            if self.config["properties"][prop]["property_type"] == "string":
+                object_properties[prop] = self.property_widgets[prop].value
+            elif prop == "evaporator_slot":
+                object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
+            elif self.config["properties"][prop]["property_type"] == "quantity_value":
+                object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
+        
+        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"], 
+                                                    collection = self.experiments_dropdown.value, props = object_properties, parents = object_parents)
+        self.upload_datasets(method_object)
+        print("Upload successful!")
     
     def create_sample_preparation_action(self, b):
         samples_names = [sample.props["$name"] for sample in self.openbis_session.get_objects(type="SAMPLE")]
@@ -270,12 +318,13 @@ class AppWidgets():
         for prop in self.config["objects"][self.method_type]["properties"]:
             if prop == "evaporator_slot":
                 object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
-            elif prop == "sum_formula":
-                object_properties[prop] = self.property_widgets[prop]
-            else:
+            elif self.config["properties"][prop]["property_type"] == "string":
+                object_properties[prop] = self.property_widgets[prop].value
+            elif self.config["properties"][prop]["property_type"] == "quantity_value":
                 object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
 
-        method_object = utils.create_openbis_object(type = self.config["objects"][self.method_type]["openbis_object_type"], collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
+        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"], 
+                                                    collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
         self.upload_datasets(method_object)
 
         # Turn off sample visibility
@@ -284,14 +333,15 @@ class AppWidgets():
         parent_sample.save()
 
         sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
-        utils.create_openbis_object(type = "SAMPLE", collection = self.samples_collection_openbis_path, props = sample_props, parents = [method_object])
+        utils.create_openbis_object(self.openbis_session, type = "SAMPLE", collection = self.samples_collection_openbis_path, 
+                                    props = sample_props, parents = [method_object])
         print("Upload successful!")
     
     # Function to handle changes in the substances dropdown
     def load_molecule_metadata(self, change):
         if self.molecules_dropdown_boxes.children[0].value == -1:
             self.molecule_details_textbox.value = ''
-            self.molecule_image_box.value = utils.read_file("images/white_screen.jpg")
+            self.molecule_image_box.value = utils.read_file(self.config["default_image_filepath"])
             return
         
         # Get substance metadata
@@ -310,24 +360,24 @@ class AppWidgets():
             self.molecule_image_box.value = utils.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
             shutil.rmtree(f"images/{molecule_dataset.permId}/")
         else:
-            self.molecule_image_box.value = utils.read_file("images/white_screen.jpg")
+            self.molecule_image_box.value = utils.read_file(self.config["default_image_filepath"])
 
         material_metadata = material_object.props.all()
         material_metadata_string = ""
         for prop_key in property_list:
             prop_title = self.config["properties"][prop_key]["title"]
-            value = material_metadata.get(prop_key)
-            if self.config["properties"][prop_key]["property_type"] == "quantity_value" and value is not None:
-                value = json.loads(value)
-                material_metadata_string += f"{prop_title}: {value['value']} {value['unit']}\n"
+            prop_value = material_metadata.get(prop_key)
+            if self.config["properties"][prop_key]["property_type"] == "quantity_value" and prop_value is not None:
+                prop_value = json.loads(prop_value)
+                material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
             elif prop_key == "has_molecule":
-                material_metadata_string += f"Molecule:\n"
-                for prop_key in molecule_property_list:
-                    prop_title = self.config["properties"][prop_key]["title"]
-                    prop_value = molecule_metadata.get(prop_key)
-                    material_metadata_string += f"- {prop_title}: {prop_value}\n"
+                material_metadata_string += f"{prop_title}:\n"
+                for mol_prop_key in molecule_property_list:
+                    mol_prop_title = self.config["properties"][mol_prop_key]["title"]
+                    mol_prop_value = molecule_metadata.get(mol_prop_key)
+                    material_metadata_string += f"- {mol_prop_title}: {mol_prop_value}\n"
             else:
-                material_metadata_string += f"{prop_title}: {value}\n"
+                material_metadata_string += f"{prop_title}: {prop_value}\n"
 
         self.molecule_details_textbox.value = material_metadata_string
 
@@ -416,11 +466,9 @@ class AppWidgets():
         # Populate dropdown lists
         utils.load_openbis_elements_list(self.openbis_session, "SAMPLE", self.samples_dropdown_boxes.children[0], self.samples_dropdown_boxes.children[1], "sample")
         utils.load_openbis_elements_list(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
-        if self.method_type in self.config["objects"].keys():
-            if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
-                utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
-                if self.config["objects"][self.method_type]["openbis_object_type"] in ["DEPOSITION", "HYDROGEN_CRACKER"]:
-                    utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
+        utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
+        if self.config["objects"][self.method_type]["uses_molecule"]:
+            utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
 
     def update_text(self, change):
         if self.samples_dropdown_boxes.children[0].value != -1:

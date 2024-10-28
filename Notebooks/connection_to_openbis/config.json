@@ -54,10 +54,26 @@
             "title": "Comments",
             "property_type": "string"
         },
+        "rate": {
+            "title": "Rate",
+            "property_type": "quantity_value",
+            "units": ["Ang/min"],
+            "default_unit": "Ang/min",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
         "diameter": {
             "title": "Diameter",
             "property_type": "quantity_value",
             "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -70,6 +86,8 @@
             "title": "Height",
             "property_type": "quantity_value",
             "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -82,6 +100,8 @@
             "title": "Width",
             "property_type": "quantity_value",
             "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -94,6 +114,8 @@
             "title": "Thickness",
             "property_type": "quantity_value",
             "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -106,6 +128,8 @@
             "title": "Amount",
             "property_type": "quantity_value",
             "units": ["l", "ml", "ul", "g", "mg", "ug"],
+            "default_unit": "mg",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -118,6 +142,8 @@
             "title": "Duration",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
+            "default_unit": "sec",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -130,6 +156,8 @@
             "title": "Pressure",
             "units": ["mBar", "Bar", "Pa", "kPa"],
             "property_type": "quantity_value",
+            "default_unit": "mBar",
+            "default_value": 1e-9,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -142,6 +170,8 @@
             "title": "Discharge voltage",
             "units": ["V", "kV"],
             "property_type": "quantity_value",
+            "default_unit": "kV",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -154,6 +184,8 @@
             "title": "Voltage",
             "units": ["uV", "mV", "V"],
             "property_type": "quantity_value",
+            "default_unit": "V",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -166,6 +198,8 @@
             "title": "Temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
+            "default_unit": "K",
+            "default_value": 298,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -178,6 +212,8 @@
             "title": "Current",
             "units": ["uA", "mA", "A"],
             "property_type": "quantity_value",
+            "default_unit": "A",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -190,6 +226,8 @@
             "title": "Angle",
             "units": ["deg", "rad"],
             "property_type": "quantity_value",
+            "default_unit": "deg",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -202,6 +240,8 @@
             "title": "Stabilisation time",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
+            "default_unit": "min",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -214,6 +254,8 @@
             "title": "Deposition time",
             "units": ["sec", "min", "hrs"],
             "property_type": "quantity_value",
+            "default_unit": "min",
+            "default_value": 0,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -226,6 +268,8 @@
             "title": "Substrate temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
+            "default_unit": "K",
+            "default_value": 298,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -238,6 +282,8 @@
             "title": "Molecule temperature",
             "units": ["oC", "K"],
             "property_type": "quantity_value",
+            "default_unit": "K",
+            "default_value": 298,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -259,11 +305,22 @@
             "title": "Evaporator slot",
             "property_type": "integer",
             "placeholder": "Write evaporator slot details...",
+            "default_value": 1,
+            "values_list": [1, 2, 3, 4, 5, 6],
             "box_layout":{
                 "width": "300px"
             },
             "slider_layout":{
                 "width": "350px",
+                "description_width": "150px"
+            }
+        },
+        "pid_controller": {
+            "title": "PID controller",
+            "property_type": "string",
+            "placeholder": "Write PID controller values (separated by commas)...",
+            "box_layout":{
+                "width": "500px",
                 "description_width": "150px"
             }
         }
@@ -399,6 +456,26 @@
             "properties": [
                 
             ]
+        },
+        "SRD": {
+            "object_type": "calibration_optimisation",
+            "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
+            "uses_molecule": true,
+            "properties": [
+                
+            ]
+        },
+        "QCM": {
+            "object_type": "calibration_optimisation",
+            "openbis_object_type": "QUARTZ_CRYSTAL_MICROBALANCE",
+            "uses_molecule": true,
+            "properties": [
+                "pressure",
+                "rate",
+                "temperature",
+                "pid_controller",
+                "evaporator_slot"
+            ]
         }
     },
     "home_page": {
@@ -409,9 +486,8 @@
             "<li><a href='create_sample.ipynb' target='_blank'>Sample creation</a></li>",
             "<li><a href='sample_preparation.ipynb' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' target='_blank'>Sample measurement</a></li>",
-            "<li><a href='' target='_blank'>Sublimation rate determination</a></li>",
+            "<li><a href='calibration_optimisation.ipynb' target='_blank'>Calibration/Optimisation</a></li>",
             "<li><a href='' target='_blank'>Comments/Notes</a></li>",
-            "<li><a href='' target='_blank'>Calibration/Optimisation</a></li>",
             "<li><a href='find_similar_molecules.ipynb' target='_blank'>Find similar molecules</a></li>",
             "</ul>",
             "</div>",
@@ -429,9 +505,8 @@
             "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Sample creation</a></li>",
             "<li><a href='sample_preparation.ipynb' style='color: gray;' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
-            "<li><a href='' style='color: gray;' target='_blank'>Sublimation rate determination</a></li>",
+            "<li><a href='calibration_optimisation.ipynb' style='color: gray;' target='_blank'>Calibration/Optimisation</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Comments/Notes</a></li>",
-            "<li><a href='' style='color: gray;' target='_blank'>Calibration/Optimisation</a></li>",
             "<li><a href='find_similar_molecules.ipynb' style='color: gray;' target='_blank'>Find similar molecules</a></li>",
             "</ul>",
             "</div>",
@@ -451,5 +526,6 @@
         ".fa-home {font-size: 2em !important; /* Increase icon size */}",
         ".fa-times {font-size: 2em !important; /* Increase icon size */}",
         "</style>"
-    ]
+    ],
+    "default_image_filepath": "images/white_screen.jpg"
 }

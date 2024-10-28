@@ -25,7 +25,7 @@ def DropdownwithSortingCheckboxesWidget(*args):
     return ipw.VBox(widgets)
 
 def IntSliderwithTextWidget(*args):
-    intslider = IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][1], disabled = False, layout = args[3], style = args[4])
+    intslider = IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][-1], disabled = False, layout = args[3], style = args[4])
     textbox = Text(value = '', description = '', placeholder= args[5], disabled = False, layout = args[6])
     return ipw.HBox([intslider, textbox])
 
