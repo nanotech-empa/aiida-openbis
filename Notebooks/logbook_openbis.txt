@@ -247,6 +247,3 @@ Meeting with Bruno:
 Send updated Python Uploader to Adam
 Send examples files to populate the gallery.
 Measurement properties are not going to be saved inside an object but rather inside the config file.
-
-7-10-2024:
-Correct 

@@ -6,6 +6,7 @@ from pybis import Openbis
 import ipyfilechooser
 import yaml
 import pandas as pd
+from datetime import datetime
 
 def read_json(filename):
     with open(filename, 'r') as file:
@@ -69,28 +70,28 @@ def Checkbox(**kwargs):
     return ipw.Checkbox(**kwargs)
 
 def Textarea(**kwargs):
-    textarea_box = ipw.Textarea(**kwargs)
-    return textarea_box
+    return ipw.Textarea(**kwargs)
 
 def Text(**kwargs):
-    text_box = ipw.Text(**kwargs)
-    return text_box
+    return ipw.Text(**kwargs)
     
 def Radiobuttons(**kwargs):
-    radio_buttons = ipw.RadioButtons(**kwargs)
-    return radio_buttons
+    return ipw.RadioButtons(**kwargs)
 
 def Dropdown(**kwargs):
-    dropdown_box = ipw.Dropdown(**kwargs)
-    return dropdown_box
+    return ipw.Dropdown(**kwargs)
+
+def IntText(**kwargs):
+    return ipw.IntText(**kwargs)
 
 def FloatText(**kwargs):
-    floattext_box = ipw.FloatText(**kwargs)
-    return floattext_box
+    return ipw.FloatText(**kwargs)
+
+def SelectMultiple(**kwargs):
+    return ipw.SelectMultiple(**kwargs)
 
 def read_file(filename):
-    file = open(filename, "rb")
-    return file.read()
+    return open(filename, "rb").read()
 
 def sort_dataframe(df, columns, ascending_columns):
     df = df.sort_values(by = columns, ascending = ascending_columns)
@@ -121,7 +122,7 @@ def sort_dropdown(sorting_checkboxes, dropdown_box):
 def dataframe_to_list_of_tuples(df):
     return list(df.itertuples(index = False, name = None))
 
-def connect_openbis():
+def connect_openbis_aiida():
     try:
         eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
         eln_config.parent.mkdir(parents=True, exist_ok=True)  # making sure that the folder exists.
@@ -132,6 +133,18 @@ def connect_openbis():
         openbis_session = Openbis(eln_url, verify_certificates = False)
         openbis_session.set_token(eln_token)
     except ValueError:
+        openbis_session = None
+        session_data = {}
+    
+    return openbis_session, session_data
+
+def connect_openbis(eln_url, eln_token):
+    try:
+        session_data = {"url": eln_url, "token": eln_token}
+        openbis_session = Openbis(eln_url, verify_certificates = False)
+        openbis_session.set_token(eln_token)
+    except ValueError:
+        print("Session is no longer valid. Please check if the token is still valid.")
         openbis_session = None
         session_data = {}
     
@@ -204,6 +217,12 @@ def create_openbis_object(openbis_session, **kwargs):
     return openbis_object
 
 def create_openbis_collection(openbis_session, **kwargs):
-    measurements_collection = openbis_session.new_collection(**kwargs)
-    measurements_collection.save()
-    return measurements_collection
+    collection = openbis_session.new_collection(**kwargs)
+    collection.save()
+    return collection
+
+def get_current_datetime():
+    return datetime.now()
+
+def convert_datetime_to_string(dt):
+    return dt.strftime('%Y%m%d%H%M%S')

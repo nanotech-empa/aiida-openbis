@@ -475,6 +475,17 @@ classes:
      - convergence_coefficient
      - number_k_points
      - has_tb
+  Miscellaneous:
+    title: Miscellaneous
+    is_a: Thing
+    class_uri: 
+    description: Miscellaneous
+    annotations:
+      openbis_object: true
+      openbis_code: MISC
+      openbis_label: Miscellaneous
+    slots:
+     - comments
   Molecule:
     title: Molecule
     is_a: Thing
@@ -501,6 +512,8 @@ classes:
       openbis_label: Notes
     slots:
      - description
+     - comments
+     - has_sample
   OpticalComponent:
     title: Optical Component
     is_a: Thing
@@ -606,7 +619,7 @@ classes:
      - pid_controller
      - comments
      - uses_substance
-  Result:
+  Results:
     title: Results
     is_a: Thing
     class_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
@@ -936,9 +949,9 @@ classes:
       openbis_label: Tip Preparation
     slots:
      - description
+     - comments
      - tip_preparation_type
      - has_tip_sensor
-     - has_authors
   TipSensor:
     title: Tip Sensor
     is_a: Thing
@@ -1622,7 +1635,7 @@ classes:
       results:
         multivalued: true
         inlined_as_list: true
-        range: Result
+        range: Results
         description: results container
       rooms:
         multivalued: true
@@ -3746,7 +3759,7 @@ slots:
       openbis_type: OBJECT
       openbis_label: Tip sensor
   has_results:
-    range: Result
+    range: Results
     description: results
     multivalued: true
     inlined_as_list: true
