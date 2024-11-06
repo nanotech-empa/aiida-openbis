@@ -11,163 +11,211 @@ import utils
 class AppWidgets():
     def __init__(self, method_type, config_filename):
         self.method_type = method_type
+        
+        # Get configuration data
         self.config = utils.read_json(config_filename)
         self.config_eln = utils.read_json("eln_config.json")
+        self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
+        self.measurement_file_extensions = self.config["measurement_file_extensions"]
+        
+        # Connect to openBIS
         self.openbis_session, self.session_data = utils.connect_openbis(self.config_eln["url"], self.config_eln["token"])
         
         # Necessary for refreshing the widgets needed to create new experiments in sample preparation page
         self.select_experiment_output = ipw.Output()
         
         # Home page configuration
-        if self.method_type == "Home":
-            self.openbis_connection_status_htmlbox = utils.HTMLbox(value = '')
-            if self.openbis_session:
-                self.openbis_connection_status_htmlbox.value = self.config["home_page"]["enable_status"]
-                self.open_notebooks_html_enable_code = ''.join(self.config["home_page"]["enable_links"])
-                self.open_notebooks_htmlbox = utils.HTMLbox(value = self.open_notebooks_html_enable_code)
-            else:
-                self.openbis_connection_status_htmlbox.value = self.config["home_page"]["disable_status"]
-                self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
-                self.open_notebooks_htmlbox = utils.HTMLbox(value = self.open_notebooks_html_disable_code)
+        self.openbis_connection_status_htmlbox = utils.HTMLbox(value = '')
+        if self.openbis_session:
+            self.openbis_connection_status_htmlbox.value = self.config["home_page"]["enable_status"]
+            self.open_notebooks_html_enable_code = ''.join(self.config["home_page"]["enable_links"])
+            self.open_notebooks_htmlbox = utils.HTMLbox(value = self.open_notebooks_html_enable_code)
         else:
-            self.slabs_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
-            self.sample_preparation_sample_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "sample_preparation"]
-            self.samples_collection_openbis_path = self.config["samples_collection_openbis_path"]
-            self.measurement_file_extensions = self.config["measurement_file_extensions"]
-            
-            self.support_files_uploader = ipw.FileUpload(multiple = True)
-            
-            slabs_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
-            slabs_options.insert(0, "No material")
-            self.material_selection_radio_button = utils.Radiobuttons(description = '', options = slabs_options, disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "100px"})
-            self.materials_dropdown = utils.Dropdown(description='', disabled=False, layout = ipw.Layout(width = '350px'))
-            self.material_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '425px', height = '200px'))
-            self.material_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '200px', height = '300px', layout=ipw.Layout(border='solid 1px #cccccc'))
-            self.material_metadata_boxes = ipw.HBox([self.material_details_textbox, self.material_image_box])
-            self.material_sorting_checkboxes = utils.SortingCheckboxes("50px", "60px", "200px")
-            
-            self.samples_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Sample', ipw.Layout(width = '385px'), {'description_width': "110px"}, [-1])
-            self.sample_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '589px', height = '300px'))
-            self.sample_metadata_boxes = ipw.HBox([self.samples_dropdown_boxes, self.sample_details_textbox])
+            self.openbis_connection_status_htmlbox.value = self.config["home_page"]["disable_status"]
+            self.open_notebooks_html_disable_code = ''.join(self.config["home_page"]["disable_links"])
+            self.open_notebooks_htmlbox = utils.HTMLbox(value = self.open_notebooks_html_disable_code)
+         
+        # Get slabs types
+        self.slabs_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
+        
+        # Get sample preparation types
+        self.sample_preparation_sample_types = [object_info["openbis_object_type"] for _, object_info in self.config["objects"].items() if object_info["object_type"] == "sample_preparation"]
+        self.sample_preparation_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "sample_preparation"]
+        
+        # Get widgets for new experiments
+        self.create_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = ipw.Layout(width = '50px', height = '25px'))
+        self.save_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = ipw.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
+        self.cancel_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = ipw.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
+        self.new_experiment_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write experiment name here...", style = {'description_width': "110px"})
+        
+        # Get widgets for slab dropdown
+        slabs_options = [object_key for object_key, object_info in self.config["objects"].items() if object_info["object_type"] == "slab"]
+        slabs_options.insert(0, "No material")
+        self.material_selection_radio_button = utils.Radiobuttons(description = '', options = slabs_options, disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "100px"})
+        self.materials_dropdown = utils.Dropdown(description='', disabled=False, layout = ipw.Layout(width = '350px'))
+        self.material_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '425px', height = '200px'))
+        self.material_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '200px', height = '300px', layout=ipw.Layout(border='solid 1px #cccccc'))
+        self.material_metadata_boxes = ipw.HBox([self.material_details_textbox, self.material_image_box])
+        self.material_sorting_checkboxes = utils.SortingCheckboxes("50px", "60px", "200px")
+        
+        # Get widgets for sample dropdown
+        self.samples_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Sample', ipw.Layout(width = '385px'), {'description_width': "110px"}, [-1])
+        self.sample_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '589px', height = '300px'))
+        self.sample_metadata_boxes = ipw.HBox([self.samples_dropdown_boxes, self.sample_details_textbox])
 
-            self.instruments_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Instrument', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1])
-            self.projects_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Project', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1])
-            
-            self.create_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Add', icon = 'plus', layout = ipw.Layout(width = '50px', height = '25px'))
-            self.save_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = ipw.Layout(width = '50px', height = '35px', margin = '0 0 0 90px'))
-            self.cancel_new_experiment_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Cancel', icon = 'times', layout = ipw.Layout(width = '50px', height = '35px', margin = '0 0 0 5px'))
-            self.new_experiment_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write experiment name here...", style = {'description_width': "110px"})
-            
-            self.experiments_dropdown = utils.Dropdown(description='Experiment', disabled=False, layout = ipw.Layout(width = '993px'), style = {'description_width': "110px"}, options = [-1])
-            self.experiment_sorting_checkboxes = utils.SortingCheckboxes("130px", "60px", "200px")
-            self.experiments_dropdown_details = ipw.HBox([self.experiments_dropdown, self.create_new_experiment_button])
-            self.experiments_dropdown_boxes = ipw.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
-            
-            self.molecules_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Substance', ipw.Layout(width = '335px'), {'description_width': "110px"}, [-1])
-            self.molecule_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
-            self.molecule_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
-            self.molecule_metadata_boxes = ipw.HBox([self.molecules_dropdown_boxes, self.molecule_details_textbox, self.molecule_image_box])
+        # Get widgets for instrument dropdown
+        self.instruments_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Instrument', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1])
+        
+        # Get widgets for project dropdown
+        self.projects_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Project', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1])
+        
+        # Get widgets for experiment dropdown
+        self.experiments_dropdown = utils.Dropdown(description='Experiment', disabled=False, layout = ipw.Layout(width = '993px'), style = {'description_width': "110px"}, options = [-1])
+        self.experiment_sorting_checkboxes = utils.SortingCheckboxes("130px", "60px", "200px")
+        self.experiments_dropdown_details = ipw.HBox([self.experiments_dropdown, self.create_new_experiment_button])
+        self.experiments_dropdown_boxes = ipw.VBox([self.experiments_dropdown_details, self.experiment_sorting_checkboxes])
+        
+        # Get widgets for molecule dropdown
+        self.molecules_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Substance', ipw.Layout(width = '335px'), {'description_width': "110px"}, [-1])
+        self.molecule_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
+        self.molecule_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
+        self.molecule_metadata_boxes = ipw.HBox([self.molecules_dropdown_boxes, self.molecule_details_textbox, self.molecule_image_box])
 
-            self.method_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write task name here...", style = {'description_width': "150px"})
-            self.description_textbox = utils.Textarea(description = "Description", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), placeholder = f"Write task description here...", style = {'description_width': "150px"})
-            self.comments_textbox = utils.Textarea(description = "Comments", disabled = False, layout = ipw.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
-            
-            # Quantity properties widgets
-            self.property_widgets = {}
-            for prop in self.config["properties"].keys():
-                if self.config["properties"][prop]["property_type"] == "quantity_value":
-                    self.property_widgets[prop] = utils.FloatTextwithDropdownWidget(
-                        self.config["properties"][prop]["title"], ipw.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
-                        self.config["properties"][prop]["default_value"],
-                        {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
-                        ipw.Layout(width = self.config["properties"][prop]["dropdown_layout"]["width"]), self.config["properties"][prop]["units"], 
-                        self.config["properties"][prop]["default_unit"]
-                    )
-            
-            self.property_widgets["pid_controller"] = utils.Text(
-                description = self.config["properties"]["pid_controller"]["title"], 
-                disabled = False, 
-                layout = ipw.Layout(
-                    width = self.config["properties"]["pid_controller"]["box_layout"]["width"]), 
-                    placeholder = self.config["properties"]["pid_controller"]["placeholder"],
-                    style = {'description_width': self.config["properties"]["pid_controller"]["box_layout"]["description_width"]}
-            )
-            
-            self.property_widgets["sum_formula"] = utils.Text(
-                description = self.config["properties"]["sum_formula"]["title"], 
-                disabled = False, 
-                layout = ipw.Layout(
-                    width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
-                    placeholder = self.config["properties"]["sum_formula"]["placeholder"],
-                    style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}
+        # Get widgets for properties
+        self.property_widgets = {}
+        self.property_widgets["$name"] = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write task name here...", style = {'description_width': "150px"})
+        self.property_widgets["description"] = utils.Textarea(description = "Description", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), placeholder = f"Write task description here...", style = {'description_width': "150px"})
+        self.property_widgets["comments"] = utils.Textarea(description = "Comments", disabled = False, layout = ipw.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
+        
+        for prop in self.config["properties"].keys():
+            if self.config["properties"][prop]["property_type"] == "quantity_value":
+                self.property_widgets[prop] = utils.FloatTextwithDropdownWidget(
+                    self.config["properties"][prop]["title"], ipw.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
+                    self.config["properties"][prop]["default_value"],
+                    {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
+                    ipw.Layout(width = self.config["properties"][prop]["dropdown_layout"]["width"]), self.config["properties"][prop]["units"], 
+                    self.config["properties"][prop]["default_unit"]
                 )
-            
-            self.property_widgets["evaporator_slot"] = utils.IntSliderwithTextWidget(
-                self.config["properties"]["evaporator_slot"]["default_value"], 
-                self.config["properties"]["evaporator_slot"]["title"], 
-                self.config["properties"]["evaporator_slot"]["values_list"], 
-                ipw.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
-                {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
-                self.config["properties"]["evaporator_slot"]["placeholder"], 
-                ipw.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"])
+        
+        self.property_widgets["pid_controller"] = utils.Text(
+            description = self.config["properties"]["pid_controller"]["title"], 
+            disabled = False, 
+            layout = ipw.Layout(
+                width = self.config["properties"]["pid_controller"]["box_layout"]["width"]), 
+                placeholder = self.config["properties"]["pid_controller"]["placeholder"],
+                style = {'description_width': self.config["properties"]["pid_controller"]["box_layout"]["description_width"]}
+        )
+        
+        self.property_widgets["sum_formula"] = utils.Text(
+            description = self.config["properties"]["sum_formula"]["title"], 
+            disabled = False, 
+            layout = ipw.Layout(
+                width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
+                placeholder = self.config["properties"]["sum_formula"]["placeholder"],
+                style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}
             )
-            
-            if self.method_type in self.config["objects"].keys():
-                items = [self.property_widgets[prop] for prop in self.config["objects"][self.method_type]["properties"]]
-                self.method_properties = ipw.VBox(items)
+        
+        self.property_widgets["evaporator_slot"] = utils.IntSliderwithTextWidget(
+            self.config["properties"]["evaporator_slot"]["default_value"], 
+            self.config["properties"]["evaporator_slot"]["title"], 
+            self.config["properties"]["evaporator_slot"]["values_list"], 
+            ipw.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
+            {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
+            self.config["properties"]["evaporator_slot"]["placeholder"], 
+            ipw.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"])
+        )
+        
+        # Select the properties for the specific object one is interested
+        self.object_widgets = {}
+        for key, object in self.config["objects"].items():
+            if object["object_type"] in ["sample_preparation", "other"]:
+                items = [self.property_widgets[prop] for prop in object["properties"]]
+                self.object_widgets[key] = ipw.VBox(items)
 
-            self.sample_out_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write sample name here...", style = {'description_width': "110px"})
-            self.create_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = ipw.Layout(width = '100px', height = '50px'))
-            self.quit_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Main menu', icon = 'home', layout = ipw.Layout(width = '100px', height = '50px'))
-            self.bottom_buttons_hbox = ipw.HBox([self.create_button, self.quit_button])
+        # Get widget for sample name
+        self.sample_out_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write sample name here...", style = {'description_width': "110px"})
+        
+        # Get widgets for saving/closing buttons
+        self.create_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = ipw.Layout(width = '100px', height = '50px'))
+        self.quit_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Main menu', icon = 'home', layout = ipw.Layout(width = '100px', height = '50px'))
+        self.bottom_buttons_hbox = ipw.HBox([self.create_button, self.quit_button])
+        
+        self.sample_prep_selector = utils.SelectMultiple(description = 'Processes', disabled = False, 
+                                                         layout = ipw.Layout(width = '300px', height = '110px'), 
+                                                         style = {'description_width': "65px"},
+                                                         options = self.sample_preparation_options)
+        self.sample_prep_accordion = ipw.Accordion(children = [])
+        
+        # Widget to select folder with measurement files
+        self.folder_selector = utils.FileChooser(path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
+        
+        # Measurements selector widget
+        self.measurements_selector = utils.SelectMultiple(description = 'Measurements', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+        
+        # Results selector widget
+        self.results_selector = utils.SelectMultiple(description = 'Results', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+        
+        # Drafts selector widget
+        self.drafts_selector = utils.SelectMultiple(description = 'Drafts', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+        
+        # Authors selector widget
+        self.authors_selector = utils.SelectMultiple(description = 'Authors', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+        self.load_authors()
+        
+        # Grants selector widget
+        self.grants_selector = utils.SelectMultiple(description = 'Grants', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+        self.load_grants()
+        
+        # Draft dropdown box widget
+        self.draft_type_dropdown = utils.Dropdown(description = 'Draft type', disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "150px"},
+                                                    options = [("Select draft type...", -1), ("Preprint", "PREPRINT"), ("Postprint", "POSTPRINT")], value = -1)
+        
+        # Publication properties
+        self.publication_abstract_textarea = utils.Textarea(description = "Abstract", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), 
+                                                            placeholder = f"Write publication abstract here...", style = {'description_width': "150px"})
+        self.publication_doi_textbox = utils.Text(description = "DOI", disabled = False, layout = ipw.Layout(width = '993px'), 
+                                                    placeholder = f"Write publication DOI here...", style = {'description_width': "150px"})
+        self.publication_year_intbox = utils.IntText(description = "Year", disabled = False, layout = ipw.Layout(width = '250px'), 
+                                                        placeholder = f"Write publication year here...", style = {'description_width': "150px"})
+        self.publication_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
+                                                    placeholder = f"Write publication URL here...", style = {'description_width': "150px"})
+        self.publication_dataset_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
+                                                            placeholder = f"Write publication dataset URL here...", style = {'description_width': "150px"})
+        
+        self.support_files_uploader = ipw.FileUpload(multiple = True)
+        
+        # Assign functions to widgets
+        self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
+        self.cancel_new_experiment_button.on_click(self.cancel_new_experiment_button_on_click)
+        self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
+        self.sample_prep_selector.observe(self.sample_preparation_widgets, names='value')
+        
+        # Increase buttons icons' size
+        self.increase_buttons_size = utils.HTML(data = ''.join(self.config["save_home_buttons_settings"]))
+        display(self.increase_buttons_size)
+
+    def sample_preparation_widgets(self, change):
+    
+        accordion_options = []
+        
+        for i, task in enumerate(self.sample_prep_selector.value):
             
-            # Widget to select folder with measurement files
-            self.folder_selector = utils.FileChooser(path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
+            task_widgets = []
             
-            # Measurements selector widget
-            self.measurements_selector = utils.SelectMultiple(description = 'Measurements', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+            if self.config["objects"][task]["uses_molecule"]:
+                task_widgets.append(self.molecule_metadata_boxes)
+                
+            task_widgets.extend([self.object_widgets[task]])
             
-            # Results selector widget
-            self.results_selector = utils.SelectMultiple(description = 'Results', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
+            task_widgets.append(self.support_files_uploader)
             
-            # Drafts selector widget
-            self.drafts_selector = utils.SelectMultiple(description = 'Drafts', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-            
-            # Authors selector widget
-            self.authors_selector = utils.SelectMultiple(description = 'Authors', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-            self.load_authors()
-            
-            # Grants selector widget
-            self.grants_selector = utils.SelectMultiple(description = 'Grants', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-            self.load_grants()
-            
-            # Draft dropdown box widget
-            self.draft_type_dropdown = utils.Dropdown(description = 'Draft type', disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "150px"},
-                                                      options = [("Select draft type...", -1), ("Preprint", "PREPRINT"), ("Postprint", "POSTPRINT")], value = -1)
-            
-            # Publication properties
-            self.publication_abstract_textarea = utils.Textarea(description = "Abstract", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), 
-                                                                placeholder = f"Write publication abstract here...", style = {'description_width': "150px"})
-            self.publication_doi_textbox = utils.Text(description = "DOI", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                      placeholder = f"Write publication DOI here...", style = {'description_width': "150px"})
-            self.publication_year_intbox = utils.IntText(description = "Year", disabled = False, layout = ipw.Layout(width = '250px'), 
-                                                         placeholder = f"Write publication year here...", style = {'description_width': "150px"})
-            self.publication_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                      placeholder = f"Write publication URL here...", style = {'description_width': "150px"})
-            self.publication_dataset_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                              placeholder = f"Write publication dataset URL here...", style = {'description_width': "150px"})
-            
-            # Assign functions to widgets
-            self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
-            self.cancel_new_experiment_button.on_click(self.cancel_new_experiment_button_on_click)
-            self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
-            
-            # Increase buttons icons' size
-            self.increase_buttons_size = utils.HTML(data = ''.join(self.config["save_home_buttons_settings"]))
-            display(self.increase_buttons_size)
+            self.sample_prep_accordion.set_title(i, task)
+            accordion_options.append(ipw.VBox(task_widgets))
+        
+        self.sample_prep_accordion.children = accordion_options
     
     def create_publication_openbis(self, b):
-        publication_props = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value,
+        publication_props = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value,
                              "abstract": self.publication_abstract_textarea.value, "doi": self.publication_doi_textbox.value,
                              "url": self.publication_url_textbox.value, "year": self.publication_year_intbox.value,
                              "dataset_url": self.publication_dataset_url_textbox.value}
@@ -182,7 +230,7 @@ class AppWidgets():
         print("Upload successful!")
     
     def create_draft_openbis(self, b):
-        draft_props = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
+        draft_props = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value}
         project_permid = self.projects_dropdown_boxes.children[0].value
         project_drafts_collection = self.openbis_session.get_collections(project = project_permid, code = "DRAFTS_COLLECTION")
         drafts_parents = list(self.results_selector.value)
@@ -200,8 +248,8 @@ class AppWidgets():
         print("Upload successful!")
     
     def create_results_openbis(self, b):
-        results_props = {"$name": self.method_name_textbox.value, "description": self.description_textbox.value,
-                         "comments": self.comments_textbox.value}
+        results_props = {"$name": self.property_widgets["$name"].value, "description": self.property_widgets["description"].value,
+                         "comments": self.property_widgets["comments"].value}
         project_permid = self.projects_dropdown_boxes.children[0].value
         project_results_collection = self.openbis_session.get_collections(project = project_permid, code = "RESULTS_COLLECTION")
         results_parents = list(self.measurements_selector.value)
@@ -369,32 +417,12 @@ class AppWidgets():
             self.openbis_session.new_dataset(type = 'RAW_DATA', sample = method_object, files = [filename]).save()
             os.remove(filename)
     
-    def create_notes_action(self, b):
-        if self.experiments_dropdown.value == -1:
-            print("Select an experiment.")
-            return
-
-        # Prepare process parents
-        object_parents = []
-        if self.instruments_dropdown_boxes.children[0].value != -1:
-            object_parents.append(self.instruments_dropdown_boxes.children[0].value)
-        
-        if self.samples_dropdown_boxes.children[0].value != -1:
-            object_parents.append(self.samples_dropdown_boxes.children[0].value)
-
-        object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
-        
-        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"], 
-                                                    collection = self.experiments_dropdown.value, props = object_properties, parents = object_parents)
-        self.upload_datasets(method_object)
-        print("Upload successful!")
-    
     def create_miscellaneous_action(self, b):
         if self.experiments_dropdown.value == -1:
             print("Select an experiment.")
             return
 
-        object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
+        object_properties = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value}
         
         method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"],
                                                     collection = self.experiments_dropdown.value, props = object_properties)
@@ -419,8 +447,7 @@ class AppWidgets():
         if self.config["objects"][self.method_type]["uses_molecule"]:
             object_parents.append(self.molecules_dropdown_boxes.children[0].value)
 
-        object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
-        
+        object_properties = {}
         for prop in self.config["objects"][self.method_type]["properties"]:
             if self.config["properties"][prop]["property_type"] == "string":
                 object_properties[prop] = self.property_widgets[prop].value
@@ -452,29 +479,38 @@ class AppWidgets():
         if self.instruments_dropdown_boxes.children[0].value == -1:
             print("Select an instrument.")
             return
-        
-        if self.molecules_dropdown_boxes.children[0].value == -1 and self.config["objects"][self.method_type]["uses_molecule"]:
-            print("Select a substance.")
-            return
 
         # Prepare sample parents based on method type
-        sample_parents = [self.samples_dropdown_boxes.children[0].value, self.instruments_dropdown_boxes.children[0].value]
-        if self.config["objects"][self.method_type]["uses_molecule"]:
-            sample_parents.append(self.molecules_dropdown_boxes.children[0].value)
-
-        object_properties = {"$name": self.method_name_textbox.value, "comments": self.comments_textbox.value}
+        methods_objects = []
+        for i, task in enumerate(self.sample_prep_selector.value):
+            
+            method_parents = [self.samples_dropdown_boxes.children[0].value, self.instruments_dropdown_boxes.children[0].value]
+            
+            # ---------
+            # TODO: I should create a widget per property per object. Otherwise, the duration in sputtering and in annealing is shared (is the same object).
+            if self.molecules_dropdown_boxes.children[0].value == -1 and self.config["objects"][task]["uses_molecule"]:
+                print("Select a substance.")
+                return
+            # ---------
         
-        for prop in self.config["objects"][self.method_type]["properties"]:
-            if prop == "evaporator_slot":
-                object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
-            elif self.config["properties"][prop]["property_type"] == "string":
-                object_properties[prop] = self.property_widgets[prop].value
-            elif self.config["properties"][prop]["property_type"] == "quantity_value":
-                object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
+            if self.config["objects"][task]["uses_molecule"]:
+                method_parents.append(self.molecules_dropdown_boxes.children[0].value)
 
-        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"], 
-                                                    collection = self.experiments_dropdown.value, props = object_properties, parents = sample_parents)
-        self.upload_datasets(method_object)
+            object_properties = {}
+            
+            for prop in self.config["objects"][task]["properties"]:
+                if prop == "evaporator_slot":
+                    object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
+                elif self.config["properties"][prop]["property_type"] == "string":
+                    object_properties[prop] = self.property_widgets[prop].value
+                elif self.config["properties"][prop]["property_type"] == "quantity_value":
+                    object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
+
+            method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][task]["openbis_object_type"], 
+                                                        collection = self.experiments_dropdown.value, props = object_properties, parents = method_parents)
+            self.upload_datasets(method_object)
+            
+            methods_objects.append(method_object)
 
         # Turn off sample visibility
         parent_sample = self.openbis_session.get_object(self.samples_dropdown_boxes.children[0].value)
@@ -483,7 +519,7 @@ class AppWidgets():
 
         sample_props = {"$name": self.sample_out_name_textbox.value, "exists": True}
         utils.create_openbis_object(self.openbis_session, type = "SAMPLE", collection = self.samples_collection_openbis_path, 
-                                    props = sample_props, parents = [method_object])
+                                    props = sample_props, parents = methods_objects)
         print("Upload successful!")
     
     # Function to handle changes in the substances dropdown
@@ -538,7 +574,6 @@ class AppWidgets():
             
             if self.method_type in self.config["objects"].keys():
                 if self.config["objects"][self.method_type]["object_type"] in ["sample_preparation", "comments_notes"]:
-                # if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
                     self.sample_out_name_textbox.value = ''
             return
         
@@ -612,7 +647,7 @@ class AppWidgets():
             if self.config["objects"][self.method_type]["object_type"] in ["sample_preparation", "comments_notes"]:
             # if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
                 sample_name = sample_object.props['$name']
-                self.sample_out_name_textbox.value = f"{sample_name}_{self.method_name_textbox.value}" if self.method_name_textbox.value else sample_name
+                self.sample_out_name_textbox.value = f"{sample_name}_{self.property_widgets['$name'].value}" if self.property_widgets["$name"].value else sample_name
     
     def load_dropdown_lists(self):
         # Populate dropdown lists
@@ -620,17 +655,13 @@ class AppWidgets():
         utils.load_openbis_elements_list(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
         utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
         utils.load_openbis_elements_list(self.openbis_session, "PROJECT", self.projects_dropdown_boxes.children[0], self.projects_dropdown_boxes.children[1], "project")
-        
-        # Measurement is not in the config.json file
-        if self.method_type in self.config["objects"]:
-            if self.config["objects"][self.method_type]["uses_molecule"]:
-                utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
+        utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
 
     def update_text(self, change):
         if self.samples_dropdown_boxes.children[0].value != -1:
             selected_sample_name = next(label for label, val in self.samples_dropdown_boxes.children[0].options if val == self.samples_dropdown_boxes.children[0].value)
-            if len(self.method_name_textbox.value) > 0:
-                self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.method_name_textbox.value}"
+            if len(self.property_widgets["$name"].value) > 0:
+                self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.property_widgets['$name'].value}"
             else:
                 self.sample_out_name_textbox.value = selected_sample_name
     
