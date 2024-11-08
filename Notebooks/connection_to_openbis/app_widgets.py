@@ -1,17 +1,16 @@
 import json
 import os
 import ipywidgets as ipw
-from IPython.display import display, clear_output
+from IPython.display import display, clear_output, Javascript
 import sys
 sys.path.append('/home/jovyan/aiida-openbis/Notebooks/importer')
 import nanonis_importer
 import shutil
 import utils
+import base64
 
 class AppWidgets():
-    def __init__(self, method_type, config_filename):
-        self.method_type = method_type
-        
+    def __init__(self, config_filename):
         # Get configuration data
         self.config = utils.read_json(config_filename)
         self.config_eln = utils.read_json("eln_config.json")
@@ -82,107 +81,96 @@ class AppWidgets():
         self.molecule_metadata_boxes = ipw.HBox([self.molecules_dropdown_boxes, self.molecule_details_textbox, self.molecule_image_box])
 
         # Get widgets for properties
-        self.property_widgets = {}
-        self.property_widgets["$name"] = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write task name here...", style = {'description_width': "150px"})
-        self.property_widgets["description"] = utils.Textarea(description = "Description", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), placeholder = f"Write task description here...", style = {'description_width': "150px"})
-        self.property_widgets["comments"] = utils.Textarea(description = "Comments", disabled = False, layout = ipw.Layout(width = '993px', height = '200px'), placeholder = "Write comments here...", style = {'description_width': "150px"})
-        
-        for prop in self.config["properties"].keys():
-            if self.config["properties"][prop]["property_type"] == "quantity_value":
-                self.property_widgets[prop] = utils.FloatTextwithDropdownWidget(
-                    self.config["properties"][prop]["title"], ipw.Layout(width = self.config["properties"][prop]["box_layout"]["width"]), 
-                    self.config["properties"][prop]["default_value"],
-                    {'description_width': self.config["properties"][prop]["box_layout"]["description_width"]}, 
-                    ipw.Layout(width = self.config["properties"][prop]["dropdown_layout"]["width"]), self.config["properties"][prop]["units"], 
-                    self.config["properties"][prop]["default_unit"]
-                )
-        
-        self.property_widgets["pid_controller"] = utils.Text(
-            description = self.config["properties"]["pid_controller"]["title"], 
-            disabled = False, 
-            layout = ipw.Layout(
-                width = self.config["properties"]["pid_controller"]["box_layout"]["width"]), 
-                placeholder = self.config["properties"]["pid_controller"]["placeholder"],
-                style = {'description_width': self.config["properties"]["pid_controller"]["box_layout"]["description_width"]}
-        )
-        
-        self.property_widgets["sum_formula"] = utils.Text(
-            description = self.config["properties"]["sum_formula"]["title"], 
-            disabled = False, 
-            layout = ipw.Layout(
-                width = self.config["properties"]["sum_formula"]["box_layout"]["width"]), 
-                placeholder = self.config["properties"]["sum_formula"]["placeholder"],
-                style = {'description_width': self.config["properties"]["sum_formula"]["box_layout"]["description_width"]}
-            )
-        
-        self.property_widgets["evaporator_slot"] = utils.IntSliderwithTextWidget(
-            self.config["properties"]["evaporator_slot"]["default_value"], 
-            self.config["properties"]["evaporator_slot"]["title"], 
-            self.config["properties"]["evaporator_slot"]["values_list"], 
-            ipw.Layout(width = self.config["properties"]["evaporator_slot"]["slider_layout"]["width"]), 
-            {'description_width': self.config["properties"]["evaporator_slot"]["slider_layout"]["description_width"]}, 
-            self.config["properties"]["evaporator_slot"]["placeholder"], 
-            ipw.Layout(width = self.config["properties"]["evaporator_slot"]["box_layout"]["width"])
-        )
-        
-        # Select the properties for the specific object one is interested
         self.object_widgets = {}
-        for key, object in self.config["objects"].items():
-            if object["object_type"] in ["sample_preparation", "other"]:
-                items = [self.property_widgets[prop] for prop in object["properties"]]
-                self.object_widgets[key] = ipw.VBox(items)
+        self.objects_support_files_widgets = {}
+        for obj_key, object in self.config["objects"].items():
+            property_widgets = {}
+            for prop_key in object["properties"]:
+                property = self.config["properties"][prop_key]
+                if property["property_widget"] == "TEXT":
+                    prop_widget = utils.Text(
+                        description = property["title"], disabled = False, 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                        placeholder = property["placeholder"], 
+                        style = {'description_width': property["box_layout"]["description_width"]}
+                    )
+                    
+                elif property["property_widget"] == "TEXTAREA":
+                    prop_widget = utils.Textarea(
+                        description = property["title"], disabled = False, 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                        placeholder = property["placeholder"], 
+                        style = {'description_width': property["box_layout"]["description_width"]}
+                    )
+                
+                elif property["property_widget"] == "INTTEXT":
+                    prop_widget = utils.IntText(
+                        description = property["title"], disabled = False, 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                        placeholder = property["placeholder"], 
+                        style = {'description_width': property["box_layout"]["description_width"]}
+                    )
+                
+                elif property["property_widget"] == "DROPDOWN":
+                    prop_widget = utils.Dropdown(
+                        description = property["title"], disabled = False, 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                        options = property["options"],
+                        value = property["value"],
+                        style = {'description_width': property["box_layout"]["description_width"]}
+                    )
+                    
+                elif property["property_widget"] == "FLOAT_TEXT_W_DROPDOWN":
+                    prop_widget = utils.FloatTextwithDropdownWidget(
+                        property["title"], ipw.Layout(width = property["box_layout"]["width"]), 
+                        property["default_value"], {'description_width': property["box_layout"]["description_width"]}, 
+                        ipw.Layout(width = property["dropdown_layout"]["width"]), property["units"], property["default_unit"]
+                    )
+                
+                elif property["property_widget"] == "INTEGER_SLIDER_W_DETAILS":
+                    prop_widget = utils.IntSliderwithTextWidget(
+                        property["default_value"], property["title"], property["values_list"], 
+                        ipw.Layout(width = property["slider_layout"]["width"]), 
+                        {'description_width': property["slider_layout"]["description_width"]}, 
+                        property["placeholder"], ipw.Layout(width = property["box_layout"]["width"])
+                    )
+                    
+                property_widgets[prop_key] = prop_widget
+            
+            # Support files uploader per object
+            self.objects_support_files_widgets[obj_key] = ipw.FileUpload(multiple = True)
+            self.object_widgets[obj_key] = property_widgets
 
         # Get widget for sample name
         self.sample_out_name_textbox = utils.Text(description = "Name", disabled = False, layout = ipw.Layout(width = '400px'), placeholder = f"Write sample name here...", style = {'description_width': "110px"})
         
-        # Get widgets for saving/closing buttons
+        # Get save/close and download/close buttons
         self.create_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Save', icon = 'save', layout = ipw.Layout(width = '100px', height = '50px'))
         self.quit_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Main menu', icon = 'home', layout = ipw.Layout(width = '100px', height = '50px'))
-        self.bottom_buttons_hbox = ipw.HBox([self.create_button, self.quit_button])
+        self.download_button = utils.Button(description = '', disabled = False, button_style = '', tooltip = 'Download', icon = 'download', layout = ipw.Layout(width = '100px', height = '50px'))
+        self.save_close_buttons_hbox = ipw.HBox([self.create_button, self.quit_button])
+        self.download_close_buttons_hbox = ipw.HBox([self.download_button, self.quit_button])
         
-        self.sample_prep_selector = utils.SelectMultiple(description = 'Processes', disabled = False, 
-                                                         layout = ipw.Layout(width = '300px', height = '110px'), 
+        # Sample Preparation widgets (Select multiple and Accordion)
+        self.sample_prep_selector = utils.SelectMultiple(description = 'Processes', disabled = False,
                                                          style = {'description_width': "65px"},
                                                          options = self.sample_preparation_options)
+        selector_height = len(self.sample_preparation_options) * 18
+        selector_height = f"{selector_height}px"
+        self.sample_prep_selector.layout = ipw.Layout(width = '220px', height = selector_height)
         self.sample_prep_accordion = ipw.Accordion(children = [])
         
         # Widget to select folder with measurement files
         self.folder_selector = utils.FileChooser(path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
         
-        # Measurements selector widget
+        # Selectors widgets
         self.measurements_selector = utils.SelectMultiple(description = 'Measurements', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-        
-        # Results selector widget
         self.results_selector = utils.SelectMultiple(description = 'Results', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-        
-        # Drafts selector widget
         self.drafts_selector = utils.SelectMultiple(description = 'Drafts', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-        
-        # Authors selector widget
-        self.authors_selector = utils.SelectMultiple(description = 'Authors', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-        self.load_authors()
-        
-        # Grants selector widget
-        self.grants_selector = utils.SelectMultiple(description = 'Grants', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"})
-        self.load_grants()
-        
-        # Draft dropdown box widget
-        self.draft_type_dropdown = utils.Dropdown(description = 'Draft type', disabled = False, layout = ipw.Layout(width = '300px'), style = {'description_width': "150px"},
-                                                    options = [("Select draft type...", -1), ("Preprint", "PREPRINT"), ("Postprint", "POSTPRINT")], value = -1)
-        
-        # Publication properties
-        self.publication_abstract_textarea = utils.Textarea(description = "Abstract", disabled = False, layout = ipw.Layout(width = '993px', height = '100px'), 
-                                                            placeholder = f"Write publication abstract here...", style = {'description_width': "150px"})
-        self.publication_doi_textbox = utils.Text(description = "DOI", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                    placeholder = f"Write publication DOI here...", style = {'description_width': "150px"})
-        self.publication_year_intbox = utils.IntText(description = "Year", disabled = False, layout = ipw.Layout(width = '250px'), 
-                                                        placeholder = f"Write publication year here...", style = {'description_width': "150px"})
-        self.publication_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                    placeholder = f"Write publication URL here...", style = {'description_width': "150px"})
-        self.publication_dataset_url_textbox = utils.Text(description = "URL", disabled = False, layout = ipw.Layout(width = '993px'), 
-                                                            placeholder = f"Write publication dataset URL here...", style = {'description_width': "150px"})
-        
-        self.support_files_uploader = ipw.FileUpload(multiple = True)
+        self.authors_selector = utils.SelectMultiple(description = 'Authors', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"},
+                                                     options = utils.load_openbis_elements_list(self.openbis_session, "AUTHOR"))
+        self.grants_selector = utils.SelectMultiple(description = 'Grants', disabled = False, layout = ipw.Layout(width = '800px'), style = {'description_width': "110px"},
+                                                    options = utils.load_openbis_elements_list(self.openbis_session, "GRANT"))
         
         # Assign functions to widgets
         self.create_new_experiment_button.on_click(self.create_new_experiment_button_on_click)
@@ -193,6 +181,35 @@ class AppWidgets():
         # Increase buttons icons' size
         self.increase_buttons_size = utils.HTML(data = ''.join(self.config["save_home_buttons_settings"]))
         display(self.increase_buttons_size)
+        
+        # Dropdown box for getting openBIS objects
+        self.object_dropdown = utils.DropdownwithSortingCheckboxesWidget('Object', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1])
+
+    def download_openbis_object_metadata(self, b):
+        if self.object_dropdown.children[0].value == -1:
+            return
+        else:
+            openbis_selected_object_permid = self.object_dropdown.children[0].value
+            openbis_selected_object = self.openbis_session.get_sample(openbis_selected_object_permid)
+
+            # Collect all the information about the object from openBIS
+            openbis_selected_object_props = openbis_selected_object.props.all()
+            openbis_selected_object_props["eln_object_type"] = str(openbis_selected_object.type)
+            parent_child_relationships = {openbis_selected_object_permid: openbis_selected_object_props}
+            selected_object_schema = utils.get_parent_child_relationships_nested(self.openbis_session, openbis_selected_object, parent_child_relationships)
+            
+            # Export to JSON
+            json_data = json.dumps(selected_object_schema, indent=4).encode('utf-8')
+            json_data = base64.b64encode(json_data).decode('utf-8')
+            
+            display(Javascript(f"""
+                var a = document.createElement('a');
+                a.href = 'data:text/json;base64,{json_data}';
+                a.download = 'data.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            """))
 
     def sample_preparation_widgets(self, change):
     
@@ -205,96 +222,29 @@ class AppWidgets():
             if self.config["objects"][task]["uses_molecule"]:
                 task_widgets.append(self.molecule_metadata_boxes)
                 
-            task_widgets.extend([self.object_widgets[task]])
+            task_widgets.append(ipw.VBox(list(self.object_widgets[task].values())))
             
-            task_widgets.append(self.support_files_uploader)
+            task_widgets.append(self.objects_support_files_widgets[task])
             
             self.sample_prep_accordion.set_title(i, task)
             accordion_options.append(ipw.VBox(task_widgets))
         
         self.sample_prep_accordion.children = accordion_options
     
-    def create_publication_openbis(self, b):
-        publication_props = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value,
-                             "abstract": self.publication_abstract_textarea.value, "doi": self.publication_doi_textbox.value,
-                             "url": self.publication_url_textbox.value, "year": self.publication_year_intbox.value,
-                             "dataset_url": self.publication_dataset_url_textbox.value}
-        publication_parents = []
-        publication_parents.extend(list(self.authors_selector.value))
-        publication_parents.extend(list(self.drafts_selector.value))
-        publication_parents.extend(list(self.grants_selector.value))
-        publication_object = utils.create_openbis_object(self.openbis_session, type="PUBLICATION_CUSTOM", 
-                                                         collection="/PUBLICATIONS/PUBLIC_REPOSITORIES/PUBLICATIONS_COLLECTION", 
-                                                         props = publication_props, parents = publication_parents)
-        self.upload_datasets(publication_object)
-        print("Upload successful!")
-    
-    def create_draft_openbis(self, b):
-        draft_props = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value}
-        project_permid = self.projects_dropdown_boxes.children[0].value
-        project_drafts_collection = self.openbis_session.get_collections(project = project_permid, code = "DRAFTS_COLLECTION")
-        drafts_parents = list(self.results_selector.value)
-        
-        if len(project_drafts_collection) == 0:
-            drafts_collection = utils.create_openbis_collection(self.openbis_session, project = self.projects_dropdown_boxes.children[0].value, 
-                                                                 code = "DRAFTS_COLLECTION", type = "COLLECTION", props = {"$name": "Drafts"})
-        else:
-            drafts_collection = project_drafts_collection[0]
-
-        draft_object = utils.create_openbis_object(self.openbis_session, type="DRAFT", collection=drafts_collection, 
-                                                   props = draft_props, parents = drafts_parents)
-        self.upload_datasets(draft_object)
-        
-        print("Upload successful!")
-    
-    def create_results_openbis(self, b):
-        results_props = {"$name": self.property_widgets["$name"].value, "description": self.property_widgets["description"].value,
-                         "comments": self.property_widgets["comments"].value}
-        project_permid = self.projects_dropdown_boxes.children[0].value
-        project_results_collection = self.openbis_session.get_collections(project = project_permid, code = "RESULTS_COLLECTION")
-        results_parents = list(self.measurements_selector.value)
-        
-        if len(project_results_collection) == 0:
-            results_collection = utils.create_openbis_collection(self.openbis_session, project = self.projects_dropdown_boxes.children[0].value, 
-                                                                 code = "RESULTS_COLLECTION", type = "COLLECTION", props = {"$name": "Results"})
-        else:
-            results_collection = project_results_collection[0]
-
-        utils.create_openbis_object(self.openbis_session, type="RESULTS", collection=results_collection, 
-                                    props = results_props, parents = results_parents)
-        
-        print("Upload successful!")
-    
     def load_measurements(self, change):
         if self.projects_dropdown_boxes.children[0].value != -1:
-            one_d_measurements = self.openbis_session.get_objects(type = "1D_MEASUREMENT", project = self.projects_dropdown_boxes.children[0].value)
-            two_d_measurements = self.openbis_session.get_objects(type = "2D_MEASUREMENT", project = self.projects_dropdown_boxes.children[0].value)
             measurements_list = []
-            measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in one_d_measurements])
-            measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in two_d_measurements])
+            measurements_list.extend(utils.load_openbis_elements_list(self.openbis_session, "1D_MEASUREMENT", self.projects_dropdown_boxes.children[0].value))
+            measurements_list.extend(utils.load_openbis_elements_list(self.openbis_session, "2D_MEASUREMENT", self.projects_dropdown_boxes.children[0].value))
             self.measurements_selector.options = measurements_list
     
     def load_results(self, change):
         if self.projects_dropdown_boxes.children[0].value != -1:
-            results = self.openbis_session.get_objects(type = "RESULTS", project = self.projects_dropdown_boxes.children[0].value)
-            results_list = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in results]
-            self.results_selector.options = results_list
+            self.results_selector.options = utils.load_openbis_elements_list(self.openbis_session, "RESULTS", self.projects_dropdown_boxes.children[0].value)
     
     def load_drafts(self, change):
         if self.projects_dropdown_boxes.children[0].value != -1:
-            drafts = self.openbis_session.get_objects(type = "DRAFT", project = self.projects_dropdown_boxes.children[0].value)
-            drafts_list = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in drafts]
-            self.drafts_selector.options = drafts_list
-    
-    def load_authors(self):
-        authors = self.openbis_session.get_objects(type = "AUTHOR")
-        authors_list = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in authors]
-        self.authors_selector.options = authors_list
-    
-    def load_grants(self):
-        grants = self.openbis_session.get_objects(type = "GRANT")
-        grants_list = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in grants]
-        self.grants_selector.options = grants_list
+            self.drafts_selector.options = utils.load_openbis_elements_list(self.openbis_session, "DRAFT", self.projects_dropdown_boxes.children[0].value)
     
     def create_new_experiment_button_on_click(self, b):
         with self.select_experiment_output:
@@ -302,28 +252,20 @@ class AppWidgets():
             display_list = [self.experiments_dropdown_boxes, self.new_experiment_name_textbox, self.projects_dropdown_boxes,
                             ipw.HBox([self.save_new_experiment_button, self.cancel_new_experiment_button]), 
                             self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            if self.config["objects"][self.method_type]["uses_molecule"]:
-                display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
     def cancel_new_experiment_button_on_click(self, b):
         with self.select_experiment_output:
             clear_output()
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            # This flag is needed to check whether molecule interface should be displayed (dropdown and metadata details boxes)
-            if self.config["objects"][self.method_type]["uses_molecule"]: 
-                display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
     def save_new_experiment_button_on_click(self, b):
         utils.create_experiment_in_openbis(self.openbis_session, self.projects_dropdown_boxes.children[0].value, self.new_experiment_name_textbox.value)
         with self.select_experiment_output:
             clear_output()
-            utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
+            utils.load_dropdown_elements(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
             display_list = [self.experiments_dropdown_boxes, self.sample_metadata_boxes, self.instruments_dropdown_boxes]
-            # This flag is needed to check whether molecule interface should be displayed (dropdown and metadata details boxes)
-            if self.config["objects"][self.method_type]["uses_molecule"]:
-                display_list.append(self.molecule_metadata_boxes)
             display(ipw.VBox(display_list))
     
     # Function to create sample object inside openBIS using information selected in the app
@@ -367,7 +309,7 @@ class AppWidgets():
         material_metadata_string = ""
         for prop_key in selected_object_properties:
             prop_title = self.config["properties"][prop_key]["title"]
-            if self.config["properties"][prop_key]["property_type"] == "quantity_value":
+            if self.config["properties"][prop_key]["property_type"] == "QUANTITY_VALUE":
                 value = material_metadata.get(prop_key)
                 if value:
                     prop_dict = json.loads(value)
@@ -410,9 +352,9 @@ class AppWidgets():
             display(ipw.HBox([self.materials_dropdown, self.material_sorting_checkboxes]))
             display(self.material_metadata_boxes)
     
-    def upload_datasets(self, method_object):
-        for filename in self.support_files_uploader.value:
-            file_info = self.support_files_uploader.value[filename]
+    def upload_datasets(self, method_object, task):
+        for filename in self.objects_support_files_widgets[task].value:
+            file_info = self.objects_support_files_widgets[task].value[filename]
             utils.save_file(file_info['content'], filename)
             self.openbis_session.new_dataset(type = 'RAW_DATA', sample = method_object, files = [filename]).save()
             os.remove(filename)
@@ -424,11 +366,12 @@ class AppWidgets():
 
         object_properties = {"$name": self.property_widgets["$name"].value, "comments": self.property_widgets["comments"].value}
         
-        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"],
+        method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"]["Miscellaneous"]["openbis_object_type"],
                                                     collection = self.experiments_dropdown.value, props = object_properties)
-        self.upload_datasets(method_object)
+        self.upload_datasets(method_object, "Miscellaneous")
         print("Upload successful!")
     
+    # TODO: Remove
     def create_calibration_optimisation_action(self, b):
         if self.experiments_dropdown.value == -1:
             print("Select an experiment.")
@@ -453,12 +396,12 @@ class AppWidgets():
                 object_properties[prop] = self.property_widgets[prop].value
             elif prop == "evaporator_slot":
                 object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
-            elif self.config["properties"][prop]["property_type"] == "quantity_value":
+            elif self.config["properties"][prop]["property_type"] == "QUANTITY_VALUE":
                 object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
         
         method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][self.method_type]["openbis_object_type"], 
                                                     collection = self.experiments_dropdown.value, props = object_properties, parents = object_parents)
-        self.upload_datasets(method_object)
+        self.upload_datasets(method_object, "Calibration")
         print("Upload successful!")
     
     def create_sample_preparation_action(self, b):
@@ -486,12 +429,9 @@ class AppWidgets():
             
             method_parents = [self.samples_dropdown_boxes.children[0].value, self.instruments_dropdown_boxes.children[0].value]
             
-            # ---------
-            # TODO: I should create a widget per property per object. Otherwise, the duration in sputtering and in annealing is shared (is the same object).
             if self.molecules_dropdown_boxes.children[0].value == -1 and self.config["objects"][task]["uses_molecule"]:
                 print("Select a substance.")
                 return
-            # ---------
         
             if self.config["objects"][task]["uses_molecule"]:
                 method_parents.append(self.molecules_dropdown_boxes.children[0].value)
@@ -500,15 +440,17 @@ class AppWidgets():
             
             for prop in self.config["objects"][task]["properties"]:
                 if prop == "evaporator_slot":
-                    object_properties[prop] = json.dumps({"evaporator_number": self.property_widgets[prop].children[0].value, "details": self.property_widgets[prop].children[1].value})
-                elif self.config["properties"][prop]["property_type"] == "string":
-                    object_properties[prop] = self.property_widgets[prop].value
-                elif self.config["properties"][prop]["property_type"] == "quantity_value":
-                    object_properties[prop] = json.dumps({"has_value": self.property_widgets[prop].children[0].value, "has_unit": self.property_widgets[prop].children[1].value})
-
+                    object_properties[prop] = json.dumps({"evaporator_number": self.object_widgets[task][prop].children[0].value, 
+                                                          "details": self.object_widgets[task][prop].children[1].value})
+                elif self.config["properties"][prop]["property_type"] == "VARCHAR":
+                    object_properties[prop] = self.object_widgets[task][prop].value
+                elif self.config["properties"][prop]["property_type"] == "QUANTITY_VALUE":
+                    object_properties[prop] = json.dumps({"has_value": self.object_widgets[task][prop].children[0].value, 
+                                                          "has_unit": self.object_widgets[task][prop].children[1].value})
+            # Properties are not being uploaded
             method_object = utils.create_openbis_object(self.openbis_session, type = self.config["objects"][task]["openbis_object_type"], 
                                                         collection = self.experiments_dropdown.value, props = object_properties, parents = method_parents)
-            self.upload_datasets(method_object)
+            self.upload_datasets(method_object, task)
             
             methods_objects.append(method_object)
 
@@ -521,7 +463,69 @@ class AppWidgets():
         utils.create_openbis_object(self.openbis_session, type = "SAMPLE", collection = self.samples_collection_openbis_path, 
                                     props = sample_props, parents = methods_objects)
         print("Upload successful!")
+        
+        self.sample_prep_selector.value = ()
+        self.load_dropdown_lists()
+        self.sample_out_name_textbox.value = ""
     
+    def create_draft_openbis(self, b):
+        draft_props = {}
+        for prop in self.config["objects"]["Draft"]["properties"]:
+            draft_props[prop] = self.object_widgets["Draft"][prop].value
+            
+        project_permid = self.projects_dropdown_boxes.children[0].value
+        project_drafts_collection = self.openbis_session.get_collections(project = project_permid, code = "DRAFTS_COLLECTION")
+        drafts_parents = list(self.results_selector.value)
+        
+        if len(project_drafts_collection) == 0:
+            drafts_collection = utils.create_openbis_collection(self.openbis_session, project = self.projects_dropdown_boxes.children[0].value, 
+                                                                 code = "DRAFTS_COLLECTION", type = "COLLECTION", props = {"$name": "Drafts"})
+        else:
+            drafts_collection = project_drafts_collection[0]
+
+        draft_object = utils.create_openbis_object(self.openbis_session, type="DRAFT", collection=drafts_collection, 
+                                                   props = draft_props, parents = drafts_parents)
+        self.upload_datasets(draft_object, "Draft")
+        
+        print("Upload successful!")
+    
+    def create_results_openbis(self, b):
+        results_props = {}
+        for prop in self.config["objects"]["Results"]["properties"]:
+            results_props[prop] = self.object_widgets["Results"][prop].value
+            
+        project_permid = self.projects_dropdown_boxes.children[0].value
+        project_results_collection = self.openbis_session.get_collections(project = project_permid, code = "RESULTS_COLLECTION")
+        results_parents = list(self.measurements_selector.value)
+        
+        if len(project_results_collection) == 0:
+            results_collection = utils.create_openbis_collection(self.openbis_session, project = self.projects_dropdown_boxes.children[0].value, 
+                                                                 code = "RESULTS_COLLECTION", type = "COLLECTION", props = {"$name": "Results"})
+        else:
+            results_collection = project_results_collection[0]
+
+        results_object = utils.create_openbis_object(self.openbis_session, type="RESULTS", collection=results_collection, 
+                                                     props = results_props, parents = results_parents)
+        
+        self.upload_datasets(results_object, "Results")
+        
+        print("Upload successful!")
+    
+    def create_publication_openbis(self, b):
+        publication_props = {}
+        for prop in self.config["objects"]["Publication"]["properties"]:
+            publication_props[prop] = self.object_widgets["Publication"][prop].value
+            
+        publication_parents = []
+        publication_parents.extend(list(self.authors_selector.value))
+        publication_parents.extend(list(self.drafts_selector.value))
+        publication_parents.extend(list(self.grants_selector.value))
+        publication_object = utils.create_openbis_object(self.openbis_session, type="PUBLICATION_CUSTOM", 
+                                                         collection="/PUBLICATIONS/PUBLIC_REPOSITORIES/PUBLICATIONS_COLLECTION", 
+                                                         props = publication_props, parents = publication_parents)
+        self.upload_datasets(publication_object, "Publication")
+        print("Upload successful!")
+        
     # Function to handle changes in the substances dropdown
     def load_molecule_metadata(self, change):
         if self.molecules_dropdown_boxes.children[0].value == -1:
@@ -552,7 +556,7 @@ class AppWidgets():
         for prop_key in property_list:
             prop_title = self.config["properties"][prop_key]["title"]
             prop_value = material_metadata.get(prop_key)
-            if self.config["properties"][prop_key]["property_type"] == "quantity_value" and prop_value is not None:
+            if self.config["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
                 prop_value = json.loads(prop_value)
                 material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
             elif prop_key == "has_molecule":
@@ -571,22 +575,18 @@ class AppWidgets():
             self.experiments_dropdown.value = -1
             self.instruments_dropdown_boxes.children[0].value = -1
             self.sample_details_textbox.value = ''
-            
-            if self.method_type in self.config["objects"].keys():
-                if self.config["objects"][self.method_type]["object_type"] in ["sample_preparation", "comments_notes"]:
-                    self.sample_out_name_textbox.value = ''
+            self.sample_out_name_textbox.value = ''
             return
         
         sample_object = self.openbis_session.get_object(self.samples_dropdown_boxes.children[0].value)
         sample_parents_metadata = utils.get_openbis_parents_recursive(self.openbis_session, sample_object, [])
-        
         last_sample_preparation = None
-        sample_strings = {"sample_preparations": [], "materials": []}
+        sample_strings = {"sample_preparations": set(), "materials": set()}
         number_parents = len(sample_parents_metadata)
         parent_idx = 0
         while parent_idx < number_parents:
             parent_metadata = sample_parents_metadata[parent_idx]
-            if parent_metadata[0] in ["DEPOSITION"]:
+            if parent_metadata[0] == "DEPOSITION":
                 deposition_object = self.openbis_session.get_object(parent_metadata[1])
                 
                 # Get substance used in the specific deposition
@@ -606,12 +606,12 @@ class AppWidgets():
                 sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
             
             if parent_metadata[0] in self.sample_preparation_sample_types:
-                sample_strings["sample_preparations"].append(sample_metadata_string)
+                sample_strings["sample_preparations"].add(sample_metadata_string)
                 # Get the last sample preparation method performed on the sample in order to search the correct experiment where the sample is being used.
                 if last_sample_preparation is None:
                     last_sample_preparation = parent_metadata[1]
             elif parent_metadata[0] in self.slabs_types:
-                sample_strings["materials"].append(sample_metadata_string)
+                sample_strings["materials"].add(sample_metadata_string)
                 
             parent_idx += 1
         
@@ -622,19 +622,15 @@ class AppWidgets():
 
         if last_sample_preparation:
             last_sample_preparation_object = self.openbis_session.get_object(last_sample_preparation)
-            
-            if self.method_type in self.config["objects"].keys():
-                if self.config["objects"][self.method_type]["object_type"] in ["sample_preparation", "comments_notes"]:
-                # if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
-                    # Automatically select the experiment where the last sample preparation task was saved
-                    last_sample_preparation_experiment = self.openbis_session.get_experiment(last_sample_preparation_object.attrs.experiment)
-                    # Notify the user in case the experiment changed
-                    if self.experiments_dropdown.value != last_sample_preparation_experiment.permId and self.experiments_dropdown.value != -1:
-                        dropdown_options_dict = {key: val for val, key in self.experiments_dropdown.options}
-                        previous_experiment_name = dropdown_options_dict.get(self.experiments_dropdown.value)
-                        new_experiment_name = dropdown_options_dict.get(last_sample_preparation_experiment.permId)
-                        display(utils.Javascript(data = f"alert('{f'Experiment was changed from {previous_experiment_name} to {new_experiment_name}!'}')"))
-                    self.experiments_dropdown.value =  last_sample_preparation_experiment.permId
+            # Automatically select the experiment where the last sample preparation task was saved
+            last_sample_preparation_experiment = self.openbis_session.get_experiment(last_sample_preparation_object.attrs.experiment)
+            # Notify the user in case the experiment changed
+            if self.experiments_dropdown.value != last_sample_preparation_experiment.permId and self.experiments_dropdown.value != -1:
+                dropdown_options_dict = {key: val for val, key in self.experiments_dropdown.options}
+                previous_experiment_name = dropdown_options_dict.get(self.experiments_dropdown.value)
+                new_experiment_name = dropdown_options_dict.get(last_sample_preparation_experiment.permId)
+                display(utils.Javascript(data = f"alert('{f'Experiment was changed from {previous_experiment_name} to {new_experiment_name}!'}')"))
+            self.experiments_dropdown.value =  last_sample_preparation_experiment.permId
             
             # Automatically select the instrument used in the last sample preparation task
             for parent in last_sample_preparation_object.parents:
@@ -643,27 +639,30 @@ class AppWidgets():
                     self.instruments_dropdown_boxes.children[0].value = parent_object.permId
         
         self.sample_details_textbox.value = sample_metadata_string
-        if self.method_type in self.config["objects"].keys():
-            if self.config["objects"][self.method_type]["object_type"] in ["sample_preparation", "comments_notes"]:
-            # if self.config["objects"][self.method_type]["openbis_object_type"] in self.sample_preparation_sample_types:
-                sample_name = sample_object.props['$name']
-                self.sample_out_name_textbox.value = f"{sample_name}_{self.property_widgets['$name'].value}" if self.property_widgets["$name"].value else sample_name
+        sample_out_name = sample_object.props['$name']
+        
+        for i, task in enumerate(self.sample_prep_selector.value):
+            sample_out_name = f"{sample_out_name}_{self.object_widgets[task]['$name'].value}" if self.object_widgets[task]['$name'].value else sample_out_name
+            
+        self.sample_out_name_textbox.value = sample_out_name
     
     def load_dropdown_lists(self):
         # Populate dropdown lists
-        utils.load_openbis_elements_list(self.openbis_session, "SAMPLE", self.samples_dropdown_boxes.children[0], self.samples_dropdown_boxes.children[1], "sample")
-        utils.load_openbis_elements_list(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
-        utils.load_openbis_elements_list(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
-        utils.load_openbis_elements_list(self.openbis_session, "PROJECT", self.projects_dropdown_boxes.children[0], self.projects_dropdown_boxes.children[1], "project")
-        utils.load_openbis_elements_list(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
+        utils.load_dropdown_elements(self.openbis_session, "SAMPLE", self.samples_dropdown_boxes.children[0], self.samples_dropdown_boxes.children[1], "sample")
+        utils.load_dropdown_elements(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
+        utils.load_dropdown_elements(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
+        utils.load_dropdown_elements(self.openbis_session, "PROJECT", self.projects_dropdown_boxes.children[0], self.projects_dropdown_boxes.children[1], "project")
+        utils.load_dropdown_elements(self.openbis_session, "SUBSTANCE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "substance")
+        utils.load_dropdown_elements(self.openbis_session, "PUBLICATION_CUSTOM", self.object_dropdown.children[0], self.object_dropdown.children[1], "publication")
 
     def update_text(self, change):
         if self.samples_dropdown_boxes.children[0].value != -1:
             selected_sample_name = next(label for label, val in self.samples_dropdown_boxes.children[0].options if val == self.samples_dropdown_boxes.children[0].value)
-            if len(self.property_widgets["$name"].value) > 0:
-                self.sample_out_name_textbox.value = f"{selected_sample_name}_{self.property_widgets['$name'].value}"
-            else:
-                self.sample_out_name_textbox.value = selected_sample_name
+            for i, task in enumerate(self.sample_prep_selector.value):
+                if len(self.object_widgets[task]["$name"].value) > 0:
+                    selected_sample_name = f"{selected_sample_name}_{self.object_widgets[task]['$name'].value}"
+                    
+            self.sample_out_name_textbox.value = selected_sample_name
     
     def upload_measurements_to_openbis(self, b):
         sample_object = self.openbis_session.get_object(self.samples_dropdown_boxes.children[0].value)

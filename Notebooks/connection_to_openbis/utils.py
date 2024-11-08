@@ -6,6 +6,7 @@ from pybis import Openbis
 import ipyfilechooser
 import yaml
 import pandas as pd
+import copy
 from datetime import datetime
 
 def read_json(filename):
@@ -177,15 +178,15 @@ def get_openbis_parents_recursive(openbis_session, object, object_parents_metada
         get_openbis_parents_recursive(openbis_session, openbis_session.get_object(parent), object_parents_metadata)
     return object_parents_metadata
 
-def load_openbis_elements_list(openbis_session, type, dropdown, sorting_checkboxes, label):
+def load_openbis_elements_list(openbis_session, type, project = None):
     if type == "EXPERIMENT":
-        items = openbis_session.get_collections(type = type)
+        items = openbis_session.get_collections(type = type, project = project)
         items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
     elif type == "PROJECT":
         items = openbis_session.get_projects()
         items_names_permids = [(item.attrs.identifier, item.permId) for item in items]
     else:
-        items = openbis_session.get_objects(type = type)
+        items = openbis_session.get_objects(type = type, project = project)
         if type == "SAMPLE":
             items = filter_samples(openbis_session, items)
             items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
@@ -194,6 +195,10 @@ def load_openbis_elements_list(openbis_session, type, dropdown, sorting_checkbox
         else:
             items_names_permids = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]
     
+    return items_names_permids
+
+def load_dropdown_elements(openbis_session, type, dropdown, sorting_checkboxes, label):
+    items_names_permids = load_openbis_elements_list(openbis_session, type)
     items_names_permids.insert(0, (f'Select {label}...', -1))
     dropdown.options = items_names_permids
     dropdown.value = -1
@@ -226,3 +231,50 @@ def get_current_datetime():
 
 def convert_datetime_to_string(dt):
     return dt.strftime('%Y%m%d%H%M%S')
+
+def remove_digits_from_string(string):
+    return ''.join([i for i in string if not i.isdigit()])
+
+def is_nan(var):
+    """Function to verify whether it is a NaN."""
+    return var != var
+
+def get_parent_child_relationships_nested(openbis_session, selected_object, parent_child_relationships=None):
+    """
+    Function to get all the parent-child relations together with the information about the objects from openBIS.
+    This is a recursive function because the objects inside openBIS are like trees containing multiple
+    relations with other objects.
+
+    Parameters
+    ----------
+    selected_object : pybis.sample.Sample
+        Selected openBIS object.
+    parent_child_relationships : dict, optional
+        Dictionary containing the openBIS objects and the relations between them. The default is None.
+
+    Returns
+    -------
+    parent_child_relationships : TYPE
+        Dictionary containing the openBIS objects and the relations between them.
+
+    """
+    if parent_child_relationships is None:
+        parent_child_relationships = {}
+
+    # Fetch parents of the current publication
+    parents = selected_object.parents
+    
+    # Get selected object ID
+    selected_object_id = selected_object.permId
+
+    if parents is not None:
+        # Add current parents to the dictionary with child-parent relationships
+        for parent_id in parents:
+            parent = openbis_session.get_sample(parent_id)
+            parent_id = parent.permId
+            parent_props = parent.props.all()
+            parent_props["eln_object_type"] = str(parent.type)
+            parent_child_relationships[selected_object_id][parent_id] = parent_props
+            get_parent_child_relationships_nested(openbis_session, parent, parent_child_relationships[selected_object_id])
+
+    return parent_child_relationships

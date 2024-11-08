@@ -2,61 +2,165 @@
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
     "properties": {
+        "abstract": {
+            "title": "Abstract",
+            "property_type": "MULTILINE_VARCHAR",
+            "property_widget": "TEXTAREA",
+            "placeholder": "Write abstract here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "doi": {
+            "title": "DOI",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write DOI here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "year": {
+            "title": "Year",
+            "property_type": "INTEGER",
+            "property_widget": "INTTEXT",
+            "placeholder": "Write year here...",
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            }
+        },
+        "url": {
+            "title": "URL",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write URL here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "dataset_url": {
+            "title": "Dataset URL",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write dataset URL here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
         "$name": {
             "title": "Name",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write name here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "draft_type": {
+            "title": "Draft type",
+            "property_type": "CONTROLLED_VOCABULARY",
+            "property_widget": "DROPDOWN",
+            "options": [
+                ["Select draft type...", -1], 
+                ["Preprint", "PREPRINT"],
+                ["Postprint", "POSTPRINT"]
+            ],
+            "value": -1,
+            "box_layout":{
+                "width": "300px",
+                "description_width": "150px"
+            }
+        },
+        "description": {
+            "title": "Description",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write description here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
         },
         "material": {
             "title": "Material",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "face": {
             "title": "Face",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "sample_plate": {
             "title": "Sample Plate",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "specifications": {
             "title": "Specifications",
-            "property_type": "string"
+            "property_type": "MULTILINE_VARCHAR",
+            "property_widget": ""
         },
         "substrates": {
             "title": "Substrates",
-            "property_type": "json"
+            "property_type": "JSON",
+            "property_widget": ""
         },
         "layers_2d": {
             "title": "2D Layers",
-            "property_type": "json"
+            "property_type": "JSON",
+            "property_widget": ""
         },
         "iupac_name": {
             "title": "IUPAC Name",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "smiles": {
             "title": "SMILES",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "empa_number": {
             "title": "Empa number",
-            "property_type": "integer"
+            "property_type": "INTEGER",
+            "property_widget": ""
         },
         "batch": {
             "title": "Batch",
-            "property_type": "string"
+            "property_type": "VARCHAR",
+            "property_widget": ""
         },
         "has_molecule": {
             "title": "Molecule",
-            "property_type": "object (molecule)"
+            "property_type": "OBJECT (MOLECULE)",
+            "property_widget": ""
         },
         "comments": {
             "title": "Comments",
-            "property_type": "string"
+            "property_type": "MULTILINE_VARCHAR",
+            "property_widget": "TEXTAREA",
+            "placeholder": "Write comments here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "length": {
+            "title": "Length",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": ""
         },
         "rate": {
             "title": "Rate",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["Ang/min"],
             "default_unit": "Ang/min",
             "default_value": 0,
@@ -70,7 +174,8 @@
         },
         "diameter": {
             "title": "Diameter",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["m", "mm", "um"],
             "default_unit": "um",
             "default_value": 0,
@@ -84,7 +189,8 @@
         },
         "height": {
             "title": "Height",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["m", "mm", "um"],
             "default_unit": "um",
             "default_value": 0,
@@ -98,7 +204,8 @@
         },
         "width": {
             "title": "Width",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["m", "mm", "um"],
             "default_unit": "um",
             "default_value": 0,
@@ -112,7 +219,8 @@
         },
         "thickness": {
             "title": "Thickness",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["m", "mm", "um"],
             "default_unit": "um",
             "default_value": 0,
@@ -126,7 +234,8 @@
         },
         "amount": {
             "title": "Amount",
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "units": ["l", "ml", "ul", "g", "mg", "ug"],
             "default_unit": "mg",
             "default_value": 0,
@@ -141,7 +250,8 @@
         "duration": {
             "title": "Duration",
             "units": ["sec", "min", "hrs"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "sec",
             "default_value": 0,
             "box_layout":{
@@ -155,7 +265,8 @@
         "pressure": {
             "title": "Pressure",
             "units": ["mBar", "Bar", "Pa", "kPa"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "mBar",
             "default_value": 1e-9,
             "box_layout":{
@@ -169,7 +280,8 @@
         "discharge_voltage": {
             "title": "Discharge voltage",
             "units": ["V", "kV"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "kV",
             "default_value": 0,
             "box_layout":{
@@ -183,7 +295,8 @@
         "voltage": {
             "title": "Voltage",
             "units": ["uV", "mV", "V"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "V",
             "default_value": 0,
             "box_layout":{
@@ -197,7 +310,8 @@
         "temperature": {
             "title": "Temperature",
             "units": ["oC", "K"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "K",
             "default_value": 298,
             "box_layout":{
@@ -211,7 +325,8 @@
         "current": {
             "title": "Current",
             "units": ["uA", "mA", "A"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "A",
             "default_value": 0,
             "box_layout":{
@@ -225,7 +340,8 @@
         "angle": {
             "title": "Angle",
             "units": ["deg", "rad"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "deg",
             "default_value": 0,
             "box_layout":{
@@ -239,7 +355,8 @@
         "stabilisation_time": {
             "title": "Stabilisation time",
             "units": ["sec", "min", "hrs"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "min",
             "default_value": 0,
             "box_layout":{
@@ -253,7 +370,8 @@
         "deposition_time": {
             "title": "Deposition time",
             "units": ["sec", "min", "hrs"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "min",
             "default_value": 0,
             "box_layout":{
@@ -267,7 +385,8 @@
         "substrate_temperature": {
             "title": "Substrate temperature",
             "units": ["oC", "K"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "K",
             "default_value": 298,
             "box_layout":{
@@ -281,7 +400,8 @@
         "molecule_temperature": {
             "title": "Molecule temperature",
             "units": ["oC", "K"],
-            "property_type": "quantity_value",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "default_unit": "K",
             "default_value": 298,
             "box_layout":{
@@ -294,7 +414,8 @@
         },
         "sum_formula": {
             "title": "Substance sum formula",
-            "property_type": "string",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
             "placeholder": "Write substance formula here...",
             "box_layout":{
                 "width": "350px",
@@ -303,7 +424,8 @@
         },
         "evaporator_slot": {
             "title": "Evaporator slot",
-            "property_type": "integer",
+            "property_type": "JSON",
+            "property_widget": "INTEGER_SLIDER_W_DETAILS",
             "placeholder": "Write evaporator slot details...",
             "default_value": 1,
             "values_list": [1, 2, 3, 4, 5, 6],
@@ -317,7 +439,8 @@
         },
         "pid_controller": {
             "title": "PID controller",
-            "property_type": "string",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
             "placeholder": "Write PID controller values (separated by commas)...",
             "box_layout":{
                 "width": "500px",
@@ -469,11 +592,45 @@
             ]
         },
         "Miscellaneous": {
-            "object_type": "other",
+            "object_type": "sample_preparation",
             "openbis_object_type": "MISCELLANEOUS",
             "uses_molecule": false,
             "properties": [
                 "$name",
+                "comments"
+            ]
+        },
+        "Publication": {
+            "object_type": "publication",
+            "openbis_object_type": "PUBLICATION_CUSTOM",
+            "uses_molecule": false,
+            "properties": [
+                "$name",
+                "abstract",
+                "doi",
+                "year",
+                "url",
+                "dataset_url",
+                "comments"
+            ]
+        },
+        "Results": {
+            "object_type": "results",
+            "openbis_object_type": "RESULTS",
+            "uses_molecule": false,
+            "properties": [
+                "$name",
+                "description",
+                "comments"
+            ]
+        },
+        "Draft": {
+            "object_type": "results",
+            "openbis_object_type": "RESULTS",
+            "uses_molecule": false,
+            "properties": [
+                "$name",
+                "draft_type",
                 "comments"
             ]
         }
@@ -490,6 +647,8 @@
             "<li><a href='sample_preparation.ipynb' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' target='_blank'>Sample measurement</a></li>",
             "<li><a href='miscellaneous.ipynb' target='_blank'>Other</a></li>",
+            "<li><a href='' target='_blank'>Molecule sublimation rate</a></li>",
+            "<li><a href='export_openbis_object.ipynb' target='_blank'>Export openBIS object</a></li>",
             "<li><a href='find_similar_molecules.ipynb' target='_blank'>Find similar molecules</a></li>",
             "</ul>",
             "</div>",
@@ -511,6 +670,8 @@
             "<li><a href='sample_preparation.ipynb' style='color: gray;' target='_blank'>Sample preparation</a></li>",
             "<li><a href='measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
             "<li><a href='miscellaneous.ipynb' style='color: gray;' target='_blank'>Other</a></li>",
+            "<li><a href='' style='color: gray;' target='_blank'>Molecule sublimation rate</a></li>",
+            "<li><a href='export_openbis_object.ipynb' style='color: gray;' target='_blank'>Export openBIS object</a></li>",
             "<li><a href='find_similar_molecules.ipynb' style='color: gray;' target='_blank'>Find similar molecules</a></li>",
             "</ul>",
             "</div>",
@@ -529,6 +690,7 @@
         ".fa-save {font-size: 2em !important; /* Increase icon size */}",
         ".fa-home {font-size: 2em !important; /* Increase icon size */}",
         ".fa-times {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-download {font-size: 2em !important; /* Increase icon size */}",
         "</style>"
     ],
     "default_image_filepath": "images/white_screen.jpg"
