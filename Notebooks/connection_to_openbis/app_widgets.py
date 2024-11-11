@@ -8,6 +8,7 @@ import nanonis_importer
 import shutil
 import utils
 import base64
+from datetime import datetime
 
 class AppWidgets():
     def __init__(self, config_filename):
@@ -193,9 +194,9 @@ class AppWidgets():
             openbis_selected_object = self.openbis_session.get_sample(openbis_selected_object_permid)
 
             # Collect all the information about the object from openBIS
-            openbis_selected_object_props = openbis_selected_object.props.all()
-            openbis_selected_object_props["eln_object_type"] = str(openbis_selected_object.type)
-            parent_child_relationships = {openbis_selected_object_permid: openbis_selected_object_props}
+            parent_child_relationships = openbis_selected_object.props.all()
+            parent_child_relationships["perm_id"] = openbis_selected_object_permid
+            parent_child_relationships["type"] = str(openbis_selected_object.type)
             selected_object_schema = utils.get_parent_child_relationships_nested(self.openbis_session, openbis_selected_object, parent_child_relationships)
             
             # Export to JSON
@@ -581,7 +582,7 @@ class AppWidgets():
         sample_object = self.openbis_session.get_object(self.samples_dropdown_boxes.children[0].value)
         sample_parents_metadata = utils.get_openbis_parents_recursive(self.openbis_session, sample_object, [])
         last_sample_preparation = None
-        sample_strings = {"sample_preparations": set(), "materials": set()}
+        sample_strings = {"sample_preparations": [], "materials": [], "sample_preparation_datetimes": []}
         number_parents = len(sample_parents_metadata)
         parent_idx = 0
         while parent_idx < number_parents:
@@ -606,14 +607,28 @@ class AppWidgets():
                 sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
             
             if parent_metadata[0] in self.sample_preparation_sample_types:
-                sample_strings["sample_preparations"].add(sample_metadata_string)
+                if sample_metadata_string not in sample_strings["sample_preparations"]:
+                    sample_strings["sample_preparations"].append(sample_metadata_string)
+                    sample_strings["sample_preparation_datetimes"].append(parent_metadata[2])
                 # Get the last sample preparation method performed on the sample in order to search the correct experiment where the sample is being used.
                 if last_sample_preparation is None:
                     last_sample_preparation = parent_metadata[1]
+                    
             elif parent_metadata[0] in self.slabs_types:
-                sample_strings["materials"].add(sample_metadata_string)
+                if sample_metadata_string not in sample_strings["materials"]:
+                    sample_strings["materials"].append(sample_metadata_string)
                 
             parent_idx += 1
+        
+        # Parse the datetime strings and zip them with sample preparations and materials
+        parsed_datetimes = [datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") for dt in sample_strings["sample_preparation_datetimes"]]
+        zipped_lists = list(zip(parsed_datetimes, sample_strings["sample_preparations"]))
+
+        # Sort by the datetime
+        sorted_zipped_lists = sorted(zipped_lists, key=lambda x: x[0], reverse = True)
+
+        # Unpack the sorted values back into sample_strings
+        _, sample_strings["sample_preparations"] = zip(*sorted_zipped_lists)
         
         sample_metadata_string = (f"PermId: {sample_object.attrs.permId}\nMaterial:\n" +
                               "\n".join(sample_strings["materials"]) + 
