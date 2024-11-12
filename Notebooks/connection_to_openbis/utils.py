@@ -7,7 +7,7 @@ import ipyfilechooser
 import yaml
 import pandas as pd
 import copy
-from datetime import datetime
+import datetime
 
 def read_json(filename):
     with open(filename, 'r') as file:
@@ -227,7 +227,7 @@ def create_openbis_collection(openbis_session, **kwargs):
     return collection
 
 def get_current_datetime():
-    return datetime.now()
+    return datetime.datetime.now()
 
 def convert_datetime_to_string(dt):
     return dt.strftime('%Y%m%d%H%M%S')

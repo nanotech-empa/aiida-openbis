@@ -53,7 +53,10 @@ def create_experiment_type_in_openbis(session):
             
 def create_property_type_in_openbis(session, property_type_dict: dict):
     try:
-        session.new_property_type(**property_type_dict).save()
+        print(property_type_dict)
+        prop = session.new_property_type(**property_type_dict)
+        prop.save()
+        print(prop)
     except ValueError:
         print(f"{property_type_dict['code']} already exists.")
         
@@ -164,7 +167,8 @@ class OpenBisDatabase:
             "label": self.objects_schema["slots"][property_type]["annotations"]["openbis_label"],
             "description": self.objects_schema["slots"][property_type]["description"],
             "dataType": self.objects_schema["slots"][property_type]["annotations"]["openbis_type"],
-            "managedInternally": False
+            "managedInternally": False,
+            "multiValue": self.objects_schema["slots"][property_type]["multivalued"]
         }
         
         if property_type_dict["dataType"] == "OBJECT":
@@ -211,8 +215,8 @@ class OpenBisDatabase:
                         object_copy = parent_object
                     
                     # Create property types needed for intialiasing the openBIS object type
-                    for property_type in object["slots"]:
-                        property_type = self.create_property_type(property_type)
+                    for property_type_code in object["slots"]:
+                        property_type = self.create_property_type(property_type_code)
                         if property_type is not None:
                             object_property_types.append(property_type)
 

@@ -312,16 +312,17 @@ classes:
      - project_id
      - acknowledgement_sentence
      - comments
-  HydrogenCracker:
-    title: Hydrogen Cracker
+  Cracker:
+    title: Cracker
     is_a: Thing
     class_uri: 
     description: Splitting gas molecules into elements
     annotations:
       openbis_object: true
-      openbis_code: HYDCRAC
-      openbis_label: Hydrogen Cracker
+      openbis_code: CRAC
+      openbis_label: Cracker
     slots:
+     - test_string
      - sum_formula
      - duration
      - temperature
@@ -1557,11 +1558,11 @@ classes:
         inlined_as_list: true
         range: Grant
         description: grants container
-      hydrogen_crackers:
+      crackers:
         multivalued: true
         inlined_as_list: true
-        range: HydrogenCracker
-        description: hydrogen cracker objects container
+        range: Cracker
+        description: cracker objects container
       institutions:
         multivalued: true
         inlined_as_list: true
@@ -1728,9 +1729,18 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  test_string:
+      description: test object
+      range: object
+      multivalued: true
+      slot_uri:
+      annotations:
+        openbis_type: OBJECT
+        openbis_label: Test string
   exists:
       description: exists
       range: boolean
+      multivalued: false
       slot_uri:
       annotations:
         openbis_type: BOOLEAN
@@ -1738,12 +1748,14 @@ slots:
   type:
     designates_type: true
     range: string
+    multivalued: false
     annotations:
       openbis_type: Not used
   perm_id:
     identifier: true
     description: permanent ID
     range: string
+    multivalued: false
     slot_uri: schema:identifier
     annotations:
       openbis_type: Not used
@@ -1752,6 +1764,7 @@ slots:
     description: name
     range: string
     slot_uri: schema:name
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Name
@@ -1759,6 +1772,7 @@ slots:
     description: description
     range: string
     slot_uri: schema:description
+    multivalued: false
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Description
@@ -1766,6 +1780,7 @@ slots:
     description: work phone
     range: string
     slot_uri: schema:telephone
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Work phone
@@ -1774,6 +1789,7 @@ slots:
     description: email
     pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     slot_uri: schema:email
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Email
@@ -1781,6 +1797,7 @@ slots:
     description: address
     range: string
     slot_uri: schema:address
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Address
@@ -1788,6 +1805,7 @@ slots:
     description: iupac name
     range: string
     slot_uri: schema:iupacName
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: IUPAC name
@@ -1795,6 +1813,7 @@ slots:
     range: string
     description: sum formula
     slot_uri: schema:molecularFormula
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Sum formula
@@ -1802,6 +1821,7 @@ slots:
     range: string
     description: smiles
     slot_uri: schema:smiles
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Smiles
@@ -1809,6 +1829,7 @@ slots:
     description: cas number
     range: string
     slot_uri: emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: CAS number
@@ -1816,6 +1837,7 @@ slots:
     range: integer
     description: empa number
     minimum_value: 0
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Empa number
@@ -1824,6 +1846,7 @@ slots:
     description: batch
     pattern: ^[a-z]$
     slot_uri: ncit:NCIT_C67073
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Batch
@@ -1832,6 +1855,7 @@ slots:
     range: string
     pattern: ^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$
     slot_uri: afe:AFE_0000329
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Vial
@@ -1839,12 +1863,14 @@ slots:
     description: hazardous
     range: boolean
     slot_uri: ncit:NCIT_C73538
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Hazardous
   hazardous_specification:
     range: string
     description: hazardous specification
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Hazardous (specification)
@@ -1858,36 +1884,42 @@ slots:
   fridge:
     description: fridge
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Fridge
   no_light:
     description: no light
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: No light
   dry:
     description: dry
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Dry
   no_oxygen:
     description: no oxygen
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: No oxygen
   other_storage_condition:
     description: other storage condition
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Other storage condition
   other_storage_condition_specification:
     description: other storage condition specification
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Other storage condition (specification)
@@ -1895,12 +1927,14 @@ slots:
     description: chemist molecule name
     range: string
     slot_uri: schema:alternateName
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Molecule name (given by Chemist)
   amount:
     description: amount
     range: MassQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Amount
@@ -1908,6 +1942,7 @@ slots:
     description: received date
     range: date
     slot_uri: ncit:NCIT_C164590
+    multivalued: false
     annotations:
       openbis_type: DATE
       openbis_label: Receive date
@@ -1915,6 +1950,7 @@ slots:
     description: comments
     range: string
     slot_uri: schema:comment
+    multivalued: false
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Comments
@@ -1922,6 +1958,7 @@ slots:
     description: Value
     range: double
     slot_uri: qudt:value
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Value
@@ -1929,6 +1966,7 @@ slots:
     description: Temperature unit
     range: TemperatureUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1936,6 +1974,7 @@ slots:
     description: Duration unit
     range: DurationUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1943,6 +1982,7 @@ slots:
     description: Rate unit
     range: RateUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1950,6 +1990,7 @@ slots:
     description: unit
     range: string
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Unit
@@ -1957,6 +1998,7 @@ slots:
     description: Mass unit
     range: MassUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1964,6 +2006,7 @@ slots:
     description: Angle unit
     range: AngleUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1971,6 +2014,7 @@ slots:
     description: Current unit
     range: CurrentUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1978,6 +2022,7 @@ slots:
     description: Voltage unit
     range: VoltageUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
@@ -1985,12 +2030,14 @@ slots:
     description: Pressure unit
     range: PressureUnitsEnum
     slot_uri: qudt:hasUnit
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
   device:
     description: device
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Device
@@ -1998,12 +2045,14 @@ slots:
     description: temperature
     range: TemperatureQuantityValue
     slot_uri: ncit:NCIT_C25206
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Temperature
   datetime:
     description: datetime
     range: custom_datetime
+    multivalued: false
     annotations:
       openbis_type: TIMESTAMP
       openbis_label: Datetime
@@ -2011,6 +2060,7 @@ slots:
     description: duration
     range: DurationQuantityValue
     slot_uri: ncit:NCIT_C25330
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Duration
@@ -2018,6 +2068,7 @@ slots:
     description: pressure
     range: PressureQuantityValue
     slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Pressure
@@ -2025,6 +2076,7 @@ slots:
     description: voltage
     range: VoltageQuantityValue
     slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Voltage
@@ -2032,6 +2084,7 @@ slots:
     description: current
     range: CurrentQuantityValue
     slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Current
@@ -2039,6 +2092,7 @@ slots:
     description: start time
     range: custom_datetime
     slot_uri: ncit:NCIT_C78441
+    multivalued: false
     annotations:
       openbis_type: TIMESTAMP
       openbis_label: Start time
@@ -2046,6 +2100,7 @@ slots:
     description: bias setpoint
     range: VoltageQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Bias setpoint
@@ -2053,6 +2108,7 @@ slots:
     description: bias calibration factor
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-calibration-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Bias calibration factor
@@ -2060,6 +2116,7 @@ slots:
     description: bias calibration offset
     range: VoltageQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-bias-offset-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Bias calibration offset
@@ -2067,6 +2124,7 @@ slots:
     description: current setpoint
     range: CurrentQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Current setpoint
@@ -2074,6 +2132,7 @@ slots:
     description: current calibration factor
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-calibration-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Current calibration factor
@@ -2081,6 +2140,7 @@ slots:
     description: current calibration offset
     range: CurrentQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-offset-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Current calibration offset
@@ -2088,6 +2148,7 @@ slots:
     description: current gain
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-current-gain-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Current gain
@@ -2095,6 +2156,7 @@ slots:
     description: z position
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-z-controller-z-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z
@@ -2102,6 +2164,7 @@ slots:
     description: whether feedback is active
     range: boolean
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-status-field
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Feedback active
@@ -2109,66 +2172,77 @@ slots:
     description: feedback type
     range: FeedbackTypeEnum
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-name-field
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Feedback type
   piezo_configuration_settings:
     description: piezo configuration settings
     range: PiezoConfigurationSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Piezo configuration settings
   active_calib:
     description: active calib
     range: ActiveCalibEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Active calib
   sensitivity_settings:
     description: sensitivity
     range: SensitivitySettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Sensitivity settings
   hv_gain_settings:
     description: HV gain
     range: HVGainSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: HV gain settings
   scan_slope:
     description: scan slope
     range: ScanSlope
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan slope
   curvature_radius:
     description: curvatuve radius
     range: CurvatureRadius
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Curvature radius
   second_order_correction:
     description: second order correction
     range: SecondOrderCorrection
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Second order correction
   drift_settings:
     description: drift settings
     range: DriftSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Drift settings
   drift_correction_status:
     description: whether the drift correction is performed
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Drift correction settings
   scan_settings:
     description: scan settings
     range: ScanSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan settings
@@ -2183,12 +2257,14 @@ slots:
     description: angle
     range: AngleQuantityValue
     slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Angle
   scan_offset:
     description: scan offset
     range: ScanOffset
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan offset
@@ -2196,6 +2272,7 @@ slots:
     description: x coordinate
     range: QuantityValue
     slot_uri: ncit:NCIT_C44477
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: X-axis coordinate
@@ -2203,6 +2280,7 @@ slots:
     description: y coordinate
     range: QuantityValue
     slot_uri: ncit:NCIT_C44478
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Y-axis coordinate
@@ -2210,96 +2288,112 @@ slots:
     description: z coordinate
     range: QuantityValue
     slot_uri: ncit:NCIT_C44479
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-axis coordinate
   scan_time:
     description: scan time
     range: ScanTime
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan time
   scan_range:
     description: scan range
     range: ScanRange
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan range
   scan_pixels:
     description: Scan pixels
     range: ScanPixels
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan pixels
   scan_speed:
     description: scan speed
     range: ScanSpeed
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan speed
   forward_speed:
     description: forward speed
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Speed (forward)
   backward_speed:
     description: backward speed
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Speed (backwards)
   direction_speed:
     description: direction speed
     range: DirectionSpeedEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Speed (direction)
   oscillation_control_settings:
     description: oscillation control settings
     range: OscillationControlSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Oscillation control settings
   differential_input:
     description: whether differential input is used
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Differential input
   one_ten:
     description: Whether the input is attenuated by a factor of ten
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: 1/10 input
   input_calibration:
     description: input calibration
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Input calibration
   input_range:
     description: input range
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Input range
   center_frequency:
     description: center frequency
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Center frequency
   range:
     description: range
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Range
   demodulation_settings:
     description: demodulation settings
     range: DemodulationSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Demodulation settings
@@ -2348,72 +2442,84 @@ slots:
   phase_settings:
     description: phase settings
     range: PhaseSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Phase settings
   p_gain:
     description: p gain
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Proportional gain
   i_gain:
     description: i gain
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Integral gain
   controller_on:
     description: controller on
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Controller on
   frequency_shift:
     description: frequency shift
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Frequency shift
   amplitude_settings:
     description: amplitude settings
     range: AmplitudeSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Amplitude settings
   setpoint:
     description: setpoint
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Setpoint
   excitation:
     description: excitation
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Excitation
   output_settings:
     description: output settings
     range: OutputSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Output settings
   output_active:
     description: whether the output is on
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Output active
   output_add:
     description: whether to add the signal at the ADD connector of the OC4 to the output signal
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Output add
   pll_setup_settings:
     description: PLL setup settings
     range: PLLSetupSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: PLL setup settings
@@ -2421,66 +2527,77 @@ slots:
     description: Q-factor
     slot_uri: emmo:EMMO_0658e7df_ffd9_4779_82fc_62efe0a7f3b1
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Q-factor
   demodulation_bw_amp:
     description: demodulation bandwidth of the amplitude controller
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Demodulation bandwidth amp
   demodulation_bw_pha:
     description: demodulation bandwidth of the phase controller
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Demodulation bandwidth pha
   amplitude_excitation_ratio:
     description: amplitude to excitation ratio at the resonance
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Amplitude excitation ratio
   amplitude_range:
     description: amplitude range
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Amplitude range
   dwell_time:
     description: dwell time
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Dwell time
   sample_temperature:
     description: sample temperature
     range: TemperatureQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Sample temperature
   recording_temperature:
     description: recording temperature
     range: TemperatureQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Recording temperature
   scan_dx:
     description: scan dx
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan dx
   scan_z_min:
     description: scan z min
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan Z min
   scan_z_max:
     description: scan z max
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Scan z max
@@ -2488,18 +2605,21 @@ slots:
     description: amplitude
     range: QuantityValue
     slot_uri: ncit:NCIT_C70831
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Amplitude
   resonance_frequency:
     description: resonance frequency
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Resonance frequency
   p_model:
     description: p model
     range: PModelEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: P-model
@@ -2507,18 +2627,21 @@ slots:
     description: wfms uuid
     range: string
     slot_uri: ncit:NCIT_C54100
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: WFMS UUID
   optimised:
     description: optimised
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Optimised
   periodic_boundary_conditions:
     description: periodic boundary conditions
     range: PeriodicBoundaryConditions
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Periodic boundary conditions
@@ -2540,42 +2663,49 @@ slots:
     description: atom symbol
     range: string
     slot_uri: emmo:EMMO_eb77076b_a104_42ac_a065_798b2d2809ad
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Atom symbol
   k_points_conditions:
     description: list of K Points in the first Brillouin zone identifying the path along which the bands are computed
     range: KPointsConditions
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: K-points conditions
   bs_energies:
     description: band structure energies
     range: BSEnergy
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Band structure energies
   charge:
     description: charge
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Charge
   magnetic_momentum:
     description: magnetic momentum
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Magnetic momentum
   wfms_url:
     description: wfms url
     range: string
+    multivalued: false
     annotations:
       openbis_type: HYPERLINK
       openbis_label: WFMS URL
   state:
     description: state
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: State
@@ -2583,6 +2713,7 @@ slots:
     description: material
     range: string
     slot_uri: schema:material
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Material
@@ -2590,6 +2721,7 @@ slots:
     description: face
     range: string
     slot_uri: ncit:NCIT_C126364
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Face
@@ -2597,6 +2729,7 @@ slots:
     description: sample plate
     range: string
     slot_uri: emmo_nano:EMMO_69c892cc-b9c4-53cd-8e5e-216c57e2592f
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Sample plate
@@ -2604,6 +2737,7 @@ slots:
     description: diameter
     range: QuantityValue
     slot_uri: ncit:NCIT_C25285
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Diameter
@@ -2611,6 +2745,7 @@ slots:
     description: height
     range: QuantityValue
     slot_uri: ncit:NCIT_C25347
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Height
@@ -2618,6 +2753,7 @@ slots:
     description: specifications
     range: string
     slot_uri: sio:SIO_000090
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Specifications
@@ -2625,78 +2761,91 @@ slots:
     description: reference number
     range: string
     slot_uri: ncit:NCIT_99287
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Reference number
   stabilisation_time:
     description: stabilisation time
     range: DurationQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Stabilisation time
   deposition_time:
     description: deposition time
     range: DurationQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Deposition time
   substrate_temperature:
     description: substrate temperature
     range: TemperatureQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Substrate temperature
   molecule_temperature:
     description: molecule temperature
     range: TemperatureQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Molecule temperature
   evaporator_slot:
     description: evaporator slot
     range: EvaporatorSlot
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Evaporation slot
   evaporator_number:
     description: evaporator number
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Evaporator number
   details:
     description: details
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Details
   fermi_energy:
     description: fermi energy
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Fermi energy
   scf_convergence_threshold:
     description: threshold for the convergence of the wave function
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: SFC convergence threshold
   xc_functional:
     description: approximation used for the exchanged correlation functional
     range: XCFunctionalEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: XC functional
   spin_polarised_calculation:
     description: whether spin polarisation calculation is considered
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Spin polarised calculation
   spin_multiplicity:
     description: spin multiplicity
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Spin multiplicity
@@ -2710,72 +2859,84 @@ slots:
   absolute_magnetisation:
     description: output value of the absolute magnetisation
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Absolute magnetisation
   total_magnetisation:
     description: output value of the total magnetisation
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Total magnetisation
   total_spin_squared:
     description: output value of the eigenvalue of the square operator to control spin contamination
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Total spin squared
   net_charge:
     description: difference between electronic and ionic charge of the system (+1 means one electron is being removed from the neutral charge system)
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Net charge
   smearing:
     description: energy value for electron broadening function for fractional occupation of orbitals
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Smearing
   fermi_dirac_temperature:
     description: temperature used for broadening in case of Fermi-Dirac broadening function for fractional occupation of orbitals
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Fermi Dirac temperature
   force_multiplicity:
     description: if true multiplicity is constrained to the input value in a calculation with broadening of the occupation of orbitals
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Force multiplicity
   output_mulliken_population_analysis:
     description: charges and magnetic momentum for each atom resulting from Mulliken population analysis
     range: OutputPopulationAnalysis
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Output Mulliken polation analysis
   output_hirshfeld_population_analysis:
     description: charges and magnetic momentum for each atom resulting from Hirshfeld population analysis
     range: OutputPopulationAnalysis
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Output Hirshfeld population analysis
   draft_type:
     description: draft type
     range: DraftTypeEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Draft type
   weight_before:
     description: weight before
     range: MassQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Weight before
   weight_after:
     description: weight after
     range: MassQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Weight after
@@ -2783,12 +2944,14 @@ slots:
     description: serial number
     range: string
     slot_uri: ncit:NCIT_C73518
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Serial number
   empa_id:
     description: empa id
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Empa ID
@@ -2797,6 +2960,7 @@ slots:
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
     slot_uri: ncit:NCIT_C93821
+    multivalued: false
     annotations:
       openbis_type: HYPERLINK
       openbis_label: Documentation website
@@ -2804,12 +2968,14 @@ slots:
     description: dewar
     range: DewarEnum
     slot_uri: ncit:NCIT_C43190
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Dewar
   force_convergence_threshold:
     description: maximum force allowed on each atom before the optimisation is converged
     range: ForceConvergenceThreshold
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Force convergence threshold
@@ -2823,6 +2989,7 @@ slots:
   funder:
     description: funder
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Funder
@@ -2830,6 +2997,7 @@ slots:
     description: start date
     range: date
     slot_uri: schema:startDate
+    multivalued: false
     annotations:
       openbis_type: DATE
       openbis_label: Start date
@@ -2837,6 +3005,7 @@ slots:
     description: end date
     range: date
     slot_uri: schema:endDate
+    multivalued: false
     annotations:
       openbis_type: DATE
       openbis_label: End date
@@ -2844,6 +3013,7 @@ slots:
     description: budget
     range: QuantityValue
     slot_uri: ncit:NCIT_C60757
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Budget
@@ -2851,6 +3021,7 @@ slots:
     description: project id
     range: string
     slot_uri: schema:identifier
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Project ID
@@ -2858,6 +3029,7 @@ slots:
     description: acknowledgement sentence
     range: string
     slot_uri: iao:IAO_0000324
+    multivalued: false
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Acknowledgement sentence
@@ -2871,18 +3043,21 @@ slots:
   number_layers:
     description: number of 2D layers
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Number of 2D layers
   dopants:
     description: dopants
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Dopants
   coverage:
     description: coverage
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Coverage
@@ -2897,6 +3072,7 @@ slots:
     description: width
     range: QuantityValue
     slot_uri: schema:width
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Width
@@ -2904,6 +3080,7 @@ slots:
     description: length
     range: QuantityValue
     slot_uri: ncit:NCIT_C25334
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Length
@@ -2911,6 +3088,7 @@ slots:
     description: thickness
     range: QuantityValue
     slot_uri: ncit:NCIT_C41145
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Thickness
@@ -2918,6 +3096,7 @@ slots:
     description: supplier own name
     range: string
     slot_uri: schema:alternateName
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Supplier own name
@@ -2931,18 +3110,21 @@ slots:
   number_geometries:
     description: number of geometries that eventually form the minimum energy path (Could be more than the input geometries)
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Number of geometries
   method_type:
     description: method type
     range: MethodTypeEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Method type
   energy_barrier:
     description: difference in energy between the initial geometry and the transition state geometry
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Energy barrier
@@ -2971,18 +3153,21 @@ slots:
   degauss_energy:
     description: Gaussian broadening energy
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Degauss energy
   plot_group_by:
     description: group by index or by periodic element
     range: PlotGroupByEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Plot (group by setting)
   plot_contributions:
     description: contributions definition
     range: PlotContributionsEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Plot (contributions setting)
@@ -2990,6 +3175,7 @@ slots:
     description: energy
     range: QuantityValue
     slot_uri: emmo:EMMO_31ec09ba_1713_42cb_83c7_b38bf6f9ced2
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Energy
@@ -2997,6 +3183,7 @@ slots:
     description: username
     range: string
     slot_uri: foaf:accountName
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Username
@@ -3004,6 +3191,7 @@ slots:
     description: work status
     range: boolean
     slot_uri: opmi:OPMI_0000122
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Work status
@@ -3011,6 +3199,7 @@ slots:
     description: mobile phone
     range: string
     slot_uri: ncit:NCIT_C98193
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Mobile phone
@@ -3018,6 +3207,7 @@ slots:
     description: abstract
     range: string
     slot_uri: schema:abstract
+    multivalued: false
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Abstract
@@ -3025,6 +3215,7 @@ slots:
     description: doi
     range: string
     slot_uri: ncit:NCIT_C71462
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: DOI
@@ -3032,6 +3223,7 @@ slots:
     description: year
     range: integer
     slot_uri: ncit:NCIT_C29848
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Year
@@ -3040,6 +3232,7 @@ slots:
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
     slot_uri: ncit:NCIT_C42743
+    multivalued: false
     annotations:
       openbis_type: HYPERLINK
       openbis_label: URL
@@ -3048,6 +3241,7 @@ slots:
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
     slot_uri: dcat:downloadURL
+    multivalued: false
     annotations:
       openbis_type: HYPERLINK
       openbis_label: Dataset URL
@@ -3056,6 +3250,7 @@ slots:
     range: string
     pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
     slot_uri: apollo:APOLLO_SV_00000488
+    multivalued: false
     annotations:
       openbis_type: HYPERLINK
       openbis_label: Repository URL
@@ -3063,24 +3258,28 @@ slots:
     description: discharge voltage
     range: VoltageQuantityValue
     slot_uri: emmo_electrochemistry:electrochemistry_c7b26177_21bf_4787_b656_8e78edf27f88
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Discharge voltage
   e_min:
     description: energy of the lowest orbital included in the calculation
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: E-min
   e_max:
     description: energy of the highest orbital included in the calculation
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: E-max
   de:
     description: step between the E-min and E-max
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: dE
@@ -3088,24 +3287,28 @@ slots:
     description: full width at half maximum
     range: QuantityValue
     slot_uri: ncit:NCIT_C94903
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: FWHM
   extrap_plane:
     description: position of the extrapolation plane
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Extrapolation plane
   constant_current:
     description: isovalue of charged density at which the constant current image is produced
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Constant current
   constant_height:
     description: distance from the surface at which the constant Z image is simulated
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Constant height
@@ -3113,6 +3316,7 @@ slots:
     description: experiment type
     range: ExperimentTypeEnum
     slot_uri: fairmat_sts:nxsts-entry-experiment-type-field
+    multivalued: false
     annotations:
       openbis_type: CONTROLLED_VOCABULARY
       openbis_label: Experiment type
@@ -3120,6 +3324,7 @@ slots:
     description: acquisition coordinate axis x
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-x-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Acquisition X-axis coordinate
@@ -3127,6 +3332,7 @@ slots:
     description: acquisition coordinate axis y
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-y-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Acquisition Y-axis coordinate
@@ -3134,6 +3340,7 @@ slots:
     description: acquisition coordinate axis z
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-position-z-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Acquisition Z-axis coordinate
@@ -3141,6 +3348,7 @@ slots:
     description: final z
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-final-z-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Final Z
@@ -3148,12 +3356,14 @@ slots:
     description: filter type
     range: FilterTypeEnum
     slot_uri: ome_onto:FilterType
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Filter type
   filter_order:
     description: filter order
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Filter order
@@ -3161,6 +3371,7 @@ slots:
     description: filter cutoff
     range: QuantityValue
     slot_uri: ncit:NCIT_C94895
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Filter cutoff
@@ -3168,6 +3379,7 @@ slots:
     description: number of pixels
     range: integer
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-num-pixel-field
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Number of pixels
@@ -3175,6 +3387,7 @@ slots:
     description: duration between which the Z position is recorded and averaged before and after the sweep
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-z-avg-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z average time
@@ -3182,6 +3395,7 @@ slots:
     description: additional time to wait (in addition to the Settling Time) after the bias has ramped to the starting point of the sweep
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-first-settling-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: First settling time
@@ -3189,6 +3403,7 @@ slots:
     description: time to wait after changing the bias to the next level and before starting to acquire data
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-settling-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Settling time
@@ -3196,6 +3411,7 @@ slots:
     description: time during which the data are acquired and averaged
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-integration-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Integration time
@@ -3203,6 +3419,7 @@ slots:
     description: time to wait after the sweep has finished and the bias is ramped to the initial value
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-end-settling-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: End settling time
@@ -3210,6 +3427,7 @@ slots:
     description: time during which the Z-controller is enabled once a sweep has finished
     range: DurationQuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-time-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-controller time
@@ -3217,6 +3435,7 @@ slots:
     description: max rate at which the bias changes (before, during and after sweeping)
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-max-slew-rate-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Max slew rate
@@ -3224,6 +3443,7 @@ slots:
     description: whether one wants to measure the backward (return) sweep or the forward only
     range: boolean
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-backward-sweep-field
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Backward sweep
@@ -3231,6 +3451,7 @@ slots:
     description: number of sweeps to measure and average
     range: integer
     slot_uri: fairmat_sts:nxsts-entry-resolution-indicators-number-of-sweeps-field
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Number of sweeps
@@ -3246,6 +3467,7 @@ slots:
     description: record the Z position during Z averaging time at the end of the sweep (after Z control time)
     range: boolean
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-final-z-field
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Record final Z
@@ -3255,6 +3477,7 @@ slots:
   bias_spectroscopy_reset_bias:
     description: reset bias to the initial value (before starting the sweep) at the end of the spectroscopy measurement
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Reset bias (Bias spectroscopy)
@@ -3262,6 +3485,7 @@ slots:
     description: bias spectroscopy sweep start
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-sweep-start-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Sweep start (Bias spectroscopy)
@@ -3269,6 +3493,7 @@ slots:
     description: bias spectroscopy sweep end
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-sweep-control-bias-spectroscopy-sweep-end-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Sweep end (Bias spectroscopy)
@@ -3276,6 +3501,7 @@ slots:
     description: bias spectroscopy Z-offset
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-offset-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-offset (Bias spectroscopy)
@@ -3283,30 +3509,35 @@ slots:
     description: if Z-controller is being used
     range: boolean
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-hold-field
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Z-controller hold (Bias spectroscopy)
   z_spectroscopy_reset_z:
     description: reset the Z position at the end of the sweep to the initial averaged value calculated during Z averaging time at Max slew rate
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Reset Z (Z spectroscopy)
   z_spectroscopy_initial_z_offset:
     description: initial z offset
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Initial Z-offset (Z spectroscopy)
   z_spectroscopy_sweep_distance:
     description: Sweep distance
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Sweep distance (Z spectroscopy)
   z_spectroscopy_time_between_forward_backward:
     description: time to wait in seconds between the forward and the backward sweep
     range: DurationQuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Time between forward and backward (Z spectroscopy)
@@ -3314,6 +3545,7 @@ slots:
     description: Z-controller setpoint
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-controller-setpoint-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-controller setpoint
@@ -3321,6 +3553,7 @@ slots:
     description: Z-controller proportional gain
     range: double
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-p-gain-field
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Z-controller proportional gain
@@ -3328,6 +3561,7 @@ slots:
     description: Z-controller integral gain
     range: double
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-i-gain-field
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Z-controller integral gain
@@ -3335,6 +3569,7 @@ slots:
     description: Z-controller time constant
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-time-const-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-controller time constant
@@ -3342,6 +3577,7 @@ slots:
     description: position of the tip when feedback loop is off
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-tip-lift-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-controller tip lift
@@ -3349,6 +3585,7 @@ slots:
     description: time delay applied when switching off feedback loop
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-reproducibility-indicators-z-control-switchoff-delay-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Z-controller switch off delay
@@ -3356,6 +3593,7 @@ slots:
     description: if lock-in is on or not
     range: boolean
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-status-field
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Lock-in status
@@ -3363,6 +3601,7 @@ slots:
     description: signal on which the modulation (sine) will be added
     range: string
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-signal-field
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Lock-in modulated signal
@@ -3370,6 +3609,7 @@ slots:
     description: lock-in frequency
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-frequency-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Lock-in frequency
@@ -3377,6 +3617,7 @@ slots:
     description: lock-in frequency
     range: QuantityValue
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-modulation-amplitude-field
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Lock-in amplitude
@@ -3398,6 +3639,7 @@ slots:
     description: signal which will be demodulated
     range: LockInDemodulatedSignalEnum
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-demodulated-signal-field
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Lock-in demodulated signal
@@ -3434,72 +3676,84 @@ slots:
   lock_in_sync_filter:
     description: if use sync filter (Operates after the low-pass filter and averages the demodulated signals over one period of the modulation frequency
     range: boolean
+    multivalued: false
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Lock-in sync filter
   vacuum_system_status:
     description: vacuum system status
     range: VacuumSystemStatusSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Vacuum system status
   principal_chamber:
     description: principal chamber
     range: PrincipalChamberSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Principal chamber settings
   analysis_chamber:
     description: analysis chamber
     range: AnalysisChamberSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Analysis chamber settings
   fel_chamber:
     description: fel chamber
     range: FELChamberSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: FEL chamber settings
   tsp_filament_used:
     description: TSP-filament used
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Used TSP-filament
   cryo_system_status:
     description: cryo system status
     range: CryoSystemStatusSettings
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Cryo system status
   liquid_helium:
     description: liquid helium
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Liquid helium status
   liquid_nitrogen_refill_date:
     description: liquid helium refill date
     range: custom_datetime
+    multivalued: false
     annotations:
       openbis_type: TIMESTAMP
       openbis_label: Liquid helium refill date
   tip_preparation_type:
     description: tip preparation type
     range: TipPreparationTypeEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Tip preparation type
   wire_material:
     description: wire material
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Wire material
   holder_id:
     description: holder id
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Holder ID
@@ -3507,6 +3761,7 @@ slots:
     description: device parameters
     range: string
     slot_uri: ncit:NCIT_80474
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Device parameters
@@ -3514,24 +3769,28 @@ slots:
     description: model
     range: string
     slot_uri: schema:model
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Model
   tip_sensor_type:
     description: tip sensor type
     range: TipSensorTypeEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Tip sensor type
   uhv_component_type:
     description: uhv component type
     range: UHVComponentTypeEnum
+    multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: UHV component type
   lattice_type:
     description: lattice type
     range: string
+    multivalued: false
     annotations:
       openbis_type: VARCHAR
       openbis_label: Lattice type
@@ -3554,48 +3813,56 @@ slots:
   density_tolerance:
     description: density tolerance
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Density tolerance
   up_densities:
     description: up densities
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Up densities
   down_densities:
     description: down densities
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Down densities
   up_electrons:
     description: up electrons
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Up electrons
   down_electrons:
     description: down electrons
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: Down electrons
   convergence_coefficient:
     description: convergence coefficient
     range: double
+    multivalued: false
     annotations:
       openbis_type: REAL
       openbis_label: Convergence coefficient
   number_k_points:
     description: number of k-points
     range: integer
+    multivalued: false
     annotations:
       openbis_type: INTEGER
       openbis_label: number of k-points
   rate:
     description: rate
     range: RateQuantityValue
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: JSON
@@ -3603,6 +3870,7 @@ slots:
   pid_controller:
     description: PID controller values
     range: string
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: VARCHAR
@@ -3610,6 +3878,7 @@ slots:
   on_site_hubbard_repulsion_u:
     description: On-site Hubbard repulsion U
     range: QuantityValue
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: On-site Hubbard repulsion U
@@ -3617,6 +3886,7 @@ slots:
     range: Chemist
     description: chemist
     slot_uri: occo:OCCO_19203100
+    multivalued: false
     inlined: true
     annotations:
       openbis_type: OBJECT
@@ -3633,6 +3903,7 @@ slots:
   has_supplier:
     range: Supplier
     description: supplier
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: OBJECT
@@ -3640,6 +3911,7 @@ slots:
   has_storage:
     range: Storage
     description: storage
+    multivalued: false
     inlined: true
     annotations:
       openbis_type: OBJECT
@@ -3647,6 +3919,7 @@ slots:
   has_room:
     range: Room
     description: room
+    multivalued: false
     inlined: true
     annotations:
       openbis_type: OBJECT
@@ -3654,6 +3927,7 @@ slots:
   has_institution:
     range: Institution
     description: institution
+    multivalued: false
     inlined: true
     annotations:
       openbis_type: OBJECT
@@ -3661,6 +3935,7 @@ slots:
   is_annealed:
     range: Annealing
     description: annealing
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: OBJECT (PARENT)
@@ -3668,6 +3943,7 @@ slots:
   is_sputtered:
     range: Sputtering
     description: sputtering
+    multivalued: false
     slot_uri:
     inlined: true
     annotations:
@@ -3676,6 +3952,7 @@ slots:
   has_molecular_deposition:
     range: Deposition
     description: deposition
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: OBJECT (PARENT)
@@ -3691,6 +3968,7 @@ slots:
   has_instrument:
     range: Instrument
     description: instrument
+    multivalued: false
     slot_uri:
     annotations:
       openbis_type: OBJECT (PARENT)
@@ -3698,42 +3976,49 @@ slots:
   has_dft:
     range: DFT
     description: density functional theory
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: DFT
   has_tb:
     range: TightBinding
     description: tight binding
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Tight binding
   uses_crystal:
     range: Crystal
     description: crystal
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Crystal
   uses_molecule:
     range: Molecule
     description: molecule
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Molecule
   uses_substance:
     range: Substance
     description: substance
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Substance
   has_molecule:
     range: Molecule
     description: molecule
+    multivalued: false
     annotations:
       openbis_type: OBJECT
       openbis_label: Molecule
   has_person:
     range: Person
     description: person
+    multivalued: false
     inlined: true
     annotations:
       openbis_type: OBJECT
@@ -3749,12 +4034,14 @@ slots:
   has_manufacturer:
     range: Manufacturer
     description: manufacturer
+    multivalued: false
     annotations:
       openbis_type: OBJECT
       openbis_label: Manufacturer
   has_tip_sensor:
     range: TipSensor
     description: tip sensor
+    multivalued: false
     annotations:
       openbis_type: OBJECT
       openbis_label: Tip sensor
@@ -3816,12 +4103,14 @@ slots:
   has_layered_2d_material:
     range: Layered2DMaterial
     description: 2D layered material
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: 2D layered material
   has_wafer_substrate:
     range: WaferSubstrate
     description: wafer substrate
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Wafer substrate
@@ -3829,6 +4118,7 @@ slots:
     range: Sample
     description: sample
     inlined: true
+    multivalued: false
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Sample
@@ -3859,12 +4149,14 @@ slots:
   has_location_before:
     description: location of the sample before the transfer
     range: Room
+    multivalued: false
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (before)
   has_location_after:
     description: location of the sample after the transfer
     range: Room
+    multivalued: false
     annotations:
       openbis_type: OBJECT
       openbis_label: Location (after)
