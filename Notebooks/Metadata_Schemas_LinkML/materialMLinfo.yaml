@@ -322,7 +322,6 @@ classes:
       openbis_code: CRAC
       openbis_label: Cracker
     slots:
-     - test_string
      - sum_formula
      - duration
      - temperature
@@ -1057,9 +1056,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
+     - coordinates
   HVGainSettings:
     title: HV gain settings
     class_uri:
@@ -1067,9 +1064,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
+     - coordinates
   ScanSlope:
     title: Scan Slope
     class_uri:
@@ -1077,8 +1072,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   CurvatureRadius:
     title: Curvature radius
     class_uri:
@@ -1086,8 +1080,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   SecondOrderCorrection:
     title: Second order correction
     class_uri:
@@ -1095,8 +1088,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   DriftSettings:
     title: Drift settings
     class_uri:
@@ -1104,9 +1096,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
+     - coordinates
   ScanSettings:
     title: Scan settings
     class_uri:
@@ -1129,8 +1119,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   ScanTime:
     title: Scan time
     class_uri:
@@ -1138,8 +1127,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   ScanRange:
     title: Scan range
     class_uri:
@@ -1147,8 +1135,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   ScanPixels:
     title: Scan pixels
     class_uri:
@@ -1156,8 +1143,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
+     - coordinates
   ScanSpeed:
     title: Scan speed
     class_uri:
@@ -1242,16 +1228,6 @@ classes:
      - demodulation_bw_amp
      - demodulation_bw_pha
      - amplitude_excitation_ratio
-  PeriodicBoundaryConditions:
-    title: Periodic boundary conditions
-    class_uri:
-    description: Periodic boundary conditions
-    annotations:
-      openbis_object: false
-    slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
   AtomsPositions:
     title: Atoms positions
     class_uri:
@@ -1259,10 +1235,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
-     - atom_symbol
+     - coordinates
+     - atoms_symbols
   KPointsConditions:
     title: K-points conditions
     class_uri:
@@ -1270,9 +1244,7 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - x_coordinate
-     - y_coordinate
-     - z_coordinate
+     - coordinates
   BSEnergy:
     title: Band Structure energy
     class_uri:
@@ -1729,14 +1701,6 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
-  test_string:
-      description: test object
-      range: object
-      multivalued: true
-      slot_uri:
-      annotations:
-        openbis_type: OBJECT
-        openbis_label: Test string
   exists:
       description: exists
       range: boolean
@@ -2251,7 +2215,7 @@ slots:
     multivalued: true
     range: double
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Field
   angle:
     description: angle
@@ -2268,30 +2232,14 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Scan offset
-  x_coordinate:
-    description: x coordinate
+  coordinates:
+    description: coordinate
     range: QuantityValue
-    slot_uri: ncit:NCIT_C44477
+    slot_uri:
     multivalued: false
     annotations:
       openbis_type: JSON
-      openbis_label: X-axis coordinate
-  y_coordinate:
-    description: y coordinate
-    range: QuantityValue
-    slot_uri: ncit:NCIT_C44478
-    multivalued: false
-    annotations:
-      openbis_type: JSON
-      openbis_label: Y-axis coordinate
-  z_coordinate:
-    description: z coordinate
-    range: QuantityValue
-    slot_uri: ncit:NCIT_C44479
-    multivalued: false
-    annotations:
-      openbis_type: JSON
-      openbis_label: Z-axis coordinate
+      openbis_label: coordinate
   scan_time:
     description: scan time
     range: ScanTime
@@ -2402,7 +2350,7 @@ slots:
     multivalued: true
     range: double
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Inputs
   frequencies:
     description: frequencies
@@ -2437,7 +2385,7 @@ slots:
     multivalued: true
     range: double
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Filters' orders
   phase_settings:
     description: phase settings
@@ -2640,10 +2588,10 @@ slots:
       openbis_label: Optimised
   periodic_boundary_conditions:
     description: periodic boundary conditions
-    range: PeriodicBoundaryConditions
-    multivalued: false
+    range: integer
+    multivalued: true
     annotations:
-      openbis_type: JSON
+      openbis_type: INTEGER
       openbis_label: Periodic boundary conditions
   cell_vectors:
     description: lattice vectors of the cell
@@ -2659,11 +2607,11 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Atoms positions
-  atom_symbol:
+  atoms_symbols:
     description: atom symbol
     range: string
     slot_uri: emmo:EMMO_eb77076b_a104_42ac_a065_798b2d2809ad
-    multivalued: false
+    multivalued: true
     annotations:
       openbis_type: VARCHAR
       openbis_label: Atom symbol
@@ -2854,7 +2802,7 @@ slots:
     range: double
     multivalued: true
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Initial spin guesses
   absolute_magnetisation:
     description: output value of the absolute magnetisation
@@ -2984,7 +2932,7 @@ slots:
     range: double
     multivalued: true
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Geometry constraints
   funder:
     description: funder
@@ -3105,7 +3053,7 @@ slots:
     range: double
     multivalued: true
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Geometry constraints increments
   number_geometries:
     description: number of geometries that eventually form the minimum energy path (Could be more than the input geometries)
@@ -3141,14 +3089,14 @@ slots:
     multivalued: true
     slot_uri: chebi:CHEBI_33250
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Atomic selections
   orbitals_selections:
     description: amplitude of each gas phase orbital for a portion of the system on the orbitals of the full system
     range: double
     multivalued: true
     annotations:
-      openbis_type: ARRAY_REAL
+      openbis_type: REAL
       openbis_label: Orbitals selections
   degauss_energy:
     description: Gaussian broadening energy
@@ -3461,7 +3409,7 @@ slots:
     multivalued: true
     slot_uri: fairmat_sts:nxsts-entry-instrument-environment-scan-control-circuit-channels-current-field
     annotations:
-      openbis_type: ARRAY_STRING
+      openbis_type: STRING
       openbis_label: Channel names
   record_final_z:
     description: record the Z position during Z averaging time at the end of the sweep (after Z control time)
@@ -3633,7 +3581,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: ARRAY_INTEGER
+      openbis_type: INTEGER
       openbis_label: Lock-in HP filter orders
   lock_in_demodulated_signal:
     description: signal which will be demodulated
@@ -3649,7 +3597,7 @@ slots:
     multivalued: true
     slot_uri: fairmat_sts:nxsts-entry-instrument-lock-in-harmonic-order-n-field
     annotations:
-      openbis_type: ARRAY_INTEGER
+      openbis_type: INTEGER
       openbis_label: Lock-in harmonics
   lock_in_reference_phases:
     description: reference phase for the sine on the demodulated signal with respect to the modulation signal
@@ -3671,7 +3619,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: ARRAY_INTEGER
+      openbis_type: INTEGER
       openbis_label: Lock-in LP filter orders
   lock_in_sync_filter:
     description: if use sync filter (Operates after the low-pass filter and averages the demodulated signals over one period of the modulation frequency

@@ -247,3 +247,22 @@ Meeting with Bruno:
 Send updated Python Uploader to Adam
 Send examples files to populate the gallery.
 Measurement properties are not going to be saved inside an object but rather inside the config file.
+
+13-11-2024:
+Change dropdown to list of PKs and add sorting checkboxes with sorting PK and sorting by name
+Inventory of molecules (add molecule option), crystals, people, grants, codes.
+Do sample preparation (Deposition with Mol1 and Cryst 3)
+Do simulation at the same time (CP2K - GeoOpt with Mol1 and Cryst3) and then STM
+Do simulation at the same time (QE app - AM1 with PROD1 (child of MOL1) - GeoOpt - AM - BANDS + PDOS + InfraRed)
+Do an STM on the sample preparation
+Analyse the STM using IGOR and save .png as a dataset (ANALYSIS object)
+Results is a combination of experimental STM object and simulated STM
+Results is a combination of analysis of experimental STM and PDOS
+Draft uses the Results
+Publication contains Draft, Authors and Grants
+
+To make the connection of the atomistic model to crystal and molecule:
+    - First approach is to ask the user the objects which are inside openBIS
+    - Second approach would be to suggest the user by using the information got from openBIS (if the simulation is triggered from openBIS)
+
+PROD are children of experimental steps. If one saves an old PROD, one just links it to a molecule and crystal and save other details as comments.

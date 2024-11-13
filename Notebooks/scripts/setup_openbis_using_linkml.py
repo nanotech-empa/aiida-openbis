@@ -53,10 +53,7 @@ def create_experiment_type_in_openbis(session):
             
 def create_property_type_in_openbis(session, property_type_dict: dict):
     try:
-        print(property_type_dict)
-        prop = session.new_property_type(**property_type_dict)
-        prop.save()
-        print(prop)
+        session.new_property_type(**property_type_dict).save()
     except ValueError:
         print(f"{property_type_dict['code']} already exists.")
         
