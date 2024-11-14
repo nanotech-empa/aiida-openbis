@@ -80,6 +80,18 @@ class AppWidgets():
         self.substance_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
         self.substance_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
         self.substance_metadata_boxes = ipw.HBox([self.substances_dropdown_boxes, self.substance_details_textbox, self.substance_image_box])
+        
+        # Get widgets for molecule dropdown
+        self.molecules_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Molecule', ipw.Layout(width = '335px'), {'description_width': "110px"}, [-1])
+        self.molecule_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
+        self.molecule_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
+        self.molecule_metadata_boxes = ipw.HBox([self.molecules_dropdown_boxes, self.molecule_details_textbox, self.molecule_image_box])
+        
+        # Get widgets for product dropdown
+        self.products_dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget('Product', ipw.Layout(width = '335px'), {'description_width': "110px"}, [-1])
+        self.product_details_textbox = utils.Textarea(description = "", disabled = True, layout = ipw.Layout(width = '415px', height = '250px'))
+        self.product_image_box = utils.Image(value = utils.read_file(self.config["default_image_filepath"]), format = 'jpg', width = '220px', height = '250px', layout=ipw.Layout(border='solid 1px #cccccc'))
+        self.product_metadata_boxes = ipw.HBox([self.products_dropdown_boxes, self.product_details_textbox, self.product_image_box])
 
         # Get widgets for properties
         self.object_widgets = {}
@@ -667,6 +679,8 @@ class AppWidgets():
         utils.load_dropdown_elements(self.openbis_session, "INSTRUMENT", self.instruments_dropdown_boxes.children[0], self.instruments_dropdown_boxes.children[1], "instrument")
         utils.load_dropdown_elements(self.openbis_session, "EXPERIMENT", self.experiments_dropdown, self.experiment_sorting_checkboxes, "experiment")
         utils.load_dropdown_elements(self.openbis_session, "PROJECT", self.projects_dropdown_boxes.children[0], self.projects_dropdown_boxes.children[1], "project")
+        utils.load_dropdown_elements(self.openbis_session, "MOLECULE", self.molecules_dropdown_boxes.children[0], self.molecules_dropdown_boxes.children[1], "molecule")
+        utils.load_dropdown_elements(self.openbis_session, "PRODUCT", self.products_dropdown_boxes.children[0], self.products_dropdown_boxes.children[1], "product")
         utils.load_dropdown_elements(self.openbis_session, "SUBSTANCE", self.substances_dropdown_boxes.children[0], self.substances_dropdown_boxes.children[1], "substance")
         utils.load_dropdown_elements(self.openbis_session, "PUBLICATION_CUSTOM", self.object_dropdown.children[0], self.object_dropdown.children[1], "publication")
 
