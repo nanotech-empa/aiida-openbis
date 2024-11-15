@@ -450,7 +450,7 @@
     },
     "objects": {
         "Crystal": {
-            "placeholder": "Select crystal...",
+            "placeholder": "crystal",
             "openbis_object_type": "CRYSTAL",
             "object_type": "slab",
             "properties": [
@@ -464,7 +464,7 @@
             ]
         },
         "Wafer substrate": {
-            "placeholder": "Select wafer substrate...",
+            "placeholder": "wafer substrate",
             "openbis_object_type": "WAFER_SUBSTRATE",
             "object_type": "slab",
             "properties": [
@@ -477,7 +477,7 @@
             ]
         },
         "2D-layer material": {
-            "placeholder": "Select 2D-layer material...",
+            "placeholder": "2D-layer material",
             "openbis_object_type": "2D_LAYERED_MATERIAL",
             "object_type": "slab",
             "properties": [
@@ -633,6 +633,16 @@
                 "draft_type",
                 "comments"
             ]
+        },
+        "Analysis": {
+            "object_type": "analysis",
+            "openbis_object_type": "ANALYSIS",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "description",
+                "comments"
+            ]
         }
     },
     "home_page": {
@@ -640,12 +650,13 @@
             "<div style='display: flex;'>",
             "<div style='flex: 1; padding: 10px;'>",
             "<ul>",
+            "<li><a href='create_analysis.ipynb' target='_blank'>Create analysis</a></li>",
             "<li><a href='create_results.ipynb' target='_blank'>Create results</a></li>",
             "<li><a href='create_draft.ipynb' target='_blank'>Create draft</a></li>",
             "<li><a href='create_publication.ipynb' target='_blank'>Create publication</a></li>",
-            "<li><a href='create_sample.ipynb' target='_blank'>Sample creation</a></li>",
+            "<li><a href='create_sample.ipynb' target='_blank'>Create sample</a></li>",
             "<li><a href='sample_preparation.ipynb' target='_blank'>Sample preparation</a></li>",
-            "<li><a href='measurement.ipynb' target='_blank'>Sample measurement</a></li>",
+            "<li><a href='sample_measurement.ipynb' target='_blank'>Sample measurement</a></li>",
             "<li><a href='miscellaneous.ipynb' target='_blank'>Other</a></li>",
             "<li><a href='' target='_blank'>Molecule sublimation rate</a></li>",
             "<li><a href='export_openbis_object.ipynb' target='_blank'>Export openBIS object</a></li>",
@@ -664,12 +675,13 @@
             "<div id='box' style='display: flex; pointer-events: none;'>",
             "<div style='flex: 1; padding: 10px;'>",
             "<ul>",
+            "<li><a href='create_analysis.ipynb' style='color: gray;' target='_blank'>Create analysis</a></li>",
             "<li><a href='create_results.ipynb' style='color: gray;' target='_blank'>Create results</a></li>",
             "<li><a href='create_draft.ipynb' style='color: gray;' target='_blank'>Create draft</a></li>",
             "<li><a href='create_publication.ipynb' style='color: gray;' target='_blank'>Create publication</a></li>",
-            "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Sample creation</a></li>",
+            "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Create sample</a></li>",
             "<li><a href='sample_preparation.ipynb' style='color: gray;' target='_blank'>Sample preparation</a></li>",
-            "<li><a href='measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
+            "<li><a href='sample_measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
             "<li><a href='miscellaneous.ipynb' style='color: gray;' target='_blank'>Other</a></li>",
             "<li><a href='' style='color: gray;' target='_blank'>Molecule sublimation rate</a></li>",
             "<li><a href='export_openbis_object.ipynb' style='color: gray;' target='_blank'>Export openBIS object</a></li>",

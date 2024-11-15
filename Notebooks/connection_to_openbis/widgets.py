@@ -14,6 +14,137 @@ CONFIG = utils.read_json("config.json")
 CONFIG_ELN = utils.read_json("eln_config.json")
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
 
+class AnalysisSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Analysis', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self, project_id):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "ANALYSIS", project_id)
+
+class CodeSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Code', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "CODE")
+
+class PublicationSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Dropdown with sorting and checkboxes
+        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
+            'Publication', ipw.Layout(width='982px'), 
+            {'description_width': "110px"}, [-1], "vertical"
+        )
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        utils.load_dropdown_elements(
+            OPENBIS_SESSION, "PUBLICATION_CUSTOM", self.dropdown_boxes.children[0], 
+            self.dropdown_boxes.children[1], "publication"
+        )
+
+class MeasurementSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Measurements', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self, project_id):
+        measurements_list = []
+        measurements_list.extend(
+            utils.load_openbis_elements_list(OPENBIS_SESSION, "1D_MEASUREMENT", project_id)
+        )
+        measurements_list.extend(
+            utils.load_openbis_elements_list(OPENBIS_SESSION, "2D_MEASUREMENT", project_id)
+        )
+        self.selector.options = measurements_list
+        
+class DraftSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Drafts', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self, project_id):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "DRAFT", project_id)
+        
+class ResultsSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Results', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self, project_id):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "RESULTS", project_id)
+        
+class GrantSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Grants', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "GRANT")
+
+class AuthorSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Authors', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self):
+        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "AUTHOR")
+        
 class MoleculeSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
@@ -21,7 +152,8 @@ class MoleculeSelectionWidget(ipw.HBox):
         
         # Dropdown with sorting and checkboxes
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Molecule', ipw.Layout(width='315px'), {'description_width': "110px"}, [-1]
+            'Molecule', ipw.Layout(width='315px'), 
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         # Details textbox (disabled for display purposes)
@@ -50,7 +182,8 @@ class SubstanceSelectionWidget(ipw.HBox):
         
         # Dropdown with sorting and checkboxes
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Substance', ipw.Layout(width='315px'), {'description_width': "110px"}, [-1]
+            'Substance', ipw.Layout(width='315px'), 
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         # Details textbox (disabled for display purposes)
@@ -115,6 +248,33 @@ class SubstanceSelectionWidget(ipw.HBox):
                 material_metadata_string += f"{prop_title}: {prop_value}\n"
 
         self.details_textbox.value = material_metadata_string
+    
+class MaterialSelectionWidget(ipw.Output):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Dropdown with sorting and checkboxes
+        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
+            '', ipw.Layout(width='315px'), {'description_width': "110px"}, 
+            [-1], "horizontal"
+        )
+        # Details textbox (disabled for display purposes)
+        self.details_textbox = ipw.Textarea(
+            description="", disabled=True, layout=ipw.Layout(width='415px', height='250px')
+        )
+        
+        # Image box (displaying a default image)
+        self.image_box = ipw.Image(
+            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
+            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+        )
+    
+    def load_dropdown_box(self, object_type, placeholder):
+        utils.load_dropdown_elements(
+            OPENBIS_SESSION, object_type, self.dropdown_boxes.children[0], 
+            self.dropdown_boxes.children[1], placeholder
+        )
 
 class ProjectSelectionWidget(ipw.VBox):
     def __init__(self):
@@ -122,7 +282,8 @@ class ProjectSelectionWidget(ipw.VBox):
         super().__init__()
         
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Project', ipw.Layout(width = '982px'), {'description_width': "110px"}, [-1]
+            'Project', ipw.Layout(width = '982px'),
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         self.children = [self.dropdown_boxes]
@@ -206,7 +367,8 @@ class SampleSelectionWidget(ipw.HBox):
         
         # Dropdown with sorting and checkboxes
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Sample', ipw.Layout(width='385px'), {'description_width': "110px"}, [-1]
+            'Sample', ipw.Layout(width='385px'), 
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         # Details textbox (disabled for display purposes)
@@ -229,7 +391,8 @@ class InstrumentSelectionWidget(ipw.HBox):
         
         # Dropdown with sorting and checkboxes
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Instrument', ipw.Layout(width='982px'), {'description_width': "110px"}, [-1]
+            'Instrument', ipw.Layout(width='982px'), 
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         self.children = [self.dropdown_boxes]
@@ -247,7 +410,8 @@ class ProductSelectionWidget(ipw.HBox):
         
         # Dropdown with sorting and checkboxes
         self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Product', ipw.Layout(width='315px'), {'description_width': "110px"}, [-1]
+            'Product', ipw.Layout(width='315px'), 
+            {'description_width': "110px"}, [-1], "vertical"
         )
         
         # Details textbox (disabled for display purposes)
@@ -268,7 +432,7 @@ class ProductSelectionWidget(ipw.HBox):
             OPENBIS_SESSION, "PRODUCT", self.dropdown_boxes.children[0], 
             self.dropdown_boxes.children[1], "substance"
         )
-        
+
 class SamplePreparationSelectionWidget(ipw.SelectMultiple):
     def __init__(self):
         # Initialize the parent HBox
@@ -281,6 +445,12 @@ class SamplePreparationSelectionWidget(ipw.SelectMultiple):
         selector_height = len(self.sample_preparation_options) * 18
         selector_height = f"{selector_height}px"
         self.layout = ipw.Layout(width = '220px', height = selector_height)
+
+class SamplePreparationAccordionWidget(ipw.Accordion):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        self.tasks_properties_widgets = []
 
 class ObjectPropertiesWidgets(ipw.VBox):
     def __init__(self, task):
@@ -341,3 +511,4 @@ class ObjectPropertiesWidgets(ipw.VBox):
             self.properties_widgets[prop_key] = prop_widget
             
         self.children = list(self.properties_widgets.values())
+        

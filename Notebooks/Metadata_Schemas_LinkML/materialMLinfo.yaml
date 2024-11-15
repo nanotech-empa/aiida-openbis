@@ -47,6 +47,21 @@ classes:
         required: true
     annotations:
       openbis_object: false
+  Analysis:
+    title: Analysis
+    is_a: Thing
+    class_uri: 
+    description: Analysis
+    annotations:
+      openbis_object: true
+      openbis_code: ANLYS
+      openbis_label: Analysis
+    slots:
+     - description
+     - comments
+     - has_one_d_measurements
+     - has_two_d_measurements
+     - has_codes
   Annealing:
     title: Annealing
     is_a: Thing
@@ -137,6 +152,19 @@ classes:
     slots:
      - has_person
      - has_institution
+  Code:
+    title: Code
+    is_a: Thing
+    class_uri: 
+    description: Code
+    annotations:
+      openbis_object: true
+      openbis_code: CODE
+      openbis_label: Code
+    slots:
+     - description
+     - repository_url
+     - comments
   Crystal:
     title: Crystal
     is_a: Thing
@@ -634,7 +662,7 @@ classes:
      - has_one_d_measurements
      - has_two_d_measurements
      - has_geometry_optimisations
-     - has_softwares
+     - has_analysis
   Room:
     title: Room
     is_a: Thing
@@ -667,14 +695,14 @@ classes:
   Software:
     title: Software
     is_a: Thing
-    class_uri: schema:SoftwareSourceCode
-    description: Used software script
+    class_uri:
+    description: 
     annotations:
       openbis_object: true
       openbis_code: SOFTWR
       openbis_label: Software
     slots:
-     - repository_url
+     - comments
   Sputtering:
     title: Sputtering
     is_a: Thing
@@ -4001,6 +4029,14 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Results
+  has_analysis:
+    range: Analysis
+    description: analysis
+    multivalued: true
+    inlined_as_list: true
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Analysis
   has_empirical_modelling:
     range: EmpiricalModelling
     description: empirical modelling
@@ -4031,7 +4067,7 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Authors
-  has_softwares:
+  has_software:
     range: Software
     description: softwares
     multivalued: true
@@ -4040,6 +4076,15 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Softwares
+  has_codes:
+    range: Code
+    description: codes
+    multivalued: true
+    inlined_as_list: true
+    slot_uri: 
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Codes
   has_geometry_optimisations:
     range: GeometryOptimisation
     description: geometry optimisations

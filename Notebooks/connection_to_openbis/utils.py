@@ -24,7 +24,10 @@ def DropdownwithSortingCheckboxesWidget(*args):
     dropdown = Dropdown(description=args[0], disabled=False, layout = args[1], style = args[2], options = args[3])
     sorting_checkboxes_list = SortingCheckboxes("130px", "60px", "200px")
     widgets = [dropdown, sorting_checkboxes_list]
-    return ipw.VBox(widgets)
+    if args[4] == "horizontal":
+        return ipw.HBox(widgets)
+    else:
+        return ipw.VBox(widgets)
 
 def IntSliderwithTextWidget(*args):
     intslider = IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][-1], disabled = False, layout = args[3], style = args[4])
