@@ -219,6 +219,10 @@ def create_experiment_in_openbis(openbis_session, project_id, experiment_name):
     experiment = openbis_session.new_experiment(code = experiment_code, type = "EXPERIMENT", project = project_id, props = {"$name": experiment_name})
     experiment.save()
 
+def create_openbis_dataset(openbis_session, **kwargs):
+    openbis_ds = openbis_session.new_dataset(**kwargs)
+    openbis_ds.save()
+
 def create_openbis_object(openbis_session, **kwargs):
     openbis_object = openbis_session.new_object(**kwargs)
     openbis_object.save()
@@ -228,6 +232,12 @@ def create_openbis_collection(openbis_session, **kwargs):
     collection = openbis_session.new_collection(**kwargs)
     collection.save()
     return collection
+
+def get_openbis_collection(openbis_session, **kwargs):
+    return openbis_session.get_collection(**kwargs)
+
+def get_openbis_objects(openbis_session, **kwargs):
+    return openbis_session.get_objects(**kwargs)
 
 def get_current_datetime():
     return datetime.datetime.now()

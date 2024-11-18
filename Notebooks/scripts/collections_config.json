@@ -98,6 +98,9 @@
                     "experiments": {
                         "MAINTENANCE_COLLECTION": {
                             "name": "Maintenance"
+                        },
+                        "SRD_COLLECTION": {
+                            "name": "Sublimation rate determination"
                         }
                     }
                 }

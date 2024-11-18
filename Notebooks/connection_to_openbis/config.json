@@ -120,21 +120,121 @@
         "iupac_name": {
             "title": "IUPAC Name",
             "property_type": "VARCHAR",
-            "property_widget": ""
+            "property_widget": "TEXT",
+            "placeholder": "Write IUPAC name here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "cas_number": {
+            "title": "CAS Number",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write CAS number here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
         },
         "smiles": {
             "title": "SMILES",
             "property_type": "VARCHAR",
-            "property_widget": ""
+            "property_widget": "TEXT",
+            "placeholder": "Write SMILES here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
         },
         "empa_number": {
             "title": "Empa number",
             "property_type": "INTEGER",
-            "property_widget": ""
+            "property_widget": "INTTEXT",
+            "placeholder": "Write empa number here...",
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            }
         },
         "batch": {
             "title": "Batch",
             "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write batch here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "vial": {
+            "title": "Vial",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write vial number here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "fridge": {
+            "title": "Fridge",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "no_light": {
+            "title": "No light",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "dry": {
+            "title": "Dry",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "no_oxygen": {
+            "title": "No oxygen",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "other_storage_condition": {
+            "title": "Other storage condition",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "other_storage_condition_specification": {
+            "title": "Other storage condition (specification)",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "hazardous": {
+            "title": "Hazard",
+            "property_type": "BOOLEAN",
+            "property_widget": ""
+        },
+        "hazardous_specification": {
+            "title": "Hazard (specification)",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "placeholder": "Write hazard specification here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "evaporation_temperatures": {
+            "title": "Evaporation temperatures",
+            "property_type": "JSON",
+            "property_widget": ""
+        },
+        "chemist_molecule_name": {
+            "title": "Molecule name (by Chemist)",
+            "property_type": "VARCHAR",
+            "property_widget": ""
+        },
+        "receive_date": {
+            "title": "Receive date",
+            "property_type": "DATE",
             "property_widget": ""
         },
         "has_molecule": {
@@ -494,9 +594,12 @@
             "object_type": "material",
             "openbis_object_type": "MOLECULE",
             "properties": [
-                "iupac_name",
+                "$name",
                 "sum_formula",
-                "smiles"
+                "smiles",
+                "iupac_name",
+                "cas_number",
+                "comments"
             ]
         },
         "Substance": {
@@ -506,7 +609,18 @@
                 "$name",
                 "empa_number",
                 "batch",
+                "vial",
+                "hazardous",
+                "hazardous_specification",
+                "evaporation_temperatures",
+                "fridge",
+                "no_light",
+                "dry",
+                "no_oxygen",
+                "other_storage_condition",
+                "other_storage_condition_specification",
                 "amount",
+                "receive_date",
                 "has_molecule",
                 "comments"
             ]
@@ -643,6 +757,20 @@
                 "description",
                 "comments"
             ]
+        },
+        "SRD": {
+            "object_type": "sublimation rate determination",
+            "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "pressure",
+                "rate",
+                "temperature",
+                "pid_controller",
+                "evaporator_slot",
+                "comments"
+            ]
         }
     },
     "home_page": {
@@ -655,13 +783,15 @@
             "<li><a href='create_draft.ipynb' target='_blank'>Create draft</a></li>",
             "<li><a href='create_publication.ipynb' target='_blank'>Create publication</a></li>",
             "<li><a href='create_sample.ipynb' target='_blank'>Create sample</a></li>",
+            "<li><a href='create_molecule.ipynb' target='_blank'>Create molecule</a></li>",
+            "<li><a href='create_substance.ipynb' target='_blank'>Create substance</a></li>",
             "<li><a href='sample_preparation.ipynb' target='_blank'>Sample preparation</a></li>",
             "<li><a href='sample_measurement.ipynb' target='_blank'>Sample measurement</a></li>",
-            "<li><a href='miscellaneous.ipynb' target='_blank'>Other</a></li>",
-            "<li><a href='' target='_blank'>Molecule sublimation rate</a></li>",
+            "<li><a href='substance_srd.ipynb' target='_blank'>Substance sublimation rate</a></li>",
             "<li><a href='export_openbis_object.ipynb' target='_blank'>Export openBIS object</a></li>",
             "<li><a href='find_similar_molecules.ipynb' target='_blank'>Find similar molecules</a></li>",
             "<li><a href='send_simulation_to_openbis.ipynb' target='_blank'>Send simulation to openBIS</a></li>",
+            "<li><a href='miscellaneous.ipynb' target='_blank'>Other</a></li>",
             "</ul>",
             "</div>",
             "<div style='flex: 1; padding: 10px;'>",
@@ -680,13 +810,15 @@
             "<li><a href='create_draft.ipynb' style='color: gray;' target='_blank'>Create draft</a></li>",
             "<li><a href='create_publication.ipynb' style='color: gray;' target='_blank'>Create publication</a></li>",
             "<li><a href='create_sample.ipynb' style='color: gray;' target='_blank'>Create sample</a></li>",
+            "<li><a href='create_molecule.ipynb' style='color: gray;' target='_blank'>Create molecule</a></li>",
+            "<li><a href='create_substance.ipynb' style='color: gray;' target='_blank'>Create substance</a></li>",
             "<li><a href='sample_preparation.ipynb' style='color: gray;' target='_blank'>Sample preparation</a></li>",
             "<li><a href='sample_measurement.ipynb' style='color: gray;' target='_blank'>Sample measurement</a></li>",
-            "<li><a href='miscellaneous.ipynb' style='color: gray;' target='_blank'>Other</a></li>",
-            "<li><a href='' style='color: gray;' target='_blank'>Molecule sublimation rate</a></li>",
+            "<li><a href='substance_srd.ipynb' style='color: gray;' target='_blank'>Substance sublimation rate</a></li>",
             "<li><a href='export_openbis_object.ipynb' style='color: gray;' target='_blank'>Export openBIS object</a></li>",
             "<li><a href='find_similar_molecules.ipynb' style='color: gray;' target='_blank'>Find similar molecules</a></li>",
             "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray;' target='_blank'>Send simulation to openBIS</a></li>",
+            "<li><a href='miscellaneous.ipynb' style='color: gray;' target='_blank'>Other</a></li>",
             "</ul>",
             "</div>",
             "<div style='flex: 1; padding: 10px;'>",

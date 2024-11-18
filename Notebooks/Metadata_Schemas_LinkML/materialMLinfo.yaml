@@ -630,23 +630,6 @@ classes:
      - has_grants
      - has_drafts
      - has_authors
-  QCM:
-    title: QCM
-    is_a: Thing
-    description: Quartz Crystal Microbalance
-    class_uri: 
-    annotations:
-      openbis_object: true
-      openbis_code: QCM
-      openbis_label: Quartz Crystal Microbalance
-    slots:
-     - pressure
-     - rate
-     - temperature
-     - evaporator_slot
-     - pid_controller
-     - comments
-     - uses_substance
   Results:
     title: Results
     is_a: Thing
@@ -733,6 +716,11 @@ classes:
       openbis_code: SRD
       openbis_label: Sublimation Rate Determination
     slots:
+     - pressure
+     - rate
+     - temperature
+     - evaporator_slot
+     - pid_controller
      - comments
      - uses_substance
   Substance:
@@ -757,8 +745,8 @@ classes:
      - no_oxygen
      - other_storage_condition
      - other_storage_condition_specification
-     - chemist_molecule_name
      - amount
+     - chemist_molecule_name
      - receive_date
      - comments
      - has_molecule
@@ -1628,11 +1616,6 @@ classes:
         inlined_as_list: true
         range: Publication
         description: publications container
-      qcms:
-        multivalued: true
-        inlined_as_list: true
-        range: QCM
-        description: quartz crystal microbalance objects container
       results:
         multivalued: true
         inlined_as_list: true
