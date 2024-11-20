@@ -528,7 +528,6 @@ classes:
      - sum_formula
      - smiles
      - cas_number
-     - has_precursor_molecules
   Notes:
     title: Notes
     is_a: Thing
@@ -646,6 +645,21 @@ classes:
      - has_two_d_measurements
      - has_geometry_optimisations
      - has_analysis
+  ReactionProduct:
+    title: Reaction Product
+    is_a: Thing
+    class_uri: 
+    description: Reaction Product
+    annotations:
+      openbis_object: true
+      openbis_code: REACPROD
+      openbis_label: Reaction Product
+    slots:
+     - empa_number
+     - batch
+     - vial
+     - comments
+     - has_molecule
   Room:
     title: Room
     is_a: Thing
@@ -3850,15 +3864,6 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Chemist
-  has_precursor_molecules:
-    range: Molecule
-    description: precursor molecules
-    multivalued: true
-    inlined_as_list: true
-    slot_uri:
-    annotations:
-      openbis_type: OBJECT (PARENT)
-      openbis_label: Precursor molecules
   has_supplier:
     range: Supplier
     description: supplier

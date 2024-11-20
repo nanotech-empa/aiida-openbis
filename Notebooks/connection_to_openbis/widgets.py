@@ -9,10 +9,69 @@ import shutil
 import utils
 import base64
 from datetime import datetime
+from aiida import orm
 
 CONFIG = utils.read_json("config.json")
 CONFIG_ELN = utils.read_json("eln_config.json")
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
+
+class SimulationSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Simulation', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'PK', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        qb = orm.QueryBuilder()
+        qb.append(orm.WorkChainNode)
+        results = qb.all()
+        items_names_pks = []
+        for result in results:
+            name_pk_string = f"{result[0].process_label} ({result[0].pk})"
+            name_pk_tuple = (name_pk_string, result[0].pk)
+            items_names_pks.append(name_pk_tuple)
+            
+        items_names_pks.insert(0, (f'Select simulation...', -1))
+        
+        self.dropdown.options = items_names_pks
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PK"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown,
+                    ["Name", "PK"],
+                    [True, False]
+                ), 
+                names='value'
+            )
 
 class AnalysisSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -44,24 +103,209 @@ class CodeSelectionWidget(ipw.HBox):
     def load_selector(self):
         self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "CODE")
 
+class ChemistSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Chemist', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "CHEMIST"
+        )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select chemist...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
+
+class StorageSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Storage', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "STORAGE"
+        )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select storage...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
+
+class SupplierSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Supplier', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "SUPPLIER"
+        )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select supplier...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
+
 class PublicationSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Publication', ipw.Layout(width='982px'), 
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Publication', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         self.children = [self.dropdown_boxes]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "PUBLICATION_CUSTOM", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "publication"
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "PUBLICATION_CUSTOM"
         )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select publication...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
 
 class MeasurementSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -150,11 +394,23 @@ class MoleculeSelectionWidget(ipw.HBox):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Molecule', ipw.Layout(width='315px'), 
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Molecule', 
+            disabled=False, 
+            layout = ipw.Layout(width='315px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         # Details textbox (disabled for display purposes)
         self.details_textbox = ipw.Textarea(
@@ -170,21 +426,88 @@ class MoleculeSelectionWidget(ipw.HBox):
         self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "MOLECULE", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "molecule"
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "MOLECULE"
         )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select molecule...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
+    
+    # Function to handle changes in the substances dropdown
+    def load_molecule_metadata(self, change):
+        if self.dropdown_boxes.children[0].value == -1:
+            self.details_textbox.value = ''
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+            return
+        
+        # Get metadata
+        property_list = CONFIG["objects"]["Molecule"]["properties"]
+        molecule_object = OPENBIS_SESSION.get_object(self.dropdown_boxes.children[0].value)
+        
+        # Get image
+        molecule_dataset = molecule_object.get_datasets(type="ELN_PREVIEW")[0]
+
+        if molecule_dataset:
+            molecule_dataset.download(destination="images")
+            material_image_filepath = molecule_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
+            shutil.rmtree(f"images/{molecule_dataset.permId}/")
+        else:
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+
+        molecule_metadata = molecule_object.props.all()
+        molecule_metadata_string = ""
+        for prop_key in property_list:
+            prop_title = CONFIG["properties"][prop_key]["title"]
+            prop_value = molecule_metadata.get(prop_key)
+            if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
+                prop_value = json.loads(prop_value)
+                molecule_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
+            else:
+                molecule_metadata_string += f"{prop_title}: {prop_value}\n"
+
+        self.details_textbox.value = molecule_metadata_string
 
 class SubstanceSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Substance', ipw.Layout(width='315px'), 
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Substance', 
+            disabled=False, 
+            layout = ipw.Layout(width='315px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         # Details textbox (disabled for display purposes)
         self.details_textbox = ipw.Textarea(
@@ -200,10 +523,30 @@ class SubstanceSelectionWidget(ipw.HBox):
         self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "SUBSTANCE", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "substance"
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "SUBSTANCE"
         )
+        items_names_permids = [(f"{item.props['empa_number']}{item.props['batch']} ({item.permId})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select substance...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
     
     # Function to handle changes in the substances dropdown
     def load_substance_metadata(self, change):
@@ -214,19 +557,19 @@ class SubstanceSelectionWidget(ipw.HBox):
         
         # Get substance metadata
         property_list = CONFIG["objects"]["Substance"]["properties"]
-        substance_property_list = CONFIG["objects"]["Molecule"]["properties"]
+        molecule_property_list = CONFIG["objects"]["Molecule"]["properties"]
         material_object = OPENBIS_SESSION.get_object(self.dropdown_boxes.children[0].value)
         
         # Get substance image
-        substance_object = OPENBIS_SESSION.get_object(material_object.props.all()['has_molecule'])
-        substance_metadata = substance_object.props.all()
-        substance_dataset = substance_object.get_datasets(type="ELN_PREVIEW")[0]
+        molecule_object = OPENBIS_SESSION.get_object(material_object.props.all()['has_molecule'])
+        molecule_metadata = molecule_object.props.all()
+        molecule_dataset = molecule_object.get_datasets(type="ELN_PREVIEW")[0]
 
-        if substance_dataset:
-            substance_dataset.download(destination="images")
-            material_image_filepath = substance_dataset.file_list[0]
-            self.image_box.value = utils.read_file(f"images/{substance_dataset.permId}/{material_image_filepath}")
-            shutil.rmtree(f"images/{substance_dataset.permId}/")
+        if molecule_dataset:
+            molecule_dataset.download(destination="images")
+            material_image_filepath = molecule_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
+            shutil.rmtree(f"images/{molecule_dataset.permId}/")
         else:
             self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
 
@@ -240,25 +583,144 @@ class SubstanceSelectionWidget(ipw.HBox):
                 material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
             elif prop_key == "has_molecule":
                 material_metadata_string += f"{prop_title}:\n"
-                for mol_prop_key in substance_property_list:
+                for mol_prop_key in molecule_property_list:
                     mol_prop_title = CONFIG["properties"][mol_prop_key]["title"]
-                    mol_prop_value = substance_metadata.get(mol_prop_key)
+                    mol_prop_value = molecule_metadata.get(mol_prop_key)
                     material_metadata_string += f"- {mol_prop_title}: {mol_prop_value}\n"
             else:
                 material_metadata_string += f"{prop_title}: {prop_value}\n"
 
         self.details_textbox.value = material_metadata_string
+
+class ReactionProductSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Reaction Product', 
+            disabled=False, 
+            layout = ipw.Layout(width='315px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        # Details textbox (disabled for display purposes)
+        self.details_textbox = ipw.Textarea(
+            description="", disabled=True, layout=ipw.Layout(width='415px', height='250px')
+        )
+        
+        # Image box (displaying a default image)
+        self.image_box = ipw.Image(
+            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
+            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+        )
+        
+        self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
     
+    def load_dropdown_box(self):
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "REACTION_PRODUCT"
+        )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select product...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
+    
+    # Function to handle changes in the products dropdown
+    def load_product_metadata(self, change):
+        if self.dropdown_boxes.children[0].value == -1:
+            self.details_textbox.value = ''
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+            return
+        
+        # Get substance metadata
+        property_list = CONFIG["objects"]["Reaction Product"]["properties"]
+        molecule_property_list = CONFIG["objects"]["Molecule"]["properties"]
+        material_object = OPENBIS_SESSION.get_object(self.dropdown_boxes.children[0].value)
+        
+        # Get molecule image
+        molecule_object = OPENBIS_SESSION.get_object(material_object.props.all()['has_molecule'])
+        molecule_metadata = molecule_object.props.all()
+        molecule_dataset = molecule_object.get_datasets(type="ELN_PREVIEW")[0]
+
+        if molecule_dataset:
+            molecule_dataset.download(destination="images")
+            material_image_filepath = molecule_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
+            shutil.rmtree(f"images/{molecule_dataset.permId}/")
+        else:
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+
+        material_metadata = material_object.props.all()
+        material_metadata_string = ""
+        for prop_key in property_list:
+            prop_title = CONFIG["properties"][prop_key]["title"]
+            prop_value = material_metadata.get(prop_key)
+            if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
+                prop_value = json.loads(prop_value)
+                material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
+            elif prop_key == "has_molecule":
+                material_metadata_string += f"{prop_title}:\n"
+                for mol_prop_key in molecule_property_list:
+                    mol_prop_title = CONFIG["properties"][mol_prop_key]["title"]
+                    mol_prop_value = molecule_metadata.get(mol_prop_key)
+                    material_metadata_string += f"- {mol_prop_title}: {mol_prop_value}\n"
+            else:
+                material_metadata_string += f"{prop_title}: {prop_value}\n"
+
+        self.details_textbox.value = material_metadata_string
+            
 class MaterialSelectionWidget(ipw.Output):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            '', ipw.Layout(width='315px'), {'description_width': "110px"}, 
-            [-1], "horizontal"
+        self.dropdown = utils.Dropdown(
+            description='', 
+            disabled=False, 
+            layout = ipw.Layout(width='315px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.HBox([self.dropdown, self.sorting_checkboxes_list])
+        
         # Details textbox (disabled for display purposes)
         self.details_textbox = ipw.Textarea(
             description="", disabled=True, layout=ipw.Layout(width='415px', height='250px')
@@ -271,28 +733,80 @@ class MaterialSelectionWidget(ipw.Output):
         )
     
     def load_dropdown_box(self, object_type, placeholder):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, object_type, self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], placeholder
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = object_type
         )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select {placeholder}...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
 
 class ProjectSelectionWidget(ipw.VBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
         
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Project', ipw.Layout(width = '982px'),
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Project', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         self.children = [self.dropdown_boxes]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "PROJECT", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "project"
+        items = utils.get_openbis_projects(
+            OPENBIS_SESSION
         )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select project...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
 
 class ExperimentSelectionWidget(ipw.VBox):
     def __init__(self):
@@ -305,13 +819,22 @@ class ExperimentSelectionWidget(ipw.VBox):
             layout = ipw.Layout(width = '50px', height = '25px')
         )
         self.dropdown = utils.Dropdown(
-            description='Experiment', disabled=False, layout = ipw.Layout(width = '993px'), 
-            style = {'description_width': "110px"}, options = [-1]
+            description='Experiment', 
+            disabled=False, 
+            layout = ipw.Layout(width = '993px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
-        self.sorting_checkboxes = utils.SortingCheckboxes("130px", "60px", "200px")
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
         self.dropdown_details = ipw.HBox([self.dropdown, self.create_new_experiment_button])
         self.add_experiment_output = ipw.Output()
-        self.children = [self.dropdown_details, self.sorting_checkboxes, self.add_experiment_output]
+        self.children = [self.dropdown_details, self.sorting_checkboxes_list, self.add_experiment_output]
         
         self.save_new_experiment_button = utils.Button(
             description = '', disabled = False, button_style = '', 
@@ -337,9 +860,30 @@ class ExperimentSelectionWidget(ipw.VBox):
         self.save_new_experiment_button.on_click(self.save_new_experiment_button_on_click)
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "EXPERIMENT", self.dropdown, self.sorting_checkboxes, "experiment"
+        items = utils.get_openbis_collections(
+            OPENBIS_SESSION,
+            type = "EXPERIMENT"
         )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select experiment...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
     
     def create_new_experiment_button_on_click(self, b):
         display_list = [
@@ -356,7 +900,7 @@ class ExperimentSelectionWidget(ipw.VBox):
     
     def save_new_experiment_button_on_click(self, b):
         utils.create_experiment_in_openbis(OPENBIS_SESSION, self.projects_dropdown_boxes.children[0].children[0].value, self.new_experiment_name_textbox.value)
-        utils.load_dropdown_elements(OPENBIS_SESSION, "EXPERIMENT", self.dropdown, self.sorting_checkboxes, "experiment")
+        self.load_dropdown_box()
         with self.add_experiment_output:
             clear_output()
 
@@ -365,11 +909,23 @@ class SampleSelectionWidget(ipw.HBox):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Sample', ipw.Layout(width='385px'), 
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Sample', 
+            disabled=False, 
+            layout = ipw.Layout(width='385px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         # Details textbox (disabled for display purposes)
         self.details_textbox = ipw.Textarea(
@@ -379,60 +935,84 @@ class SampleSelectionWidget(ipw.HBox):
         self.children = [self.dropdown_boxes, self.details_textbox]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "SAMPLE", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "sample"
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "SAMPLE"
         )
+        items = utils.filter_samples(OPENBIS_SESSION, items)
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select sample...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
 
 class InstrumentSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
         
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Instrument', ipw.Layout(width='982px'), 
-            {'description_width': "110px"}, [-1], "vertical"
+        self.dropdown = utils.Dropdown(
+            description='Instrument', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
         )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
         self.children = [self.dropdown_boxes]
     
     def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "INSTRUMENT", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "instrument"
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "INSTRUMENT"
         )
+        items = utils.filter_samples(OPENBIS_SESSION, items)
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select instrument...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown
+                ), 
+                names='value'
+            )
             
-class ProductSelectionWidget(ipw.HBox):
-    def __init__(self):
-        # Initialize the parent HBox
-        super().__init__()
-        
-        # Dropdown with sorting and checkboxes
-        self.dropdown_boxes = utils.DropdownwithSortingCheckboxesWidget(
-            'Product', ipw.Layout(width='315px'), 
-            {'description_width': "110px"}, [-1], "vertical"
-        )
-        
-        # Details textbox (disabled for display purposes)
-        self.details_textbox = ipw.Textarea(
-            description="", disabled=True, layout=ipw.Layout(width='415px', height='250px')
-        )
-        
-        # Image box (displaying a default image)
-        self.image_box = ipw.Image(
-            value=utils.read_file(self.custom_config["default_image_filepath"]), format='jpg', width='220px', 
-            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
-        )
-        
-        self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
-    
-    def load_dropdown_box(self):
-        utils.load_dropdown_elements(
-            OPENBIS_SESSION, "PRODUCT", self.dropdown_boxes.children[0], 
-            self.dropdown_boxes.children[1], "substance"
-        )
-
 class SamplePreparationSelectionWidget(ipw.SelectMultiple):
     def __init__(self):
         # Initialize the parent HBox
@@ -462,7 +1042,7 @@ class ObjectPropertiesWidgets(ipw.VBox):
             property = CONFIG["properties"][prop_key]
             if property["property_widget"] == "TEXT":
                 prop_widget = utils.Text(
-                    description = property["title"], disabled = False, 
+                    description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
                     placeholder = property["placeholder"], 
                     style = {'description_width': property["box_layout"]["description_width"]}
@@ -470,15 +1050,28 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 
             elif property["property_widget"] == "TEXTAREA":
                 prop_widget = utils.Textarea(
-                    description = property["title"], disabled = False, 
+                    description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
                     placeholder = property["placeholder"], 
                     style = {'description_width': property["box_layout"]["description_width"]}
                 )
             
+            elif property["property_widget"] == "CHECKBOX":
+                prop_widget = utils.Checkbox(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    style = {'description_width': property["box_layout"]["description_width"]},
+                    indent = True, value = False
+                )
+            elif property["property_widget"] == "DATE":
+                prop_widget = ipw.DatePicker(
+                    description = property["title"], disabled = property["disabled"],
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
             elif property["property_widget"] == "INTTEXT":
                 prop_widget = utils.IntText(
-                    description = property["title"], disabled = False, 
+                    description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
                     placeholder = property["placeholder"], 
                     style = {'description_width': property["box_layout"]["description_width"]}
@@ -486,7 +1079,7 @@ class ObjectPropertiesWidgets(ipw.VBox):
             
             elif property["property_widget"] == "DROPDOWN":
                 prop_widget = utils.Dropdown(
-                    description = property["title"], disabled = False, 
+                    description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
                     options = property["options"],
                     value = property["value"],

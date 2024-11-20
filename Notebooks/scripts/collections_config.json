@@ -146,6 +146,9 @@
                     "experiments": {
                         "SUBSTANCE_COLLECTION": {
                             "name": "Substances"
+                        },
+                        "REACTION_PRODUCT_COLLECTION": {
+                            "name": "Reaction Products"
                         }
                     }
                 },

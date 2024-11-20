@@ -101,30 +101,27 @@ def sort_dataframe(df, columns, ascending_columns):
     df = df.sort_values(by = columns, ascending = ascending_columns)
     return dataframe_to_list_of_tuples(df)
 
-def sort_dropdown(sorting_checkboxes, dropdown_box):
-    current_value = dropdown_box.value
-    dropdown_list = list(dropdown_box.options[1:]) # Default -1 message should not be sorted.
-    df = pd.DataFrame(dropdown_list, columns = ['Name', 'PermID'])
+def dataframe_to_list_of_tuples(df):
+    return list(df.itertuples(index = False, name = None))
+
+def sort_dropdown(sorting_checkboxes, dropdown, columns_names, column_ascending):
+    current_value = dropdown.value
+    dropdown_list = list(dropdown.options[1:]) # Default -1 message should not be sorted.
+    df = pd.DataFrame(dropdown_list, columns = columns_names)
     
     # Determine sort columns and order based on checkboxes
     columns, ascending = [], []
-    if sorting_checkboxes.children[1].value:
-        columns.append('Name')
-        ascending.append(True)
-        
-    if sorting_checkboxes.children[2].value:
-        columns.append('PermID')
-        ascending.append(False)
+    for i,e in enumerate(sorting_checkboxes.children[1:]):
+        if e.value:
+            columns.append(columns_names[i])
+            ascending.append(column_ascending[i])
     
     if columns:
         dropdown_list = sort_dataframe(df, columns, ascending)
 
-    dropdown_list.insert(0, dropdown_box.options[0])
-    dropdown_box.options = dropdown_list
-    dropdown_box.value = current_value
-
-def dataframe_to_list_of_tuples(df):
-    return list(df.itertuples(index = False, name = None))
+    dropdown_list.insert(0, dropdown.options[0])
+    dropdown.options = dropdown_list
+    dropdown.value = current_value
 
 def connect_openbis_aiida():
     try:
@@ -181,34 +178,6 @@ def get_openbis_parents_recursive(openbis_session, object, object_parents_metada
         get_openbis_parents_recursive(openbis_session, openbis_session.get_object(parent), object_parents_metadata)
     return object_parents_metadata
 
-def load_openbis_elements_list(openbis_session, type, project = None):
-    if type == "EXPERIMENT":
-        items = openbis_session.get_collections(type = type, project = project)
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
-    elif type == "PROJECT":
-        items = openbis_session.get_projects()
-        items_names_permids = [(item.attrs.identifier, item.permId) for item in items]
-    else:
-        items = openbis_session.get_objects(type = type, project = project)
-        if type == "SAMPLE":
-            items = filter_samples(openbis_session, items)
-            items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
-        elif type == "SUBSTANCE":
-            items_names_permids = [(f"{item.props['empa_number']}{item.props['batch']} ({item.permId})", item.permId) for item in items]
-        else:
-            items_names_permids = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]
-    
-    return items_names_permids
-
-def load_dropdown_elements(openbis_session, type, dropdown, sorting_checkboxes, label):
-    items_names_permids = load_openbis_elements_list(openbis_session, type)
-    items_names_permids.insert(0, (f'Select {label}...', -1))
-    dropdown.options = items_names_permids
-    dropdown.value = -1
-    sort_dropdown(sorting_checkboxes, dropdown)
-    for checkbox in sorting_checkboxes.children[1:3]:
-        checkbox.observe(lambda change: sort_dropdown(sorting_checkboxes, dropdown), names='value')
-    
 def get_next_experiment_code(openbis_session):
     experiments = openbis_session.get_experiments(type = "EXPERIMENT")
     experiment_number = max(int(exp.code.rsplit('_')[-1]) for exp in experiments) + 1
@@ -233,8 +202,11 @@ def create_openbis_collection(openbis_session, **kwargs):
     collection.save()
     return collection
 
-def get_openbis_collection(openbis_session, **kwargs):
-    return openbis_session.get_collection(**kwargs)
+def get_openbis_collections(openbis_session, **kwargs):
+    return openbis_session.get_collections(**kwargs)
+
+def get_openbis_projects(openbis_session, **kwargs):
+    return openbis_session.get_projects(**kwargs)
 
 def get_openbis_objects(openbis_session, **kwargs):
     return openbis_session.get_objects(**kwargs)
