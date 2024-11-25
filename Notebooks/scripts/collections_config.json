@@ -125,6 +125,14 @@
                         }
                     }
                 },
+                "AIIDA_NODES": {
+                    "description": "AiiDA Nodes",
+                    "experiments": {
+                        "AIIDA_NODE_COLLECTION": {
+                            "name": "AiiDA Nodes"
+                        }
+                    }
+                },
                 "CRYSTALS": {
                     "description": "Crystals",
                     "experiments": {

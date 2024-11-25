@@ -44,10 +44,26 @@ class SimulationSelectionWidget(ipw.HBox):
         qb = orm.QueryBuilder()
         qb.append(orm.WorkChainNode)
         results = qb.all()
+        
+        # List of calculations that can be exported
+        labels = ['QeAppWorkChain','Cp2kGeoOptWorkChain','Cp2kStmWorkChain']
+        # Create the QueryBuilder
+        qb = orm.QueryBuilder()
+        qb.append(
+            orm.WorkChainNode,
+            filters={
+                'attributes.process_label': {'in': labels},  # Filter by process_label
+                'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
+                'attributes.process_state':{'in':['finished']},
+            },
+            project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
+        )
+        # Execute the query
+        results = qb.all()
         items_names_pks = []
         for result in results:
-            name_pk_string = f"{result[0].process_label} ({result[0].pk})"
-            name_pk_tuple = (name_pk_string, result[0].pk)
+            name_pk_string = f"{result[2]} ({result[0]})"
+            name_pk_tuple = (name_pk_string, result[0])
             items_names_pks.append(name_pk_tuple)
             
         items_names_pks.insert(0, (f'Select simulation...', -1))
@@ -149,7 +165,9 @@ class ChemistSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -200,7 +218,9 @@ class StorageSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -251,7 +271,9 @@ class SupplierSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -302,7 +324,9 @@ class PublicationSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -446,7 +470,9 @@ class MoleculeSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -543,7 +569,9 @@ class SubstanceSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -649,7 +677,9 @@ class ReactionProductSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -753,7 +783,9 @@ class MaterialSelectionWidget(ipw.Output):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -803,7 +835,9 @@ class ProjectSelectionWidget(ipw.VBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -880,7 +914,9 @@ class ExperimentSelectionWidget(ipw.VBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -956,7 +992,9 @@ class SampleSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )
@@ -1008,7 +1046,9 @@ class InstrumentSelectionWidget(ipw.HBox):
             checkbox.observe(
                 lambda change: utils.sort_dropdown(
                     self.sorting_checkboxes_list, 
-                    self.dropdown
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
                 ), 
                 names='value'
             )

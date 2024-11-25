@@ -2,8 +2,8 @@ from aiida.common.links import LinkType
 import io
 import tempfile
 import os
-from aiida import orm
 import subprocess
+from aiida import orm
 from pathlib import Path
 from typing import Optional, Tuple
 import numpy as np
@@ -13,8 +13,9 @@ import json
 from ase.io.jsonio import encode
 from aiida.common.exceptions import NotExistentAttributeError
 import random
+import utils
 
-def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
+def find_bandgap(bandsdata_uuid, number_electrons=None, fermi_energy=None):
     """
     Tries to guess whether the bandsdata represent an insulator.
     This method is meant to be used only for electronic bands (not phonons)
@@ -43,7 +44,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
              float. The gap is None in case of a metal, zero when the homo is
              equal to the lumo (e.g. in semi-metals).
     """
-
+    bandsdata = orm.load_node(bandsdata_uuid)
     def nint(num):
         """
         Stable rounding function
@@ -54,7 +55,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
             return int(num - 0.5)
 
     if fermi_energy and number_electrons:
-        raise EitherNumberOfElectronsOrFermiEnergyError()
+        raise orm.EitherNumberOfElectronsOrFermiEnergyError()
 
     assert bandsdata.units == "eV"
     stored_bands = bandsdata.get_bands()
@@ -76,7 +77,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
             try:
                 _, stored_occupations = bandsdata.get_bands(also_occupations=True)
             except KeyError as exc:
-                raise FermiEnergyOrOccupationsNotPresentError() from exc
+                raise orm.FermiEnergyOrOccupationsNotPresentError() from exc
 
             # put the occupations in the same order of bands, also in case of multiple bands
             if len(stored_occupations.shape) == 3:
@@ -125,7 +126,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
                 try:
                     lumo = [_[0][_[1] + 1] for _ in zip(bands, homo_indexes)]
                 except IndexError as exc:
-                    raise NeedMoreBandsError() from exc
+                    raise orm.NeedMoreBandsError() from exc
 
         else:
             bands = np.sort(bands)
@@ -144,7 +145,7 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
                     i[int(number_electrons / number_electrons_per_band)] for i in bands
                 ]  # take the n+1th level
             except IndexError as exc:
-                raise NeedMoreBandsError() from exc
+                raise orm.NeedMoreBandsError() from exc
 
         if number_electrons % 2 == 1 and len(stored_bands.shape) == 2:
             # if #electrons is odd and we have a non spin polarized calculation
@@ -171,9 +172,9 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
         max_mins = [(max(i), min(i)) for i in levels]
 
         if fermi_energy > bands.max():
-            raise FermiEnergyAndBandsEnergiesError(where="above")
+            raise orm.FermiEnergyAndBandsEnergiesError(where="above")
         if fermi_energy < bands.min():
-            raise FermiEnergyAndBandsEnergiesError(where="below")
+            raise orm.FermiEnergyAndBandsEnergiesError(where="below")
 
         # one band is crossed by the fermi energy
         if any(i[1] < fermi_energy and fermi_energy < i[0] for i in max_mins):
@@ -194,27 +195,30 @@ def find_bandgap(bandsdata, number_electrons=None, fermi_energy=None):
 
             gap = lumo - homo
             if gap <= 0.0:
-                raise WrongCodeError()
+                raise orm.WrongCodeError()
             return True, gap, homo, lumo
 
 # not used
-def get_preceding_workchains(node):
+def get_preceding_workchains(node_uuid):
+    node = orm.load_node(node_uuid)
     preceding_workchains = set()
 
-    def recursive_trace(node):
+    def recursive_trace(node_uuid):
+        node=orm.load_node(node_uuid)
         if isinstance(node, orm.WorkChainNode):
-            preceding_workchains.add(node)
+            preceding_workchains.add(node_uuid)
             # Recursively check incoming nodes for workchains
         for link in node.base.links.get_incoming().all():
-            recursive_trace(link.node)
+            recursive_trace(link.node.uuid)
 
     # Start tracing from the provided node
-    recursive_trace(node)
+    recursive_trace(node.uuid)
 
     return preceding_workchains
 
-def get_all_preceding_main_workchains(node):
+def get_all_preceding_main_workchains(node_uuid):
     """By MAIN workchain it is meant a workchain that is not called by a workchain"""
+    node = orm.load_node(node_uuid)
     main_workchains = set()
     visited = set()  # Track visited nodes to avoid infinite recursion
 
@@ -240,7 +244,7 @@ def get_all_preceding_main_workchains(node):
     trace_back_main_workchains(node)
 
     # Return the PKs of all unique MAIN workchains found
-    return [wc for wc in main_workchains]
+    return [wc.uuid for wc in main_workchains]
 
 def get_qe_output_parameters(outputs):
     parameters=[
@@ -323,6 +327,7 @@ def get_dft_parameters_qe(inputs,outputs):
     in input the inputs of QE workchain and the output_parameters. Will be simplified when QeAppWorkchain
     bugs for not exposing some of the outputs will be fixed
     """
+    
     parameters={}
     parameters['code']=inputs.pw.code.description
     parameters['functional']=outputs['dft_exchange_correlation']
@@ -334,10 +339,11 @@ def get_dft_parameters_qe(inputs,outputs):
 
     return parameters
 
-def get_dft_parameters_cp2k(code,dft_para):
+def get_dft_parameters_cp2k(code_description,dft_para):
     """Retrieves from CP2K workchains teh parameters to define the DFT object. Very preliminary"""
+    
     parameters={}
-    parameters['code']=code
+    parameters['code']=code_description
     parameters['functional']='PBE'
     parameters['plus_u'] = False
     parameters['spin_orbit_couplig'] = False
@@ -375,21 +381,25 @@ def guess_dimensionality(ase_geo: Optional[Atoms] = None, thr_vacuum: float = 5)
 
     return dimensionality, tuple(has_bulk)
 
-def creator_of_structure(struc):
+def creator_of_structure(struc_uuid):
+    struc = orm.load_node(struc_uuid)
     the_creator = struc.creator
+    if the_creator is None:
+        return struc_uuid
     previous_wc = the_creator
     while previous_wc is not None:
         the_creator=previous_wc
         previous_wc = previous_wc.caller
-    return the_creator
+    return the_creator.uuid
 
-def is_structure_optimized(structure):
-    creator = creator_of_structure(structure)
+def is_structure_optimized(structure_uuid):
+    creator = creator_of_structure(structure_uuid)
     geo_opt = False
     cell_opt = False
     cell_free = ''
-    if creator is None:
+    if creator == structure_uuid:
         return geo_opt,cell_opt,cell_free
+    creator = orm.load_node(creator)
     if creator.process_label == 'Cp2kGeoOptWorkChain':
         geo_opt = True
         cell_opt = creator.label == 'CP2K_CellOpt'
@@ -407,8 +417,9 @@ def is_structure_optimized(structure):
         return geo_opt,cell_opt,cell_free
 
 # Assuming 'data' is an AiiDA Data object
-def aiida_data_to_json(data):
+def aiida_data_to_json(data_uuid):
     """Exports AiiDA xxData object as .json. Does not work for StructureData"""
+    data = orm.load_node(data_uuid)
     # Create a temporary file path
     temp_file = tempfile.NamedTemporaryFile(mode='w+', suffix='.json', delete=False)
     try:
@@ -436,11 +447,12 @@ def get_uuids_from_oBIS():
     """TBD get from openbis list of already exported uuids we should make sure this is fast"""
     return {'wc_uuids':[],'structure_uuids':[]}
 
-def structure_to_atomistic_model(structure,uuids):
+def structure_to_atomistic_model(structure_uuid, uuids):
     """Check if this atomistic model is already in OBIS otherwise create.
     Output: uuid of the oBIS object for linking
     """
-    uuid = structure.uuid
+    uuid = structure_uuid
+    structure = orm.load_node(uuid)
     #check if th eatomistic model is already in oBIS
     if uuid in uuids:
         obisuuid=1234
@@ -453,7 +465,7 @@ def structure_to_atomistic_model(structure,uuids):
         'uuid':structure.uuid,
         'dimensionality':dimensionality[0],
         'PBC':dimensionality[1],
-        'optimized':is_structure_optimized(structure),
+        'optimized':is_structure_optimized(structure.uuid),
         'structure': encode(ase_geo),
         'eln_preview':geo_to_png(ase_geo) # writes teh file ase_geo.png and returns teh filename
     }
@@ -461,7 +473,7 @@ def structure_to_atomistic_model(structure,uuids):
     obobject = create_obis_object(obtype='atomistic_model',parameters=dictionary)
     return obobject
 
-def create_and_export_AiiDA_archive(uuid):
+def create_and_export_AiiDA_archive(openbis_session, uuid):
     """Create archive.aiida as temporary file, with nodes only from a MAIN workchain. 
     To be sent to AiiDA_nodes object"""
     
@@ -487,7 +499,24 @@ def create_and_export_AiiDA_archive(uuid):
             created_file_path = Path(output_file).resolve()
             
             # Create the AiiDA_nodes object in openBIS
-            obobject = create_obis_object(obtype='aiida_nodes',parameters={'uuid':uuid,'aiida.archive':output_file,'comments':''})
+            object_props = {
+                'wfms_uuid': uuid,
+                'comments':''
+            }
+            obobject = utils.create_openbis_object(
+                openbis_session, 
+                type = "AIIDA_NODE",
+                props = object_props,
+                collection = "/MATERIALS/AIIDA_NODES/AIIDA_NODE_COLLECTION"
+            )
+            obobject.save()
+            
+            utils.create_openbis_dataset(
+                openbis_session,
+                type = "RAW_DATA",
+                sample = obobject, 
+                files = [created_file_path]
+            )
                        
     finally:
         # Ensure the file is deleted
@@ -499,16 +528,19 @@ def create_and_export_AiiDA_archive(uuid):
             print(f"File {file_to_delete} does not exist, nothing to delete.")
     return obobject 
 
-def PwRelaxWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
+def PwRelaxWorkChain_export(openbis_session, workchain_uuid, uuids): # is SUB of QeAppWorkChain
+    workchain = orm.load_node(workchain_uuid)
     pw_input_parameters = workchain.inputs.base.pw.parameters.get_dict()
     output_parameters_dict = workchain.outputs.output_parameters.get_dict()
 
     dft_object_parameters=get_dft_parameters_qe(workchain.inputs.base,output_parameters_dict)
+    
+    print(dft_object_parameters)
     # Create the DFT object in openBIS
     dft_object = create_obis_object(obtype='dft',parameters=dft_object_parameters)
     
     dictionary = {
-        'uuid': workchain.uuid,
+        'uuid': workchain_uuid,
         'DFT':dft_object, #link/incorporate DFT object
         'cell_opt' : 'CELL' in pw_input_parameters,
         'force_conv_thr' : pw_input_parameters['CONTROL']['forc_conv_thr'] ,
@@ -517,6 +549,8 @@ def PwRelaxWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
         'input_parameters' : get_qe_input_parameters(workchain.outputs.output_parameters.get_dict())
     }
     
+    print(dictionary)
+    
 
     
     # create oBIS GEO_OPT object
@@ -524,21 +558,22 @@ def PwRelaxWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)
     
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS GEO_OPT {obobject} ')
     
     output_structure = workchain.outputs.output_structure
     # if missing create oBIS object and obtain uuid
-    output_structure = structure_to_atomistic_model(output_structure,uuids)
+    output_structure = structure_to_atomistic_model(output_structure.uuid,uuids)
     
     # TBD link ipnut_structure, taht is a oBIS uuid, as parent
     print(f'atomistic model {output_structure} is child of oBIS GEO_OPT {obobject} ')    
     
     return obobject
 
-def BandsWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
+def BandsWorkChain_export(openbis_session, workchain_uuid, uuids): # is SUB of QeAppWorkChain
+    workchain = orm.load_node(workchain_uuid)
     try:
         root_in = workchain.inputs.bands
         root_out = workchain.outputs.bands
@@ -553,18 +588,18 @@ def BandsWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     output_parameters=get_qe_output_parameters(root_out.scf_parameters.get_dict())
     input_parameters = get_qe_input_parameters(root_out.scf_parameters.get_dict())
     dictionary = {
-        'uuid':workchain.uuid,
+        'uuid':workchain_uuid,
         'DFT':dft_object,
         'input_structure':workchain.inputs.structure,
         'outputs':{
-            'pdos':aiida_data_to_json(root_out.projwfc.Dos),
-            'pbands':aiida_data_to_json(root_out.projwfc.bands),
-            'projections':aiida_data_to_json(root_out.projwfc.projections),
-            'band_structure':aiida_data_to_json(root_out.band_structure)
+            'pdos':aiida_data_to_json(root_out.projwfc.Dos.uuid),
+            'pbands':aiida_data_to_json(root_out.projwfc.bands.uuid),
+            'projections':aiida_data_to_json(root_out.projwfc.projections.uuid),
+            'band_structure':aiida_data_to_json(root_out.band_structure.uuid)
         },
         'output_parameters' : output_parameters ,
         'input_parameters' : input_parameters,
-        'bandgap':find_bandgap(root_out.band_structure, number_electrons=output_parameters['number_of_electrons'])[1]
+        'bandgap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
     }
     
     # Create BANDSTRUCURE object
@@ -572,14 +607,15 @@ def BandsWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)
     
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS BANDS {obobject} ')
     
     return obobject
 
-def PdosWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain    
+def PdosWorkChain_export(openbis_session, workchain_uuid, uuids): # is SUB of QeAppWorkChain    
+    workchain = orm.load_node(workchain_uuid)
     root_in = workchain.inputs
     root_out = workchain.outputs    
 
@@ -588,12 +624,12 @@ def PdosWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     dft_object = create_obis_object(obtype='dft',parameters=dft_object_parameters)    
     
     dictionary = {
-        'uuid':workchain.uuid,
+        'uuid':workchain_uuid,
         'DFT':dft_object,
         'input_structure':workchain.inputs.structure,
         'outputs':{
-            'dos': aiida_data_to_json(workchain.outputs.dos.output_dos),
-            'pdos':aiida_data_to_json(workchain.outputs.projwfc.Dos)
+            'dos': aiida_data_to_json(workchain.outputs.dos.output_dos.uuid),
+            'pdos':aiida_data_to_json(workchain.outputs.projwfc.Dos.uuid)
         },
         'output_parameters' : get_qe_output_parameters(root_out.nscf.output_parameters.get_dict()) ,
         'input_parameters' : get_qe_input_parameters(root_out.nscf.output_parameters.get_dict())        
@@ -604,14 +640,15 @@ def PdosWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS PDOS {obobject} ')
     
     return obobject
 
-def VibroWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
+def VibroWorkChain_export(openbis_session, workchain_uuid, uuids): # is SUB of QeAppWorkChain
     # outputs are not exported so we look for a PwBaseWorkChain
+    workchain = orm.load_node(workchain_uuid)
     for wkc in workchain.called_descendants:
         if wkc.process_label == 'PwBaseWorkChain':
             root_in = wkc.inputs
@@ -623,13 +660,13 @@ def VibroWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     dft_object = create_obis_object(obtype='dft',parameters=dft_object_parameters)    
         
     dictionary = {
-        'uuid':workchain.uuid,
+        'uuid':workchain_uuid,
         'DFT':dft_object,
         'input_structure':workchain.inputs.structure,
         'outputs':{
-            'phonon_bands':aiida_data_to_json(workchain.outputs.phonon_bands),
-            'phonon_pdos':aiida_data_to_json(workchain.outputs.phonon_pdos),
-            'phonon_thermo': aiida_data_to_json(workchain.outputs.phonon_thermo),
+            'phonon_bands':aiida_data_to_json(workchain.outputs.phonon_bands.uuid),
+            'phonon_pdos':aiida_data_to_json(workchain.outputs.phonon_pdos.uuid),
+            'phonon_thermo': aiida_data_to_json(workchain.outputs.phonon_thermo.uuid),
         }        
     } 
     
@@ -638,13 +675,14 @@ def VibroWorkChain_export(workchain,uuids): # is SUB of QeAppWorkChain
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)    
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)    
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS VIBSPEC {obobject} ')    
     
     return obobject
 
-def Cp2kGeoOptWorkChain_export(workchain,uuids): # Can be both MAIN and SUB. Do not export in case is SUB
+def Cp2kGeoOptWorkChain_export(openbis_session, workchain_uuid, uuids): # Can be both MAIN and SUB. Do not export in case is SUB
+    workchain = orm.load_node(workchain_uuid)
     sys_params = workchain.inputs.sys_params.get_dict()
     dft_params = workchain.inputs.dft_params.get_dict()
     code=workchain.inputs.code.description
@@ -676,14 +714,14 @@ def Cp2kGeoOptWorkChain_export(workchain,uuids): # Can be both MAIN and SUB. Do 
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)
     
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS GEO_OPT {obobject} ')
     
     output_structure = workchain.outputs.output_structure
     # if missing create oBIS object and obtain uuid
-    output_structure = structure_to_atomistic_model(output_structure,uuids)
+    output_structure = structure_to_atomistic_model(output_structure.uuid,uuids)
     
     # TBD link ipnut_structure, taht is a oBIS uuid, as parent
     print(f'atomistic model {output_structure} is child of oBIS GEO_OPT {obobject} ')    
@@ -693,7 +731,8 @@ def Cp2kGeoOptWorkChain_export(workchain,uuids): # Can be both MAIN and SUB. Do 
     
     return obobject
 
-def Cp2kStmWorkChain_export(workchain,uuids):
+def Cp2kStmWorkChain_export(openbis_session, workchain_uuid, uuids):
+    workchain = orm.load_node(workchain_uuid)
     dft_params = workchain.inputs.dft_params.get_dict()
     spm_params = workchain.inputs.spm_params.get_dict()
     cp2k_code = workchain.inputs.cp2k_code.description
@@ -720,44 +759,71 @@ def Cp2kStmWorkChain_export(workchain,uuids):
         'input_parameters' : input_parameters,
     }
     
+    print(dictionary)
+    
     # create oBIS GEO_OPT object
     obobject = create_obis_object(obtype='spm',parameters=dictionary)
     
     input_structure = workchain.inputs.structure
     # if missing create oBIS object and obtain uuid
-    input_structure = structure_to_atomistic_model(input_structure,uuids)
+    input_structure = structure_to_atomistic_model(input_structure.uuid,uuids)
     
     # TBD link ipnut_structure, that is a oBIS uuid, as parent
     print(f'atomistic model {input_structure} is parent of oBIS GEO_OPT {obobject} ')   
     return obobject
 
-workchain_exporters={
-    'PwRelaxWorkChain':PwRelaxWorkChain_export,
-    'BandsWorkChain':BandsWorkChain_export,
-    'PdosWorkChain':PdosWorkChain_export,
-    'VibroWorkChain':VibroWorkChain_export,
-    'Cp2kGeoOptWorkChain':Cp2kGeoOptWorkChain_export,
-    'Cp2kStmWorkChain':Cp2kStmWorkChain_export,
-}
+workchain_exporters={'PwRelaxWorkChain':PwRelaxWorkChain_export,
+                     'BandsWorkChain':BandsWorkChain_export,
+                     'PdosWorkChain':PdosWorkChain_export,
+                     'VibroWorkChain':VibroWorkChain_export,
+                     'Cp2kGeoOptWorkChain':Cp2kGeoOptWorkChain_export,
+                     'Cp2kStmWorkChain':Cp2kStmWorkChain_export,
+                    }
 
-def export_workchain(workchain):
-    workchains_to_export = get_all_preceding_main_workchains(workchain)
+def export_workchain(openbis_session, workchain_uuid):
+    workchain = orm.load_node(workchain_uuid)
     
-    # check available uuids in oBIS form AiiDA_nodes objects
-    list_uuids_oBIS = get_uuids_from_oBIS()
+    workchains_to_export = get_all_preceding_main_workchains(workchain.uuid)
+    
+    print(workchains_to_export)
+    
+    # check available uuids in oBIS objects
+    aiida_nodes_oBIS = utils.get_openbis_objects(openbis_session, type = "AIIDA_NODE")
+    atom_mods_oBIS = utils.get_openbis_objects(openbis_session, type = "ATOMISTIC_MODEL")
+    
+    simulation_uuids_oBIS = {
+        'wc_uuids': [],
+        'structure_uuids': []
+    }
+    
+    if aiida_nodes_oBIS:
+        simulation_uuids_oBIS['wc_uuids'] = [obj.props["wfms_uuid"] for obj in aiida_nodes_oBIS]
+    
+    if atom_mods_oBIS:
+        simulation_uuids_oBIS['structure_uuids'] = [obj.props["wfms_uuid"] for obj in aiida_nodes_oBIS]
+    
+    print(simulation_uuids_oBIS)
     
     #create individual oBIS objects 
-    for main_wc in workchains_to_export:
+    for main_wc_uuid in workchains_to_export:
+        main_wc = orm.load_node(main_wc_uuid)
         if main_wc.is_finished_ok: # if not we do not parse it but it will still be in the AiiDA archive
-            if main_wc.uuid not in list_uuids_oBIS['wc_uuids']:
+            if main_wc_uuid not in simulation_uuids_oBIS['wc_uuids']:
                 print(f'dealing with main WC {main_wc.pk}')
                 
                 #create global .aiida for main_wc and AiiDA_nodes openBIS object with the archive as dataset
-                AiiDA_archive=create_and_export_AiiDA_archive(main_wc.uuid)
+                AiiDA_archive = create_and_export_AiiDA_archive(openbis_session, main_wc_uuid)
+                # AiiDA_archive = 'a'
+                
                 if main_wc.process_label in workchain_exporters:
                         #check if wc.uuid already in openBIS
                         #if not in openbis create pertinent oBIS object and populate it
-                        export=workchain_exporters[main_wc.process_label](main_wc,list_uuids_oBIS['structure_uuids'])
+                        export=workchain_exporters[main_wc.process_label](
+                            openbis_session, 
+                            main_wc_uuid, 
+                            simulation_uuids_oBIS['structure_uuids']
+                        )
+                        
                         # TBD create parent link
                         print(f'AiiDA_archive {AiiDA_archive} is parent of {export}')
                 else:
@@ -769,7 +835,12 @@ def export_workchain(workchain):
                         if wc.process_label in workchain_exporters:
                             #check if wc.uuid already in openBIS
                             #if not in openbis create pertinent oBIS object and populate it
-                            export=workchain_exporters[wc.process_label](wc,list_uuids_oBIS['structure_uuids'])
+                            export=workchain_exporters[wc.process_label](
+                                openbis_session,
+                                wc.uuid,
+                                simulation_uuids_oBIS['structure_uuids']
+                            )
+                            
                             # TBD create parent link
                             print(f'AiiDA_archive {AiiDA_archive} is parent of {export}')
                         #else:

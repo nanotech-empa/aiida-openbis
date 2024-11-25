@@ -266,3 +266,6 @@ To make the connection of the atomistic model to crystal and molecule:
     - Second approach would be to suggest the user by using the information got from openBIS (if the simulation is triggered from openBIS)
 
 PROD are children of experimental steps. If one saves an old PROD, one just links it to a molecule and crystal and save other details as comments.
+
+25-11-2024:
+Export images to already uploaded simulation STM

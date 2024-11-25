@@ -47,6 +47,19 @@ classes:
         required: true
     annotations:
       openbis_object: false
+  AiidaNode:
+    title: AiiDA Node
+    is_a: Thing
+    class_uri: 
+    description: AiiDA Node
+    annotations:
+      openbis_object: true
+      openbis_code: AIIDA_NODE
+      openbis_label: AiiDA Node
+    slots:
+     - wfms_uuid
+     - description
+     - comments
   Analysis:
     title: Analysis
     is_a: Thing
@@ -224,21 +237,15 @@ classes:
       openbis_code: DFT
       openbis_label: DFT
     slots:
-     - fermi_energy
-     - scf_convergence_threshold
-     - xc_functional
-     - spin_polarised_calculation
-     - initial_spin_guesses
-     - spin_multiplicity
-     - absolute_magnetisation
-     - total_magnetisation
-     - total_spin_squared
-     - net_charge
-     - smearing
-     - fermi_dirac_temperature
-     - force_multiplicity
-     - output_mulliken_population_analysis
-     - output_hirshfeld_population_analysis
+     - inputs_parameters
+     - output_parameters
+     - code
+     - functional
+     - plus_u
+     - spin_orbit_couplig
+     - uks
+     - charge
+     - vdw_corr
   Dosing:
     title: Dosing
     is_a: Thing
@@ -948,7 +955,6 @@ classes:
       openbis_code: SIMUL
       openbis_label: Simulation
     slots:
-     - wfms_url
      - wfms_uuid
      - comments
   TightBinding:
@@ -2668,13 +2674,6 @@ slots:
     annotations:
       openbis_type: REAL
       openbis_label: Magnetic momentum
-  wfms_url:
-    description: wfms url
-    range: string
-    multivalued: false
-    annotations:
-      openbis_type: HYPERLINK
-      openbis_label: WFMS URL
   state:
     description: state
     range: string
@@ -3855,6 +3854,7 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: On-site Hubbard repulsion U
+  
   has_chemist:
     range: Chemist
     description: chemist
