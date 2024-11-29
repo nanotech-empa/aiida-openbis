@@ -9,6 +9,19 @@ import pandas as pd
 import copy
 import datetime
 
+def get_aiidalab_eln_config():
+    eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
+    eln_config.parent.mkdir(
+        parents=True, exist_ok=True
+    )  # making sure that the folder exists.
+
+    with open(eln_config) as file:
+        config = json.load(file)
+        eln_url = config["default"]
+        eln_config = config[eln_url]
+        eln_token = eln_config["token"]
+        return {"url": eln_url, "token": eln_token}
+
 def read_json(filename):
     with open(filename, 'r') as file:
         return json.load(file)

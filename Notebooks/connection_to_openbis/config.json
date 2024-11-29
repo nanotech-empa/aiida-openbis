@@ -918,7 +918,7 @@
             "</div>"
         ],
         "enable_status": "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>",
-        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using Configure ELN available in start page!</span>"
+        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using the config.json file!</span>"
     },
     "save_home_buttons_settings": [
         "<style>",

@@ -62,7 +62,11 @@ class SimulationSelectionWidget(ipw.HBox):
         results = qb.all()
         items_names_pks = []
         for result in results:
-            name_pk_string = f"{result[2]} ({result[0]})"
+            if result[3]:
+                name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
+            else:
+                name_pk_string = f"{result[2]} ({result[0]})"
+                
             name_pk_tuple = (name_pk_string, result[0])
             items_names_pks.append(name_pk_tuple)
             
@@ -819,7 +823,7 @@ class ProjectSelectionWidget(ipw.VBox):
         items = utils.get_openbis_projects(
             OPENBIS_SESSION
         )
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.description} ({item.identifier})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select project...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -1072,6 +1076,36 @@ class SamplePreparationAccordionWidget(ipw.Accordion):
         super().__init__()
         self.tasks_properties_widgets = []
 
+class MultipleSelectorWidget(ipw.VBox):
+    def __init__(self, selector_type):
+        # Initialize the parent VBox
+        super().__init__()
+        self.selectors = []
+        self.selector_type = selector_type
+        
+    def add_selector(self):
+        if self.selector_type == "molecule":
+            selector = MoleculeSelectionWidget()
+            selector.load_dropdown_box()
+            selector.dropdown.observe(selector.load_molecule_metadata, names = "value")
+            
+        elif self.selector_type == "product":
+            selector = ReactionProductSelectionWidget()
+            selector.load_dropdown_box()
+            selector.dropdown.observe(selector.load_product_metadata, names = "value")
+            
+        self.selectors.append(selector)
+        self.children = self.selectors
+        
+    def remove_selector(self):
+        if self.selectors:
+            self.selectors.pop()
+            self.children = self.selectors
+            
+    def reset_selector_list(self):
+        self.selectors = []
+        self.children = self.selectors
+        
 class ObjectPropertiesWidgets(ipw.VBox):
     def __init__(self, task):
         super().__init__()

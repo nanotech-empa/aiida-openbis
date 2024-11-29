@@ -269,3 +269,19 @@ PROD are children of experimental steps. If one saves an old PROD, one just link
 
 25-11-2024:
 Export images to already uploaded simulation STM
+
+Create the Code objects with yaml files
+    - CP2K 9.1@daint_mc
+        - cp2k-9.1.yaml
+        - computer-setup.yaml from mc
+        - computer-config.yaml from mc
+    - QE 7.2@daint_mc
+        - QuantumESPRESSO-CPU.yaml
+        - computer-setup.yaml from mc
+        - computer-config.yaml from mc
+
+Code object with version, name, aiida path. No yaml files.
+
+To be done next week:
+A page that after selecting a molecule/product, we can see if there is already a simulation in openBIS. [with and/or functionalities].
+After I find it, I retrieve the .aiida file from aiida_node object and execute verdi archive import [file .aiida name] -> with a button.
