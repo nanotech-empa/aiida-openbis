@@ -585,8 +585,9 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     if geoopt_object_parameters['cell_opt_constraints'] != '':
         geoopt_object_parameters['cell_optimised'] = geoopt_object_parameters['cell_opt_constraints'] != ''
     
-    # if workchain.caller.description:
-    #     geoopt_object_parameters["$name"] = workchain.caller.description
+    if workchain.caller.description:
+        workchain_name = workchain.caller.description[:30]
+        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
     
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
@@ -635,6 +636,10 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         'input_parameters' : input_parameters,
         'band_gap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
     }
+    
+    if workchain.caller.description:
+        workchain_name = workchain.caller.description[:30]
+        dictionary["$name"] = f"BANDS - {workchain_name}"
     
     # Create BANDSTRUCURE object
     bands_obobject = utils.create_openbis_object(
@@ -692,6 +697,10 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
         'input_parameters' : get_qe_input_parameters(root_out.nscf.output_parameters.get_dict())        
     }
     
+    if workchain.caller.description:
+        workchain_name = workchain.caller.description[:30]
+        dictionary["$name"] = f"PDOS - {workchain_name}"
+    
     # Create PDOS object
     pdos_obobject = utils.create_openbis_object(
         openbis_session, 
@@ -742,7 +751,11 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     dictionary = {
         'wfms_uuid':workchain_uuid,
         'level_theory': json.dumps(level_theory)  
-    } 
+    }
+    
+    if workchain.caller.description:
+        workchain_name = workchain.caller.description[:30]
+        dictionary["$name"] = f"VibroSpec - {workchain_name}"
     
     # Create VIBSPEC object
     vibro_spec_obobject = utils.create_openbis_object(
@@ -812,9 +825,10 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     if geoopt_object_parameters['cell_optimised']:
         geoopt_object_parameters['cell_opt_constraints'] = sys_params['cell_opt_constraint']
     
-    # if workchain.description:
-    #     geoopt_object_parameters["$name"] = workchain.description[:10]
-    
+    if workchain.description:
+        workchain_name = workchain.description[:30]
+        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
+        
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
         openbis_session, 
@@ -878,6 +892,10 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         'output_parameters': json.dumps(output_parameters),
         'input_parameters': json.dumps(input_parameters),
     }
+    
+    if workchain.description:
+        workchain_name = workchain.description[:30]
+        dictionary["$name"] = f"STM - {workchain_name}"
     
     # create oBIS 2D_MEASUREMENT object (how to knwo if it is 2D or 1D???)
     obobject = utils.create_openbis_object(

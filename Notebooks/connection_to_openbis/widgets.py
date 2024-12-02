@@ -363,9 +363,11 @@ class DraftSelectionWidget(ipw.HBox):
         super().__init__()
         
         # Select multiple drafts
-        self.selector = utils.SelectMultiple(description = 'Drafts', disabled = False, 
-                                             layout = ipw.Layout(width = '800px'), 
-                                             style = {'description_width': "110px"})
+        self.selector = utils.SelectMultiple(
+            description = 'Drafts', disabled = False, 
+            layout = ipw.Layout(width = '800px'), 
+            style = {'description_width': "110px"}
+        )
         
         self.children = [self.selector]
     
