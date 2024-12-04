@@ -15,6 +15,59 @@ CONFIG = utils.read_json("config.json")
 CONFIG_ELN = utils.read_json("eln_config.json")
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
 
+class AtomisticModelSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        self.dropdown = utils.Dropdown(
+            description='Atomistic Model', 
+            disabled=False, 
+            layout = ipw.Layout(width='982px'), 
+            style = {'description_width': "110px"}, 
+            options = [-1]
+        )
+        
+        self.sorting_checkboxes_list = ipw.HBox(
+            [
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
+                utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+            ]
+        )
+        
+        self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+        
+        self.children = [self.dropdown_boxes]
+    
+    def load_dropdown_box(self):
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "ATOMISTIC_MODEL"
+        )
+        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids.insert(0, (f'Select atomistic model...', -1))
+        self.dropdown.options = items_names_permids
+        self.dropdown.value = -1
+        
+        utils.sort_dropdown(
+            self.sorting_checkboxes_list,
+            self.dropdown,
+            ["Name", "PermID"],
+            [True, False]
+        )
+        
+        for checkbox in self.sorting_checkboxes_list.children[1:]:
+            checkbox.observe(
+                lambda change: utils.sort_dropdown(
+                    self.sorting_checkboxes_list, 
+                    self.dropdown,
+                    ["Name", "PermID"],
+                    [True, False]
+                ), 
+                names='value'
+            )
+
 class SimulationSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
@@ -106,7 +159,11 @@ class AnalysisSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self, project_id):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "ANALYSIS", project_id)
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "ANALYSIS"
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
 
 class CodeSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -121,7 +178,11 @@ class CodeSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "CODE")
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "CODE"
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
 
 class ChemistSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -349,12 +410,20 @@ class MeasurementSelectionWidget(ipw.HBox):
     
     def load_selector(self, project_id):
         measurements_list = []
-        measurements_list.extend(
-            utils.load_openbis_elements_list(OPENBIS_SESSION, "1D_MEASUREMENT", project_id)
+        oneD_measurements_items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "1D_MEASUREMENT",
+            project = project_id
         )
-        measurements_list.extend(
-            utils.load_openbis_elements_list(OPENBIS_SESSION, "2D_MEASUREMENT", project_id)
+        measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in oneD_measurements_items])
+        
+        twoD_measurements_items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "2D_MEASUREMENT",
+            project = project_id
         )
+        
+        measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in twoD_measurements_items])
         self.selector.options = measurements_list
         
 class DraftSelectionWidget(ipw.HBox):
@@ -372,7 +441,12 @@ class DraftSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self, project_id):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "DRAFT", project_id)
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "DRAFT",
+            project = project_id
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         
 class ResultsSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -387,7 +461,12 @@ class ResultsSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self, project_id):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "RESULTS", project_id)
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "RESULTS",
+            project = project_id
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         
 class GrantSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -402,7 +481,11 @@ class GrantSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "GRANT")
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "GRANT"
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
 
 class AuthorSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -417,7 +500,11 @@ class AuthorSelectionWidget(ipw.HBox):
         self.children = [self.selector]
     
     def load_selector(self):
-        self.selector.options = utils.load_openbis_elements_list(OPENBIS_SESSION, "AUTHOR")
+        items = utils.get_openbis_objects(
+            OPENBIS_SESSION,
+            type = "AUTHOR"
+        )
+        self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         
 class MoleculeSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -512,7 +599,7 @@ class MoleculeSelectionWidget(ipw.HBox):
             prop_value = molecule_metadata.get(prop_key)
             if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
                 prop_value = json.loads(prop_value)
-                molecule_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
+                molecule_metadata_string += f"{prop_title}: {prop_value['has_value']} {prop_value['has_unit']}\n"
             else:
                 molecule_metadata_string += f"{prop_title}: {prop_value}\n"
 
@@ -614,7 +701,7 @@ class SubstanceSelectionWidget(ipw.HBox):
             prop_value = material_metadata.get(prop_key)
             if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
                 prop_value = json.loads(prop_value)
-                material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
+                material_metadata_string += f"{prop_title}: {prop_value['has_value']} {prop_value['has_unit']}\n"
             elif prop_key == "has_molecule":
                 material_metadata_string += f"{prop_title}:\n"
                 for mol_prop_key in molecule_property_list:
@@ -697,24 +784,10 @@ class ReactionProductSelectionWidget(ipw.HBox):
             self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
             return
         
-        # Get substance metadata
+        # Get product metadata
         property_list = CONFIG["objects"]["Reaction Product"]["properties"]
-        molecule_property_list = CONFIG["objects"]["Molecule"]["properties"]
-        material_object = OPENBIS_SESSION.get_object(self.dropdown_boxes.children[0].value)
         
-        # Get molecule image
-        molecule_object = OPENBIS_SESSION.get_object(material_object.props.all()['has_molecule'])
-        molecule_metadata = molecule_object.props.all()
-        molecule_dataset = molecule_object.get_datasets(type="ELN_PREVIEW")[0]
-
-        if molecule_dataset:
-            molecule_dataset.download(destination="images")
-            material_image_filepath = molecule_dataset.file_list[0]
-            self.image_box.value = utils.read_file(f"images/{molecule_dataset.permId}/{material_image_filepath}")
-            shutil.rmtree(f"images/{molecule_dataset.permId}/")
-        else:
-            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
-
+        material_object = OPENBIS_SESSION.get_object(self.dropdown.value)
         material_metadata = material_object.props.all()
         material_metadata_string = ""
         for prop_key in property_list:
@@ -722,15 +795,7 @@ class ReactionProductSelectionWidget(ipw.HBox):
             prop_value = material_metadata.get(prop_key)
             if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
                 prop_value = json.loads(prop_value)
-                material_metadata_string += f"{prop_title}: {prop_value['value']} {prop_value['unit']}\n"
-            elif prop_key == "has_molecule":
-                material_metadata_string += f"{prop_title}:\n"
-                for mol_prop_key in molecule_property_list:
-                    mol_prop_title = CONFIG["properties"][mol_prop_key]["title"]
-                    mol_prop_value = molecule_metadata.get(mol_prop_key)
-                    material_metadata_string += f"- {mol_prop_title}: {mol_prop_value}\n"
-            else:
-                material_metadata_string += f"{prop_title}: {prop_value}\n"
+                material_metadata_string += f"{prop_title}: {prop_value['has_value']} {prop_value['has_unit']}\n"
 
         self.details_textbox.value = material_metadata_string
             
@@ -1035,7 +1100,6 @@ class InstrumentSelectionWidget(ipw.HBox):
             OPENBIS_SESSION,
             type = "INSTRUMENT"
         )
-        items = utils.filter_samples(OPENBIS_SESSION, items)
         items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select instrument...', -1))
         self.dropdown.options = items_names_permids
@@ -1125,12 +1189,17 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 )
                 
             elif property["property_widget"] == "TEXTAREA":
-                prop_widget = utils.Textarea(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
+                widget_args = {
+                    "description": property["title"], "disabled": property["disabled"], 
+                    "layout": ipw.Layout(width = property["box_layout"]["width"]), 
+                    "placeholder": property["placeholder"], 
+                    "style": {'description_width': property["box_layout"]["description_width"]}
+                }
+                if property["property_type"] == "JSON":
+                    widget_args["value"] = property["default_value"]
+                    
+                prop_widget = utils.Textarea(**widget_args)
+                    
             
             elif property["property_widget"] == "CHECKBOX":
                 prop_widget = utils.Checkbox(
@@ -1145,7 +1214,7 @@ class ObjectPropertiesWidgets(ipw.VBox):
                     layout = ipw.Layout(width = property["box_layout"]["width"]),
                     style = {'description_width': property["box_layout"]["description_width"]}
                 )
-            elif property["property_widget"] == "INTTEXT":
+            elif property["property_widget"] == "INTTEXT" or property["property_widget"] == "FLOATTEXT":
                 prop_widget = utils.IntText(
                     description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
@@ -1175,6 +1244,16 @@ class ObjectPropertiesWidgets(ipw.VBox):
                     ipw.Layout(width = property["slider_layout"]["width"]), 
                     {'description_width': property["slider_layout"]["description_width"]}, 
                     property["placeholder"], ipw.Layout(width = property["box_layout"]["width"])
+                )
+            
+            elif property["property_widget"] == "FLOAT_SLIDER":
+                prop_widget = utils.FloatSlider(
+                    description = property["title"], disabled = property["disabled"],
+                    layout = ipw.Layout(width = property["slider_layout"]["width"]),
+                    style = {'description_width': property["slider_layout"]["description_width"]},
+                    value = property["default_value"], min = min(property["values_list"]),
+                    max = max(property["values_list"]), step = property["slider_step"],
+                    readout_format = '.2f'
                 )
                 
             self.properties_widgets[prop_key] = prop_widget

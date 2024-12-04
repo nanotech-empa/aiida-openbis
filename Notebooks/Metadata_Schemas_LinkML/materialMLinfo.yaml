@@ -518,16 +518,30 @@ classes:
      - convergence_coefficient
      - number_k_points
      - has_tb
-  Miscellaneous:
-    title: Miscellaneous
+  UnknownExperiment:
+    title: Unknown experiment
     is_a: Thing
     class_uri: 
-    description: Miscellaneous
+    description: Unknown experiment
     annotations:
       openbis_object: true
-      openbis_code: MISC
-      openbis_label: Miscellaneous
+      openbis_code: UNKEXP
+      openbis_label: Unknown experiment
     slots:
+     - comments
+  UnknownSimulation:
+    title: Unknown simulation
+    is_a: Thing
+    class_uri: 
+    description: Unknown simulation
+    annotations:
+      openbis_object: true
+      openbis_code: UNKSIM
+      openbis_label: Unknown simulation
+    slots:
+     - description
+     - input_parameters
+     - output_parameters
      - comments
   Molecule:
     title: Molecule
@@ -668,11 +682,10 @@ classes:
       openbis_code: REACPROD
       openbis_label: Reaction Product
     slots:
-     - empa_number
-     - batch
-     - vial
+     - yield
+     - temperature
+     - smiles
      - comments
-     - has_molecule
   Room:
     title: Room
     is_a: Thing
@@ -1755,6 +1768,14 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  yield:
+    description: Yield
+    range: double
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: REAL
+      openbis_label: Yield
   structure:
     description: Structure
     range: object

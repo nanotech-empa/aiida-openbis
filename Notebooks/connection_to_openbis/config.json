@@ -2,6 +2,124 @@
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
     "properties": {
+        "driver_code": {
+            "title": "Driver code",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "disabled": false,
+            "placeholder": "Write driver code here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "cell_optimised": {
+            "title": "Cell optimised",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "cell_opt_constraints": {
+            "title": "Cell opt constraints",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "disabled": false,
+            "placeholder": "Write cell opt constraints here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "constrained": {
+            "title": "Constrained",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "force_convergence_threshold": {
+            "title": "Force convergence threshold",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["eV/Bohr**3"],
+            "default_unit": "eV/Bohr**3",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "input_parameters": {
+            "title": "Input parameters",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "default_value": "{'degauss': 0.0, 'volume': 0.0}",
+            "placeholder": "Write input parameters here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "output_parameters": {
+            "title": "Output parameters",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "default_value": "{'energy': 0.0, 'has_electric_field': true}",
+            "placeholder": "Write output parameters here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "level_theory": {
+            "title": "Level of theory",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "default_value": "{'method': 'dft', 'method_properties': {'uks': false, 'charge': 0.0, 'plus_u': false, 'vdw_corr': 'none', 'xc_functional': 'PBESOL', 'spin_orbit_coupling': false}}",
+            "placeholder": "Write level of theory parameters here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "band_gap": {
+            "title": "Band gap",
+            "property_type": "REAL",
+            "property_widget": "FLOATTEXT",
+            "disabled": false,
+            "placeholder": "Write band gap here...",
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            }
+        },
+        "yield": {
+            "title": "Yield",
+            "property_type": "REAL",
+            "property_widget": "FLOAT_SLIDER",
+            "disabled": false,
+            "default_value": 0,
+            "values_list": [0, 1],
+            "slider_step": 0.01,
+            "slider_layout":{
+                "width": "350px",
+                "description_width": "150px"
+            }
+        },
         "abstract": {
             "title": "Abstract",
             "property_type": "MULTILINE_VARCHAR",
@@ -706,11 +824,12 @@
         "Reaction Product": {
             "object_type": "material",
             "openbis_object_type": "REACTION_PRODUCT",
+            "uses_substance": false,
             "properties": [
                 "$name",
-                "empa_number",
-                "batch",
-                "vial",
+                "yield",
+                "temperature",
+                "smiles",
                 "comments"
             ]
         },
@@ -794,9 +913,9 @@
                 "comments"
             ]
         },
-        "Miscellaneous": {
+        "Unknown Experiment": {
             "object_type": "sample_preparation",
-            "openbis_object_type": "MISCELLANEOUS",
+            "openbis_object_type": "UNKNOWN_EXPERIMENT",
             "uses_substance": false,
             "properties": [
                 "$name",
@@ -860,6 +979,72 @@
                 "evaporator_slot",
                 "comments"
             ]
+        },
+        "Geometry Optimisation": {
+            "object_type": "geometry optimisation",
+            "openbis_object_type": "GEOMETRY_OPTIMISATION",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "driver_code",
+                "cell_optimised",
+                "cell_opt_constraints",
+                "constrained",
+                "force_convergence_threshold",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
+                "comments"
+            ]
+        },
+        "Band Structure": {
+            "object_type": "band structure",
+            "openbis_object_type": "BAND_STRUCTURE",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "input_parameters",
+                "output_parameters",
+                "band_gap",
+                "level_theory",
+                "comments"
+            ]
+        },
+        "PDOS": {
+            "object_type": "pdos",
+            "openbis_object_type": "PDOS",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
+                "comments"
+            ]
+        },
+        "Vibrational Spectroscopy": {
+            "object_type": "vibrational spectroscopy",
+            "openbis_object_type": "VIBRATIONAL_SPECTROSCOPY",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
+                "comments"
+            ]
+        },
+        "Unknown Simulation": {
+            "object_type": "unknown simulation",
+            "openbis_object_type": "UNKNOWN_SIMULATION",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
+                "comments"
+            ]
         }
     },
     "home_page": {
@@ -879,7 +1064,6 @@
             "<li><a href='sample_measurement.ipynb' target='_blank'>Sample measurement</a></li>",
             "<li><a href='substance_srd.ipynb' target='_blank'>Substance sublimation rate</a></li>",
             "<li><a href='send_simulation_to_openbis.ipynb' target='_blank'>Send simulation to openBIS</a></li>",
-            "<li><a href='miscellaneous.ipynb' target='_blank'>Other</a></li>",
             "</ul>",
             "</div>",
             "<div style='flex: 1; padding: 10px;'>",

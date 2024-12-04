@@ -777,7 +777,7 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         openbis_session,
         type = "RAW_DATA",
         sample = vibro_spec_obobject, 
-        files = ["pdos_json.json", "dos_json.json"]
+        files = ["phonon_bands_json.json", "phonon_pdos_json.json", "phonon_thermo_json.json"]
     )
     
     os.remove("phonon_bands_json.json")
@@ -928,11 +928,11 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
     workchain = orm.load_node(workchain_uuid)
     workchains_to_export = get_all_preceding_main_workchains(workchain.uuid)
     export = None
+    simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
     
     #create individual oBIS objects 
     for main_wc_uuid in workchains_to_export:
         
-        simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
         main_wc = orm.load_node(main_wc_uuid)
         
         if main_wc.is_finished_ok: # if not we do not parse it but it will still be in the AiiDA archive
@@ -953,6 +953,9 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                         )
                         export.add_parents(AiiDA_archive)
                         export.save()
+                        
+                        # Update current status of openBIS simulations
+                        simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
                 else:
                     print(main_wc.process_label,' checking sub_workchains')        
                     #all workchains called by teh main workchain
@@ -971,6 +974,9 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                             
                             export.add_parents(AiiDA_archive)
                             export.save()
+                            
+                            # Update current status of openBIS simulations
+                            simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
                         #else:
                         #    print(wc.process_label,' should not be exported')            
         

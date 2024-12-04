@@ -59,6 +59,9 @@ def FloatTextwithDropdownWidget(*args):
     dropdown = Dropdown(description='', disabled=False, layout = args[4], options = args[5], value = args[6])
     return ipw.HBox([floatbox, dropdown])
 
+def FloatSlider(**kwargs):
+    return ipw.FloatSlider(**kwargs)
+
 def IntSlider(**kwargs):
     return ipw.IntSlider(**kwargs)
 

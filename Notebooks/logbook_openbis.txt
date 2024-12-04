@@ -284,4 +284,33 @@ Code object with version, name, aiida path. No yaml files.
 
 To be done next week:
 A page that after selecting a molecule/product, we can see if there is already a simulation in openBIS. [with and/or functionalities].
-After I find it, I retrieve the .aiida file from aiida_node object and execute verdi archive import [file .aiida name] -> with a button.
+After I find it, I retrieve the .aiida file from aiida_node object and execute verdi archive import [file .aiida name] -> with a button.\
+
+A product can be a child of two or more molecules and of a slab
+Yield as a property (percentage)
+Temperature as a property
+
+Select experiment, molecule, reaction product, and slab remain.
+
+Dropdown/Checkbox with manual/automatic option
+
+Automatic is done.
+
+Manual:
+- Type of simulation exporting.
+- Properties of the simulation (input parameters, level of theory, name, etc.).
+- Upload an atomistic model (already present in openBIS or other page)
+- Upload dataset file.
+- Upload ELN_PREVIEW image.
+- Upload other images.
+- Upload a code (upload file).
+
+AM:
+- Upload a file (that can be read by ASE)
+- Properties of the atomistic model
+- Link to crystal/molecule (possibility)
+- Link to a GeoOpt
+
+Remove batch letter from the molecule names.
+
+Add filepath executable property to code.
