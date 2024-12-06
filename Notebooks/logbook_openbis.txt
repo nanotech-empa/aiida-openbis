@@ -318,6 +318,9 @@ Add filepath executable property to code.
 
 
 Add simulations selector to Results interface.
+Add code dropdown in manual simulation upload.
+Move molecule, reaction product, and slab out of automatic export. They belong to both.
+Name Unknown Simulation and Unknown experiment to Unclassified Simulation and Unclassified Experiment.
 
 To the presentation:
 - Add ELN_PREVIEW to Reaction Product.
@@ -345,7 +348,13 @@ To the presentation:
 - Then delete STM using verdi node delete [PK of the STM calculation].
 - Then show in the search that there is no STM now.
 - Then open simulations importer, search for molecule 125 and import the simulations to AiiDA and show them using the hyperlinks.
-- Upload a manual band structure (use the one by Goncalo).
+- Upload a manual band structure (use the one by Goncalo). 
+- Ask Goncalo about input/output parameters (4-8 max).
+- input_paramaters: {'t': 2.7, 'U': 3}
+- level_of_theory: {'method': 'MFH-TB'}
+- Image preview is the image of the bands.
+- Select code from openBIS
+- Replace Upload Code by Upload Support files (use that for Jupyter notebook).
 - Show that in the openBIS.
 - Open create analysis.
 - Select an STM measurement.
