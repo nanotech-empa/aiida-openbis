@@ -316,10 +316,6 @@ Remove batch letter from the molecule names.
 Add filepath executable property to code.
 
 
-
-Add simulations selector to Results interface.
-Add code dropdown in manual simulation upload.
-Move molecule, reaction product, and slab out of automatic export. They belong to both.
 Name Unknown Simulation and Unknown experiment to Unclassified Simulation and Unclassified Experiment.
 
 To the presentation:

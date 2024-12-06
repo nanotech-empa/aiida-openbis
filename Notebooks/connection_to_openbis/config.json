@@ -1084,9 +1084,9 @@
                 "comments"
             ]
         },
-        "Unknown Simulation": {
-            "object_type": "unknown simulation",
-            "openbis_object_type": "UNKNOWN_SIMULATION",
+        "Unclassified Simulation": {
+            "object_type": "unclassified simulation",
+            "openbis_object_type": "UNCLASSIFIED_SIMULATION",
             "uses_substance": false,
             "properties": [
                 "$name",

@@ -519,26 +519,26 @@ classes:
      - convergence_coefficient
      - number_k_points
      - has_tb
-  UnknownExperiment:
-    title: Unknown experiment
+  UnclassifiedExperiment:
+    title: Unclassified experiment
     is_a: Thing
     class_uri: 
-    description: Unknown experiment
+    description: Unclassified experiment
     annotations:
       openbis_object: true
-      openbis_code: UNKEXP
-      openbis_label: Unknown experiment
+      openbis_code: UNCEXP
+      openbis_label: Unclassified experiment
     slots:
      - comments
-  UnknownSimulation:
-    title: Unknown simulation
+  UnclassifiedSimulation:
+    title: Unclassified simulation
     is_a: Thing
     class_uri: 
-    description: Unknown simulation
+    description: Unclassified simulation
     annotations:
       openbis_object: true
-      openbis_code: UNKSIM
-      openbis_label: Unknown simulation
+      openbis_code: UNCSIM
+      openbis_label: Unclassified simulation
     slots:
      - description
      - input_parameters
