@@ -453,12 +453,12 @@ def get_2D_measurement_props(full_sxm_filepath):
         "start_time": datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S"),
         "duration": json.dumps({"has_value": float(img.header["acq_time"]), "has_unit": "http://qudt.org/vocab/unit/SEC"}),
         "bias_setpoint": json.dumps({"has_value": float(img.header["bias>bias (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
-        "bias_calibration_factor": json.dumps({"has_value": float(img.header["bias>calibration (v/v)"]), "has_unit": "http://qudt.org/vocab/unit/V-PER-V"}),
-        "bias_calibration_offset": json.dumps({"has_value": float(img.header["bias>offset (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
+        # "bias_calibration_factor": json.dumps({"has_value": float(img.header["bias>calibration (v/v)"]), "has_unit": "http://qudt.org/vocab/unit/V-PER-V"}),
+        # "bias_calibration_offset": json.dumps({"has_value": float(img.header["bias>offset (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
         "current_setpoint": json.dumps({"has_value": float(img.header["current>current (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
-        "current_calibration_factor": json.dumps({"has_value": float(img.header["current>calibration (a/v)"]), "has_unit": "A/V"}),
-        "current_calibration_offset": json.dumps({"has_value": float(img.header["current>offset (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
-        "current_gain": json.dumps({"has_value": img.header["current>gain"], "has_unit": "None"})
+        # "current_calibration_factor": json.dumps({"has_value": float(img.header["current>calibration (a/v)"]), "has_unit": "A/V"}),
+        # "current_calibration_offset": json.dumps({"has_value": float(img.header["current>offset (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
+        # "current_gain": json.dumps({"has_value": img.header["current>gain"], "has_unit": "None"})
     }
     return properties
 

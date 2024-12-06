@@ -8,6 +8,21 @@ import yaml
 import pandas as pd
 import copy
 import datetime
+import os
+
+def upload_datasets(openbis_session, method_object, support_files_widget, dataset_type):
+    for filename in support_files_widget.value:
+        file_info = support_files_widget.value[filename]
+        save_file(file_info['content'], filename)
+        openbis_session.new_dataset(type = dataset_type, sample = method_object, files = [filename]).save()
+        os.remove(filename)
+
+def is_valid_json(string):
+    try:
+        json.loads(string)
+        return True
+    except ValueError:
+        return False
 
 def get_aiidalab_eln_config():
     eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"

@@ -387,6 +387,7 @@ if __name__ == "__main__":
                                                                    'smiles', 'cas_number']
                                             
                                             molecule_metadata_dict = {key: material_metadata_dict[key] for key in molecule_properties if key in material_metadata_dict}
+                                            molecule_metadata_dict["$name"] = str(material_metadata_dict["empa_number"])
                                             
                                             if molecule_metadata_dict["smiles"] in available_molecules_openbis.keys():
                                                 molecule_object = available_molecules_openbis[molecule_metadata_dict["smiles"]]

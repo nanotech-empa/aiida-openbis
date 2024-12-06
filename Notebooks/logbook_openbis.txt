@@ -306,7 +306,7 @@ Manual:
 - Upload a code (upload file).
 
 AM:
-- Upload a file (that can be read by ASE)
+- Upload a file (that can be read by ASE) - From the ase file, we get the structure, formula and png.
 - Properties of the atomistic model
 - Link to crystal/molecule (possibility)
 - Link to a GeoOpt
@@ -314,3 +314,58 @@ AM:
 Remove batch letter from the molecule names.
 
 Add filepath executable property to code.
+
+
+
+Add simulations selector to Results interface.
+
+To the presentation:
+- Add ELN_PREVIEW to Reaction Product.
+- Add repository URL to PW.x and CP2K.
+- Add an SNF grant.
+- Populate openBIS with experimental data
+- Start simulation from openBIS (just show clicking the button and then show the page with AiiDAlab)
+- Molecules use SMILES instead of CDXML.
+- Then open GeoOpt, enter molecule using SMILES (do not show this part), and add slab. Then, this is prepared for simulation.
+- Search for the STM simulation using AiiDAlab.
+- Show how to export CP2K simulations to openBIS. (Use information in extras to populate Molecule/Reaction Product selector).
+- Show that objects were created.
+- Export STM images from AiiDAlab using Search tool.
+- Go to openBIS and start simulation from Reaction Product.
+- On the Aiidalab side, select 3 units and create model. Then go back to Infinite and create model again.
+- Then click on QEApp, stop the video, and then upload oneD.xyz and continue the video.
+- Confirm structure, click on vibrational, electronic bands, and PDOS.
+- Then it is ready for computing.
+- Job History and then inspect the simulation.
+- Click on the blue row.
+- Show the different tabs.
+- Inside Vibrational Spec show Raman/IR spectra and Plot blue button.
+- Show how to export QE app simulation to openBIS. (Use information in extras to populate Molecule/Reaction Product selector).
+- Show that objects were created.
+- Then delete STM using verdi node delete [PK of the STM calculation].
+- Then show in the search that there is no STM now.
+- Then open simulations importer, search for molecule 125 and import the simulations to AiiDA and show them using the hyperlinks.
+- Upload a manual band structure (use the one by Goncalo).
+- Show that in the openBIS.
+- Open create analysis.
+- Select an STM measurement.
+- Select IGOR Pro as code.
+- Upload as Support File, the Figure_2.png and the a_STM-Igor.txt present in the Desktop.
+- As a Description, write Laplace Filter of Image x.
+- Open create results interface.
+- Select analysis of the STM and simulated STM.
+- In the description, write simulation explains the experiment.
+- Create another result with only a measurement.
+- Open draft creation interface.
+- Select results
+- As name write: Atomically precise bottom-up fabrication of graphene nanoribbons
+- Open create publication interface.
+- Use information from Atomically precise bottom-up fabrication of graphene nanoribbons to populate publication params.
+- Show find similar molecules interface (use molecule 125 - DBBA).
+- Replace Home page by multiple tabs: 
+    - Results: with analysis, results, publication, etc.
+    - Inventory: Molecule, Substance, etc.
+    - Experiments: Sample Prep and Measurement and SRD
+    - Search: Find simulations, find similar molecules, etc.
+    - Export: Export publication data and export simulations.
+    - Font size bigger.

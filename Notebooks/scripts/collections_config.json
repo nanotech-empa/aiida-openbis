@@ -195,7 +195,7 @@
                 "CODES": {
                     "description": "Codes",
                     "experiments": {
-                        "CODES_COLLECTION": {
+                        "CODE_COLLECTION": {
                             "name": "Codes"
                         }
                     }

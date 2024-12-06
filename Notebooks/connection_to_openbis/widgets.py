@@ -21,9 +21,9 @@ class AtomisticModelSelectionWidget(ipw.HBox):
         super().__init__()
         
         self.dropdown = utils.Dropdown(
-            description='Atomistic Model', 
-            disabled=False, 
-            layout = ipw.Layout(width='982px'), 
+            description = 'Atomistic Model', 
+            disabled = False, 
+            layout = ipw.Layout(width='315px'), 
             style = {'description_width': "110px"}, 
             options = [-1]
         )
@@ -38,14 +38,26 @@ class AtomisticModelSelectionWidget(ipw.HBox):
         
         self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
         
-        self.children = [self.dropdown_boxes]
+        # Details textbox (disabled for display purposes)
+        self.details_textbox = ipw.Textarea(
+            description="", disabled=True, layout=ipw.Layout(width='415px', height='250px')
+        )
+        
+        # Image box (displaying a default image)
+        self.image_box = ipw.Image(
+            value=utils.read_file(CONFIG["default_image_filepath"]), 
+            format='jpg',
+            layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
+        )
+        
+        self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
     
     def load_dropdown_box(self):
         items = utils.get_openbis_objects(
             OPENBIS_SESSION,
             type = "ATOMISTIC_MODEL"
         )
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.permId} ({item.attrs.identifier})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select atomistic model...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -67,6 +79,41 @@ class AtomisticModelSelectionWidget(ipw.HBox):
                 ), 
                 names='value'
             )
+    
+    # Function to handle changes in the molecules dropdown
+    def load_metadata(self, change):
+        if self.dropdown.value == -1:
+            self.details_textbox.value = ''
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+            return
+        
+        # Get metadata
+        property_list = CONFIG["objects"]["Atomistic Model"]["properties"]
+        object = OPENBIS_SESSION.get_object(self.dropdown.value)
+        
+        # Get image
+        object_dataset = object.get_datasets(type="ELN_PREVIEW")[0]
+
+        if object_dataset:
+            object_dataset.download(destination="images")
+            object_image_filepath = object_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{object_dataset.permId}/{object_image_filepath}")
+            shutil.rmtree(f"images/{object_dataset.permId}/")
+        else:
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+
+        metadata = object.props.all()
+        metadata_string = ""
+        for prop_key in property_list:
+            prop_title = CONFIG["properties"][prop_key]["title"]
+            prop_value = metadata.get(prop_key)
+            if CONFIG["properties"][prop_key]["property_type"] == "QUANTITY_VALUE" and prop_value is not None:
+                prop_value = json.loads(prop_value)
+                metadata_string += f"{prop_title}: {prop_value['has_value']} {prop_value['has_unit']}\n"
+            else:
+                metadata_string += f"{prop_title}: {prop_value}\n"
+
+        self.details_textbox.value = metadata_string
 
 class SimulationSelectionWidget(ipw.HBox):
     def __init__(self):
@@ -93,60 +140,82 @@ class SimulationSelectionWidget(ipw.HBox):
         
         self.children = [self.dropdown_boxes]
     
-    def load_dropdown_box(self):
-        qb = orm.QueryBuilder()
-        qb.append(orm.WorkChainNode)
-        results = qb.all()
-        
-        # List of calculations that can be exported
-        labels = ['QeAppWorkChain','Cp2kGeoOptWorkChain','Cp2kStmWorkChain']
-        # Create the QueryBuilder
-        qb = orm.QueryBuilder()
-        qb.append(
-            orm.WorkChainNode,
-            filters={
-                'attributes.process_label': {'in': labels},  # Filter by process_label
-                'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
-                'attributes.process_state':{'in':['finished']},
-            },
-            project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
-        )
-        # Execute the query
-        results = qb.all()
-        items_names_pks = []
-        for result in results:
-            if result[3]:
-                name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
-            else:
-                name_pk_string = f"{result[2]} ({result[0]})"
-                
-            name_pk_tuple = (name_pk_string, result[0])
-            items_names_pks.append(name_pk_tuple)
+    def load_dropdown_box(self, source):
+        if source == "aiidalab":
+            qb = orm.QueryBuilder()
+            qb.append(orm.WorkChainNode)
+            results = qb.all()
             
-        items_names_pks.insert(0, (f'Select simulation...', -1))
-        
-        self.dropdown.options = items_names_pks
-        self.dropdown.value = -1
-        
-        utils.sort_dropdown(
-            self.sorting_checkboxes_list,
-            self.dropdown,
-            ["Name", "PK"],
-            [True, False]
-        )
-        
-        for checkbox in self.sorting_checkboxes_list.children[1:]:
-            checkbox.observe(
-                lambda change: utils.sort_dropdown(
-                    self.sorting_checkboxes_list, 
-                    self.dropdown,
-                    ["Name", "PK"],
-                    [True, False]
-                ), 
-                names='value'
+            # List of calculations that can be exported
+            labels = ['QeAppWorkChain','Cp2kGeoOptWorkChain','Cp2kStmWorkChain']
+            # Create the QueryBuilder
+            qb = orm.QueryBuilder()
+            qb.append(
+                orm.WorkChainNode,
+                filters={
+                    'attributes.process_label': {'in': labels},  # Filter by process_label
+                    'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
+                    'attributes.process_state':{'in':['finished']},
+                },
+                project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
             )
+            # Execute the query
+            results = qb.all()
+            items_names_pks = []
+            for result in results:
+                if result[3]:
+                    name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
+                else:
+                    name_pk_string = f"{result[2]} ({result[0]})"
+                    
+                name_pk_tuple = (name_pk_string, result[0])
+                items_names_pks.append(name_pk_tuple)
+            
+            items_names_pks.insert(0, (f'Select simulation...', -1))
+            
+            self.dropdown.options = items_names_pks
+            self.dropdown.value = -1
+            
+            utils.sort_dropdown(
+                self.sorting_checkboxes_list,
+                self.dropdown,
+                ["Name", "PK"],
+                [True, False]
+            )
+            
+            for checkbox in self.sorting_checkboxes_list.children[1:]:
+                checkbox.observe(
+                    lambda change: utils.sort_dropdown(
+                        self.sorting_checkboxes_list, 
+                        self.dropdown,
+                        ["Name", "PK"],
+                        [True, False]
+                    ), 
+                    names='value'
+                )
 
-class AnalysisSelectionWidget(ipw.HBox):
+class SimulationMultipleSelectionWidget(ipw.HBox):
+    def __init__(self):
+        # Initialize the parent HBox
+        super().__init__()
+        
+        # Select multiple drafts
+        self.selector = utils.SelectMultiple(description = 'Simulations', disabled = False, 
+                                             layout = ipw.Layout(width = '800px'), 
+                                             style = {'description_width': "110px"})
+        
+        self.children = [self.selector]
+    
+    def load_selector(self):
+        simulation_objects = []
+        simulation_object_types = ["GEOMETRY_OPTIMISATION", "BAND_STRUCTURE", "VIBRATIONAL_SPECTROSCOPY", "PDOS"]
+        for object_type in simulation_object_types:
+            objects = [object for object in utils.get_openbis_objects(OPENBIS_SESSION, type = object_type)]
+            simulation_objects.extend(objects)
+            
+        self.selector.options = [(object.props["$name"], object.attrs.identifier) for object in simulation_objects]
+
+class AnalysisMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -165,7 +234,7 @@ class AnalysisSelectionWidget(ipw.HBox):
         )
         self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
 
-class CodeSelectionWidget(ipw.HBox):
+class CodeMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -396,7 +465,7 @@ class PublicationSelectionWidget(ipw.HBox):
                 names='value'
             )
 
-class MeasurementSelectionWidget(ipw.HBox):
+class MeasurementMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -426,7 +495,7 @@ class MeasurementSelectionWidget(ipw.HBox):
         measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in twoD_measurements_items])
         self.selector.options = measurements_list
         
-class DraftSelectionWidget(ipw.HBox):
+class DraftMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -448,7 +517,7 @@ class DraftSelectionWidget(ipw.HBox):
         )
         self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         
-class ResultsSelectionWidget(ipw.HBox):
+class ResultsMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -468,7 +537,7 @@ class ResultsSelectionWidget(ipw.HBox):
         )
         self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
         
-class GrantSelectionWidget(ipw.HBox):
+class GrantMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -487,7 +556,7 @@ class GrantSelectionWidget(ipw.HBox):
         )
         self.selector.options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
 
-class AuthorSelectionWidget(ipw.HBox):
+class AuthorMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
@@ -536,8 +605,9 @@ class MoleculeSelectionWidget(ipw.HBox):
         
         # Image box (displaying a default image)
         self.image_box = ipw.Image(
-            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
-            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+            value=utils.read_file(CONFIG["default_image_filepath"]), 
+            format='jpg',
+            layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
         )
         
         self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
@@ -570,7 +640,7 @@ class MoleculeSelectionWidget(ipw.HBox):
                 names='value'
             )
     
-    # Function to handle changes in the substances dropdown
+    # Function to handle changes in the molecules dropdown
     def load_molecule_metadata(self, change):
         if self.dropdown_boxes.children[0].value == -1:
             self.details_textbox.value = ''
@@ -602,6 +672,8 @@ class MoleculeSelectionWidget(ipw.HBox):
                 molecule_metadata_string += f"{prop_title}: {prop_value['has_value']} {prop_value['has_unit']}\n"
             else:
                 molecule_metadata_string += f"{prop_title}: {prop_value}\n"
+        
+        
 
         self.details_textbox.value = molecule_metadata_string
 
@@ -635,8 +707,9 @@ class SubstanceSelectionWidget(ipw.HBox):
         
         # Image box (displaying a default image)
         self.image_box = ipw.Image(
-            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
-            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+            value=utils.read_file(CONFIG["default_image_filepath"]), 
+            format='jpg',
+            layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
         )
         
         self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
@@ -743,8 +816,9 @@ class ReactionProductSelectionWidget(ipw.HBox):
         
         # Image box (displaying a default image)
         self.image_box = ipw.Image(
-            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
-            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+            value=utils.read_file(CONFIG["default_image_filepath"]), 
+            format='jpg',
+            layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
         )
         
         self.children = [self.dropdown_boxes, self.details_textbox, self.image_box]
@@ -829,8 +903,9 @@ class MaterialSelectionWidget(ipw.Output):
         
         # Image box (displaying a default image)
         self.image_box = ipw.Image(
-            value=utils.read_file(CONFIG["default_image_filepath"]), format='jpg', width='220px', 
-            height='250px', layout=ipw.Layout(border='solid 1px #cccccc')
+            value=utils.read_file(CONFIG["default_image_filepath"]), 
+            format='jpg',
+            layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
         )
     
     def load_dropdown_box(self, object_type, placeholder):
@@ -1047,7 +1122,7 @@ class SampleSelectionWidget(ipw.HBox):
             type = "SAMPLE"
         )
         items = utils.filter_samples(OPENBIS_SESSION, items)
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select sample...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -1123,18 +1198,20 @@ class InstrumentSelectionWidget(ipw.HBox):
                 names='value'
             )
             
-class SamplePreparationSelectionWidget(ipw.SelectMultiple):
+class SamplePreparationMultipleSelectionWidget(ipw.HBox):
     def __init__(self):
         # Initialize the parent HBox
         super().__init__()
+        self.selector = ipw.SelectMultiple()
         self.sample_preparation_options = [object_key for object_key, object_info in CONFIG["objects"].items() if object_info["object_type"] == "sample_preparation"]
-        self.description = "Processes"
-        self.disabled = False
-        self.style = {'description_width': "65px"}
-        self.options = self.sample_preparation_options
+        self.selector.description = "Processes"
+        self.selector.disabled = False
+        self.selector.style = {'description_width': "65px"}
+        self.selector.options = self.sample_preparation_options
         selector_height = len(self.sample_preparation_options) * 18
         selector_height = f"{selector_height}px"
-        self.layout = ipw.Layout(width = '220px', height = selector_height)
+        self.selector.layout = ipw.Layout(width = '220px', height = selector_height)
+        self.children = [self.selector]
 
 class SamplePreparationAccordionWidget(ipw.Accordion):
     def __init__(self):
@@ -1199,7 +1276,21 @@ class ObjectPropertiesWidgets(ipw.VBox):
                     widget_args["value"] = property["default_value"]
                     
                 prop_widget = utils.Textarea(**widget_args)
-                    
+            
+            elif property["property_widget"] == "MULTIPLE_CHECKBOXES":
+                checkboxes_list = []
+                label_widget = ipw.Label(property["title"])
+                checkboxes_list.append(label_widget)
+                for i in range(property["num_elements"]):
+                    checkbox_widget = utils.Checkbox(
+                        disabled = property["disabled"], 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]),
+                        style = {'description_width': property["box_layout"]["description_width"]},
+                        indent = False, value = False
+                    )
+                    checkboxes_list.append(checkbox_widget)
+                
+                prop_widget = ipw.HBox(checkboxes_list)
             
             elif property["property_widget"] == "CHECKBOX":
                 prop_widget = utils.Checkbox(
@@ -1214,8 +1305,16 @@ class ObjectPropertiesWidgets(ipw.VBox):
                     layout = ipw.Layout(width = property["box_layout"]["width"]),
                     style = {'description_width': property["box_layout"]["description_width"]}
                 )
-            elif property["property_widget"] == "INTTEXT" or property["property_widget"] == "FLOATTEXT":
+            elif property["property_widget"] == "INTTEXT":
                 prop_widget = utils.IntText(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                    placeholder = property["placeholder"], 
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+            
+            elif property["property_widget"] == "FLOATTEXT":
+                prop_widget = utils.FloatText(
                     description = property["title"], disabled = property["disabled"], 
                     layout = ipw.Layout(width = property["box_layout"]["width"]), 
                     placeholder = property["placeholder"], 

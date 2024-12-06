@@ -470,6 +470,7 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     ase_geo = structure.get_ase()
     dimensionality = guess_dimensionality(ase_geo)
     dictionary={
+        '$name': ase_geo.get_chemical_formula(),
         'wfms_uuid': structure.uuid,
         'structure': json.dumps(encode(ase_geo))
     }
@@ -597,6 +598,8 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         collection = experiment_id
     )
     
+    geoopt_obobject = set_parent_codes(openbis_session, geoopt_obobject, workchain_uuid)
+    
     # if missing create oBIS object and obtain uuid
     input_structure = workchain.inputs.structure
     input_structure = structure_to_atomistic_model(openbis_session, input_structure.uuid, uuids)
@@ -648,6 +651,8 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         props = dictionary,
         collection = experiment_id
     )
+    
+    bands_obobject = set_parent_codes(openbis_session, bands_obobject, workchain_uuid)
     
     # Create datasets in openbis and like them to the openBIS object
     pdos_json = aiida_data_to_json(root_out.projwfc.Dos.uuid)
@@ -709,6 +714,8 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
         collection = experiment_id
     )
     
+    pdos_obobject = set_parent_codes(openbis_session, pdos_obobject, workchain_uuid)
+    
     # Create datasets in openbis and like them to the openBIS object
     dos_json = aiida_data_to_json(workchain.outputs.dos.output_dos.uuid)
     pdos_json = aiida_data_to_json(workchain.outputs.projwfc.Dos.uuid)
@@ -764,6 +771,8 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         props = dictionary,
         collection = experiment_id
     )
+    
+    vibro_spec_obobject = set_parent_codes(openbis_session, vibro_spec_obobject, workchain_uuid)
     
     # Create datasets in openbis and like them to the openBIS object
     phonon_bands_json = aiida_data_to_json(workchain.outputs.phonon_bands.uuid)
@@ -837,6 +846,8 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
         collection = experiment_id
     )
     
+    geoopt_obobject = set_parent_codes(openbis_session, geoopt_obobject, workchain_uuid)
+    
     # if missing create oBIS object and obtain uuid
     input_structure = workchain.inputs.structure
     input_structure = structure_to_atomistic_model(openbis_session, input_structure.uuid, uuids)
@@ -905,6 +916,8 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         collection = experiment_id
     )
     
+    obobject = set_parent_codes(openbis_session, obobject, workchain_uuid)
+    
     workchain.base.extras.set("eln", {"url": "local.openbis.ch", "object_uuid": obobject.permId})
     
     input_structure = workchain.inputs.structure
@@ -914,6 +927,39 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     obobject.save()
     
     return obobject
+
+def set_parent_codes(openbis_session, obis_object, workchain_uuid):
+    openbis_codes_filepaths = {code_object.props['filepath_executable']: code_object for code_object in utils.get_openbis_objects(openbis_session, type = "CODE")}
+    workchain_codes = get_codes_info(workchain_uuid)
+    
+    for code_info in workchain_codes:
+        code_filepath = code_info["filepath_executable"]
+        if code_filepath in openbis_codes_filepaths.keys():
+            code_object = openbis_codes_filepaths[code_filepath]
+        else:
+            code_object = utils.create_openbis_object(
+                openbis_session, 
+                type = "CODE",
+                props = code_info,
+                collection = "/SOFTWARE/CODES/CODE_COLLECTION"
+            )
+        
+        obis_object.add_parents(code_object)
+    
+    return obis_object
+
+def get_codes_info(workchain_uuid):
+    codesinfo_list = []
+    workchain = orm.load_node(workchain_uuid)
+    codes = set([node.inputs.code for node in workchain.called_descendants if isinstance(node, orm.CalcJobNode)])
+    for code in codes:
+        codesinfo = {
+            "$name": code.filepath_executable.name, 
+            "description": code.description,
+            "filepath_executable": code.filepath_executable.as_posix()
+        }
+        codesinfo_list.append(codesinfo)
+    return codesinfo_list
 
 workchain_exporters = {
     'PwRelaxWorkChain':PwRelaxWorkChain_export,

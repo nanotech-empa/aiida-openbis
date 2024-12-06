@@ -1,1 +1,2 @@
 Does the reaction product have a storage, supplier or chemist?
+Are the measurements always analysed or can they be put in the results without any analysis?

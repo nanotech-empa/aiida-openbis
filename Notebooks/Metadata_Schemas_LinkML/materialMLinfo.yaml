@@ -106,7 +106,6 @@ classes:
      - structure
      - dimensionality
      - atoms_positions
-     - cell_vectors
      - periodic_boundary_conditions
      - uses_crystal
      - uses_molecule
@@ -180,6 +179,7 @@ classes:
     slots:
      - description
      - repository_url
+     - filepath_executable
      - comments
   Crystal:
     title: Crystal
@@ -336,6 +336,7 @@ classes:
      - output_parameters
      - has_atomistic_models
      - level_theory
+     - has_codes
     #  - has_dft
     #  - has_empirical_modelling
   Grant:
@@ -884,6 +885,7 @@ classes:
      - output_parameters
      - has_atomistic_models
      - level_theory
+     - has_codes
     #  - has_dft
     #  - has_tb
   OneDMeasurement:
@@ -1768,6 +1770,14 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  filepath_executable:
+    description: Filepath executable
+    range: string
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Filepath executable
   yield:
     description: Yield
     range: double
