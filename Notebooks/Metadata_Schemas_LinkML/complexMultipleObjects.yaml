@@ -1,0 +1,222 @@
+id: https://w3id.org/linkml/examples/materialsML
+name: materialsML
+prefixes:                                 
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  emmo: https://w3id.org/emmo#
+  emmo_da: http://emmo.info/domain-atomistic#
+  emmo_nano: http://emmo.info/emmo/nanoind#
+  emmo_chameo: https://w3id.org/emmo-chameo/chameo#
+  emmo_electrochemistry: https://w3id.org/emmo/domain/electrochemistry#
+  fairmat_sts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
+  ncit: http://purl.obolibrary.org/obo/ncit.owl#
+  occo: http://purl.obolibrary.org/obo/occo.owl#
+  chmo: http://purl.obolibrary.org/obo/chmo.owl#
+  chebi: http://purl.obolibrary.org/obo/chebi.owl#
+  obi: http://purl.obolibrary.org/obo/obi.owl#
+  opmi: http://purl.obolibrary.org/obo/opmi.owl#
+  iao: http://purl.obolibrary.org/obo/iao.owl#
+  sio: http://semanticscience.org/ontology/sio.owl#
+  ome_onto: http://www.openmicroscopy.org/Schemas/Documentation/Generated/OME-2016-06/ome_xsd.html#
+  apollo: http://purl.obolibrary.org/obo/apollo_sv.owl#
+  afe: http://purl.allotrope.org/ontologies/equipment#
+  materialsML: https://w3id.org/linkml/examples/materialsML/
+  xsd: http://www.w3.org/2001/XMLSchema#
+  foaf: http://xmlns.com/foaf/0.1/
+  qudt: http://qudt.org/schema/qudt/
+  unit: http://qudt.org/vocab/unit/
+  dcat: http://www.w3.org/ns/dcat#
+# default_curi_maps:
+#   - semweb_context
+imports:
+  - linkml:types
+default_prefix: materialsML
+
+classes:
+  Thing:
+    title: Thing
+    class_uri: schema:Thing
+    slots:
+      - perm_id
+      - name
+      - type
+    slot_usage:
+      name:
+        required: true
+      perm_id:
+        required: true
+    annotations:
+      openbis_object: false
+  Annealing:
+    title: Annealing
+    is_a: Thing
+    class_uri: chmo:CHMO_0001465
+    description: Annealing
+    annotations:
+      openbis_object: true
+      openbis_code: ANNEAL
+      openbis_label: Annealing
+    slots:
+     - duration
+     - pressure
+     - voltage
+     - temperature
+     - current
+     - comments
+     - has_instrument
+     - has_sample
+  Instrument:
+    title: Instrument
+    is_a: Thing
+    class_uri: ncit:NCIT_C16742
+    description: Instrument
+    annotations:
+      openbis_object: true
+      openbis_code: INSTR
+      openbis_label: Instrument
+    slots:
+     - serial_number
+     - empa_id
+     - documentation_website
+     - receive_date
+     - comments
+  Sample:
+    title: Sample
+    is_a: Thing
+    class_uri: 
+    description: Sample being measured
+    annotations:
+      openbis_object: true
+      openbis_code: SAMP
+      openbis_label: Sample
+    slots:
+     - exists
+
+slots:
+  exists:
+    description: exists
+    range: boolean
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: BOOLEAN
+      openbis_label: Exists
+  receive_date:
+    description: received date
+    range: date
+    slot_uri: ncit:NCIT_C164590
+    multivalued: false
+    annotations:
+      openbis_type: DATE
+      openbis_label: Receive date
+  serial_number:
+    description: serial number
+    range: string
+    slot_uri: ncit:NCIT_C73518
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Serial number
+  empa_id:
+    description: empa id
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Empa ID
+  documentation_website:
+    description: documentation website
+    range: string
+    pattern: (https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})
+    slot_uri: ncit:NCIT_C93821
+    multivalued: false
+    annotations:
+      openbis_type: HYPERLINK
+      openbis_label: Documentation website
+  type:
+    designates_type: true
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: Not used
+  perm_id:
+    identifier: true
+    description: permanent ID
+    range: string
+    multivalued: false
+    slot_uri: schema:identifier
+    annotations:
+      openbis_type: Not used
+      openbis_label: Permanent ID
+  name:
+    description: name
+    range: string
+    slot_uri: schema:name
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Name
+  temperature:
+    description: temperature
+    range: object
+    slot_uri: ncit:NCIT_C25206
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Temperature
+  duration:
+    description: duration
+    range: object
+    slot_uri: ncit:NCIT_C25330
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Duration
+  pressure:
+    description: pressure
+    range: object
+    slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Pressure
+  voltage:
+    description: voltage
+    range: object
+    slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Voltage
+  current:
+    description: current
+    range: object
+    slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Current
+  comments:
+    description: comments
+    range: string
+    slot_uri: schema:comment
+    multivalued: false
+    annotations:
+      openbis_type: MULTILINE_VARCHAR
+      openbis_label: Comments
+  has_instrument:
+    range: Instrument
+    description: instrument
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Instrument
+  has_sample:
+    range: Sample
+    description: sample
+    inlined: true
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Sample

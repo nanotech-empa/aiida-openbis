@@ -206,11 +206,11 @@ class SimulationMultipleSelectionWidget(ipw.HBox):
         
         self.children = [self.selector]
     
-    def load_selector(self):
+    def load_selector(self, project_id):
         simulation_objects = []
         simulation_object_types = ["GEOMETRY_OPTIMISATION", "BAND_STRUCTURE", "VIBRATIONAL_SPECTROSCOPY", "PDOS"]
         for object_type in simulation_object_types:
-            objects = [object for object in utils.get_openbis_objects(OPENBIS_SESSION, type = object_type)]
+            objects = [object for object in utils.get_openbis_objects(OPENBIS_SESSION, type = object_type, project = project_id)]
             simulation_objects.extend(objects)
             
         self.selector.options = [(object.props["$name"], object.attrs.identifier) for object in simulation_objects]
@@ -860,8 +860,20 @@ class ReactionProductSelectionWidget(ipw.HBox):
         
         # Get product metadata
         property_list = CONFIG["objects"]["Reaction Product"]["properties"]
-        
         material_object = OPENBIS_SESSION.get_object(self.dropdown.value)
+        
+        # Get image
+        material_dataset = material_object.get_datasets(type="ELN_PREVIEW")[0]
+
+        if material_dataset:
+            material_dataset.download(destination="images")
+            material_image_filepath = material_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{material_dataset.permId}/{material_image_filepath}")
+            shutil.rmtree(f"images/{material_dataset.permId}/")
+        else:
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+        
+        
         material_metadata = material_object.props.all()
         material_metadata_string = ""
         for prop_key in property_list:
@@ -965,7 +977,7 @@ class ProjectSelectionWidget(ipw.VBox):
         items = utils.get_openbis_projects(
             OPENBIS_SESSION
         )
-        items_names_permids = [(f"{item.description} ({item.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.code} ({item.identifier})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select project...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1

@@ -1,0 +1,82 @@
+id: https://w3id.org/linkml/examples/materialsML
+name: materialsML
+prefixes:                                 
+  linkml: https://w3id.org/linkml/
+  schema: http://schema.org/
+  emmo: https://w3id.org/emmo#
+  emmo_da: http://emmo.info/domain-atomistic#
+  emmo_nano: http://emmo.info/emmo/nanoind#
+  emmo_chameo: https://w3id.org/emmo-chameo/chameo#
+  emmo_electrochemistry: https://w3id.org/emmo/domain/electrochemistry#
+  fairmat_sts: https://fairmat-nfdi.github.io/nexus_definitions/classes/contributed_definitions/NXsts.html#
+  ncit: http://purl.obolibrary.org/obo/ncit.owl#
+  occo: http://purl.obolibrary.org/obo/occo.owl#
+  chmo: http://purl.obolibrary.org/obo/chmo.owl#
+  chebi: http://purl.obolibrary.org/obo/chebi.owl#
+  obi: http://purl.obolibrary.org/obo/obi.owl#
+  opmi: http://purl.obolibrary.org/obo/opmi.owl#
+  iao: http://purl.obolibrary.org/obo/iao.owl#
+  sio: http://semanticscience.org/ontology/sio.owl#
+  ome_onto: http://www.openmicroscopy.org/Schemas/Documentation/Generated/OME-2016-06/ome_xsd.html#
+  apollo: http://purl.obolibrary.org/obo/apollo_sv.owl#
+  afe: http://purl.allotrope.org/ontologies/equipment#
+  materialsML: https://w3id.org/linkml/examples/materialsML/
+  xsd: http://www.w3.org/2001/XMLSchema#
+  foaf: http://xmlns.com/foaf/0.1/
+  qudt: http://qudt.org/schema/qudt/
+  unit: http://qudt.org/vocab/unit/
+  dcat: http://www.w3.org/ns/dcat#
+# default_curi_maps:
+#   - semweb_context
+imports:
+  - linkml:types
+default_prefix: materialsML
+
+classes:
+  Person:
+    title: Person
+    class_uri: schema:Person
+    description: Person
+    annotations:
+      openbis_object: true
+      openbis_code: PERS
+      openbis_label: Person
+    slots:
+      - short_name
+      - work_status
+      - work_phone
+      - mobile_phone
+
+slots:
+  short_name:
+    description: username
+    range: string
+    slot_uri: foaf:accountName
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Username
+  work_status:
+    description: work status
+    range: boolean
+    slot_uri: opmi:OPMI_0000122
+    multivalued: false
+    annotations:
+      openbis_type: BOOLEAN
+      openbis_label: Work status
+  mobile_phone:
+    description: mobile phone
+    range: string
+    slot_uri: ncit:NCIT_C98193
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Mobile phone
+  work_phone:
+    description: work phone
+    range: string
+    slot_uri: schema:telephone
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Work phone

@@ -15,6 +15,26 @@ from aiida.common.exceptions import NotExistentAttributeError
 import random
 import utils
 
+def original_structure(workchain_uuid):
+    wc=orm.load_node(workchain_uuid)
+    input_structure = wc.inputs.structure
+    creator = creator_of_structure(input_structure.uuid)
+    node_now=orm.load_node(creator)
+    if not isinstance(node_now,orm.StructureData):
+        return node_now.inputs.structure.uuid
+    return creator
+
+def creator_of_structure(struc_uuid):
+    struc = orm.load_node(struc_uuid)
+    the_creator = struc.creator
+    if the_creator is None:
+        return struc_uuid
+    previous_wc = the_creator
+    while previous_wc is not None:
+        the_creator=previous_wc
+        previous_wc = previous_wc.caller
+    return the_creator.uuid
+
 def find_bandgap(bandsdata_uuid, number_electrons=None, fermi_energy=None):
     """
     Tries to guess whether the bandsdata represent an insulator.
@@ -578,8 +598,8 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         'level_theory': json.dumps(level_theory), #link/incorporate DFT object
         'force_convergence_threshold': force_conv_threshold_json,
         'constrained': False,
-        'output_parameters': get_qe_output_parameters(workchain.outputs.output_parameters.get_dict()) ,
-        'input_parameters': get_qe_input_parameters(workchain.outputs.output_parameters.get_dict())
+        'output_parameters': json.dumps(get_qe_output_parameters(workchain.outputs.output_parameters.get_dict())),
+        'input_parameters': json.dumps(get_qe_input_parameters(workchain.outputs.output_parameters.get_dict()))
     }
     
     geoopt_object_parameters['cell_opt_constraints'] = pw_input_parameters.get('CELL', {}).get('cell_dofree', '')
@@ -630,13 +650,13 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         "method_properties": dft_object_parameters
     }
     
-    output_parameters=get_qe_output_parameters(root_out.scf_parameters.get_dict())
+    output_parameters= get_qe_output_parameters(root_out.scf_parameters.get_dict())
     input_parameters = get_qe_input_parameters(root_out.scf_parameters.get_dict())
     dictionary = {
         'wfms_uuid': workchain_uuid,
         'level_theory': json.dumps(level_theory),
-        'output_parameters' : output_parameters,
-        'input_parameters' : input_parameters,
+        'output_parameters' : json.dumps(output_parameters),
+        'input_parameters' : json.dumps(input_parameters),
         'band_gap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
     }
     
@@ -698,8 +718,8 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
     dictionary = {
         'wfms_uuid': workchain_uuid,
         'level_theory': json.dumps(level_theory),
-        'output_parameters' : get_qe_output_parameters(root_out.nscf.output_parameters.get_dict()) ,
-        'input_parameters' : get_qe_input_parameters(root_out.nscf.output_parameters.get_dict())        
+        'output_parameters' : json.dumps(get_qe_output_parameters(root_out.nscf.output_parameters.get_dict())),
+        'input_parameters' : json.dumps(get_qe_input_parameters(root_out.nscf.output_parameters.get_dict()))      
     }
     
     if workchain.caller.description:
