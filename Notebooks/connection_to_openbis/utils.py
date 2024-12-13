@@ -216,7 +216,15 @@ def get_next_experiment_code(openbis_session):
 
 def create_experiment_in_openbis(openbis_session, project_id, experiment_name):
     experiment_code = get_next_experiment_code(openbis_session)
-    experiment = openbis_session.new_experiment(code = experiment_code, type = "EXPERIMENT", project = project_id, props = {"$name": experiment_name})
+    experiment = openbis_session.new_experiment(
+        code = experiment_code, 
+        type = "EXPERIMENT", 
+        project = project_id, 
+        props = {
+            "$name": experiment_name, 
+            "$default_collection_view": "IMAGING_GALLERY_VIEW"
+        }
+    )
     experiment.save()
 
 def create_openbis_dataset(openbis_session, **kwargs):
@@ -255,7 +263,7 @@ def is_nan(var):
     """Function to verify whether it is a NaN."""
     return var != var
 
-def get_parent_child_relationships_nested(openbis_session, selected_object, parent_child_relationships=None):
+def get_parent_child_relationships_nested(openbis_session, selected_object, parent_child_relationships = None, object_history = None):
     """
     Function to get all the parent-child relations together with the information about the objects from openBIS.
     This is a recursive function because the objects inside openBIS are like trees containing multiple
@@ -276,6 +284,12 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
     """
     if parent_child_relationships is None:
         parent_child_relationships = {}
+    
+    if object_history is None:
+        object_history = {}
+    
+    if selected_object.identifier not in object_history:
+        object_history[selected_object.identifier] = selected_object
 
     # Fetch parents of the current publication
     parents = selected_object.parents
@@ -284,7 +298,11 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
         # Add current parents to the dictionary with child-parent relationships
         parent_child_relationships["has_part"] = []
         for parent_id in parents:
-            parent = openbis_session.get_sample(parent_id)
+            if parent_id in object_history:
+                parent = object_history[parent_id]
+            else:
+                parent = openbis_session.get_sample(parent_id)
+                object_history[parent.identifier] = parent
             parent_props = parent.props.all()
             for prop in parent_props:
                 if openbis_session.get_property_type(prop).dataType == "SAMPLE" and parent_props[prop] is not None:
@@ -292,11 +310,11 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
                     parent_props[prop] = {"perm_id": parent_props[prop]}
                     parent_props[prop]["type"] = str(prop_object.type)
                     parent_props[prop].update(prop_object.props.all())
-                    parent_props[prop] = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop])
+                    parent_props[prop] = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop], object_history)
                     
             parent_props["perm_id"] = parent.permId
             parent_props["type"] = str(parent.type)
-            parent_props = get_parent_child_relationships_nested(openbis_session, parent, parent_props)
+            parent_props = get_parent_child_relationships_nested(openbis_session, parent, parent_props, object_history)
             parent_child_relationships["has_part"].append(parent_props)
 
     return parent_child_relationships

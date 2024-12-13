@@ -1093,7 +1093,7 @@ class ExperimentSelectionWidget(ipw.VBox):
             clear_output()
     
     def save_new_experiment_button_on_click(self, b):
-        utils.create_experiment_in_openbis(OPENBIS_SESSION, self.projects_dropdown_boxes.children[0].children[0].value, self.new_experiment_name_textbox.value)
+        utils.create_experiment_in_openbis(OPENBIS_SESSION, self.projects_dropdown_boxes.dropdown.value, self.new_experiment_name_textbox.value)
         self.load_dropdown_box()
         with self.add_experiment_output:
             clear_output()

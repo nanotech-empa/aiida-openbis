@@ -1226,6 +1226,8 @@
         ".fa-home {font-size: 2em !important; /* Increase icon size */}",
         ".fa-times {font-size: 2em !important; /* Increase icon size */}",
         ".fa-download {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-arrow-right {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-arrow-down {font-size: 2em !important; /* Increase icon size */}",
         "</style>"
     ],
     "default_image_filepath": "images/white_screen.jpg"

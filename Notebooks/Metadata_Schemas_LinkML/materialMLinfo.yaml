@@ -103,7 +103,8 @@ classes:
       openbis_code: AM
       openbis_label: Atomistic Model
     slots:
-     - structure
+     - volume
+     - cell
      - dimensionality
      - atoms_positions
      - periodic_boundary_conditions
@@ -1770,6 +1771,22 @@ types:
 # slots are first-class entities in the metamodel
 # declaring them here allows them to be reused elsewhere
 slots:
+  cell:
+    description: Cell
+    range: object
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: JSON
+      openbis_label: Cell
+  volume:
+    description: Volume
+    range: double
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: REAL
+      openbis_label: Volume
   filepath_executable:
     description: Filepath executable
     range: string

@@ -492,8 +492,10 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     dictionary={
         '$name': ase_geo.get_chemical_formula(),
         'wfms_uuid': structure.uuid,
-        'structure': json.dumps(encode(ase_geo))
+        'volume': structure.get_cell_volume(),
+        'cell': json.dumps({"cell": structure.cell})
     }
+    
     if dimensionality:
         dictionary["dimensionality"] = int(dimensionality[0])
         dictionary["periodic_boundary_conditions"] = [bool(i) for i in dimensionality[1]]
@@ -511,6 +513,16 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
         sample = obobject, 
         files = [geo_to_png(ase_geo)]
     )
+    
+    structure_json = encode(ase_geo)
+    utils.create_json(structure_json, "structure_json.json")
+    utils.create_openbis_dataset(
+        openbis_session,
+        type = "RAW_DATA",
+        sample = obobject, 
+        files = ["structure_json.json"]
+    )
+    os.remove("structure_json.json")
     
     return obobject
 
@@ -825,7 +837,16 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     sys_params = workchain.inputs.sys_params.get_dict()
     dft_params = workchain.inputs.dft_params.get_dict()
     code = workchain.inputs.code.description
-    output_parameters = workchain.outputs.output_parameters.get_dict()
+    
+    properties=['energy','energy_scf','energy_units','bandgap_spin1_au','bandgap_spin2_au']
+    try:
+        all_output_parameters = workchain.outputs.dft_output_parameters.get_dict()
+    except:
+        all_output_parameters = workchain.outputs.output_parameters.get_dict()
+    output_parameters = {key: all_output_parameters[key] for key in properties if key in all_output_parameters}
+    step_info={key: values[-1] for key, values in all_output_parameters['motion_step_info'].items()}
+    output_parameters.update(step_info)
+    
     input_parameters = {}
     try:
         input_parameters = workchain.outputs.final_input_parameters.get_dict()
@@ -893,11 +914,16 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     spm_params = workchain.inputs.spm_params.get_dict()
     # cp2k_code = workchain.inputs.cp2k_code.description
     spm_code=workchain.inputs.spm_code.description
-    output_parameters = {}
+    
+    properties=['energy','energy_scf','energy_units','bandgap_spin1_au','bandgap_spin2_au']
     try:
-        output_parameters = workchain.outputs.dft_output_parameters.get_dict()
-    except NotExistentAttributeError:
-        pass
+        all_output_parameters = workchain.outputs.dft_output_parameters.get_dict()
+    except:
+        all_output_parameters = workchain.outputs.output_parameters.get_dict()
+    output_parameters = {key: all_output_parameters[key] for key in properties if key in all_output_parameters}
+    step_info={key: values[-1] for key, values in all_output_parameters['motion_step_info'].items()}
+    output_parameters.update(step_info)
+    
     input_parameters = {}
     
     dft_object_parameters = get_dft_parameters_cp2k(spm_code, dft_params)
