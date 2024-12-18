@@ -211,8 +211,10 @@ def get_openbis_parents_recursive(openbis_session, object, object_parents_metada
 
 def get_next_experiment_code(openbis_session):
     experiments = openbis_session.get_experiments(type = "EXPERIMENT")
-    experiment_number = max(int(exp.code.rsplit('_')[-1]) for exp in experiments) + 1
-    return f"{experiments[0].code.rsplit('_')[0]}_{experiment_number}"
+    experiment_number = 1
+    if experiments:
+        experiment_number = max(int(exp.code.rsplit('_')[-1]) for exp in experiments) + 1
+    return f"EXPERIMENT_{experiment_number}"
 
 def create_experiment_in_openbis(openbis_session, project_id, experiment_name):
     experiment_code = get_next_experiment_code(openbis_session)
@@ -269,18 +271,6 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
     This is a recursive function because the objects inside openBIS are like trees containing multiple
     relations with other objects.
 
-    Parameters
-    ----------
-    selected_object : pybis.sample.Sample
-        Selected openBIS object.
-    parent_child_relationships : dict, optional
-        Dictionary containing the openBIS objects and the relations between them. The default is None.
-
-    Returns
-    -------
-    parent_child_relationships : TYPE
-        Dictionary containing the openBIS objects and the relations between them.
-
     """
     if parent_child_relationships is None:
         parent_child_relationships = {}
@@ -309,12 +299,14 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
                     prop_object = openbis_session.get_object(parent_props[prop])
                     parent_props[prop] = {"perm_id": parent_props[prop]}
                     parent_props[prop]["type"] = str(prop_object.type)
+                    parent_props[prop]["registrationDate"] = prop_object.registrationDate
                     parent_props[prop].update(prop_object.props.all())
-                    parent_props[prop] = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop], object_history)
+                    parent_props[prop], _ = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop], object_history)
                     
             parent_props["perm_id"] = parent.permId
             parent_props["type"] = str(parent.type)
-            parent_props = get_parent_child_relationships_nested(openbis_session, parent, parent_props, object_history)
+            parent_props["registrationDate"] = parent.registrationDate
+            parent_props, _ = get_parent_child_relationships_nested(openbis_session, parent, parent_props, object_history)
             parent_child_relationships["has_part"].append(parent_props)
 
-    return parent_child_relationships
+    return parent_child_relationships, object_history

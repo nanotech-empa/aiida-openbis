@@ -1159,6 +1159,7 @@
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='export_openbis_object.ipynb' target='_blank' style='font-size: 13px;'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]
@@ -1213,6 +1214,7 @@
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='export_openbis_object.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]
