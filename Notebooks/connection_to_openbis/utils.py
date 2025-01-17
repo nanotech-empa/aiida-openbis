@@ -296,12 +296,26 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
             parent_props = parent.props.all()
             for prop in parent_props:
                 if openbis_session.get_property_type(prop).dataType == "SAMPLE" and parent_props[prop] is not None:
-                    prop_object = openbis_session.get_object(parent_props[prop])
-                    parent_props[prop] = {"perm_id": parent_props[prop]}
-                    parent_props[prop]["type"] = str(prop_object.type)
-                    parent_props[prop]["registrationDate"] = prop_object.registrationDate
-                    parent_props[prop].update(prop_object.props.all())
-                    parent_props[prop], _ = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop], object_history)
+                    
+                    if openbis_session.get_property_type(prop).multiValue:
+                        prop_objects = openbis_session.get_object(parent_props[prop]) # When multivalued, this function returns a list of openBIS objects
+                        parent_props_objects = []
+                        for obj in prop_objects:
+                            parent_props[prop] = {"perm_id": obj.permId}
+                            parent_props[prop]["type"] = str(obj.type)
+                            parent_props[prop]["registrationDate"] = obj.registrationDate
+                            parent_props[prop].update(obj.props.all())
+                            parent_props[prop], _ = get_parent_child_relationships_nested(openbis_session, obj, parent_props[prop], object_history)
+                            parent_props_objects.append(parent_props[prop])
+                        parent_props[prop] = parent_props_objects
+                        
+                    else:
+                        prop_object = openbis_session.get_object(parent_props[prop])
+                        parent_props[prop] = {"perm_id": parent_props[prop]}
+                        parent_props[prop]["type"] = str(prop_object.type)
+                        parent_props[prop]["registrationDate"] = prop_object.registrationDate
+                        parent_props[prop].update(prop_object.props.all())
+                        parent_props[prop], _ = get_parent_child_relationships_nested(openbis_session, prop_object, parent_props[prop], object_history)
                     
             parent_props["perm_id"] = parent.permId
             parent_props["type"] = str(parent.type)

@@ -1220,7 +1220,7 @@
             ]
         },
         "enable_status": "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>",
-        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using the config.json file!</span>"
+        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using the Configure ELN in AiiDAlab starting page!</span>"
     },
     "save_home_buttons_settings": [
         "<style>",

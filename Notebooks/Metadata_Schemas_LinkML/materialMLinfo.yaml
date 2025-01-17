@@ -545,6 +545,17 @@ classes:
      - input_parameters
      - output_parameters
      - comments
+  Measurements:
+    title: Measurements
+    is_a: Thing
+    class_uri: 
+    description: Measurements
+    annotations:
+      openbis_object: true
+      openbis_code: MEASUR
+      openbis_label: Measurements
+    slots:
+     - comments
   Molecule:
     title: Molecule
     is_a: Thing
@@ -628,6 +639,17 @@ classes:
      - email
      - work_phone
      - mobile_phone
+  Preparation:
+    title: Preparation
+    is_a: Thing
+    class_uri:
+    description: Preparation
+    annotations:
+      openbis_object: true
+      openbis_code: PREP
+      openbis_label: Preparation
+    slots:
+     - comments
   Protocol:
     title: Protocol
     is_a: Thing
@@ -4111,7 +4133,7 @@ slots:
   has_institution:
     range: Institution
     description: institution
-    multivalued: false
+    multivalued: true
     inlined: true
     annotations:
       openbis_type: OBJECT

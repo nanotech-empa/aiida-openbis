@@ -208,10 +208,15 @@ class SimulationMultipleSelectionWidget(ipw.HBox):
     
     def load_selector(self, project_id):
         simulation_objects = []
-        simulation_object_types = ["GEOMETRY_OPTIMISATION", "BAND_STRUCTURE", "VIBRATIONAL_SPECTROSCOPY", "PDOS"]
+        simulation_object_types = ["GEOMETRY_OPTIMISATION", "BAND_STRUCTURE", "VIBRATIONAL_SPECTROSCOPY", "PDOS", "2D_MEASUREMENT"]
         for object_type in simulation_object_types:
             objects = [object for object in utils.get_openbis_objects(OPENBIS_SESSION, type = object_type, project = project_id)]
-            simulation_objects.extend(objects)
+            if object_type == "2D_MEASUREMENT":
+                for obj in objects:
+                    if obj.props["wfms_uuid"]:
+                        simulation_objects.append(obj)
+            else:
+                simulation_objects.extend(objects)
             
         self.selector.options = [(object.props["$name"], object.attrs.identifier) for object in simulation_objects]
 
@@ -492,7 +497,7 @@ class MeasurementMultipleSelectionWidget(ipw.HBox):
             project = project_id
         )
         
-        measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in twoD_measurements_items])
+        measurements_list.extend([(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in twoD_measurements_items if item.props["wfms_uuid"] == None])
         self.selector.options = measurements_list
         
 class DraftMultipleSelectionWidget(ipw.HBox):
