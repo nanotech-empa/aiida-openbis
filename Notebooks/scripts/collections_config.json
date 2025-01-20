@@ -21,86 +21,28 @@
         "EQUIPMENT": {
             "description": "Equipment",
             "projects": {
-                "INSTRUMENTS": {
-                    "description": "Instruments",
+                "ILOG": {
+                    "description": "iLog",
                     "experiments": {
                         "INSTRUMENT_COLLECTION": {
                             "name": "Instruments"
                         },
-                        "UHV_COMPONENT_COLLECTION": {
-                            "name": "UHV Components"
-                        }
-                    }
-                }
-            }
-        },
-        "FUNDING": {
-            "description": "Funding",
-            "projects": {
-                "GRANTS": {
-                    "description": "Grants",
-                    "experiments": {
-                        "EMPA_GRANT_COLLECTION": {
-                            "name": "Empa Grants"
-                        },
-                        "SNF_GRANT_COLLECTION": {
-                            "name": "SNF Grants"
-                        }
-                    }
-                }
-            }
-        },
-        "INSTITUTIONS":{
-            "description": "Institutions",
-            "projects": {
-                "INSTITUTIONS": {
-                    "description": "Institutions",
-                    "experiments": {
-                        "RESEARCH_LAB_COLLECTION": {
-                            "name": "Research Labs"
-                        },
-                        "UNIVERSITY_COLLECTION": {
-                            "name": "Universities"
+                        "COMPONENT_COLLECTION": {
+                            "name": "Components"
                         }
                     }
                 },
-                "MANUFACTURERS": {
-                    "description": "Manufacturers",
+                "ACCESSORIES": {
+                    "description": "Accessories",
                     "experiments": {
-                        "MANUFACTURER_COLLECTION": {
-                            "name": "Manufacturers"
-                        }
-                    }
-                },
-                "ROOMS": {
-                    "description": "Rooms",
-                    "experiments": {
-                        "ROOM_COLLECTION": {
-                            "name": "Rooms"
-                        }
-                    }
-                },
-                "SUPPLIERS": {
-                    "description": "Suppliers",
-                    "experiments": {
-                        "SUPPLIER_COLLECTION": {
-                            "name": "Suppliers"
-                        }
-                    }
-                }
-            }
-        },
-        "LOG_ENTRIES": {
-            "description": "Log Entries",
-            "projects": {
-                "LOG_ENTRIES": {
-                    "description": "Log Entries",
-                    "experiments": {
-                        "MAINTENANCE_COLLECTION": {
-                            "name": "Maintenance"
+                        "STM_TIP_COLLECTION": {
+                            "name": "STM tips"
                         },
-                        "SRD_COLLECTION": {
-                            "name": "Sublimation rate determination"
+                        "QPLUS_SENSOR_COLLECTION": {
+                            "name": "qPlus sensors"
+                        },
+                        "SAMPLE_HOLDER_COLLECTION": {
+                            "name": "Sample holders"
                         }
                     }
                 }
@@ -109,11 +51,39 @@
         "MATERIALS": {
             "description": "Materials",
             "projects": {
-                "2D_LAYERED_MATERIALS": {
-                    "description": "2D-Layer Materials",
+                "CRYSTALS": {
+                    "description": "Crystals",
                     "experiments": {
-                        "2D_LAYERED_MATERIAL_COLLECTION": {
-                            "name": "2D-Layer Materials"
+                        "AU_COLLECTION": {
+                            "name": "Au"
+                        },
+                        "PDGA_COLLECTION": {
+                            "name": "PdGa"
+                        }
+                    }
+                },
+                "MOLECULES": {
+                    "description": "Molecules",
+                    "experiments": {
+                        "PRECURSOR_COLLECTION": {
+                            "name": "Precursors"
+                        },
+                        "PRODUCT_COLLECTION": {
+                            "name": "Reaction Products"
+                        }
+                    }
+                },
+                "WAFER_SAMPLES": {
+                    "description": "Wafer samples",
+                    "experiments": {
+                        "SUBSTRATE_COLLECTION": {
+                            "name": "Substrates"
+                        },
+                        "GROWN_2D_MATERIALS_COLLECTION": {
+                            "name": "Grown 2D materials"
+                        },
+                        "EXFOLIATED_2D_MATERIALS_COLLECTION": {
+                            "name": "Exfoliated 2D materials"
                         }
                     }
                 },
@@ -133,33 +103,6 @@
                         }
                     }
                 },
-                "CRYSTALS": {
-                    "description": "Crystals",
-                    "experiments": {
-                        "CRYSTAL_COLLECTION": {
-                            "name": "Crystals"
-                        }
-                    }
-                },
-                "MOLECULES": {
-                    "description": "Molecules",
-                    "experiments": {
-                        "MOLECULE_COLLECTION": {
-                            "name": "Molecules"
-                        }
-                    }
-                },
-                "SUBSTANCES": {
-                    "description": "Substances",
-                    "experiments": {
-                        "SUBSTANCE_COLLECTION": {
-                            "name": "Substances"
-                        },
-                        "REACTION_PRODUCT_COLLECTION": {
-                            "name": "Reaction Products"
-                        }
-                    }
-                },
                 "SAMPLES": {
                     "description": "Samples",
                     "experiments": {
@@ -167,23 +110,97 @@
                             "name": "Samples"
                         }
                     }
+                },
+                "RAW_MATERIALS": {
+                    "description": "Raw materials",
+                    "experiments": {
+                        "WAFER_COLLECTION": {
+                            "name": "Wafers"
+                        },
+                        "CHEMICAL_COLLECTION": {
+                            "name": "Chemicals"
+                        },
+                        "WIRE_COLLECTION": {
+                            "name": "Wires"
+                        }
+                    }
                 }
             }
         },
-        "PERSONS":{
-            "description": "Persons",
+        "ADMINISTRATIVE":{
+            "description": "Administrative",
             "projects": {
                 "PERSONS": {
                     "description": "Persons",
                     "experiments": {
-                        "AUTHOR_COLLECTION": {
-                            "name": "Authors"
+                        "LAB_205_PERSON_COLLECTION": {
+                            "name": "Lab 205"
                         },
-                        "CHEMIST_COLLECTION": {
-                            "name": "Chemists"
+                        "COLLABORATOR_COLLECTION": {
+                            "name": "Collaborators"
+                        }
+                    }
+                },
+                "FUNDING": {
+                    "description": "Funding",
+                    "experiments": {
+                        "GRANT_COLLECTION": {
+                            "name": "Grants"
+                        }
+                    }
+                },
+                "LOCATIONS": {
+                    "description": "Locations",
+                    "experiments": {
+                        "EMPA_DUBENDORF_COLLECTION": {
+                            "name": "Empa Dubendorf"
+                        }
+                    }
+                },
+                "PUBLICATIONS": {
+                    "description": "Publications",
+                    "experiments": {
+                        "LAB_205_PUBLICATION_COLLECTION": {
+                            "name": "Lab 205"
+                        }
+                    }
+                },
+                "INSTITUTIONS": {
+                    "description": "Institutions",
+                    "experiments": {
+                        "ACADEMIC_INSTITUTION_COLLECTION": {
+                            "name": "Academic"
                         },
-                        "RESEARCHER_COLLECTION": {
-                            "name": "Researchers"
+                        "CHEMISTRY_INSTITUTION_COLLECTION": {
+                            "name": "Chemistry"
+                        },
+                        "SPM_INSTITUTION_COLLECTION": {
+                            "name": "SPM"
+                        },
+                        "OPTICS_INSTITUTION_COLLECTION": {
+                            "name": "Optics"
+                        },
+                        "VARIOUS_INSTITUTION_COLLECTION": {
+                            "name": "Various"
+                        }
+                    }
+                }
+            }
+        },
+        "METHODS":{
+            "description": "Methods",
+            "projects": {
+                "SAMPLE_TRANSFER": {
+                    "description": "Sample Transfer",
+                    "experiments": {
+                        "WET_TRANSFER_COLLECTION": {
+                            "name": "Wet transfer"
+                        },
+                        "POLYMER_ASSISTED_TRANSFER_COLLECTION": {
+                            "name": "Polymer-assisted transfer"
+                        },
+                        "UHV_TRANSFER_COLLECTION": {
+                            "name": "UHV transfer"
                         }
                     }
                 }
@@ -192,11 +209,31 @@
         "SOFTWARE":{
             "description": "Software",
             "projects": {
-                "CODES": {
-                    "description": "Codes",
+                "DATA_PROCESSING_AND_CONTROL": {
+                    "description": "Data Processing & Control",
                     "experiments": {
-                        "CODE_COLLECTION": {
-                            "name": "Codes"
+                        "PROPRIETARY_SOFTWARE_COLLECTION": {
+                            "name": "Proprietary software"
+                        },
+                        "OPEN_SOURCE_SOFTWARE_COLLECTION": {
+                            "name": "Open-source software"
+                        },
+                        "CUSTOM_CODE_COLLECTION": {
+                            "name": "Custom code"
+                        }
+                    }
+                },
+                "COMPUTATIONAL_SIMULATIONS": {
+                    "description": "Computational Simulations",
+                    "experiments": {
+                        "PROPRIETARY_SOFTWARE_COLLECTION": {
+                            "name": "Proprietary software"
+                        },
+                        "OPEN_SOURCE_SOFTWARE_COLLECTION": {
+                            "name": "Open-source software"
+                        },
+                        "CUSTOM_CODE_COLLECTION": {
+                            "name": "Custom code"
                         }
                     }
                 }

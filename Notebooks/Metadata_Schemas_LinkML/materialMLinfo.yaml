@@ -111,18 +111,6 @@ classes:
      - uses_crystal
      - uses_molecule
      - has_geometry_optimisations
-  Author:
-    title: Author
-    is_a: Thing
-    class_uri: ncit:NCIT_C42781
-    description: Author
-    annotations:
-      openbis_object: true
-      openbis_code: AUTH
-      openbis_label: Author
-    slots:
-     - has_person
-     - has_institution
   BandStructure:
     title: Band Structure
     is_a: Simulation
@@ -167,7 +155,7 @@ classes:
       openbis_label: Chemist
     slots:
      - has_person
-     - has_institution
+     - has_institutions
   Code:
     title: Code
     is_a: Thing
@@ -182,6 +170,43 @@ classes:
      - repository_url
      - filepath_executable
      - comments
+  ChemicalConcept:
+    title: Chemical Concept
+    is_a: Thing
+    class_uri:
+    description: Chemical concept
+    annotations:
+      openbis_object: true
+      openbis_code: CHEMICONC
+      openbis_label: Chemical Concept
+    slots:
+     - sum_formula
+     - comments
+  Chemical:
+    title: Chemical
+    is_a: Thing
+    class_uri:
+    description: Chemical
+    annotations:
+      openbis_object: true
+      openbis_code: CHEMI
+      openbis_label: Chemical
+    slots:
+     - has_chemical_concept
+     - comments
+  CrystalConcept:
+    title: Crystal Concept
+    is_a: Thing
+    class_uri:
+    description: Crystal Concept
+    annotations:
+      openbis_object: true
+      openbis_code: CRYSTCONC
+      openbis_label: Crystal Concept
+    slots:
+     - material
+     - face
+     - comments
   Crystal:
     title: Crystal
     is_a: Thing
@@ -192,8 +217,6 @@ classes:
       openbis_code: CRYST
       openbis_label: Crystal
     slots:
-     - material
-     - face
      - sample_plate
      - diameter
      - height
@@ -209,6 +232,7 @@ classes:
      - receive_date
      - reference_number
      - comments
+     - has_crystal_concept
      - has_storage
      - has_supplier
   Deposition:
@@ -313,7 +337,7 @@ classes:
     slots:
      - weight_before
      - weight_after
-     - has_molecule
+     - has_chemical
      - dewar
      - comments
      - has_uhv_components
@@ -418,6 +442,17 @@ classes:
       openbis_label: Light Irradiation
     slots:
      - comments
+  Layered2DMaterialConcept:
+    title: Layered 2D Material Concept
+    is_a: Thing
+    class_uri: 
+    description: Layered 2D material concept
+    annotations:
+      openbis_object: true
+      openbis_code: LAYMATCONC
+      openbis_label: 2D Layered Material Concept
+    slots:
+     - comments
   Layered2DMaterial:
     title: Layered 2D Material
     is_a: Thing
@@ -447,6 +482,7 @@ classes:
      - receive_date
      - supplier_own_name
      - comments
+     - has_layered_2d_concept
      - has_storage
      - has_chemist
      - has_supplier
@@ -559,12 +595,42 @@ classes:
   Molecule:
     title: Molecule
     is_a: Thing
-    class_uri: schema:MolecularEntity  
+    class_uri: 
     description: Molecule
     annotations:
       openbis_object: true
       openbis_code: MOL
       openbis_label: Molecule
+    slots:
+     - empa_number
+     - batch
+     - vial
+     - hazardous
+     - hazardous_specification
+     - evaporation_temperatures
+     - fridge
+     - no_light
+     - dry
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - amount
+     - chemist_molecule_name
+     - receive_date
+     - comments
+     - has_molecule_concept
+     - has_chemist
+     - has_storage
+     - has_supplier
+  MoleculeConcept:
+    title: Molecule Concept
+    is_a: Thing
+    class_uri:
+    description: Molecule Concept
+    annotations:
+      openbis_object: true
+      openbis_code: MOLCONC
+      openbis_label: Molecule Concept
     slots:
      - iupac_name
      - sum_formula
@@ -639,6 +705,7 @@ classes:
      - email
      - work_phone
      - mobile_phone
+     - has_institutions
   Preparation:
     title: Preparation
     is_a: Thing
@@ -696,6 +763,18 @@ classes:
      - has_two_d_measurements
      - has_geometry_optimisations
      - has_analysis
+  ReactionProductConcept:
+    title: Reaction Product Concept
+    is_a: Thing
+    class_uri: 
+    description: Reaction product concept
+    annotations:
+      openbis_object: true
+      openbis_code: REACPRODCONC
+      openbis_label: Reaction Product Concept
+    slots:
+     - sum_formula
+     - comments
   ReactionProduct:
     title: Reaction Product
     is_a: Thing
@@ -708,7 +787,7 @@ classes:
     slots:
      - yield
      - temperature
-     - smiles
+     - has_reaction_product_concept
      - comments
   Room:
     title: Room
@@ -787,36 +866,6 @@ classes:
      - pid_controller
      - comments
      - uses_substance
-  Substance:
-    title: Substance
-    is_a: Thing
-    class_uri: 
-    description: Substance
-    annotations:
-      openbis_object: true
-      openbis_code: SUBST
-      openbis_label: Substance
-    slots:
-     - empa_number
-     - batch
-     - vial
-     - hazardous
-     - hazardous_specification
-     - evaporation_temperatures
-     - fridge
-     - no_light
-     - dry
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - amount
-     - chemist_molecule_name
-     - receive_date
-     - comments
-     - has_molecule
-     - has_chemist
-     - has_storage
-     - has_supplier
   TwoDMeasurement:
     title: 2D Measurement
     is_a: Simulation
@@ -890,7 +939,7 @@ classes:
     annotations:
       openbis_object: true
       openbis_code: STORG
-      openbis_label: Storage
+      openbis_label: Storage Custom
     slots:
      - comments
      - has_room
@@ -1080,20 +1129,6 @@ classes:
      - receive_date
      - has_manufacturer
      - comments
-  Transfer:
-    title: Transfer
-    is_a: Thing
-    class_uri: ncit:NCIT_C48167
-    description: Transference
-    annotations:
-      openbis_object: true
-      openbis_code: TRANSF
-      openbis_label: Transference
-    slots:
-     - description
-     - has_location_before
-     - has_location_after
-     - has_sample
   UHVComponent:
     title: UHV Component
     is_a: Thing
@@ -1140,6 +1175,17 @@ classes:
      - comments
      - has_storage
      - has_chemist
+  Wire:
+    title: Wire
+    is_a: Thing
+    class_uri:
+    description: Wire
+    annotations:
+      openbis_object: true
+      openbis_code: WIRE
+      openbis_label: Wire
+    slots:
+     - comments
   PiezoConfigurationSettings:
     title: Piezo Configuration Settings
     class_uri:
@@ -1767,11 +1813,6 @@ classes:
         inlined_as_list: true
         range: TipSensor
         description: tip sensors container
-      transfers:
-        multivalued: true
-        inlined_as_list: true
-        range: Transfer
-        description: transfers container
       uhv_components:
         multivalued: true
         inlined_as_list: true
@@ -4098,21 +4139,21 @@ slots:
       openbis_type: JSON
       openbis_label: Level of theory
   has_chemist:
-    range: Chemist
+    range: Person
     description: chemist
-    slot_uri: occo:OCCO_19203100
+    slot_uri:
     multivalued: false
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Chemist
   has_supplier:
-    range: Supplier
+    range: Institution
     description: supplier
     multivalued: false
     slot_uri:
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Supplier
   has_storage:
     range: Storage
@@ -4120,7 +4161,7 @@ slots:
     multivalued: false
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Storage
   has_room:
     range: Room
@@ -4128,16 +4169,24 @@ slots:
     multivalued: false
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Room
   has_institution:
     range: Institution
     description: institution
+    multivalued: false
+    inlined: true
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Institution
+  has_institutions:
+    range: Institution
+    description: institutions
     multivalued: true
     inlined: true
     annotations:
-      openbis_type: OBJECT
-      openbis_label: Institution
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Institutions
   is_annealed:
     range: Annealing
     description: annealing
@@ -4169,7 +4218,7 @@ slots:
     inlined_as_list: true
     multivalued: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: UHV components
   has_instrument:
     range: Instrument
@@ -4184,7 +4233,7 @@ slots:
     description: density functional theory
     multivalued: false
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: DFT
   has_tb:
     range: TightBinding
@@ -4193,6 +4242,20 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Tight binding
+  has_chemical:
+    range: Chemical
+    description: chemical
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Chemical
+  has_chemical_concept:
+    range: ChemicalConcept
+    description: chemical concept
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Chemical Concept
   uses_crystal:
     range: Crystal
     description: crystal
@@ -4214,20 +4277,27 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Substance
-  has_molecule:
-    range: Molecule
-    description: molecule
+  has_molecule_concept:
+    range: MoleculeConcept
+    description: molecule concept
     multivalued: false
     annotations:
-      openbis_type: OBJECT
-      openbis_label: Molecule
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Molecule Concept
+  has_reaction_product_concept:
+    range: ReactionProductConcept
+    description: reaction product concept
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Reaction Product Concept
   has_person:
     range: Person
     description: person
     multivalued: false
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Person
   has_atomistic_models:
     range: AtomisticModel
@@ -4242,14 +4312,14 @@ slots:
     description: manufacturer
     multivalued: false
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Manufacturer
   has_tip_sensor:
     range: TipSensor
     description: tip sensor
     multivalued: false
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Tip sensor
   has_results:
     range: Results
@@ -4272,7 +4342,7 @@ slots:
     description: empirical modelling
     multivalued: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Empirical modelling
   has_grants:
     range: Grant
@@ -4280,7 +4350,7 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Grants
   has_drafts:
     range: Draft
@@ -4291,13 +4361,31 @@ slots:
       openbis_type: OBJECT (PARENT)
       openbis_label: Drafts
   has_authors:
-    range: Author
+    range: Person
     description: authors
     multivalued: true
     inlined_as_list: true
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Authors
+  has_layered_2d_concept:
+    range: Layered2DMaterialConcept
+    description: Layered 2D material concept
+    multivalued: false
+    inlined_as_list: true
+    slot_uri: 
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Layered 2D Material Concept
+  has_crystal_concept:
+    range: CrystalConcept
+    description: crystal concept
+    multivalued: false
+    inlined_as_list: true
+    slot_uri: 
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Crystal Concept
   has_software:
     range: Software
     description: softwares
@@ -4305,7 +4393,7 @@ slots:
     inlined_as_list: true
     slot_uri: schema:SoftwareSourceCode
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Softwares
   has_codes:
     range: Code
@@ -4360,7 +4448,7 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Maintenance
   has_errors:
     range: Errors
@@ -4368,22 +4456,8 @@ slots:
     multivalued: true
     inlined_as_list: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Errors and problems
-  has_location_before:
-    description: location of the sample before the transfer
-    range: Room
-    multivalued: false
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: Location (before)
-  has_location_after:
-    description: location of the sample after the transfer
-    range: Room
-    multivalued: false
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: Location (after)
   has_one_d_measurements:
     range: OneDMeasurement
     description: 1D measurements

@@ -373,3 +373,11 @@ To the presentation:
 - Open create publication interface. [x]
 - Use information from Atomically precise bottom-up fabrication of graphene nanoribbons to populate publication params. [x]
 - Show find similar molecules interface (use molecule 125 - DBBA).
+
+20-01-2025:
+
+Next tasks:
+    - Make two/three slides reporting an use case of the interoperability AiiDAlab-openBIS using pyBIS
+    - Clean data schema (Remove not used classes and properties)
+    - Update the webapp to follow the data model we agreed with Bruno
+    - Make the webapp more general making it easier to add new features
