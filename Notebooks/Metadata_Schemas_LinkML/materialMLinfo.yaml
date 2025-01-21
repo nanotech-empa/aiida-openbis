@@ -33,6 +33,8 @@ imports:
 default_prefix: materialsML
   
 classes:
+  Any:
+    class_uri: linkml:Any
   Thing:
     title: Thing
     class_uri: schema:Thing
@@ -1581,7 +1583,7 @@ types:
 slots:
   cell:
     description: Cell
-    range: string
+    range: Any
     multivalued: false
     slot_uri:
     annotations:
@@ -1671,7 +1673,7 @@ slots:
 
   input_parameters:
     description: Method input parameters
-    range: string
+    range: Any
     multivalued: false
     slot_uri:
     annotations:
@@ -1680,7 +1682,7 @@ slots:
 
   output_parameters:
     description: Method output parameters
-    range: string
+    range: Any
     multivalued: false
     slot_uri:
     annotations:

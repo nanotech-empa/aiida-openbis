@@ -298,6 +298,18 @@
             "title": "Annealing",
             "type": "object"
         },
+        "Any": {
+            "additionalProperties": true,
+            "description": "",
+            "title": "Any",
+            "type": [
+                "null",
+                "boolean",
+                "object",
+                "number",
+                "string"
+            ]
+        },
         "AtomisticModel": {
             "additionalProperties": false,
             "description": "Atomistic Model",
@@ -313,11 +325,15 @@
                     ]
                 },
                 "cell": {
-                    "description": "Cell",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Cell"
                 },
                 "comments": {
                     "description": "comments",
@@ -478,11 +494,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -496,11 +516,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -573,11 +597,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -591,11 +619,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -2602,11 +2634,15 @@
                     "description": "maximum force allowed on each atom before the optimisation is converged"
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -2620,11 +2656,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -3768,11 +3808,15 @@
                     "description": "final z"
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "instrument": {
                     "description": "instrument",
@@ -3804,11 +3848,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -3928,11 +3976,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -3946,11 +3998,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -4012,11 +4068,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -4030,11 +4090,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -5977,11 +6041,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "instrument": {
                     "description": "instrument",
@@ -6023,11 +6091,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "p_tip": {
                     "description": "P-tip",
@@ -6178,22 +6250,30 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "name": {
                     "description": "name",
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -6248,11 +6328,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -6266,11 +6350,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
@@ -6332,11 +6420,15 @@
                     ]
                 },
                 "input_parameters": {
-                    "description": "Method input parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method input parameters"
                 },
                 "level_theory": {
                     "description": "Level of theory",
@@ -6350,11 +6442,15 @@
                     "type": "string"
                 },
                 "output_parameters": {
-                    "description": "Method output parameters",
-                    "type": [
-                        "string",
-                        "null"
-                    ]
+                    "anyOf": [
+                        {
+                            "$ref": "#/$defs/Any"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "description": "Method output parameters"
                 },
                 "perm_id": {
                     "description": "permanent ID",
