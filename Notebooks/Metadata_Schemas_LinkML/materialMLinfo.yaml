@@ -1581,7 +1581,7 @@ types:
 slots:
   cell:
     description: Cell
-    range: object
+    range: string
     multivalued: false
     slot_uri:
     annotations:
@@ -1671,7 +1671,7 @@ slots:
 
   input_parameters:
     description: Method input parameters
-    range: object
+    range: string
     multivalued: false
     slot_uri:
     annotations:
@@ -1680,7 +1680,7 @@ slots:
 
   output_parameters:
     description: Method output parameters
-    range: object
+    range: string
     multivalued: false
     slot_uri:
     annotations:
@@ -1932,6 +1932,23 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Molecule name (given by Chemist)
+  
+  resonance_frequency:
+    description: resonance frequency
+    range: QuantityValue
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Resonance frequency
+      
+  q_factor:
+    description: Q-factor
+    slot_uri: emmo:EMMO_0658e7df_ffd9_4779_82fc_62efe0a7f3b1
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Q-factor
 
   amount:
     description: amount
@@ -2411,7 +2428,7 @@ slots:
 
   force_convergence_threshold:
     description: maximum force allowed on each atom before the optimisation is converged
-    range: QuantityUnit
+    range: QuantityValue
     multivalued: false
     annotations:
       openbis_type: JSON
@@ -2847,7 +2864,7 @@ slots:
 
   level_theory:
     description: Level of theory
-    range: object
+    range: string
     multivalued: false
     annotations:
       openbis_type: JSON
@@ -3717,7 +3734,7 @@ enums:
         description: radian
         annotations:
           openbis_label: Radian
-          
+
   RateUnitsEnum:
     description: rate units
     annotations:
