@@ -2,47 +2,90 @@
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
     "properties": {
-        "dimensionality": {
-            "title": "Dimensionality",
-            "property_type": "INTEGER",
-            "property_widget": "INTTEXT",
+        "$name": {
+            "title": "Name",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
             "disabled": false,
-            "placeholder": "Write dimensionality here...",
+            "placeholder": "Write name here...",
             "box_layout":{
                 "width": "400px",
                 "description_width": "150px"
             }
         },
-        "periodic_boundary_conditions": {
-            "title": "Periodic Boundary Conditions",
-            "property_type": "MULTIVALUE_BOOLEAN",
-            "property_widget": "MULTIPLE_CHECKBOXES",
-            "num_elements": 3,
+        "abstract": {
+            "title": "Abstract",
+            "property_type": "MULTILINE_VARCHAR",
+            "property_widget": "TEXTAREA",
             "disabled": false,
+            "placeholder": "Write abstract here...",
             "box_layout":{
-                "width": "15px",
-                "description_width": "0px"
+                "width": "900px",
+                "description_width": "150px"
             }
         },
-        "wfms_uuid": {
-            "title": "WFMS UUID",
+        "amount": {
+            "title": "Amount",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["l", "ml", "ul", "g", "mg", "ug"],
+            "default_unit": "mg",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "angle": {
+            "title": "Angle",
+            "units": ["deg", "rad"],
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "default_unit": "deg",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "band_gap": {
+            "title": "Band gap",
+            "property_type": "REAL",
+            "property_widget": "FLOATTEXT",
+            "disabled": false,
+            "placeholder": "Write band gap here...",
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            }
+        },
+        "batch": {
+            "title": "Batch",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "default_value": "",
             "disabled": false,
-            "placeholder": "Write wfms UUID here...",
+            "placeholder": "Write batch here...",
             "box_layout":{
                 "width": "400px",
                 "description_width": "150px"
             }
         },
-        "driver_code": {
-            "title": "Driver code",
+        "cas_number": {
+            "title": "CAS Number",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "default_value": "",
             "disabled": false,
-            "placeholder": "Write driver code here...",
+            "placeholder": "Write CAS number here...",
             "box_layout":{
                 "width": "400px",
                 "description_width": "150px"
@@ -70,6 +113,29 @@
                 "description_width": "150px"
             }
         },
+        "chemist_molecule_name": {
+            "title": "Molecule name (by Chemist)",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write molecule name given by chemists here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "comments": {
+            "title": "Comments",
+            "property_type": "MULTILINE_VARCHAR",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "placeholder": "Write comments here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
         "constrained": {
             "title": "Constrained",
             "property_type": "BOOLEAN",
@@ -80,13 +146,13 @@
                 "description_width": "150px"
             }
         },
-        "force_convergence_threshold": {
-            "title": "Force convergence threshold",
+        "current": {
+            "title": "Current",
+            "units": ["uA", "mA", "A"],
             "property_type": "QUANTITY_VALUE",
             "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "disabled": false,
-            "units": ["eV/Bohr**3"],
-            "default_unit": "eV/Bohr**3",
+            "default_unit": "A",
             "default_value": 0,
             "box_layout":{
                 "width": "250px",
@@ -94,110 +160,6 @@
             },
             "dropdown_layout":{
                 "width": "100px"
-            }
-        },
-        "input_parameters": {
-            "title": "Input parameters",
-            "property_type": "JSON",
-            "property_widget": "TEXTAREA",
-            "disabled": false,
-            "default_value": "{\"degauss\": 0.0, \"volume\": 0.0}",
-            "placeholder": "Write input parameters here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "output_parameters": {
-            "title": "Output parameters",
-            "property_type": "JSON",
-            "property_widget": "TEXTAREA",
-            "disabled": false,
-            "default_value": "{\"energy\": 0.0, \"has_electric_field\": true}",
-            "placeholder": "Write output parameters here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "level_theory": {
-            "title": "Level of theory",
-            "property_type": "JSON",
-            "property_widget": "TEXTAREA",
-            "disabled": false,
-            "default_value": "{\"method\": \"dft\", \"method_properties\": {\"uks\": false, \"charge\": 0.0, \"plus_u\": false, \"vdw_corr\": \"none\", \"xc_functional\": \"PBESOL\", \"spin_orbit_coupling\": false}}",
-            "placeholder": "Write level of theory parameters here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "band_gap": {
-            "title": "Band gap",
-            "property_type": "REAL",
-            "property_widget": "FLOATTEXT",
-            "disabled": false,
-            "placeholder": "Write band gap here...",
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            }
-        },
-        "yield": {
-            "title": "Yield",
-            "property_type": "REAL",
-            "property_widget": "FLOAT_SLIDER",
-            "disabled": false,
-            "default_value": 0,
-            "values_list": [0, 1],
-            "slider_step": 0.01,
-            "slider_layout":{
-                "width": "350px",
-                "description_width": "150px"
-            }
-        },
-        "abstract": {
-            "title": "Abstract",
-            "property_type": "MULTILINE_VARCHAR",
-            "property_widget": "TEXTAREA",
-            "disabled": false,
-            "placeholder": "Write abstract here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "doi": {
-            "title": "DOI",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "disabled": false,
-            "placeholder": "Write DOI here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "year": {
-            "title": "Year",
-            "property_type": "INTEGER",
-            "property_widget": "INTTEXT",
-            "disabled": false,
-            "placeholder": "Write year here...",
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            }
-        },
-        "url": {
-            "title": "URL",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "disabled": false,
-            "placeholder": "Write URL here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
             }
         },
         "dataset_url": {
@@ -211,14 +173,85 @@
                 "description_width": "150px"
             }
         },
-        "$name": {
-            "title": "Name",
+        "deposition_time": {
+            "title": "Deposition time",
+            "units": ["sec", "min", "hrs"],
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "default_unit": "min",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "description": {
+            "title": "Description",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write description here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "diameter": {
+            "title": "Diameter",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "dimensionality": {
+            "title": "Dimensionality",
+            "property_type": "INTEGER",
+            "property_widget": "INTTEXT",
+            "disabled": false,
+            "placeholder": "Write dimensionality here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "discharge_voltage": {
+            "title": "Discharge voltage",
+            "units": ["V", "kV"],
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "default_unit": "kV",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "doi": {
+            "title": "DOI",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "disabled": false,
-            "placeholder": "Write name here...",
+            "placeholder": "Write DOI here...",
             "box_layout":{
-                "width": "400px",
+                "width": "900px",
                 "description_width": "150px"
             }
         },
@@ -238,143 +271,13 @@
                 "description_width": "150px"
             }
         },
-        "description": {
-            "title": "Description",
+        "driver_code": {
+            "title": "Driver code",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "default_value": "",
             "disabled": false,
-            "placeholder": "Write description here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "material": {
-            "title": "Material",
-            "property_type": "VARCHAR",
-            "default_value": "",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "face": {
-            "title": "Face",
-            "property_type": "VARCHAR",
-            "default_value": "",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "sample_plate": {
-            "title": "Sample Plate",
-            "property_type": "VARCHAR",
-            "default_value": "",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "specifications": {
-            "title": "Specifications",
-            "property_type": "MULTILINE_VARCHAR",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "substrates": {
-            "title": "Substrates",
-            "property_type": "JSON",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "layers_2d": {
-            "title": "2D Layers",
-            "property_type": "JSON",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "iupac_name": {
-            "title": "IUPAC Name",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write IUPAC name here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "cas_number": {
-            "title": "CAS Number",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write CAS number here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "smiles": {
-            "title": "SMILES",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write SMILES here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "empa_number": {
-            "title": "Empa number",
-            "property_type": "INTEGER",
-            "property_widget": "INTTEXT",
-            "disabled": false,
-            "placeholder": "Write empa number here...",
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            }
-        },
-        "batch": {
-            "title": "Batch",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write batch here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "vial": {
-            "title": "Vial",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write vial number here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "fridge": {
-            "title": "Fridge",
-            "property_type": "BOOLEAN",
-            "property_widget": "CHECKBOX",
-            "disabled": false,
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "no_light": {
-            "title": "No light",
-            "property_type": "BOOLEAN",
-            "property_widget": "CHECKBOX",
-            "disabled": false,
+            "placeholder": "Write driver code here...",
             "box_layout":{
                 "width": "400px",
                 "description_width": "150px"
@@ -390,33 +293,77 @@
                 "description_width": "150px"
             }
         },
-        "no_oxygen": {
-            "title": "No oxygen",
-            "property_type": "BOOLEAN",
-            "property_widget": "CHECKBOX",
+        "duration": {
+            "title": "Duration",
+            "units": ["sec", "min", "hrs"],
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "disabled": false,
+            "default_unit": "sec",
+            "default_value": 0,
             "box_layout":{
-                "width": "400px",
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "empa_number": {
+            "title": "Empa number",
+            "property_type": "INTEGER",
+            "property_widget": "INTTEXT",
+            "disabled": false,
+            "placeholder": "Write empa number here...",
+            "box_layout":{
+                "width": "250px",
                 "description_width": "150px"
             }
         },
-        "other_storage_condition": {
-            "title": "Other storage condition",
-            "property_type": "BOOLEAN",
-            "property_widget": "CHECKBOX",
+        "evaporator_slot": {
+            "title": "Evaporator slot",
+            "property_type": "JSON",
+            "property_widget": "INTEGER_SLIDER_W_DETAILS",
             "disabled": false,
+            "placeholder": "Write evaporator slot details...",
+            "default_value": 1,
+            "values_list": [1, 2, 3, 4, 5, 6],
             "box_layout":{
-                "width": "400px",
+                "width": "300px"
+            },
+            "slider_layout":{
+                "width": "350px",
                 "description_width": "150px"
             }
         },
-        "other_storage_condition_specification": {
-            "title": "Storage condition (specification)",
+        "face": {
+            "title": "Face",
             "property_type": "VARCHAR",
-            "property_widget": "TEXT",
             "default_value": "",
-            "disabled": true,
-            "placeholder": "Write other storage condition here...",
+            "disabled": false,
+            "property_widget": ""
+        },
+        "force_convergence_threshold": {
+            "title": "Force convergence threshold",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["eV/Bohr**3"],
+            "default_unit": "eV/Bohr**3",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "fridge": {
+            "title": "Fridge",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
+            "disabled": false,
             "box_layout":{
                 "width": "400px",
                 "description_width": "150px"
@@ -444,77 +391,6 @@
                 "description_width": "150px"
             }
         },
-        "chemist_molecule_name": {
-            "title": "Molecule name (by Chemist)",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write molecule name given by chemists here...",
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "receive_date": {
-            "title": "Receive date",
-            "property_type": "DATE",
-            "property_widget": "DATE",
-            "disabled": false,
-            "box_layout":{
-                "width": "400px",
-                "description_width": "150px"
-            }
-        },
-        "comments": {
-            "title": "Comments",
-            "property_type": "MULTILINE_VARCHAR",
-            "property_widget": "TEXTAREA",
-            "disabled": false,
-            "placeholder": "Write comments here...",
-            "box_layout":{
-                "width": "900px",
-                "description_width": "150px"
-            }
-        },
-        "length": {
-            "title": "Length",
-            "property_type": "QUANTITY_VALUE",
-            "disabled": false,
-            "property_widget": ""
-        },
-        "rate": {
-            "title": "Rate",
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
-            "disabled": false,
-            "units": ["Ang/min"],
-            "default_unit": "Ang/min",
-            "default_value": 0,
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
-            }
-        },
-        "diameter": {
-            "title": "Diameter",
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
-            "disabled": false,
-            "units": ["m", "mm", "um"],
-            "default_unit": "um",
-            "default_value": 0,
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
-            }
-        },
         "height": {
             "title": "Height",
             "property_type": "QUANTITY_VALUE",
@@ -531,14 +407,69 @@
                 "width": "100px"
             }
         },
-        "width": {
-            "title": "Width",
+        "iupac_name": {
+            "title": "IUPAC Name",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write IUPAC name here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "input_parameters": {
+            "title": "Input parameters",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "default_value": "{\"degauss\": 0.0, \"volume\": 0.0}",
+            "placeholder": "Write input parameters here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "layers_2d": {
+            "title": "2D Layers",
+            "property_type": "JSON",
+            "disabled": false,
+            "property_widget": ""
+        },
+        "length": {
+            "title": "Length",
+            "property_type": "QUANTITY_VALUE",
+            "disabled": false,
+            "property_widget": ""
+        },
+        "level_theory": {
+            "title": "Level of theory",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
+            "disabled": false,
+            "default_value": "{\"method\": \"dft\", \"method_properties\": {\"uks\": false, \"charge\": 0.0, \"plus_u\": false, \"vdw_corr\": \"none\", \"xc_functional\": \"PBESOL\", \"spin_orbit_coupling\": false}}",
+            "placeholder": "Write level of theory parameters here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "material": {
+            "title": "Material",
+            "property_type": "VARCHAR",
+            "default_value": "",
+            "disabled": false,
+            "property_widget": ""
+        },
+        "molecule_temperature": {
+            "title": "Molecule temperature",
+            "units": ["oC", "K"],
             "property_type": "QUANTITY_VALUE",
             "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "disabled": false,
-            "units": ["m", "mm", "um"],
-            "default_unit": "um",
-            "default_value": 0,
+            "default_unit": "K",
+            "default_value": 298,
             "box_layout":{
                 "width": "250px",
                 "description_width": "150px"
@@ -547,52 +478,81 @@
                 "width": "100px"
             }
         },
-        "thickness": {
-            "title": "Thickness",
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "no_light": {
+            "title": "No light",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
             "disabled": false,
-            "units": ["m", "mm", "um"],
-            "default_unit": "um",
-            "default_value": 0,
             "box_layout":{
-                "width": "250px",
+                "width": "400px",
                 "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
             }
         },
-        "amount": {
-            "title": "Amount",
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "no_oxygen": {
+            "title": "No oxygen",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
             "disabled": false,
-            "units": ["l", "ml", "ul", "g", "mg", "ug"],
-            "default_unit": "mg",
-            "default_value": 0,
             "box_layout":{
-                "width": "250px",
+                "width": "400px",
                 "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
             }
         },
-        "duration": {
-            "title": "Duration",
-            "units": ["sec", "min", "hrs"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "output_parameters": {
+            "title": "Output parameters",
+            "property_type": "JSON",
+            "property_widget": "TEXTAREA",
             "disabled": false,
-            "default_unit": "sec",
-            "default_value": 0,
+            "default_value": "{\"energy\": 0.0, \"has_electric_field\": true}",
+            "placeholder": "Write output parameters here...",
             "box_layout":{
-                "width": "250px",
+                "width": "900px",
                 "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
+            }
+        },
+        "other_storage_condition": {
+            "title": "Other storage condition",
+            "property_type": "BOOLEAN",
+            "property_widget": "CHECKBOX",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "other_storage_condition_specification": {
+            "title": "Storage condition (specification)",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": true,
+            "placeholder": "Write other storage condition here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "periodic_boundary_conditions": {
+            "title": "Periodic Boundary Conditions",
+            "property_type": "MULTIVALUE_BOOLEAN",
+            "property_widget": "MULTIPLE_CHECKBOXES",
+            "num_elements": 3,
+            "disabled": false,
+            "box_layout":{
+                "width": "15px",
+                "description_width": "0px"
+            }
+        },
+        "pid_controller": {
+            "title": "PID controller",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write PID controller values (separated by commas)...",
+            "box_layout":{
+                "width": "500px",
+                "description_width": "150px"
             }
         },
         "pressure": {
@@ -611,13 +571,13 @@
                 "width": "100px"
             }
         },
-        "discharge_voltage": {
-            "title": "Discharge voltage",
-            "units": ["V", "kV"],
+        "rate": {
+            "title": "Rate",
             "property_type": "QUANTITY_VALUE",
             "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "disabled": false,
-            "default_unit": "kV",
+            "units": ["Ang/min"],
+            "default_unit": "Ang/min",
             "default_value": 0,
             "box_layout":{
                 "width": "250px",
@@ -627,88 +587,43 @@
                 "width": "100px"
             }
         },
-        "voltage": {
-            "title": "Voltage",
-            "units": ["uV", "mV", "V"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "receive_date": {
+            "title": "Receive date",
+            "property_type": "DATE",
+            "property_widget": "DATE",
             "disabled": false,
-            "default_unit": "V",
-            "default_value": 0,
             "box_layout":{
-                "width": "250px",
+                "width": "400px",
                 "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
             }
         },
-        "temperature": {
-            "title": "Temperature",
-            "units": ["oC", "K"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "sample_plate": {
+            "title": "Sample Plate",
+            "property_type": "VARCHAR",
+            "default_value": "",
             "disabled": false,
-            "default_unit": "K",
-            "default_value": 298,
+            "property_widget": ""
+        },
+        "smiles": {
+            "title": "SMILES",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write SMILES here...",
             "box_layout":{
-                "width": "250px",
+                "width": "400px",
                 "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
             }
         },
-        "current": {
-            "title": "Current",
-            "units": ["uA", "mA", "A"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+        "specifications": {
+            "title": "Specifications",
+            "property_type": "MULTILINE_VARCHAR",
             "disabled": false,
-            "default_unit": "A",
-            "default_value": 0,
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
-            }
-        },
-        "angle": {
-            "title": "Angle",
-            "units": ["deg", "rad"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
-            "disabled": false,
-            "default_unit": "deg",
-            "default_value": 0,
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
-            }
+            "property_widget": ""
         },
         "stabilisation_time": {
             "title": "Stabilisation time",
-            "units": ["sec", "min", "hrs"],
-            "property_type": "QUANTITY_VALUE",
-            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
-            "disabled": false,
-            "default_unit": "min",
-            "default_value": 0,
-            "box_layout":{
-                "width": "250px",
-                "description_width": "150px"
-            },
-            "dropdown_layout":{
-                "width": "100px"
-            }
-        },
-        "deposition_time": {
-            "title": "Deposition time",
             "units": ["sec", "min", "hrs"],
             "property_type": "QUANTITY_VALUE",
             "property_widget": "FLOAT_TEXT_W_DROPDOWN",
@@ -739,8 +654,26 @@
                 "width": "100px"
             }
         },
-        "molecule_temperature": {
-            "title": "Molecule temperature",
+        "substrates": {
+            "title": "Substrates",
+            "property_type": "JSON",
+            "disabled": false,
+            "property_widget": ""
+        },
+        "sum_formula": {
+            "title": "Substance sum formula",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write substance formula here...",
+            "box_layout":{
+                "width": "350px",
+                "description_width": "150px"
+            }
+        },
+        "temperature": {
+            "title": "Temperature",
             "units": ["oC", "K"],
             "property_type": "QUANTITY_VALUE",
             "property_widget": "FLOAT_TEXT_W_DROPDOWN",
@@ -755,75 +688,115 @@
                 "width": "100px"
             }
         },
-        "sum_formula": {
-            "title": "Substance sum formula",
+        "thickness": {
+            "title": "Thickness",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "url": {
+            "title": "URL",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "disabled": false,
+            "placeholder": "Write URL here...",
+            "box_layout":{
+                "width": "900px",
+                "description_width": "150px"
+            }
+        },
+        "vial": {
+            "title": "Vial",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "default_value": "",
             "disabled": false,
-            "placeholder": "Write substance formula here...",
+            "placeholder": "Write vial number here...",
             "box_layout":{
-                "width": "350px",
+                "width": "400px",
                 "description_width": "150px"
             }
         },
-        "evaporator_slot": {
-            "title": "Evaporator slot",
-            "property_type": "JSON",
-            "property_widget": "INTEGER_SLIDER_W_DETAILS",
+        "voltage": {
+            "title": "Voltage",
+            "units": ["uV", "mV", "V"],
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
             "disabled": false,
-            "placeholder": "Write evaporator slot details...",
-            "default_value": 1,
-            "values_list": [1, 2, 3, 4, 5, 6],
+            "default_unit": "V",
+            "default_value": 0,
             "box_layout":{
-                "width": "300px"
+                "width": "250px",
+                "description_width": "150px"
             },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "wfms_uuid": {
+            "title": "WFMS UUID",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "default_value": "",
+            "disabled": false,
+            "placeholder": "Write wfms UUID here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
+        "width": {
+            "title": "Width",
+            "property_type": "QUANTITY_VALUE",
+            "property_widget": "FLOAT_TEXT_W_DROPDOWN",
+            "disabled": false,
+            "units": ["m", "mm", "um"],
+            "default_unit": "um",
+            "default_value": 0,
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            },
+            "dropdown_layout":{
+                "width": "100px"
+            }
+        },
+        "year": {
+            "title": "Year",
+            "property_type": "INTEGER",
+            "property_widget": "INTTEXT",
+            "disabled": false,
+            "placeholder": "Write year here...",
+            "box_layout":{
+                "width": "250px",
+                "description_width": "150px"
+            }
+        },
+        "yield": {
+            "title": "Yield",
+            "property_type": "REAL",
+            "property_widget": "FLOAT_SLIDER",
+            "disabled": false,
+            "default_value": 0,
+            "values_list": [0, 1],
+            "slider_step": 0.01,
             "slider_layout":{
                 "width": "350px",
                 "description_width": "150px"
             }
-        },
-        "pid_controller": {
-            "title": "PID controller",
-            "property_type": "VARCHAR",
-            "property_widget": "TEXT",
-            "default_value": "",
-            "disabled": false,
-            "placeholder": "Write PID controller values (separated by commas)...",
-            "box_layout":{
-                "width": "500px",
-                "description_width": "150px"
-            }
-        }
+        }  
     },
     "objects": {
-        "Crystal": {
-            "placeholder": "crystal",
-            "openbis_object_type": "CRYSTAL",
-            "object_type": "slab",
-            "properties": [
-                "$name",
-                "material",
-                "face",
-                "sample_plate",
-                "diameter",
-                "height",
-                "specifications"
-            ]
-        },
-        "Wafer substrate": {
-            "placeholder": "wafer substrate",
-            "openbis_object_type": "WAFER_SUBSTRATE",
-            "object_type": "slab",
-            "properties": [
-                "$name",
-                "substrates",
-                "sample_plate",
-                "diameter",
-                "height",
-                "thickness"
-            ]
-        },
         "2D-layer material": {
             "placeholder": "2D-layer material",
             "openbis_object_type": "2D_LAYERED_MATERIAL",
@@ -838,64 +811,13 @@
                 "thickness"
             ]
         },
-        "Molecule": {
-            "object_type": "material",
-            "openbis_object_type": "MOLECULE",
-            "properties": [
-                "$name",
-                "sum_formula",
-                "smiles",
-                "iupac_name",
-                "cas_number",
-                "comments"
-            ]
-        },
-        "Substance": {
-            "object_type": "material",
-            "openbis_object_type": "SUBSTANCE",
-            "properties": [
-                "$name",
-                "empa_number",
-                "batch",
-                "vial",
-                "fridge",
-                "no_light",
-                "dry",
-                "no_oxygen",
-                "other_storage_condition",
-                "other_storage_condition_specification",
-                "hazardous",
-                "hazardous_specification",
-                "amount",
-                "receive_date",
-                "comments"
-            ]
-        },
-        "Reaction Product": {
-            "object_type": "material",
-            "openbis_object_type": "REACTION_PRODUCT",
+        "Analysis": {
+            "object_type": "analysis",
+            "openbis_object_type": "ANALYSIS",
             "uses_substance": false,
             "properties": [
                 "$name",
-                "yield",
-                "temperature",
-                "smiles",
-                "comments"
-            ]
-        },
-        "Sputtering": {
-            "object_type": "sample_preparation",
-            "openbis_object_type": "SPUTTERING",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "duration", 
-                "pressure",
-                "discharge_voltage",
-                "voltage",
-                "temperature",
-                "angle",
-                "current",
+                "description",
                 "comments"
             ]
         },
@@ -911,6 +833,44 @@
                 "temperature",
                 "current",
                 "comments"
+            ]
+        },
+        "Atomistic Model": {
+            "object_type": "atomistic model",
+            "openbis_object_type": "ATOMISTIC_MODEL",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "dimensionality",
+                "periodic_boundary_conditions",
+                "wfms_uuid"
+            ]
+        },
+        "Band Structure": {
+            "object_type": "band structure",
+            "openbis_object_type": "BAND_STRUCTURE",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "input_parameters",
+                "output_parameters",
+                "band_gap",
+                "level_theory",
+                "comments"
+            ]
+        },
+        "Crystal": {
+            "placeholder": "crystal",
+            "openbis_object_type": "CRYSTAL",
+            "object_type": "slab",
+            "properties": [
+                "$name",
+                "material",
+                "face",
+                "sample_plate",
+                "diameter",
+                "height",
+                "specifications"
             ]
         },
         "Deposition": {
@@ -941,6 +901,33 @@
                 "comments"
             ]
         },
+        "Draft": {
+            "object_type": "results",
+            "openbis_object_type": "RESULTS",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "draft_type",
+                "comments"
+            ]
+        },
+        "Geometry Optimisation": {
+            "object_type": "geometry optimisation",
+            "openbis_object_type": "GEOMETRY_OPTIMISATION",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "driver_code",
+                "cell_optimised",
+                "cell_opt_constraints",
+                "constrained",
+                "force_convergence_threshold",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
+                "comments"
+            ]
+        },
         "Hydrogen Cracker": {
             "object_type": "sample_preparation",
             "openbis_object_type": "HYDROGEN_CRACKER",
@@ -963,12 +950,27 @@
                 "comments"
             ]
         },
-        "Unknown Experiment": {
-            "object_type": "sample_preparation",
-            "openbis_object_type": "UNKNOWN_EXPERIMENT",
+        "Molecule": {
+            "object_type": "material",
+            "openbis_object_type": "MOLECULE",
+            "properties": [
+                "$name",
+                "sum_formula",
+                "smiles",
+                "iupac_name",
+                "cas_number",
+                "comments"
+            ]
+        },
+        "PDOS": {
+            "object_type": "pdos",
+            "openbis_object_type": "PDOS",
             "uses_substance": false,
             "properties": [
                 "$name",
+                "input_parameters",
+                "output_parameters",
+                "level_theory",
                 "comments"
             ]
         },
@@ -986,36 +988,6 @@
                 "comments"
             ]
         },
-        "Results": {
-            "object_type": "results",
-            "openbis_object_type": "RESULTS",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "description",
-                "comments"
-            ]
-        },
-        "Draft": {
-            "object_type": "results",
-            "openbis_object_type": "RESULTS",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "draft_type",
-                "comments"
-            ]
-        },
-        "Analysis": {
-            "object_type": "analysis",
-            "openbis_object_type": "ANALYSIS",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "description",
-                "comments"
-            ]
-        },
         "SRD": {
             "object_type": "sublimation rate determination",
             "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
@@ -1030,39 +1002,77 @@
                 "comments"
             ]
         },
-        "Geometry Optimisation": {
-            "object_type": "geometry optimisation",
-            "openbis_object_type": "GEOMETRY_OPTIMISATION",
+        "Reaction Product": {
+            "object_type": "material",
+            "openbis_object_type": "REACTION_PRODUCT",
             "uses_substance": false,
             "properties": [
                 "$name",
-                "driver_code",
-                "cell_optimised",
-                "cell_opt_constraints",
-                "constrained",
-                "force_convergence_threshold",
-                "input_parameters",
-                "output_parameters",
-                "level_theory",
+                "yield",
+                "temperature",
+                "smiles",
                 "comments"
             ]
         },
-        "Band Structure": {
-            "object_type": "band structure",
-            "openbis_object_type": "BAND_STRUCTURE",
+        "Results": {
+            "object_type": "results",
+            "openbis_object_type": "RESULTS",
             "uses_substance": false,
             "properties": [
                 "$name",
-                "input_parameters",
-                "output_parameters",
-                "band_gap",
-                "level_theory",
+                "description",
                 "comments"
             ]
         },
-        "PDOS": {
-            "object_type": "pdos",
-            "openbis_object_type": "PDOS",
+        "Sputtering": {
+            "object_type": "sample_preparation",
+            "openbis_object_type": "SPUTTERING",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "duration", 
+                "pressure",
+                "discharge_voltage",
+                "voltage",
+                "temperature",
+                "angle",
+                "current",
+                "comments"
+            ]
+        },
+        "Substance": {
+            "object_type": "material",
+            "openbis_object_type": "SUBSTANCE",
+            "properties": [
+                "$name",
+                "empa_number",
+                "batch",
+                "vial",
+                "fridge",
+                "no_light",
+                "dry",
+                "no_oxygen",
+                "other_storage_condition",
+                "other_storage_condition_specification",
+                "hazardous",
+                "hazardous_specification",
+                "amount",
+                "receive_date",
+                "comments"
+            ]
+        },
+        "Unknown Experiment": {
+            "object_type": "sample_preparation",
+            "openbis_object_type": "UNKNOWN_EXPERIMENT",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "comments"
+            ]
+        },
+        "Unclassified Simulation": {
+            "object_type": "unclassified simulation",
+            "openbis_object_type": "UNCLASSIFIED_SIMULATION",
             "uses_substance": false,
             "properties": [
                 "$name",
@@ -1084,27 +1094,17 @@
                 "comments"
             ]
         },
-        "Unclassified Simulation": {
-            "object_type": "unclassified simulation",
-            "openbis_object_type": "UNCLASSIFIED_SIMULATION",
-            "uses_substance": false,
+        "Wafer substrate": {
+            "placeholder": "wafer substrate",
+            "openbis_object_type": "WAFER_SUBSTRATE",
+            "object_type": "slab",
             "properties": [
                 "$name",
-                "input_parameters",
-                "output_parameters",
-                "level_theory",
-                "comments"
-            ]
-        },
-        "Atomistic Model": {
-            "object_type": "atomistic model",
-            "openbis_object_type": "ATOMISTIC_MODEL",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "dimensionality",
-                "periodic_boundary_conditions",
-                "wfms_uuid"
+                "substrates",
+                "sample_plate",
+                "diameter",
+                "height",
+                "thickness"
             ]
         }
     },
@@ -1120,20 +1120,11 @@
                 "</div>",
                 "</div>"
             ],
-            "Simulations": [
+            "Export": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' target='_blank' style='font-size: 13px;'>Send simulation to openBIS</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Results": [
-                "<div style='display: flex;'>",
-                "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_analysis.ipynb' target='_blank' style='font-size: 13px;'>Create analysis</a></li>",
-                "<li><a href='create_results.ipynb' target='_blank' style='font-size: 13px;'>Create results</a></li>",
-                "<li><a href='create_draft.ipynb' target='_blank' style='font-size: 13px;'>Create draft</a></li>",
-                "<li><a href='create_publication.ipynb' target='_blank' style='font-size: 13px;'>Create publication</a></li>",
+                "<li><a href='export_openbis_object.ipynb' target='_blank' style='font-size: 13px;'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1147,6 +1138,16 @@
                 "</div>",
                 "</div>"
             ],
+            "Results": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_analysis.ipynb' target='_blank' style='font-size: 13px;'>Create analysis</a></li>",
+                "<li><a href='create_results.ipynb' target='_blank' style='font-size: 13px;'>Create results</a></li>",
+                "<li><a href='create_draft.ipynb' target='_blank' style='font-size: 13px;'>Create draft</a></li>",
+                "<li><a href='create_publication.ipynb' target='_blank' style='font-size: 13px;'>Create publication</a></li>",
+                "</div>",
+                "</div>"
+            ],
             "Search": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
@@ -1155,11 +1156,10 @@
                 "</div>",
                 "</div>"
             ],
-            "Export": [
+            "Simulations": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='export_openbis_object.ipynb' target='_blank' style='font-size: 13px;'>Export openBIS publication object</a></li>",
-                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
+                "<li><a href='send_simulation_to_openbis.ipynb' target='_blank' style='font-size: 13px;'>Send simulation to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ]
@@ -1175,20 +1175,11 @@
                 "</div>",
                 "</div>"
             ],
-            "Simulations": [
+            "Export": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Send simulation to openBIS</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Results": [
-                "<div id='box' style='display: flex; pointer-events: none;'>",
-                "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_analysis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create analysis</a></li>",
-                "<li><a href='create_results.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create results</a></li>",
-                "<li><a href='create_draft.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create draft</a></li>",
-                "<li><a href='create_publication.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create publication</a></li>",
+                "<li><a href='export_openbis_object.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1202,6 +1193,16 @@
                 "</div>",
                 "</div>"
             ],
+            "Results": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_analysis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create analysis</a></li>",
+                "<li><a href='create_results.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create results</a></li>",
+                "<li><a href='create_draft.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create draft</a></li>",
+                "<li><a href='create_publication.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create publication</a></li>",
+                "</div>",
+                "</div>"
+            ],
             "Search": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
@@ -1210,11 +1211,10 @@
                 "</div>",
                 "</div>"
             ],
-            "Export": [
+            "Simulations": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='export_openbis_object.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Export openBIS publication object</a></li>",
-                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
+                "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Send simulation to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ]

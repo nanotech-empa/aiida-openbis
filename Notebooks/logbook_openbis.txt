@@ -377,7 +377,7 @@ To the presentation:
 20-01-2025:
 
 Next tasks:
-    - Make two/three slides reporting an use case of the interoperability AiiDAlab-openBIS using pyBIS
-    - Clean data schema (Remove not used classes and properties)
+    - Make two/three slides reporting an use case of the interoperability AiiDAlab-openBIS using pyBIS [x]
+    - Clean data schema (Remove not used classes and properties) [x]
     - Update the webapp to follow the data model we agreed with Bruno
     - Make the webapp more general making it easier to add new features

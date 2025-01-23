@@ -208,7 +208,13 @@ class OpenBisDatabase:
                     object_copy = object
                     while "is_a" in object_copy:
                         parent_object = self.objects_schema["classes"][object_copy["is_a"]]
-                        object["slots"].extend(parent_object["slots"])
+                        
+                        # Used when the object inherits all the properties from another object
+                        if object["slots"]:
+                            object["slots"].extend(parent_object["slots"])
+                        else:
+                            object["slots"] = parent_object["slots"]
+                            
                         object_copy = parent_object
                     
                     # Create property types needed for intialiasing the openBIS object type

@@ -12,7 +12,7 @@ from datetime import datetime
 from aiida import orm
 
 CONFIG = utils.read_json("config.json")
-CONFIG_ELN = utils.read_json("eln_config.json")
+CONFIG_ELN = utils.get_aiidalab_eln_config()
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
 
 class AtomisticModelSelectionWidget(ipw.HBox):
