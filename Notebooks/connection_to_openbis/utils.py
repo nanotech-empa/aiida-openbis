@@ -324,3 +324,43 @@ def get_parent_child_relationships_nested(openbis_session, selected_object, pare
             parent_child_relationships["has_part"].append(parent_props)
 
     return parent_child_relationships, object_history
+
+def get_object_type(openbis_object_type, config):
+    for object_type in config["objects"]:
+        if config["objects"][object_type]["openbis_object_type"] == openbis_object_type:
+            return object_type
+
+def get_metadata_string(openbis_session, object, metadata_string, config):
+    object_type = get_object_type(object.type, config)
+    
+    for prop_key in config["objects"][object_type]["properties"]:
+        prop_title = config["properties"][prop_key]["title"]
+        prop_datatype = config["properties"][prop_key]["property_type"]
+        prop_string = get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, config)
+        metadata_string += prop_string
+
+    return metadata_string
+        
+def get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, config):
+    object_metadata = object.props.all()
+    if prop_datatype == "QUANTITY_VALUE":
+        value = object_metadata.get(prop_key)
+        if value:
+            prop_dict = json.loads(value)
+            property_string = f"{prop_title}: {prop_dict['value']} {prop_dict['unit']}\n"
+        else:
+            property_string = f"{prop_title}: {value}\n"
+    elif prop_datatype == "PARENT_OBJECT":
+        parent_object_type = config["properties"][prop_key]["parent_object_type"]
+        parents_objects = object.get_parents(type = parent_object_type)
+        
+        # For each property related to an object type there should be no more than one parent
+        if parents_objects:
+            parent_object = parents_objects[0]
+        property_string = f"-------\n{prop_title}:\n" 
+        property_string = get_metadata_string(openbis_session, parent_object, property_string, config)
+        property_string = f"{property_string}-------\n"
+    else:
+        property_string = f"{prop_title}: {object_metadata.get(prop_key)}\n"
+    
+    return property_string

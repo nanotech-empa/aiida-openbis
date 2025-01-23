@@ -146,6 +146,17 @@
                 "description_width": "150px"
             }
         },
+        "crystal_concept": {
+            "title": "Crystal concept",
+            "property_type": "PARENT_OBJECT",
+            "parent_object_type": "CRYSTAL_CONCEPT",
+            "property_widget": "None",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
         "current": {
             "title": "Current",
             "units": ["uA", "mA", "A"],
@@ -462,6 +473,17 @@
             "disabled": false,
             "property_widget": ""
         },
+        "molecule_concept" : {
+            "title": "Molecule concept",
+            "property_type": "PARENT_OBJECT",
+            "parent_object_type": "MOLECULE_CONCEPT",
+            "property_widget": "None",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
         "molecule_temperature": {
             "title": "Molecule temperature",
             "units": ["oC", "K"],
@@ -587,6 +609,17 @@
                 "width": "100px"
             }
         },
+        "reaction_product_concept" : {
+            "title": "Reaction product concept",
+            "property_type": "PARENT_OBJECT",
+            "parent_object_type": "REACTION_PRODUCT_CONCEPT",
+            "property_widget": "None",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
         "receive_date": {
             "title": "Receive date",
             "property_type": "DATE",
@@ -661,12 +694,12 @@
             "property_widget": ""
         },
         "sum_formula": {
-            "title": "Substance sum formula",
+            "title": "Sum formula",
             "property_type": "VARCHAR",
             "property_widget": "TEXT",
             "default_value": "",
             "disabled": false,
-            "placeholder": "Write substance formula here...",
+            "placeholder": "Write sum formula here...",
             "box_layout":{
                 "width": "350px",
                 "description_width": "150px"
@@ -702,6 +735,17 @@
             },
             "dropdown_layout":{
                 "width": "100px"
+            }
+        },
+        "two_d_layer_material_concept": {
+            "title": "2D-layer material concept",
+            "property_type": "PARENT_OBJECT",
+            "parent_object_type": "2D_LAYER_MATERIAL_CONCEPT",
+            "property_widget": "None",
+            "disabled": false,
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
             }
         },
         "url": {
@@ -797,18 +841,29 @@
         }  
     },
     "objects": {
-        "2D-layer material": {
+        "2D-layer Material": {
             "placeholder": "2D-layer material",
-            "openbis_object_type": "2D_LAYERED_MATERIAL",
+            "openbis_object_type": "2D_LAYER_MATERIAL",
             "object_type": "slab",
             "properties": [
                 "$name",
+                "two_d_layer_material_concept",
                 "sample_plate",
-                "layers_2d",
+                "two_d_layers",
                 "substrates",
                 "width",
                 "length",
-                "thickness"
+                "thickness",
+                "comments"
+            ]
+        },
+        "2D-layer Material Concept": {
+            "placeholder": "2D-layer material concept",
+            "openbis_object_type": "2D_LAYER_MATERIAL_CONCEPT",
+            "object_type": "slab_concept",
+            "properties": [
+                "$name",
+                "comments"
             ]
         },
         "Analysis": {
@@ -865,12 +920,22 @@
             "object_type": "slab",
             "properties": [
                 "$name",
-                "material",
-                "face",
+                "crystal_concept",
                 "sample_plate",
                 "diameter",
                 "height",
                 "specifications"
+            ]
+        },
+        "Crystal Concept": {
+            "placeholder": "crystal concept",
+            "openbis_object_type": "CRYSTAL_CONCEPT",
+            "object_type": "slab_concept",
+            "properties": [
+                "$name",
+                "material",
+                "face",
+                "comments"
             ]
         },
         "Deposition": {
@@ -955,6 +1020,28 @@
             "openbis_object_type": "MOLECULE",
             "properties": [
                 "$name",
+                "molecule_concept",
+                "empa_number",
+                "batch",
+                "vial",
+                "fridge",
+                "no_light",
+                "dry",
+                "no_oxygen",
+                "other_storage_condition",
+                "other_storage_condition_specification",
+                "hazardous",
+                "hazardous_specification",
+                "amount",
+                "receive_date",
+                "comments"
+            ]
+        },
+        "Molecule Concept": {
+            "object_type": "material",
+            "openbis_object_type": "MOLECULE_CONCEPT",
+            "properties": [
+                "$name",
                 "sum_formula",
                 "smiles",
                 "iupac_name",
@@ -988,29 +1075,25 @@
                 "comments"
             ]
         },
-        "SRD": {
-            "object_type": "sublimation rate determination",
-            "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
-            "uses_substance": false,
-            "properties": [
-                "$name",
-                "pressure",
-                "rate",
-                "temperature",
-                "pid_controller",
-                "evaporator_slot",
-                "comments"
-            ]
-        },
         "Reaction Product": {
             "object_type": "material",
             "openbis_object_type": "REACTION_PRODUCT",
             "uses_substance": false,
             "properties": [
                 "$name",
+                "reaction_product_concept",
                 "yield",
                 "temperature",
-                "smiles",
+                "comments"
+            ]
+        },
+        "Reaction Product Concept": {
+            "object_type": "material",
+            "openbis_object_type": "REACTION_PRODUCT_CONCEPT",
+            "uses_substance": false,
+            "properties": [
+                "$name",
+                "sum_formula",
                 "comments"
             ]
         },
@@ -1040,24 +1123,17 @@
                 "comments"
             ]
         },
-        "Substance": {
-            "object_type": "material",
-            "openbis_object_type": "SUBSTANCE",
+        "Sublimation Rate Determination": {
+            "object_type": "sublimation rate determination",
+            "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
+            "uses_substance": false,
             "properties": [
                 "$name",
-                "empa_number",
-                "batch",
-                "vial",
-                "fridge",
-                "no_light",
-                "dry",
-                "no_oxygen",
-                "other_storage_condition",
-                "other_storage_condition_specification",
-                "hazardous",
-                "hazardous_specification",
-                "amount",
-                "receive_date",
+                "pressure",
+                "rate",
+                "temperature",
+                "pid_controller",
+                "evaporator_slot",
                 "comments"
             ]
         },
@@ -1094,7 +1170,7 @@
                 "comments"
             ]
         },
-        "Wafer substrate": {
+        "Wafer Substrate": {
             "placeholder": "wafer substrate",
             "openbis_object_type": "WAFER_SUBSTRATE",
             "object_type": "slab",
