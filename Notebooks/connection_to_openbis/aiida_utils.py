@@ -987,7 +987,7 @@ def set_parent_codes(openbis_session, obis_object, workchain_uuid):
                 openbis_session, 
                 type = "CODE",
                 props = code_info,
-                collection = "/SOFTWARE/CODES/CODE_COLLECTION"
+                collection = "/SOFTWARE/COMPUTATIONAL_SIMULATIONS/OPEN_SOURCE_SOFTWARE_COLLECTION"
             )
         
         obis_object.add_parents(code_object)

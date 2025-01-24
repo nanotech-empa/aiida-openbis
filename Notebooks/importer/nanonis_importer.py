@@ -462,7 +462,7 @@ def get_2D_measurement_props(full_sxm_filepath):
     }
     return properties
 
-def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid, sample_permid, instrument_permid = None):
+def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid, sample_permid, measurements_permid, instrument_permid = None):
     o = get_instance(openbis_url)
 
     measurement_files = [f for f in os.listdir(data_folder)]
@@ -503,12 +503,11 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
 
         if collection_permid:
             for group in grouped_measurement_files:
+                measurement_parents = [sample_permid, measurements_permid]
+                if instrument_permid:
+                        measurement_parents.append(instrument_permid)
                 if group[0].endswith(".sxm"):
                     print(f"SXM file: {group[0]}")
-                    if instrument_permid is None:
-                        measurement_parents = [sample_permid]
-                    else:
-                        measurement_parents = [sample_permid, instrument_permid]
                     twoD_measurement_sample = o.new_sample(
                         type = "2D_MEASUREMENT", 
                         experiment = collection_permid, 
@@ -538,10 +537,6 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
                     # ---------------
                     
                     for dat_files_group in dat_files_grouped_by_type:
-                        if instrument_permid is None:
-                            measurement_parents = [sample_permid]
-                        else:
-                            measurement_parents = [sample_permid, instrument_permid]
                         oneD_measurement_sample = o.new_sample(
                             type = "1D_MEASUREMENT", 
                             experiment = collection_permid,

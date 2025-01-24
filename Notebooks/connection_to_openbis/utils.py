@@ -352,11 +352,12 @@ def get_property_string(openbis_session, object, prop_title, prop_key, prop_data
             property_string = f"{prop_title}: {value}\n"
     elif prop_datatype == "PARENT_OBJECT":
         parent_object_type = config["properties"][prop_key]["parent_object_type"]
-        parents_objects = object.get_parents(type = parent_object_type)
+        parents_objects = object.get_parents()
+        for parent_object in parents_objects:
+            if parent_object.type == parent_object_type:
+                break
         
         # For each property related to an object type there should be no more than one parent
-        if parents_objects:
-            parent_object = parents_objects[0]
         property_string = f"-------\n{prop_title}:\n" 
         property_string = get_metadata_string(openbis_session, parent_object, property_string, config)
         property_string = f"{property_string}-------\n"

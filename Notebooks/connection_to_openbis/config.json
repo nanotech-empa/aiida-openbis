@@ -869,7 +869,7 @@
         "Analysis": {
             "object_type": "analysis",
             "openbis_object_type": "ANALYSIS",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "description",
@@ -879,7 +879,7 @@
         "Annealing": {
             "object_type": "sample_preparation",
             "openbis_object_type": "ANNEALING",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "duration", 
@@ -893,7 +893,7 @@
         "Atomistic Model": {
             "object_type": "atomistic model",
             "openbis_object_type": "ATOMISTIC_MODEL",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "dimensionality",
@@ -904,7 +904,7 @@
         "Band Structure": {
             "object_type": "band structure",
             "openbis_object_type": "BAND_STRUCTURE",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "input_parameters",
@@ -941,7 +941,7 @@
         "Deposition": {
             "object_type": "sample_preparation",
             "openbis_object_type": "DEPOSITION",
-            "uses_substance": true,
+            "uses_molecule": true,
             "properties": [
                 "$name",
                 "stabilisation_time", 
@@ -956,7 +956,7 @@
         "Dosing": {
             "object_type": "sample_preparation",
             "openbis_object_type": "DOSING",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "sum_formula", 
@@ -969,7 +969,7 @@
         "Draft": {
             "object_type": "results",
             "openbis_object_type": "RESULTS",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "draft_type",
@@ -979,7 +979,7 @@
         "Geometry Optimisation": {
             "object_type": "geometry optimisation",
             "openbis_object_type": "GEOMETRY_OPTIMISATION",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "driver_code",
@@ -996,7 +996,7 @@
         "Hydrogen Cracker": {
             "object_type": "sample_preparation",
             "openbis_object_type": "HYDROGEN_CRACKER",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "duration",
@@ -1009,7 +1009,7 @@
         "Light Irradiation": {
             "object_type": "sample_preparation",
             "openbis_object_type": "LIGHT_IRRADIATION",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "comments"
@@ -1052,7 +1052,7 @@
         "PDOS": {
             "object_type": "pdos",
             "openbis_object_type": "PDOS",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "input_parameters",
@@ -1064,7 +1064,7 @@
         "Publication": {
             "object_type": "publication",
             "openbis_object_type": "PUBLICATION_CUSTOM",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "abstract",
@@ -1078,7 +1078,7 @@
         "Reaction Product": {
             "object_type": "material",
             "openbis_object_type": "REACTION_PRODUCT",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "reaction_product_concept",
@@ -1090,7 +1090,7 @@
         "Reaction Product Concept": {
             "object_type": "material",
             "openbis_object_type": "REACTION_PRODUCT_CONCEPT",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "sum_formula",
@@ -1100,7 +1100,7 @@
         "Results": {
             "object_type": "results",
             "openbis_object_type": "RESULTS",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "description",
@@ -1110,7 +1110,7 @@
         "Sputtering": {
             "object_type": "sample_preparation",
             "openbis_object_type": "SPUTTERING",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "duration", 
@@ -1126,7 +1126,7 @@
         "Sublimation Rate Determination": {
             "object_type": "sublimation rate determination",
             "openbis_object_type": "SUBLIMATION_RATE_DETERMINATION",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "pressure",
@@ -1137,10 +1137,10 @@
                 "comments"
             ]
         },
-        "Unknown Experiment": {
+        "Unclassified Experiment": {
             "object_type": "sample_preparation",
-            "openbis_object_type": "UNKNOWN_EXPERIMENT",
-            "uses_substance": false,
+            "openbis_object_type": "UNCLASSIFIED_EXPERIMENT",
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "comments"
@@ -1149,7 +1149,7 @@
         "Unclassified Simulation": {
             "object_type": "unclassified simulation",
             "openbis_object_type": "UNCLASSIFIED_SIMULATION",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "input_parameters",
@@ -1161,7 +1161,7 @@
         "Vibrational Spectroscopy": {
             "object_type": "vibrational spectroscopy",
             "openbis_object_type": "VIBRATIONAL_SPECTROSCOPY",
-            "uses_substance": false,
+            "uses_molecule": false,
             "properties": [
                 "$name",
                 "input_parameters",
