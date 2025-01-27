@@ -342,6 +342,7 @@ def get_metadata_string(openbis_session, object, metadata_string, config):
     return metadata_string
         
 def get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, config):
+    property_string = ""
     object_metadata = object.props.all()
     if prop_datatype == "QUANTITY_VALUE":
         value = object_metadata.get(prop_key)
@@ -355,12 +356,11 @@ def get_property_string(openbis_session, object, prop_title, prop_key, prop_data
         parents_objects = object.get_parents()
         for parent_object in parents_objects:
             if parent_object.type == parent_object_type:
+                # For each property related to an object type there should be no more than one parent
+                property_string = f"-------\n{prop_title}:\n" 
+                property_string = get_metadata_string(openbis_session, parent_object, property_string, config)
+                property_string = f"{property_string}-------\n"
                 break
-        
-        # For each property related to an object type there should be no more than one parent
-        property_string = f"-------\n{prop_title}:\n" 
-        property_string = get_metadata_string(openbis_session, parent_object, property_string, config)
-        property_string = f"{property_string}-------\n"
     else:
         property_string = f"{prop_title}: {object_metadata.get(prop_key)}\n"
     

@@ -748,6 +748,17 @@
                 "description_width": "150px"
             }
         },
+        "two_d_layers": {
+            "title": "2D-layers",
+            "property_type": "VARCHAR",
+            "property_widget": "TEXT",
+            "disabled": false,
+            "placeholder": "Write 2d-layers here...",
+            "box_layout":{
+                "width": "400px",
+                "description_width": "150px"
+            }
+        },
         "url": {
             "title": "URL",
             "property_type": "VARCHAR",

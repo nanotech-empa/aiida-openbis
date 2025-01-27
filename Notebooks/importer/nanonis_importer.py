@@ -79,13 +79,30 @@ def reorder_sxm_channels(channels, header):
             Oscillation Control>output off: FALSE > I vs V
     """
     channel_index = -1
-    if header["lock-in>lock-in status"] == "ON":
+    
+    lock_in_status = False
+    z_control_hold = False
+    oscillation_control_output_off = False
+    
+    if "Lock-in>Lock-in status" in header:
+        if header["Lock-in>Lock-in status"] == "ON":
+            lock_in_status = True
+    
+    if "Z-Ctrl hold" in header:
+        if header["Z-Ctrl hold"] == "TRUE":
+            z_control_hold = True
+    
+    if "Oscillation Control>output off" in header:
+        if header["Oscillation Control>output off"] == "TRUE":
+            oscillation_control_output_off = True
+    
+    if lock_in_status:
         channel_index = channels.index("dIdV")
     else:
-        if header["z-controller>controller status"] == "ON":
+        if z_control_hold:
             channel_index = channels.index("z")
         else:
-            if header["oscillation control>output off"] == "TRUE":
+            if oscillation_control_output_off:
                 channel_index = channels.index("df")
             else:
                 channel_index = channels.index("I")
@@ -112,32 +129,49 @@ def reorder_dat_channels(channels, header):
             Oscillation Control>output off: TRUE > df vs z
             Oscillation Control>output off: FALSE > I vs z
     """
+    print(channels)
     channels_x = copy.deepcopy(channels)
     channels_y = copy.deepcopy(channels)
     channel_x_index = -1
     channel_y_index = -1
     
-    if header["Experiment"] == "bias spectroscopy":
+    lock_in_status = False
+    z_control_hold = True
+    oscillation_control_output_off = False
+    
+    if "Lock-in>Lock-in status" in header:
         if header["Lock-in>Lock-in status"] == "ON":
+            lock_in_status = True
+    
+    if "Z-Ctrl hold" in header:
+        if header["Z-Ctrl hold"] == "FALSE":
+            z_control_hold = False
+    
+    if "Oscillation Control>output off" in header:
+        if header["Oscillation Control>output off"] == "TRUE":
+            oscillation_control_output_off = True
+    
+    if header["Experiment"] == "bias spectroscopy":
+        if lock_in_status:
             channel_x_index = channels_x.index(("V","V",1))
             channel_y_index = channels_y.index(("dIdV","pA",10**12))
         else:
-            if header["Z-Ctrl hold"] == "FALSE":
+            if z_control_hold == False:
                 channel_x_index = channels_x.index(("V","V",1))
                 channel_y_index = channels_y.index(("zspec","nm",10**9))
             else:
-                if header["Oscillation Control>output off"] == "TRUE":
+                if oscillation_control_output_off:
                     channel_x_index = channels_x.index(("V","V",1))
                     channel_y_index = channels_y.index(("df","Hz",1))
                 else:
                     channel_x_index = channels_x.index(("V","V",1))
                     channel_y_index = channels_y.index(("I","pA",10**12))
     else:
-        if header["Lock-in>Lock-in status"] == "ON":
+        if lock_in_status:
             channel_x_index = channels_x.index(("zspec","nm",10**9))
             channel_y_index = channels_y.index(("dIdV","pA",10**12))
         else:
-            if header["Oscillation Control>output off"] == "TRUE":
+            if oscillation_control_output_off:
                 channel_x_index = channels_x.index(("zspec","nm",10**9))
                 channel_y_index = channels_y.index(("df","Hz",1))
             else:
@@ -167,22 +201,38 @@ def get_dat_type(header):
     """
     measurement_type = ""
     
-    if header["Experiment"] == "bias spectroscopy":
+    lock_in_status = False
+    z_control_hold = False
+    oscillation_control_output_off = False
+    
+    if "Lock-in>Lock-in status" in header:
         if header["Lock-in>Lock-in status"] == "ON":
+            lock_in_status = True
+    
+    if "Z-Ctrl hold" in header:
+        if header["Z-Ctrl hold"] == "TRUE":
+            z_control_hold = True
+    
+    if "Oscillation Control>output off" in header:
+        if header["Oscillation Control>output off"] == "TRUE":
+            oscillation_control_output_off = True
+    
+    if header["Experiment"] == "bias spectroscopy":
+        if lock_in_status:
             measurement_type = "bias spectroscopy dIdV vs V"
         else:
-            if header["Z-Ctrl hold"] == "TRUE":
+            if z_control_hold:
                 measurement_type = "bias spectroscopy z vs V"
             else:
-                if header["Oscillation Control>output off"] == "TRUE":
+                if oscillation_control_output_off:
                     measurement_type = "bias spectroscopy df vs V"
                 else:
                     measurement_type = "bias spectroscopy I vs V"
     else:
-        if header["Lock-in>Lock-in status"] == "ON":
+        if lock_in_status:
             measurement_type = "z spectroscopy dIdV vs z"
         else:
-            if header["Oscillation Control>output off"] == "TRUE":
+            if oscillation_control_output_off:
                 measurement_type = "z spectroscopy df vs z"
             else:
                 measurement_type = "z spectroscopy I vs z"
@@ -206,15 +256,15 @@ def create_sxm_dataset(openbis, experiment, file_path, sample=None):
             get_color_scale_range(img, channel),
             img.get_channel(channel)[1])
         for channel in channels]
-
+    
     exports = [imaging.ImagingDataSetControl('include', "Dropdown", values=['image', 'raw data'], multiselect=True),
                imaging.ImagingDataSetControl('image-format', "Dropdown", values=['png', 'svg']),
                imaging.ImagingDataSetControl('archive-format', "Dropdown", values=['zip', 'tar']),
                imaging.ImagingDataSetControl('resolution', "Dropdown", values=['original', '150dpi', '300dpi'])]
     inputs = [
         imaging.ImagingDataSetControl('Channel', "Dropdown", values=channels),
-        imaging.ImagingDataSetControl('X-axis', "Range", values_range=["0", str(img.get_param('width')[0]), "0.01"]),
-        imaging.ImagingDataSetControl('Y-axis', "Range", values_range=["0", str(img.get_param('height')[0]), "0.01"]),
+        imaging.ImagingDataSetControl('X-axis', "Range", values_range=["0", str(img.get_param('scan_range')[0]), "0.01"]),
+        imaging.ImagingDataSetControl('Y-axis', "Range", values_range=["0", str(img.get_param('scan_range')[1]), "0.01"]),
         imaging.ImagingDataSetControl('Color-scale', "Range", visibility=color_scale_visibility),
         imaging.ImagingDataSetControl('Colormap', "Colormap", values=['gray', 'YlOrBr', 'viridis', 'cividis', 'inferno', 'rainbow', 'Spectral', 'RdBu', 'RdGy']),
         imaging.ImagingDataSetControl('Scaling', "Dropdown", values=['linear', 'logarithmic']),
@@ -452,14 +502,28 @@ def get_2D_measurement_props(full_sxm_filepath):
         "$name": full_sxm_filepath.split("/")[-1],
         "start_time": datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S").strftime("%Y-%m-%d %H:%M:%S"),
         "duration": json.dumps({"has_value": float(img.header["acq_time"]), "has_unit": "http://qudt.org/vocab/unit/SEC"}),
-        "bias_setpoint": json.dumps({"has_value": float(img.header["bias>bias (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
-        # "bias_calibration_factor": json.dumps({"has_value": float(img.header["bias>calibration (v/v)"]), "has_unit": "http://qudt.org/vocab/unit/V-PER-V"}),
-        # "bias_calibration_offset": json.dumps({"has_value": float(img.header["bias>offset (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"}),
-        "current_setpoint": json.dumps({"has_value": float(img.header["current>current (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
-        # "current_calibration_factor": json.dumps({"has_value": float(img.header["current>calibration (a/v)"]), "has_unit": "A/V"}),
-        # "current_calibration_offset": json.dumps({"has_value": float(img.header["current>offset (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"}),
-        # "current_gain": json.dumps({"has_value": img.header["current>gain"], "has_unit": "None"})
     }
+    if "bias>bias (v)" in img.header:
+        properties["bias_setpoint"] = json.dumps({"has_value": float(img.header["bias>bias (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"})
+        
+    # if "bias>calibration (v/v)" in img.header:
+    #     properties["bias_calibration_factor"] = json.dumps({"has_value": float(img.header["bias>calibration (v/v)"]), "has_unit": "http://qudt.org/vocab/unit/V-PER-V"})
+    
+    # if "bias_calibration_offset" in img.header:
+    #     properties["bias_calibration_offset"] = json.dumps({"has_value": float(img.header["bias>offset (v)"]), "has_unit": "http://qudt.org/vocab/unit/V"})
+    
+    if "current>current (a)" in img.header:
+        properties["current_setpoint"] = json.dumps({"has_value": float(img.header["current>current (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"})
+        
+    # if "current_calibration_factor" in img.header:
+    #     properties["current_calibration_factor"] = json.dumps({"has_value": float(img.header["current>calibration (a/v)"]), "has_unit": "A/V"})
+        
+    # if "current_calibration_offset" in img.header:
+    #     properties["current_calibration_offset"] = json.dumps({"has_value": float(img.header["current>offset (a)"]), "has_unit": "http://qudt.org/vocab/unit/A"})
+        
+    # if "current_gain" in img.header:
+    #     properties["current_gain"] = json.dumps({"has_value": img.header["current>gain"], "has_unit": "None"})
+        
     return properties
 
 def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid, sample_permid, measurements_permid, instrument_permid = None):
@@ -516,10 +580,11 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
                     )
                     twoD_measurement_sample.save()
                     file_path = os.path.join(data_folder, group[0])
-                    try:
-                        demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
-                    except:
-                        print(f"Cannot upload {group[0]}.")
+                    demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
+                    # try:
+                    #     demo_sxm_flow(o, file_path, collection_permid, twoD_measurement_sample.permId)
+                    # except:
+                    #     print(f"Cannot upload {group[0]}.")
                 else:
                     
                     # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)

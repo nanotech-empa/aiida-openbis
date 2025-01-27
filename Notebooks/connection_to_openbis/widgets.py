@@ -443,7 +443,7 @@ class ObjectSelectionWidget(ipw.HBox):
                 OPENBIS_SESSION,
                 type = type
             )
-            options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+            options = [(f"{item.props['$name']}", item.permId) for item in items]
             options.insert(0, (f'Select {placeholder}...', -1))
             
         elif source == "aiidalab":

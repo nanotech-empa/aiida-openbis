@@ -234,7 +234,6 @@ class Spm:
             DESCRIPTION.
 
         """
-
         if any(d["ParamNickname"] == param for d in self.ParamListReference):
             paNum = [d["ParamNickname"] for d in self.ParamListReference].index(param)
 
