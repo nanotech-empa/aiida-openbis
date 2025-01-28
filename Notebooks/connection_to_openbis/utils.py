@@ -10,6 +10,9 @@ import copy
 import datetime
 import os
 
+def full_listdir(path):
+    return [f"{path}{os.sep}{filepath}" for filepath in os.listdir(path)]
+
 def upload_datasets(openbis_session, method_object, support_files_widget, dataset_type):
     for filename in support_files_widget.value:
         file_info = support_files_widget.value[filename]
@@ -185,22 +188,6 @@ def connect_openbis(eln_url, eln_token):
 def save_file(file_content, filename):
     with open(filename, 'wb') as f:  # Save file content
         f.write(file_content)
-
-def filter_samples(openbis_session, samples):
-    """
-    Function for hiding intermediate samples which result 
-    from the different steps of samples preparation.
-
-    Args:
-        samples (_type_): _description_
-    """
-    
-    selected_samples = []
-    for sample in samples:
-        sample = openbis_session.get_object(sample.permId)
-        if sample.props["exists"] == "true":
-            selected_samples.append(sample)
-    return selected_samples
 
 def get_openbis_parents_recursive(openbis_session, object, object_parents_metadata):
     object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate,object.props['$name']])

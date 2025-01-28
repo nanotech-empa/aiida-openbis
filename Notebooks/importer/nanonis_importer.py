@@ -80,33 +80,49 @@ def reorder_sxm_channels(channels, header):
     """
     channel_index = -1
     
-    lock_in_status = False
-    z_control_hold = False
-    oscillation_control_output_off = False
+    lock_in_status = -1
+    z_controller_status = -1
+    oscillation_control_output_off = -1
     
-    if "Lock-in>Lock-in status" in header:
-        if header["Lock-in>Lock-in status"] == "ON":
-            lock_in_status = True
+    print(channels)
     
-    if "Z-Ctrl hold" in header:
-        if header["Z-Ctrl hold"] == "TRUE":
-            z_control_hold = True
-    
-    if "Oscillation Control>output off" in header:
-        if header["Oscillation Control>output off"] == "TRUE":
-            oscillation_control_output_off = True
-    
-    if lock_in_status:
-        channel_index = channels.index("dIdV")
-    else:
-        if z_control_hold:
-            channel_index = channels.index("z")
+    if "lock-in>lock-in status" in header:
+        if header["lock-in>lock-in status"] == "ON":
+            lock_in_status = 1
         else:
-            if oscillation_control_output_off:
-                channel_index = channels.index("df")
-            else:
-                channel_index = channels.index("I")
+            lock_in_status = 0
     
+    if "z-controller>controller status" in header:
+        if header["z-controller>controller status"] == "ON":
+            z_controller_status = 1
+        else:
+            z_controller_status = 0
+    
+    if "oscillation control>output off" in header:
+        if header["oscillation control>output off"] == "TRUE":
+            oscillation_control_output_off = 1
+        else:
+            oscillation_control_output_off = 0
+    
+    try:
+        if lock_in_status == 1:
+            channel_index = channels.index("dIdV")
+        elif lock_in_status == 0:
+            if z_controller_status == 1:
+                channel_index = channels.index("z")
+            else:
+                if oscillation_control_output_off == 1:
+                    channel_index = channels.index("df")
+                else:
+                    channel_index = channels.index("I")
+        else:
+            if "z" in channels:
+                channel_index = channels.index("z")
+            else:
+                channel_index = 0 # Select first channel available
+    except:
+        channel_index = 0
+        
     # If the channel index is less than 0, it means the tree did not find the measurement type
     if channel_index >= 0:        
         channels[channel_index], channels[0] = channels[0], channels[channel_index]
@@ -129,54 +145,79 @@ def reorder_dat_channels(channels, header):
             Oscillation Control>output off: TRUE > df vs z
             Oscillation Control>output off: FALSE > I vs z
     """
-    print(channels)
     channels_x = copy.deepcopy(channels)
     channels_y = copy.deepcopy(channels)
     channel_x_index = -1
     channel_y_index = -1
     
-    lock_in_status = False
-    z_control_hold = True
-    oscillation_control_output_off = False
+    print(channels_x)
+    
+    lock_in_status = -1
+    z_control_hold = -1
+    oscillation_control_output_off = -1
     
     if "Lock-in>Lock-in status" in header:
         if header["Lock-in>Lock-in status"] == "ON":
-            lock_in_status = True
+            lock_in_status = 1
+        else:
+            lock_in_status = 0
     
     if "Z-Ctrl hold" in header:
-        if header["Z-Ctrl hold"] == "FALSE":
-            z_control_hold = False
+        if header["Z-Ctrl hold"] == "TRUE":
+            z_control_hold = 1
+        else:
+            z_control_hold = 0
     
     if "Oscillation Control>output off" in header:
         if header["Oscillation Control>output off"] == "TRUE":
-            oscillation_control_output_off = True
-    
-    if header["Experiment"] == "bias spectroscopy":
-        if lock_in_status:
-            channel_x_index = channels_x.index(("V","V",1))
-            channel_y_index = channels_y.index(("dIdV","pA",10**12))
+            oscillation_control_output_off = 1
         else:
-            if z_control_hold == False:
-                channel_x_index = channels_x.index(("V","V",1))
-                channel_y_index = channels_y.index(("zspec","nm",10**9))
-            else:
-                if oscillation_control_output_off:
+            oscillation_control_output_off = 0
+    
+    try:
+        if header["Experiment"] == "bias spectroscopy":
+            try:
+                if lock_in_status == 1:
                     channel_x_index = channels_x.index(("V","V",1))
-                    channel_y_index = channels_y.index(("df","Hz",1))
+                    channel_y_index = channels_y.index(("dIdV","pS",10**12))
+                elif lock_in_status == 0:
+                    if z_control_hold == 0:
+                        channel_x_index = channels_x.index(("V","V",1))
+                        channel_y_index = channels_y.index(("zspec","nm",10**9))
+                    else:
+                        if oscillation_control_output_off == 1:
+                            channel_x_index = channels_x.index(("V","V",1))
+                            channel_y_index = channels_y.index(("df","Hz",1))
+                        else:
+                            channel_x_index = channels_x.index(("V","V",1))
+                            channel_y_index = channels_y.index(("I","pA",10**12))
                 else:
                     channel_x_index = channels_x.index(("V","V",1))
-                    channel_y_index = channels_y.index(("I","pA",10**12))
-    else:
-        if lock_in_status:
-            channel_x_index = channels_x.index(("zspec","nm",10**9))
-            channel_y_index = channels_y.index(("dIdV","pA",10**12))
+                    channel_y_index = 1
+            except:
+                channel_x_index = channels_x.index(("V","V",1))
+                channel_y_index = 1
         else:
-            if oscillation_control_output_off:
+            try:
+                if lock_in_status == 1:
+                    channel_x_index = channels_x.index(("zspec","nm",10**9))
+                    channel_y_index = channels_y.index(("dIdV","pS",10**12))
+                elif lock_in_status == 0:
+                    if oscillation_control_output_off == 1:
+                        channel_x_index = channels_x.index(("zspec","nm",10**9))
+                        channel_y_index = channels_y.index(("df","Hz",1))
+                    else:
+                        channel_x_index = channels_x.index(("zspec","nm",10**9))
+                        channel_y_index = channels_y.index(("I","pA",10**12))
+                else:
+                    channel_x_index = channels_x.index(("zspec","nm",10**9))
+                    channel_y_index = 1
+            except:
                 channel_x_index = channels_x.index(("zspec","nm",10**9))
-                channel_y_index = channels_y.index(("df","Hz",1))
-            else:
-                channel_x_index = channels_x.index(("zspec","nm",10**9))
-                channel_y_index = channels_y.index(("I","pA",10**12))
+                channel_y_index = 1
+    except:
+        channel_x_index = 0
+        channel_y_index = 1
 
     if channel_x_index >= 0:
         channels_x[channel_x_index], channels_x[0] = channels_x[0], channels_x[channel_x_index]
@@ -201,38 +242,44 @@ def get_dat_type(header):
     """
     measurement_type = ""
     
-    lock_in_status = False
-    z_control_hold = False
-    oscillation_control_output_off = False
+    lock_in_status = -1
+    z_control_hold = -1
+    oscillation_control_output_off = -1
     
     if "Lock-in>Lock-in status" in header:
         if header["Lock-in>Lock-in status"] == "ON":
-            lock_in_status = True
+            lock_in_status = 1
+        else:
+            lock_in_status = 0
     
     if "Z-Ctrl hold" in header:
         if header["Z-Ctrl hold"] == "TRUE":
-            z_control_hold = True
+            z_control_hold = 1
+        else:
+            z_control_hold = 0
     
     if "Oscillation Control>output off" in header:
         if header["Oscillation Control>output off"] == "TRUE":
-            oscillation_control_output_off = True
+            oscillation_control_output_off = 1
+        else:
+            oscillation_control_output_off = 0
     
     if header["Experiment"] == "bias spectroscopy":
-        if lock_in_status:
+        if lock_in_status == 1:
             measurement_type = "bias spectroscopy dIdV vs V"
-        else:
-            if z_control_hold:
+        elif lock_in_status == 0:
+            if z_control_hold == 0:
                 measurement_type = "bias spectroscopy z vs V"
             else:
-                if oscillation_control_output_off:
+                if oscillation_control_output_off == 1:
                     measurement_type = "bias spectroscopy df vs V"
                 else:
                     measurement_type = "bias spectroscopy I vs V"
     else:
-        if lock_in_status:
+        if lock_in_status == 1:
             measurement_type = "z spectroscopy dIdV vs z"
-        else:
-            if oscillation_control_output_off:
+        elif lock_in_status == 0:
+            if oscillation_control_output_off == 1:
                 measurement_type = "z spectroscopy df vs z"
             else:
                 measurement_type = "z spectroscopy I vs z"
@@ -534,7 +581,7 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
 
     if production:
         measurement_datetimes = []
-
+        # Check measurement files and measurement datetimes
         for f in measurement_files:
             if f.endswith(".sxm"):
                 img = spm(f"{data_folder}/{f}")
@@ -547,7 +594,15 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
                 measurement_datetimes.append(img_datetime)
 
         # Sort files by datetime
-        sorted_measurement_files = [x for _, x in sorted(zip(measurement_datetimes, measurement_files))]
+        paired = list(zip(measurement_datetimes, measurement_files))
+
+        # Sort by datetime
+        paired.sort(key=lambda x: x[0])
+
+        # Extract filenames in sorted order
+        sorted_measurement_files = [filename for _, filename in paired]
+        print(paired)
+        print(1+"a")
 
         # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files.
         grouped_measurement_files = []
