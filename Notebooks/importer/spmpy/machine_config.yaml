@@ -38,6 +38,10 @@ Channels:
       nickname: T1
       scaling: 1
       unit: K
+  Temperature 1 (V):
+      nickname: T1_V
+      scaling: 1
+      unit: V
   Bias (V):
       nickname: V
       scaling: 1

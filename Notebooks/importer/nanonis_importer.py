@@ -580,31 +580,30 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
     production = True
 
     if production:
+        readable_measurement_files = []
         measurement_datetimes = []
         # Check measurement files and measurement datetimes
         for f in measurement_files:
             if f.endswith(".sxm"):
                 img = spm(f"{data_folder}/{f}")
                 img_datetime = datetime.strptime(f"{img.header['rec_date']} {img.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
+                readable_measurement_files.append(f)
                 measurement_datetimes.append(img_datetime)
                 
             elif f.endswith(".dat"):
                 img = spm(f"{data_folder}/{f}")
                 img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+                readable_measurement_files.append(f)
                 measurement_datetimes.append(img_datetime)
 
-        # Sort files by datetime
-        paired = list(zip(measurement_datetimes, measurement_files))
-
-        # Sort by datetime
-        paired.sort(key=lambda x: x[0])
+        # Sort files by datetime first, then filename
+        paired = list(zip(measurement_datetimes, readable_measurement_files))
+        paired.sort(key=lambda x: (x[0], x[1]))
 
         # Extract filenames in sorted order
         sorted_measurement_files = [filename for _, filename in paired]
-        print(paired)
-        print(1+"a")
 
-        # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files.
+        # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files, except when they do not have the same channels.
         grouped_measurement_files = []
         group = []
         for i,f in enumerate(sorted_measurement_files):
@@ -614,7 +613,21 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
                     group = []
                 grouped_measurement_files.append([f])
             elif f.endswith(".dat"):
-                group.append(f)
+                # If the files contain different channels, they must be separated even if they are from a sequence that was taken sequentally with no SXM file in between.
+                f_img = spm(f"{data_folder}/{f}")
+                files_with_different_channels = False
+                
+                for file in group:
+                    img = spm(f"{data_folder}/{file}")
+                    if img.channels != f_img.channels:
+                        files_with_different_channels = True
+                        break
+                
+                if files_with_different_channels:
+                    grouped_measurement_files.append(group)
+                    group = [f]      
+                else:
+                    group.append(f)
 
         if len(group) > 0:
             grouped_measurement_files.append(group)
