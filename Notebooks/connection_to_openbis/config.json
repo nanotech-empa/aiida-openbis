@@ -334,16 +334,12 @@
         "evaporator_slot": {
             "title": "Evaporator slot",
             "property_type": "JSON",
-            "property_widget": "INTEGER_SLIDER_W_DETAILS",
+            "property_widget": "TEXTAREA",
             "disabled": false,
+            "default_value": "{\"evaporator_slot\": 1, \"details\": }",
             "placeholder": "Write evaporator slot details...",
-            "default_value": 1,
-            "values_list": [1, 2, 3, 4, 5, 6],
             "box_layout":{
-                "width": "300px"
-            },
-            "slider_layout":{
-                "width": "350px",
+                "width": "900px",
                 "description_width": "150px"
             }
         },
@@ -1203,25 +1199,14 @@
                 "<li><a href='create_sample.ipynb' target='_blank' style='font-size: 13px;'>Create sample</a></li>",
                 "<li><a href='sample_preparation.ipynb' target='_blank' style='font-size: 13px;'>Sample preparation</a></li>",
                 "<li><a href='sample_measurement.ipynb' target='_blank' style='font-size: 13px;'>Sample measurement</a></li>",
-                "<li><a href='substance_srd.ipynb' target='_blank' style='font-size: 13px;'>Substance sublimation rate</a></li>",
+                "<li><a href='molecule_srd.ipynb' target='_blank' style='font-size: 13px;'>Molecule sublimation rate</a></li>",
                 "</div>",
                 "</div>"
             ],
-            "Export": [
+            "Simulations": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='export_openbis_object.ipynb' target='_blank' style='font-size: 13px;'>Export openBIS publication object</a></li>",
-                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Inventory": [
-                "<div style='display: flex;'>",
-                "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_molecule.ipynb' target='_blank' style='font-size: 13px;'>Create molecule</a></li>",
-                "<li><a href='create_product.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product</a></li>",
-                "<li><a href='create_substance.ipynb' target='_blank' style='font-size: 13px;'>Create substance</a></li>",
-                "<li><a href='create_atomistic_model.ipynb' target='_blank' style='font-size: 13px;'>Create atomistic model</a></li>",
+                "<li><a href='send_simulation_to_openbis.ipynb' target='_blank' style='font-size: 13px;'>Send simulation to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1235,6 +1220,16 @@
                 "</div>",
                 "</div>"
             ],
+            "Inventory": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_molecule_concept.ipynb' target='_blank' style='font-size: 13px;'>Create molecule concept</a></li>",
+                "<li><a href='create_molecule.ipynb' target='_blank' style='font-size: 13px;'>Create molecule</a></li>",
+                "<li><a href='create_product.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product</a></li>",
+                "<li><a href='create_atomistic_model.ipynb' target='_blank' style='font-size: 13px;'>Create atomistic model</a></li>",
+                "</div>",
+                "</div>"
+            ],
             "Search": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
@@ -1243,10 +1238,11 @@
                 "</div>",
                 "</div>"
             ],
-            "Simulations": [
+            "Export": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' target='_blank' style='font-size: 13px;'>Send simulation to openBIS</a></li>",
+                "<li><a href='export_openbis_object.ipynb' target='_blank' style='font-size: 13px;'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]
@@ -1258,25 +1254,14 @@
                 "<li><a href='create_sample.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create sample</a></li>",
                 "<li><a href='sample_preparation.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample preparation</a></li>",
                 "<li><a href='sample_measurement.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample measurement</a></li>",
-                "<li><a href='substance_srd.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Substance sublimation rate</a></li>",
+                "<li><a href='molecule_srd.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Molecule sublimation rate</a></li>",
                 "</div>",
                 "</div>"
             ],
-            "Export": [
+            "Simulations": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='export_openbis_object.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Export openBIS publication object</a></li>",
-                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Inventory": [
-                "<div id='box' style='display: flex; pointer-events: none;'>",
-                "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_molecule.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create molecule</a></li>",
-                "<li><a href='create_product.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create reaction product</a></li>",
-                "<li><a href='create_substance.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create substance</a></li>",
-                "<li><a href='create_atomistic_model.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create atomistic model</a></li>",
+                "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Send simulation to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1290,6 +1275,16 @@
                 "</div>",
                 "</div>"
             ],
+            "Inventory": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_molecule_concept.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create molecule concept</a></li>",
+                "<li><a href='create_molecule.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create molecule</a></li>",
+                "<li><a href='create_product.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create reaction product</a></li>",
+                "<li><a href='create_atomistic_model.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create atomistic model</a></li>",
+                "</div>",
+                "</div>"
+            ],
             "Search": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
@@ -1298,10 +1293,11 @@
                 "</div>",
                 "</div>"
             ],
-            "Simulations": [
+            "Export": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Send simulation to openBIS</a></li>",
+                "<li><a href='export_openbis_object.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Export openBIS publication object</a></li>",
+                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]

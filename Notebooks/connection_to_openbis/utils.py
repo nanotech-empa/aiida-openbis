@@ -9,6 +9,7 @@ import pandas as pd
 import copy
 import datetime
 import os
+from IPython.display import display
 
 def full_listdir(path):
     return [f"{path}{os.sep}{filepath}" for filepath in os.listdir(path)]
@@ -318,6 +319,7 @@ def get_object_type(openbis_object_type, config):
             return object_type
 
 def get_metadata_string(openbis_session, object, metadata_string, config):
+    
     object_type = get_object_type(object.type, config)
     
     for prop_key in config["objects"][object_type]["properties"]:
@@ -335,7 +337,7 @@ def get_property_string(openbis_session, object, prop_title, prop_key, prop_data
         value = object_metadata.get(prop_key)
         if value:
             prop_dict = json.loads(value)
-            property_string = f"{prop_title}: {prop_dict['value']} {prop_dict['unit']}\n"
+            property_string = f"{prop_title}: {prop_dict['has_value']} {prop_dict['has_unit']}\n"
         else:
             property_string = f"{prop_title}: {value}\n"
     elif prop_datatype == "PARENT_OBJECT":
@@ -352,3 +354,115 @@ def get_property_string(openbis_session, object, prop_title, prop_key, prop_data
         property_string = f"{prop_title}: {object_metadata.get(prop_key)}\n"
     
     return property_string
+
+def find_first_object_permid(openbis_session, openbis_object, openbis_type):
+    first_object = openbis_object
+    object_parents_identifiers = openbis_object.parents
+    for parent_identifier in object_parents_identifiers:
+        parent_object = openbis_session.get_object(parent_identifier)
+        if parent_object.type == openbis_type:
+            first_object = find_first_object_permid(openbis_session, parent_object, openbis_type)
+    
+    return first_object
+
+def get_sample_details(openbis_session, sample_object, sample_preparation_types, slabs_types):
+    sample_parents_metadata = get_openbis_parents_recursive(openbis_session, sample_object, [])
+    sample_details = {
+        "sample_preparations": [], 
+        "materials": [], 
+        "sample_preparation_datetimes": [],
+        "last_sample_preparation_object": None
+    }
+    number_parents = len(sample_parents_metadata)
+    parent_idx = 0
+    while parent_idx < number_parents:
+        parent_metadata = sample_parents_metadata[parent_idx]
+        
+        if parent_metadata[0] == "DEPOSITION":
+            deposition_object = openbis_session.get_object(parent_metadata[1])
+            
+            # Get molecule used in the specific deposition
+            molecule_metadata = []
+            for parent_id in deposition_object.parents:
+                deposition_parent_object = openbis_session.get_object(parent_id)
+                if deposition_parent_object.type == "MOLECULE":
+                    deposition_parent_object_metadata = deposition_parent_object.props.all()
+                    molecule_metadata = [deposition_parent_object_metadata["$name"], deposition_parent_object.permId]
+                    
+            if molecule_metadata: # If deposition does not contain any molecule, the app must not try to display it
+                sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]}) [{molecule_metadata[0]} ({molecule_metadata[1]})]"
+            else:
+                sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
+            parent_idx += 1
+        else:
+            sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]})"
+        
+        if parent_metadata[0] in sample_preparation_types:
+            if sample_metadata_string not in sample_details["sample_preparations"]:
+                sample_details["sample_preparations"].append(sample_metadata_string)
+                sample_details["sample_preparation_datetimes"].append(parent_metadata[2])
+            
+            # Get the last sample preparation method performed on the sample in order to search the correct experiment where the sample is being used.
+            if sample_details["last_sample_preparation_object"] is None:
+                sample_details["last_sample_preparation_object"] = parent_metadata[1]
+                
+        elif parent_metadata[0] in slabs_types:
+            if sample_metadata_string not in sample_details["materials"]:
+                sample_details["materials"].append(sample_metadata_string)
+            
+        parent_idx += 1
+    
+    # Parse the datetime strings and zip them with sample preparations and materials
+    parsed_datetimes = [datetime.datetime.strptime(dt, "%Y-%m-%d %H:%M:%S") for dt in sample_details["sample_preparation_datetimes"]]
+    zipped_lists = list(zip(parsed_datetimes, sample_details["sample_preparations"]))
+
+    # Sort by the datetime
+    sorted_zipped_lists = sorted(zipped_lists, key=lambda x: x[0], reverse = True)
+
+    # Unpack the sorted values back into sample_strings
+    if sample_details["sample_preparations"]:
+        _, sample_details["sample_preparations"] = zip(*sorted_zipped_lists)
+    
+    return sample_details
+
+def get_last_sample_experiment(openbis_session, sample_object, last_sample_preparation_object):
+    # Automatically select the experiment where the last sample preparation task was saved
+    last_sample_experiment = openbis_session.get_experiment(last_sample_preparation_object.attrs.experiment)
+    
+    # Check if the sample is being used in a set of measurements that were created in another experiment after the preparation steps
+    sample_children = sample_object.get_children()
+    for child in sample_children:
+        if child.registrationDate > last_sample_preparation_object.registrationDate:
+            last_sample_experiment = child.experiment
+    
+    return last_sample_experiment
+
+def get_last_sample_instrument(openbis_session, last_sample_preparation_object):
+    # Automatically select the instrument used in the last sample preparation task
+    for parent in last_sample_preparation_object.parents:
+        parent_object = openbis_session.get_object(parent)
+        if parent_object.type == "INSTRUMENT":
+            instrument_object = parent_object
+            break
+    
+    return instrument_object
+
+def get_object_property(property_type, property_widget):
+    property_value = None
+    if property_type == "QUANTITY_VALUE":
+        property_value = json.dumps(
+            {
+                "has_value": property_widget.children[0].value,
+                "has_unit": property_widget.children[1].value
+            }
+        )
+    elif property_type == "JSON":
+        property_value = property_widget.value
+        property_value = property_value.replace("'", '"')
+        if property_value:
+            if is_valid_json(property_value) == False:
+                display(Javascript(data = "alert('There is a JSON property that is not a valid JSON object.')"))
+    elif property_type == "DATE":
+        property_value = str(property_widget.value)
+    else:
+        property_value = property_widget.value

@@ -71,7 +71,7 @@ class ExperimentSelectionWidget(ipw.VBox):
             OPENBIS_SESSION,
             type = "EXPERIMENT"
         )
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.props['$name']} (Project: {item.project.code})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select experiment...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -153,7 +153,7 @@ class MaterialSelectionWidget(ipw.Output):
             OPENBIS_SESSION,
             type = object_type
         )
-        items_names_permids = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select {placeholder}...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -176,6 +176,31 @@ class MaterialSelectionWidget(ipw.Output):
                 names='value'
             )
 
+    # Function to handle changes in the materials objects dropdown
+    def load_metadata(self, change):
+        if self.dropdown.value == -1:
+            self.details_textbox.value = ''
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+            return
+        
+        # Get material object information and dataset
+        object = OPENBIS_SESSION.get_object(self.dropdown.value)
+        object_dataset = object.get_datasets()[0]
+        
+        # Get the object image preview
+        if object_dataset:
+            object_dataset.download(destination="images")
+            object_image_filepath = object_dataset.file_list[0]
+            self.image_box.value = utils.read_file(f"images/{object_dataset.permId}/{object_image_filepath}")
+            # Erase file after downloading it
+            shutil.rmtree(f"images/{object_dataset.permId}")
+        else:
+            self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
+
+        # Make a string with the property values of the object
+        metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, "", CONFIG)
+        self.details_textbox.value = metadata_string
+    
 class MultipleSelectorWidget(ipw.VBox):
     def __init__(self, selector_type):
         # Initialize the parent VBox
@@ -354,7 +379,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         
         # Select multiple drafts
         self.selector = utils.SelectMultiple(description = description, disabled = False, 
-                                             layout = ipw.Layout(width = '800px'), 
+                                             layout = ipw.Layout(width = '800px', height = '300px'), 
                                              style = {'description_width': "110px"})
         
         self.children = [self.selector]
@@ -374,9 +399,10 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
             if type == "2D_MEASUREMENT" and self.description == "Simulations":
                 items = [item for item in items if item.props["wfms_uuid"]]
             
-            options = [(f"{item.props['$name']} ({item.attrs.identifier})", item.permId) for item in items]
+            options = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]
             selector_options += options
-            
+        
+        selector_options.sort(key=lambda x: (x[1], x[0]), reverse = True)
         self.selector.options = selector_options
 
 class ObjectSelectionWidget(ipw.HBox):
@@ -503,7 +529,7 @@ class ObjectSelectionWidget(ipw.HBox):
                 names='value'
             )
     
-    # Function to handle changes in the molecules dropdown
+    # Function to handle changes in the objects dropdown
     def load_metadata(self, change):
         if self.dropdown.value == -1:
             if self.details_textbox:
@@ -532,6 +558,7 @@ class ObjectSelectionWidget(ipw.HBox):
                 object_dataset.download(destination="images")
                 object_image_filepath = object_dataset.file_list[0]
                 self.image_box.value = utils.read_file(f"images/{object_dataset.permId}/{object_image_filepath}")
+                # Erase file after downloading it
                 shutil.rmtree(f"images/{object_dataset.permId}/")
             else:
                 self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
@@ -569,7 +596,7 @@ class ProjectSelectionWidget(ipw.VBox):
         items = utils.get_openbis_projects(
             OPENBIS_SESSION
         )
-        items_names_permids = [(f"{item.code} ({item.identifier})", item.permId) for item in items]
+        items_names_permids = [(f"{item.code}", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select project...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1

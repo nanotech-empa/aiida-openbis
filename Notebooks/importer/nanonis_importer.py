@@ -84,8 +84,6 @@ def reorder_sxm_channels(channels, header):
     z_controller_status = -1
     oscillation_control_output_off = -1
     
-    print(channels)
-    
     if "lock-in>lock-in status" in header:
         if header["lock-in>lock-in status"] == "ON":
             lock_in_status = 1
@@ -149,8 +147,6 @@ def reorder_dat_channels(channels, header):
     channels_y = copy.deepcopy(channels)
     channel_x_index = -1
     channel_y_index = -1
-    
-    print(channels_x)
     
     lock_in_status = -1
     z_control_hold = -1
@@ -592,7 +588,10 @@ def upload_measurements_into_openbis(openbis_url, data_folder, collection_permid
                 
             elif f.endswith(".dat"):
                 img = spm(f"{data_folder}/{f}")
-                img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+                if "Saved Date" in img.header:
+                    img_datetime = datetime.strptime(img.header['Saved Date'], "%d.%m.%Y %H:%M:%S")
+                else:
+                    img_datetime = datetime.strptime(img.header['Date'], "%d.%m.%Y %H:%M:%S")
                 readable_measurement_files.append(f)
                 measurement_datetimes.append(img_datetime)
 
