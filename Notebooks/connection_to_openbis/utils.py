@@ -61,22 +61,12 @@ def DropdownwithSortingCheckboxesWidget(*args):
     else:
         return ipw.VBox(widgets)
 
-def IntSliderwithTextWidget(*args):
-    intslider = IntSlider(value = args[0], description = args[1], min = args[2][0], max = args[2][-1], disabled = False, layout = args[3], style = args[4])
-    textbox = Text(value = '', description = '', placeholder= args[5], disabled = False, layout = args[6])
-    return ipw.HBox([intslider, textbox])
-
 def SortingCheckboxes(*args):
     return ipw.HBox([
         ipw.Label(value = "Sort by:", layout = ipw.Layout(width = args[0], display = "flex", justify_content='flex-end')),
         Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = args[1]), indent = False),
         Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = args[2]), indent = False)
     ])
-
-def FloatTextwithDropdownWidget(*args):
-    floatbox = FloatText(description=args[0], disabled=False, layout = args[1], value = args[2], style = args[3])
-    dropdown = Dropdown(description='', disabled=False, layout = args[4], options = args[5], value = args[6])
-    return ipw.HBox([floatbox, dropdown])
 
 def FloatSlider(**kwargs):
     return ipw.FloatSlider(**kwargs)
@@ -447,21 +437,18 @@ def get_last_sample_instrument(openbis_session, last_sample_preparation_object):
     
     return instrument_object
 
-def get_object_property(property_type, property_widget):
+def get_object_property(property_widget, property_config):
     property_value = None
-    if property_type == "QUANTITY_VALUE":
-        property_value = json.dumps(
-            {
-                "has_value": property_widget.children[0].value,
-                "has_unit": property_widget.children[1].value
-            }
-        )
-    elif property_type == "JSON":
-        property_value = property_widget.value
-        property_value = property_value.replace("'", '"')
-        if property_value:
-            if is_valid_json(property_value) == False:
-                display(Javascript(data = "alert('There is a JSON property that is not a valid JSON object.')"))
+    property_type = property_config["property_type"]
+    if property_type == "JSON":
+        property_value = property_config["json_format"]
+        property_format_keys = list(property_value.keys())
+        for i, child in enumerate(property_widget.children):
+            key = property_format_keys[i]
+            property_value[key] = child.value
+            
+        property_value = json.dumps(property_value)
+        
     elif property_type == "DATE":
         property_value = str(property_widget.value)
     elif property_type == "MULTIVALUE_BOOLEAN":
@@ -472,3 +459,17 @@ def get_object_property(property_type, property_widget):
         property_value = property_widget.value
     
     return property_value
+
+def get_widget_values(widgets_dict):
+    def extract_values(d):
+        values = {}
+        for key, widget in d.items():
+            if isinstance(widget, dict):
+                # Recursively handle nested dictionaries
+                nested_values = extract_values(widget)
+                values[key] = json.dumps(nested_values)
+            else:
+                values[key] = widget.value
+        return values
+
+    return extract_values(widgets_dict)

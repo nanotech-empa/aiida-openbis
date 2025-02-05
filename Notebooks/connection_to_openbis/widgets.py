@@ -9,6 +9,7 @@ import shutil
 import utils
 import base64
 import datetime
+import copy
 from aiida import orm
 
 DATA_MODEL = utils.read_yaml("/home/jovyan/aiida-openbis/Notebooks/Metadata_Schemas_LinkML/materialMLinfo.yaml")
@@ -290,8 +291,6 @@ class ObjectPropertiesWidgets(ipw.VBox):
                     "placeholder": property["placeholder"], 
                     "style": {'description_width': property["box_layout"]["description_width"]}
                 }
-                if property["property_type"] == "JSON":
-                    widget_args["value"] = property["default_value"]
                     
                 prop_widget = utils.Textarea(**widget_args)
             
@@ -387,112 +386,197 @@ class ObjectPropertiesWidgets(ipw.VBox):
 class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
     def __init__(self, task):
         super().__init__()
+        self.properties_widgets_list = []
+        self.properties_widgets_dict = {}
+        self.task = task
+    
+    def get_properties_widgets(self):
+        self.all_schema_classes = DATA_MODEL["classes"]
+        self.all_schema_slots = DATA_MODEL["slots"]
+        object = self.all_schema_classes[self.task]
+        object = self.get_properties_recursive(object)
+        for property in object["slots"]:
+            if self.all_schema_slots[property]["annotations"]["openbis_type"] != "Not used":
+                property_widget, property_dict = self.get_property_widget(property)
+                if property_widget:
+                    if property == "name":
+                        new_property = "$name"
+                    else:
+                        new_property = property
+                        
+                    self.properties_widgets_list.append(property_widget)
+                    self.properties_widgets_dict[new_property] = property_dict[property]
+                
+        self.children = self.properties_widgets_list
+    
+    def get_property_widget(self, property, is_group = False):
+        property_widget = None
+        property_dict = None
+        property_settings = self.all_schema_slots[property]
+        property_multivalued = property_settings["multivalued"]
+        property_description = property_settings["description"]
+        property_range = property_settings["range"]
+        property_openbis_type = property_settings["annotations"]["openbis_type"]
         
-        self.properties_widgets = {}
-        properties = CONFIG["objects"][task]["properties"]
-        for prop_key in properties:
-            property = CONFIG["properties"][prop_key]
-            if property["property_widget"] == "TEXT":
-                prop_widget = utils.Text(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
+        # Multivalued properties are a special case of properties
+        if property_multivalued:
+            return None, None
+        
+        if property_openbis_type == "VARCHAR":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
-            elif property["property_widget"] == "TEXTAREA":
-                widget_args = {
-                    "description": property["title"], "disabled": property["disabled"], 
-                    "layout": ipw.Layout(width = property["box_layout"]["width"]), 
-                    "placeholder": property["placeholder"], 
-                    "style": {'description_width': property["box_layout"]["description_width"]}
-                }
-                if property["property_type"] == "JSON":
-                    widget_args["value"] = property["default_value"]
+            text_widget = utils.Text(
+                layout = ipw.Layout(width = "200px"), 
+                placeholder = "",
+            )
+            property_widget = ipw.VBox([label_widget, text_widget])
+            property_dict = {property: text_widget}
+        
+        elif property_openbis_type == "MULTILINE_VARCHAR":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            textarea_widget = utils.Textarea(
+                layout = ipw.Layout(width = "200px", height = "100px"), 
+                placeholder = "",
+            )
+            property_widget = ipw.VBox([label_widget, textarea_widget])
+            property_dict = {property: textarea_widget}
+        
+        elif property_openbis_type == "BOOLEAN":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            boolean_widget = utils.Checkbox(
+                layout = ipw.Layout(width = "200px"),
+                value = False,
+                indent = False
+            )
+            property_widget = ipw.VBox([label_widget, boolean_widget])
+            property_dict = {property: boolean_widget}
+        
+        elif property_openbis_type == "DATE":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            datepicker_widget = ipw.DatePicker(
+                layout = ipw.Layout(width = "200px"), 
+                value = datetime.date.today()
+            )
+            property_widget = ipw.VBox([label_widget, datepicker_widget])
+            property_dict = {property: datepicker_widget}
+        
+        elif property_openbis_type == "TIMESTAMP":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            text_widget = utils.Text(
+                layout = ipw.Layout(width = "200px"), 
+                placeholder = ""
+            )
+            property_widget = ipw.VBox([label_widget, text_widget])
+            property_dict = {property: text_widget}
+        
+        elif property_openbis_type == "INTEGER":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            int_widget = utils.IntText(
+                layout = ipw.Layout(width = "200px")
+            )
+            property_widget = ipw.VBox([label_widget, int_widget])
+            property_dict = {property: int_widget}
+        
+        elif property_openbis_type == "REAL":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            float_widget = utils.FloatText(
+                layout = ipw.Layout(width = "200px")
+            )
+            property_widget = ipw.VBox([label_widget, float_widget])
+            property_dict = {property: float_widget}
+
+        elif property_openbis_type == "CONTROLLEDVOCABULARY":
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+                
+            property_vocabulary = DATA_MODEL["enums"][property_range]["permissible_values"].keys()
+            property_vocabulary = list(property_vocabulary)
+            dropdown_widget = utils.Dropdown(
+                layout = ipw.Layout(width = "200px"), 
+                options = property_vocabulary,
+                value = property_vocabulary[0]
+            )
+            property_widget = ipw.VBox([label_widget, dropdown_widget])
+            property_dict = {property: dropdown_widget}
+        
+        elif property_openbis_type == "JSON":
+            if "slots" in self.all_schema_classes[property_range]:
+                property_widget, property_dict = self.get_property_widgets_recursive(property, property_range)
+            else:
+                if is_group:
+                    label_widget = ipw.HTML(value = property_description)
+                else:
+                    label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                     
-                prop_widget = utils.Textarea(**widget_args)
-            
-            elif property["property_widget"] == "MULTIPLE_CHECKBOXES":
-                checkboxes_list = []
-                label_widget = ipw.Label(property["title"])
-                checkboxes_list.append(label_widget)
-                for i in range(property["num_elements"]):
-                    checkbox_widget = utils.Checkbox(
-                        disabled = property["disabled"], 
-                        layout = ipw.Layout(width = property["box_layout"]["width"]),
-                        style = {'description_width': property["box_layout"]["description_width"]},
-                        indent = False, value = False
-                    )
-                    checkboxes_list.append(checkbox_widget)
+                text_widget = utils.Text(
+                    layout = ipw.Layout(width = "200px"), 
+                    placeholder = "",
+                )
+                property_widget = ipw.VBox([label_widget, text_widget])
+                property_dict = {property: text_widget}
+        
+        return property_widget, property_dict
+
+    def get_property_widgets_recursive(self, property, property_range):
+        widget_accordion_children = []
+        property_dict = {property: {}}
+        for slot in self.all_schema_classes[property_range]["slots"]:
+            if self.all_schema_slots[slot]["annotations"]["openbis_type"] != "Not used":
+                sub_property_widget, sub_property_dict = self.get_property_widget(slot, True)
+                property_dict[property][slot] = sub_property_dict[slot]
+                widget_accordion_children.append(sub_property_widget)
+        property_widget = ipw.HBox(children = widget_accordion_children)
+        property_description = self.all_schema_slots[property]["description"]
+        
+        return ipw.VBox([ipw.HTML(value = f"<b>{property_description}</b>"), property_widget]), property_dict
+    
+    def get_properties_recursive(self, object):
+        # Get all the property types until the last parent class
+        object = copy.deepcopy(object)
+        object_copy = object
+        while "is_a" in object_copy:
+            parent_object = self.all_schema_classes[object_copy["is_a"]]
+            # Used when the object inherits all the properties from another object
+            if object["slots"]:
+                object["slots"] = parent_object["slots"] + object["slots"]
+            else:
+                object["slots"] = parent_object["slots"]
                 
-                prop_widget = ipw.HBox(checkboxes_list)
-            
-            elif property["property_widget"] == "CHECKBOX":
-                prop_widget = utils.Checkbox(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    style = {'description_width': property["box_layout"]["description_width"]},
-                    indent = True, value = False
-                )
-            elif property["property_widget"] == "DATE":
-                prop_widget = ipw.DatePicker(
-                    description = property["title"], disabled = property["disabled"],
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            elif property["property_widget"] == "INTTEXT":
-                prop_widget = utils.IntText(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            
-            elif property["property_widget"] == "FLOATTEXT":
-                prop_widget = utils.FloatText(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            
-            elif property["property_widget"] == "DROPDOWN":
-                prop_widget = utils.Dropdown(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    options = property["options"],
-                    value = property["value"],
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-                
-            elif property["property_widget"] == "FLOAT_TEXT_W_DROPDOWN":
-                prop_widget = utils.FloatTextwithDropdownWidget(
-                    property["title"], ipw.Layout(width = property["box_layout"]["width"]), 
-                    property["default_value"], {'description_width': property["box_layout"]["description_width"]}, 
-                    ipw.Layout(width = property["dropdown_layout"]["width"]), property["units"], property["default_unit"]
-                )
-            
-            elif property["property_widget"] == "INTEGER_SLIDER_W_DETAILS":
-                prop_widget = utils.IntSliderwithTextWidget(
-                    property["default_value"], property["title"], property["values_list"], 
-                    ipw.Layout(width = property["slider_layout"]["width"]), 
-                    {'description_width': property["slider_layout"]["description_width"]}, 
-                    property["placeholder"], ipw.Layout(width = property["box_layout"]["width"])
-                )
-            
-            elif property["property_widget"] == "FLOAT_SLIDER":
-                prop_widget = utils.FloatSlider(
-                    description = property["title"], disabled = property["disabled"],
-                    layout = ipw.Layout(width = property["slider_layout"]["width"]),
-                    style = {'description_width': property["slider_layout"]["description_width"]},
-                    value = property["default_value"], min = min(property["values_list"]),
-                    max = max(property["values_list"]), step = property["slider_step"],
-                    readout_format = '.2f'
-                )
-                
-            self.properties_widgets[prop_key] = prop_widget
-            
-        self.children = list(self.properties_widgets.values())
+            object_copy = parent_object
+        
+        return object
+
+    def reset_properties_widgets(self):
+        self.get_properties_widgets()
 
 class ObjectMultipleSelectionWidget(ipw.HBox):
     def __init__(self, description):

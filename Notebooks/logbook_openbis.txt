@@ -388,3 +388,4 @@ Meeting with Carlo, Pascal, and Bruno:
 - Naming: First prep and some ..... last prep name. It could also have some details about the properties of the preparation steps.
 - When creating a new experiment, pull the image of the object that is being used (e.g. molecule) and some description in order to know what was used in the experiment
 - How to setup openbis dropbox to upload measurements automatically? At the moment it seems that it is uploading every hour and now right after adding files to a folder.
+- If object A is being used as a property in object B, can openBIS show this connection in object A?

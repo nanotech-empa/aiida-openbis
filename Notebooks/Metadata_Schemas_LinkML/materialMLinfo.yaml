@@ -63,6 +63,7 @@ classes:
       openbis_label: AiiDA Node
     slots:
      - description
+     - comments
 
   Analysis:
     title: Analysis
@@ -118,6 +119,7 @@ classes:
      - dimensionality
      - periodic_boundary_conditions
      - volume
+     - comments
      # ---- Object properties ----
      - crystal
      - geoopts
@@ -137,6 +139,7 @@ classes:
      - level_theory
      - input_parameters
      - output_parameters
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - codes
@@ -406,6 +409,7 @@ classes:
      - input_parameters
      - level_theory
      - output_parameters
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - codes
@@ -522,6 +526,7 @@ classes:
      - on_site_hubbard_repulsion_u
      - up_densities
      - up_electrons
+     - comments
      # ---- Object properties ----
      - atomistic_models
   
@@ -556,6 +561,7 @@ classes:
      - geometry_constraints_increments
      - method_type
      - number_geometries
+     - comments
      # ---- Object properties ----
      - atomistic_models
 
@@ -646,6 +652,7 @@ classes:
      - input_parameters
      - output_parameters
      - z_controller_setpoint
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - instrument
@@ -667,6 +674,7 @@ classes:
      - level_theory
      - input_parameters
      - output_parameters
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - codes
@@ -701,6 +709,7 @@ classes:
     slots:
      - energy
      - level_theory
+     - comments
 
   Preparation:
     title: Preparation
@@ -845,7 +854,6 @@ classes:
       openbis_label: Simulation
     slots:
      - wfms_uuid
-     - comments
 
   Software:
     title: Software
@@ -1051,6 +1059,7 @@ classes:
      - start_time
      - z_controller_setpoint
      - z_position
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - instrument
@@ -1100,6 +1109,7 @@ classes:
      - level_theory
      - input_parameters
      - output_parameters
+     - comments
      # ---- Object properties ----
      - atomistic_models
      - codes
@@ -1209,9 +1219,30 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - temperature
      - device
      - datetime
+     - temperature
+  
+  LengthQuantityValue:
+    title: Length quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with length unit
+    annotations:
+      openbis_object: false
+    slots:
+     - has_value
+     - has_length_unit
+     - type
+  
+  LevelTheory:
+    title: Level of Theory
+    class_uri: 
+    description: Level of Theory
+    annotations:
+      openbis_object: false
+    slots:
+     - method
+     - method_parameters
 
   MassQuantityValue:
     title: Mass quantity value
@@ -1689,7 +1720,7 @@ types:
 slots:
 
   abstract:
-    description: abstract
+    description: Abstract
     range: string
     slot_uri: schema:abstract
     multivalued: false
@@ -1777,7 +1808,7 @@ slots:
       openbis_label: Atom symbol
 
   band_gap:
-    description: Band gap
+    description: Band Gap
     range: QuantityValue
     multivalued: false
     slot_uri:
@@ -1850,7 +1881,7 @@ slots:
       openbis_label: Cell opt
 
   cell_opt_constraints:
-    description: cell optimisation constraints
+    description: Cell Optimisation Constraints
     range: string
     multivalued: false
     annotations:
@@ -1858,7 +1889,7 @@ slots:
       openbis_label: Cell optimisation constraints
 
   cell_optimised:
-    description: cell optimised
+    description: Cell Optimised
     range: boolean
     multivalued: false
     annotations:
@@ -1986,7 +2017,7 @@ slots:
       openbis_label: Deposition time
 
   description:
-    description: description
+    description: Description
     range: string
     slot_uri: schema:description
     multivalued: false
@@ -2066,7 +2097,7 @@ slots:
       openbis_label: Documentation website
 
   doi:
-    description: doi
+    description: DOI
     range: string
     slot_uri: ncit:NCIT_C71462
     multivalued: false
@@ -2099,7 +2130,7 @@ slots:
       openbis_label: Down electrons
 
   draft_type:
-    description: draft type
+    description: Draft Type
     range: DraftTypeEnum
     multivalued: false
     annotations:
@@ -2107,7 +2138,7 @@ slots:
       openbis_label: Draft type
 
   driver_code:
-    description: Driver code e.g. PLUMED, iPY
+    description: Driver Code
     range: string
     multivalued: false
     slot_uri:
@@ -2263,7 +2294,7 @@ slots:
       openbis_label: Final Z
 
   force_convergence_threshold:
-    description: maximum force allowed on each atom before the optimisation is converged
+    description: Force Convergence Threshold
     range: QuantityValue
     multivalued: false
     annotations:
@@ -2323,6 +2354,15 @@ slots:
   has_duration_unit:
     description: Unit
     range: DurationUnitsEnum
+    slot_uri: qudt:hasUnit
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
+  
+  has_length_unit:
+    description: Unit
+    range: LengthUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
     annotations:
@@ -2436,7 +2476,7 @@ slots:
       openbis_label: Holder ID
 
   input_parameters:
-    description: Method input parameters
+    description: Method Input Parameters
     range: Any
     multivalued: false
     slot_uri:
@@ -2463,8 +2503,8 @@ slots:
       openbis_label: IUPAC name
 
   length:
-    description: length
-    range: QuantityValue
+    description: Length
+    range: LengthQuantityValue
     slot_uri: ncit:NCIT_C25334
     multivalued: false
     annotations:
@@ -2472,8 +2512,8 @@ slots:
       openbis_label: Length
 
   level_theory:
-    description: Level of theory
-    range: string
+    description: Level of Theory
+    range: LevelTheory
     multivalued: false
     annotations:
       openbis_type: JSON
@@ -2496,6 +2536,22 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Measurements folder path
+
+  method:
+    description: Method
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Method
+  
+  method_parameters:
+    description: Method Parameters
+    range: Any
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Method Parameters
 
   method_type:
     description: method type
@@ -2605,7 +2661,7 @@ slots:
       openbis_label: Other storage condition (specification)
 
   output_parameters:
-    description: Method output parameters
+    description: Method Output Parameters
     range: Any
     multivalued: false
     slot_uri:
@@ -2722,7 +2778,7 @@ slots:
       openbis_label: Repository URL
 
   sample_plate:
-    description: sample plate
+    description: Sample Plate
     range: string
     slot_uri: emmo_nano:EMMO_69c892cc-b9c4-53cd-8e5e-216c57e2592f
     multivalued: false
@@ -2844,8 +2900,8 @@ slots:
       openbis_label: Temperature
 
   thickness:
-    description: thickness
-    range: QuantityValue
+    description: Thickness
+    range: LengthQuantityValue
     slot_uri: ncit:NCIT_C41145
     multivalued: false
     annotations:
@@ -2955,7 +3011,7 @@ slots:
       openbis_label: Weight before
   
   wfms_uuid:
-    description: wfms uuid
+    description: WFMS UUID
     range: string
     slot_uri: ncit:NCIT_C54100
     multivalued: false
@@ -2964,8 +3020,8 @@ slots:
       openbis_label: WFMS UUID
 
   width:
-    description: width
-    range: QuantityValue
+    description: Width
+    range: LengthQuantityValue
     slot_uri: schema:width
     multivalued: false
     annotations:
@@ -2981,7 +3037,7 @@ slots:
       openbis_label: Wire material
 
   work_phone:
-    description: work phone
+    description: Work Phone
     range: string
     slot_uri: schema:telephone
     multivalued: false
@@ -2990,7 +3046,7 @@ slots:
       openbis_label: Work phone
 
   work_status:
-    description: work status
+    description: Work Status
     range: boolean
     slot_uri: opmi:OPMI_0000122
     multivalued: false
@@ -2999,7 +3055,7 @@ slots:
       openbis_label: Work status
 
   year:
-    description: year
+    description: Year
     range: integer
     slot_uri: ncit:NCIT_C29848
     multivalued: false
@@ -3606,6 +3662,27 @@ enums:
         description: z-spectroscopy
         annotations:
           openbis_label: Z-spectroscopy
+  
+  LengthUnitsEnum:
+    description: length units
+    annotations:
+      openbis_label: Length units vocabulary
+    permissible_values:
+      um:
+        meaning: unit:MicroM
+        description: micrometer
+        annotations:
+          openbis_label: Micrometer
+      mm:
+        meaning: unit:MilliM
+        description: millimeter
+        annotations:
+          openbis_label: Millimeter
+      m:
+        meaning: unit:M
+        description: meter
+        annotations:
+          openbis_label: Meter
 
   MassUnitsEnum:
     description: mass units
