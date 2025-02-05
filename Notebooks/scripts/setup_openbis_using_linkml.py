@@ -211,7 +211,7 @@ class OpenBisDatabase:
                         
                         # Used when the object inherits all the properties from another object
                         if object["slots"]:
-                            object["slots"].extend(parent_object["slots"])
+                            object["slots"] = parent_object["slots"] + object["slots"]
                         else:
                             object["slots"] = parent_object["slots"]
                             
@@ -259,7 +259,9 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--openbis_url', type=str, help='OpenBIS URL', default = 'https://local.openbis.ch/openbis')
     parser.add_argument('-u', '--openbis_user', type=str, help='OpenBIS User', default = 'admin')
     parser.add_argument('-pw', '--openbis_pw', type=str, help='OpenBIS Password', default = '123456789')
-    parser.add_argument('-r', '--root_folder_path', type=str, help='Folder obtained from GitHub that contains all the directories necessary to setup openBIS, like schema, scripts, etc.', default = None)
+    parser.add_argument('-r', '--root_folder_path', type=str, 
+                        help='Folder obtained from GitHub that contains all the directories necessary to setup openBIS, like schema, scripts, etc.', 
+                        default = "/home/jovyan/aiida-openbis/Notebooks")
 
     args = parser.parse_args()
     

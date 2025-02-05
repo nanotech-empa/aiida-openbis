@@ -74,8 +74,8 @@ classes:
       openbis_code: ANLYS
       openbis_label: Analysis
     slots:
-     - comments
      - description
+     - comments
      # ---- Object properties ----
      - codes
      - one_d_measurements
@@ -92,12 +92,12 @@ classes:
       openbis_code: ANNEAL
       openbis_label: Annealing
     slots:
-     - comments
-     - current
      - duration
-     - pressure
+     - current
      - temperature
+     - pressure
      - voltage
+     - comments
      # ---- Object properties ----
      - instrument
      - preparation
@@ -134,8 +134,8 @@ classes:
       openbis_label: Band Structure
     slots:
      - band_gap
-     - input_parameters
      - level_theory
+     - input_parameters
      - output_parameters
      # ---- Object properties ----
      - atomistic_models
@@ -151,10 +151,10 @@ classes:
       openbis_code: CANGAS
       openbis_label: Bottle of Gas
     slots:
-     - comments
      - description
-     - pressure
+     - comments
      - state
+     - pressure
      # ---- Object properties ----
      - supplier
 
@@ -168,8 +168,8 @@ classes:
       openbis_code: CHEMICONC
       openbis_label: Chemical Concept
     slots:
-     - comments
      - sum_formula
+     - comments
 
   Chemical:
     title: Chemical
@@ -206,10 +206,10 @@ classes:
       openbis_code: CODE
       openbis_label: Code
     slots:
-     - comments
      - description
      - filepath_executable
      - repository_url
+     - comments
   
   Component:
     title: Component
@@ -221,13 +221,13 @@ classes:
       openbis_code: COMP
       openbis_label: Component
     slots:
-     - comments
      - component_type
      - description
      - empa_id
      - model
-     - receive_date
      - serial_number
+     - receive_date
+     - comments
      # ---- Object properties ----
      - manufacturer
   
@@ -241,13 +241,13 @@ classes:
       openbis_code: CRAC
       openbis_label: Cracker
     slots:
-     - comments
+     - sum_formula
      - current
      - duration
      - pressure
-     - sum_formula
      - temperature
      - voltage
+     - comments
      # ---- Object properties ----
      - components
      - instrument
@@ -262,9 +262,9 @@ classes:
       openbis_code: CRYSTCONC
       openbis_label: Crystal Concept
     slots:
-     - comments
      - face
      - material
+     - comments
 
   Crystal:
     title: Crystal
@@ -276,21 +276,21 @@ classes:
       openbis_code: CRYST
       openbis_label: Crystal
     slots:
-     - comments
      - diameter
-     - dry
-     - fridge
+     - height
      - hazardous
      - hazardous_specification
-     - height
+     - dry
+     - fridge
      - no_light
      - no_oxygen
      - other_storage_condition
      - other_storage_condition_specification
-     - receive_date
      - reference_number
      - sample_plate
      - specifications
+     - receive_date
+     - comments
      # ---- Object properties ----
      - crystal_concept
      - storage
@@ -306,13 +306,13 @@ classes:
       openbis_code: DEPOS
       openbis_label: Deposition
     slots:
-     - comments
      - deposition_time
+     - stabilisation_time
      - evaporator_slot
      - molecule_temperature
-     - pressure
-     - stabilisation_time
      - substrate_temperature
+     - pressure
+     - comments
      # ---- Object properties ----
      - instrument
      - molecule
@@ -329,11 +329,11 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - comments
+     - sum_formula
      - duration
      - pressure
-     - sum_formula
      - temperature
+     - comments
      # ---- Object properties ----
      - instrument
      - preparation
@@ -349,8 +349,8 @@ classes:
       openbis_code: DRFT
       openbis_label: Draft
     slots:
-     - comments
      - draft_type
+     - comments
      # ---- Object properties ----
      - results
 
@@ -379,10 +379,10 @@ classes:
       openbis_code: FILLCRYS
       openbis_label: Fill Cryostat
     slots:
-     - comments
      - dewar
      - weight_after
      - weight_before
+     - comments
      # ---- Object properties ----
      - chemical
      - component
@@ -420,13 +420,13 @@ classes:
       openbis_code: GRNT
       openbis_label: Grant
     slots:
+     - project_id
      - acknowledgement_sentence
      - budget
-     - comments
+     - start_date
      - end_date
      - funder
-     - project_id
-     - start_date
+     - comments
 
   Institution:
     title: Institution
@@ -453,11 +453,11 @@ classes:
       openbis_code: INSTR
       openbis_label: Instrument
     slots:
-     - comments
      - documentation_website
      - empa_id
      - receive_date
      - serial_number
+     - comments
      # ---- Object properties ----
      - components
      - manufacturer
@@ -486,8 +486,8 @@ classes:
       openbis_code: MAINT
       openbis_label: Maintenance
     slots:
-     - comments
      - description
+     - comments
      # ---- Object properties ----
      - components
      - instrument
@@ -513,7 +513,6 @@ classes:
       openbis_code: MFH
       openbis_label: Mean Field Hubbard
     slots:
-     
      - charge
      - convergence_coefficient
      - density_tolerance
@@ -536,8 +535,10 @@ classes:
       openbis_code: MEASUR
       openbis_label: Measurements
     slots:
-     - comments
      - measurements_folder_path
+     - comments
+     # ---- Object properties ----
+     - measurements
 
   MinimumEnergyPotential:
     title: Minimum Energy Potential
@@ -568,22 +569,22 @@ classes:
       openbis_code: MOL
       openbis_label: Molecule
     slots:
-     - amount
-     - batch
-     - chemist_molecule_name
-     - comments
-     - dry
      - empa_number
+     - batch
+     - vial
      - evaporation_temperatures
-     - fridge
      - hazardous
      - hazardous_specification
+     - dry
+     - fridge
      - no_light
      - no_oxygen
      - other_storage_condition
      - other_storage_condition_specification
+     - amount
+     - chemist_molecule_name
      - receive_date
-     - vial
+     - comments
      # ---- Object properties ----
      - chemist
      - molecule_concept
@@ -601,10 +602,10 @@ classes:
       openbis_label: Molecule Concept
     slots:
      - cas_number
-     - comments
      - iupac_name
      - smiles
      - sum_formula
+     - comments
 
   Notes:
     title: Notes
@@ -616,8 +617,8 @@ classes:
       openbis_code: NOTE
       openbis_label: Notes
     slots:
-     - comments
      - description
+     - comments
      # ---- Object properties ----
      - sample
   
@@ -631,19 +632,19 @@ classes:
       openbis_code: ODMEAS
       openbis_label: 1D Measurement
     slots:
+     - start_time
+     - duration
+     - experiment_type
+     - z_position
+     - bias_setpoint
+     - current_setpoint
      - acquisition_coordinate_x
      - acquisition_coordinate_y
      - acquisition_coordinate_z
-     - bias_setpoint
-     - current_setpoint
-     - duration
-     - experiment_type
      - final_z
-     - input_parameters
      - level_theory
+     - input_parameters
      - output_parameters
-     - start_time
-     - z_position
      - z_controller_setpoint
      # ---- Object properties ----
      - atomistic_models
@@ -663,8 +664,8 @@ classes:
       openbis_code: PDOS
       openbis_label: PDOS
     slots:
-     - input_parameters
      - level_theory
+     - input_parameters
      - output_parameters
      # ---- Object properties ----
      - atomistic_models
@@ -680,11 +681,11 @@ classes:
       openbis_code: PERS
       openbis_label: Person
     slots:
+     - short_name
      - email
      - mobile_phone
      - work_phone
      - work_status
-     - short_name
      # ---- Object properties ----
      - institutions
 
@@ -723,8 +724,8 @@ classes:
       openbis_code: PROT
       openbis_label: Protocol
     slots:
-    - comments
      - description
+     - comments
 
   Publication:
     title: Publication
@@ -737,11 +738,11 @@ classes:
       openbis_label: Publication Custom
     slots:
      - abstract
-     - comments
-     - dataset_url
      - doi
      - url
+     - dataset_url
      - year
+     - comments
      # ---- Object properties ----
      - authors
      - drafts
@@ -757,9 +758,9 @@ classes:
       openbis_code: REACPROD
       openbis_label: Reaction Product
     slots:
-     - comments
      - temperature
      - yield
+     - comments
      # ---- Object properties ----
      - reaction_product_concept
      - sample
@@ -774,8 +775,8 @@ classes:
       openbis_code: REACPRODCONC
       openbis_label: Reaction Product Concept
     slots:
-     - comments
      - sum_formula
+     - comments
      # ---- Object properties ----
      - molecule_concept
 
@@ -789,8 +790,8 @@ classes:
       openbis_code: RES
       openbis_label: Results
     slots:
-     - comments
      - description
+     - comments
      # ---- Object properties ----
      - analysis
      - band_structures
@@ -843,8 +844,8 @@ classes:
       openbis_code: SIMUL
       openbis_label: Simulation
     slots:
-     - comments
      - wfms_uuid
+     - comments
 
   Software:
     title: Software
@@ -868,14 +869,14 @@ classes:
       openbis_code: SPUT
       openbis_label: Sputtering
     slots:
+     - duration
      - angle
-     - comments
      - current
      - discharge_voltage
-     - duration
      - pressure
      - temperature
      - voltage
+     - comments
      # ---- Object properties ----
      - instrument
      - preparation
@@ -891,12 +892,12 @@ classes:
       openbis_code: SRD
       openbis_label: Sublimation Rate Determination
     slots:
-     - comments
      - evaporator_slot
      - pid_controller
      - pressure
      - rate
      - temperature
+     - comments
      # ---- Object properties ----
      - molecule
   
@@ -935,8 +936,8 @@ classes:
       openbis_code: SYSSTAT
       openbis_label: System Status
     slots:
-     - comments
      - description
+     - comments
      # ---- Object properties ----
      - instrument
 
@@ -950,9 +951,9 @@ classes:
       openbis_code: TIPPREP
       openbis_label: Tip Preparation
     slots:
-     - comments
      - description
      - tip_preparation_type
+     - comments
      # ---- Object properties ----
      - tip_sensor
 
@@ -966,7 +967,6 @@ classes:
       openbis_code: TIPSENS
       openbis_label: Tip Sensor
     slots:
-     - comments
      - device_parameters
      - holder_id
      - length
@@ -977,6 +977,7 @@ classes:
      - thickness
      - tip_sensor_type
      - wire_material
+     - comments
      # ---- Object properties ----
      - manufacturer
   
@@ -990,25 +991,25 @@ classes:
       openbis_code: LAYMAT
       openbis_label: 2D Layer Material
     slots:
-     - batch
-     - comments
      - empa_number
-     - dry
-     - fridge
+     - batch
+     - sample_plate
+     - substrates
+     - two_d_layers
+     - width
+     - thickness
+     - length
      - hazardous
      - hazardous_specification
-     - length
+     - dry
+     - fridge
      - no_light
      - no_oxygen
      - other_storage_condition
      - other_storage_condition_specification
      - receive_date
-     - sample_plate
-     - substrates
      - supplier_own_name
-     - thickness
-     - two_d_layers
-     - width
+     - comments
      # ---- Object properties ----
      - chemist
      - storage
@@ -1037,10 +1038,10 @@ classes:
       openbis_code: TDMEAS
       openbis_label: 2D Measurement
     slots:
+     - duration
      - bias_setpoint
      - bias_voltages
      - current_setpoint
-     - duration
      - heights
      - input_parameters
      - isovalues
@@ -1081,10 +1082,10 @@ classes:
       openbis_code: UNCSIM
       openbis_label: Unclassified simulation
     slots:
-     - comments
      - description
      - input_parameters
      - output_parameters
+     - comments
      
   VibrationalSpectroscopy:
     title: Vibrational Spectroscopy
@@ -1096,8 +1097,8 @@ classes:
       openbis_code: VIBRSPEC
       openbis_label: Vibrational Spectroscopy
     slots:
-     - input_parameters
      - level_theory
+     - input_parameters
      - output_parameters
      # ---- Object properties ----
      - atomistic_models
@@ -1114,8 +1115,10 @@ classes:
       openbis_label: Wafer Substrate
     slots:
      - batch
-     - comments
+     - sample_plate
+     - substrates
      - diameter
+     - thickness
      - dry
      - fridge
      - hazardous
@@ -1126,9 +1129,7 @@ classes:
      - other_storage_condition
      - other_storage_condition_specification
      - receive_date
-     - sample_plate
-     - substrates
-     - thickness
+     - comments
      # ---- Object properties ----
      - chemist
      - storage
@@ -1154,8 +1155,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_angle_unit
      - has_value
+     - has_angle_unit
      - type
      
 
@@ -1176,8 +1177,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_current_unit
      - has_value
+     - has_current_unit
      - type
 
   DurationQuantityValue:
@@ -1187,8 +1188,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_duration_unit
      - has_value
+     - has_duration_unit
      - type
 
   EvaporatorSlot:
@@ -1198,8 +1199,9 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - details
      - evaporator_number
+     - details
+     
 
   EvaporationTemperature:
     title: Evaporation temperature
@@ -1207,9 +1209,9 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - datetime
-     - device
      - temperature
+     - device
+     - datetime
 
   MassQuantityValue:
     title: Mass quantity value
@@ -1218,8 +1220,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_mass_unit
      - has_value
+     - has_mass_unit
      - type
   
   RateQuantityValue:
@@ -1229,8 +1231,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_rate_unit
      - has_value
+     - has_rate_unit
      - type
 
   PressureQuantityValue:
@@ -1240,8 +1242,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_pressure_unit
      - has_value
+     - has_pressure_unit
      - type
   
   QuantityValue:
@@ -1251,8 +1253,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_unit
      - has_value
+     - has_unit
      - type
   
   SubstratesDetails:
@@ -1262,10 +1264,10 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - coverage
-      - dopants
      - material
      - thickness
+     - coverage
+     - dopants
 
   TemperatureQuantityValue:
     title: Temperature quantity value
@@ -1274,8 +1276,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_temperature_unit
      - has_value
+     - has_temperature_unit
      - type
 
   TwoDLayersDetails:
@@ -1285,10 +1287,10 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - coverage
-     - dopants
      - material
+     - dopants
      - number_layers
+     - coverage
 
   VoltageQuantityValue:
     title: Voltage quantity value
@@ -1741,7 +1743,7 @@ slots:
       openbis_label: Address
 
   amount:
-    description: amount
+    description: Amount
     range: MassQuantityValue
     multivalued: false
     annotations:
@@ -1785,7 +1787,7 @@ slots:
 
   batch:
     range: string
-    description: batch
+    description: Batch
     pattern: ^[a-z]$
     slot_uri: ncit:NCIT_C67073
     multivalued: false
@@ -1821,7 +1823,7 @@ slots:
       openbis_label: Budget
 
   cas_number:
-    description: cas number
+    description: CAS Number
     range: string
     slot_uri: emmo:EMMO_d2a47cd8_662f_438f_855a_b4378eb992ff
     multivalued: false
@@ -1872,7 +1874,7 @@ slots:
       openbis_label: Charge
 
   chemist_molecule_name:
-    description: chemist molecule name
+    description: Chemist Molecule Name
     range: string
     slot_uri: schema:alternateName
     multivalued: false
@@ -1881,7 +1883,7 @@ slots:
       openbis_label: Molecule name (given by Chemist)
 
   comments:
-    description: comments
+    description: Comments
     range: string
     slot_uri: schema:comment
     multivalued: false
@@ -1932,7 +1934,7 @@ slots:
       openbis_label: Coverage
 
   current:
-    description: current
+    description: Current
     range: CurrentQuantityValue
     slot_uri: emmo:EMMO_c995ae70_3b84_4ebb_bcfc_69e6a281bb88
     multivalued: false
@@ -1960,7 +1962,7 @@ slots:
       openbis_label: Dataset URL
 
   datetime:
-    description: datetime
+    description: Datetime
     range: custom_datetime
     multivalued: false
     annotations:
@@ -1976,7 +1978,7 @@ slots:
       openbis_label: Density tolerance
 
   deposition_time:
-    description: deposition time
+    description: Deposition Time
     range: DurationQuantityValue
     multivalued: false
     annotations:
@@ -1993,7 +1995,7 @@ slots:
       openbis_label: Description
 
   details:
-    description: details
+    description: Details
     range: string
     multivalued: false
     annotations:
@@ -2001,7 +2003,7 @@ slots:
       openbis_label: Details
 
   device:
-    description: device
+    description: Device
     range: string
     multivalued: false
     annotations:
@@ -2114,7 +2116,7 @@ slots:
       openbis_label: Driver code
 
   dry:
-    description: dry
+    description: Dry
     range: boolean
     multivalued: false
     annotations:
@@ -2122,7 +2124,7 @@ slots:
       openbis_label: Dry
 
   duration:
-    description: duration
+    description: Duration
     range: DurationQuantityValue
     slot_uri: ncit:NCIT_C25330
     multivalued: false
@@ -2132,7 +2134,7 @@ slots:
 
   email:
     range: string
-    description: email
+    description: Email
     pattern: "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$"
     slot_uri: schema:email
     multivalued: false
@@ -2141,7 +2143,7 @@ slots:
       openbis_label: Email
 
   empa_id:
-    description: empa id
+    description: Empa ID
     range: string
     multivalued: false
     annotations:
@@ -2150,7 +2152,7 @@ slots:
 
   empa_number:
     range: integer
-    description: empa number
+    description: Empa Number
     minimum_value: 0
     multivalued: false
     annotations:
@@ -2158,7 +2160,7 @@ slots:
       openbis_label: Empa number
 
   end_date:
-    description: end date
+    description: End Date
     range: date
     slot_uri: schema:endDate
     multivalued: false
@@ -2167,7 +2169,7 @@ slots:
       openbis_label: End date
 
   energies:
-    description: energy of each replica of the system identifying the minimum energy path
+    description: Energies
     range: QuantityValue
     multivalued: true
     annotations:
@@ -2175,7 +2177,7 @@ slots:
       openbis_label: Energies
 
   energy:
-    description: energy
+    description: Energy
     range: QuantityValue
     slot_uri: emmo:EMMO_31ec09ba_1713_42cb_83c7_b38bf6f9ced2
     multivalued: false
@@ -2192,7 +2194,7 @@ slots:
       openbis_label: Energy barrier
 
   evaporator_number:
-    description: evaporator number
+    description: Number
     range: integer
     multivalued: false
     annotations:
@@ -2200,7 +2202,7 @@ slots:
       openbis_label: Evaporator number
 
   evaporator_slot:
-    description: evaporator slot
+    description: Evaporator slot
     range: EvaporatorSlot
     multivalued: false
     annotations:
@@ -2210,7 +2212,7 @@ slots:
   evaporation_temperatures:
     range: EvaporationTemperature
     multivalued: true
-    description: evaporation temperatures
+    description: Evaporation Temperatures
     annotations:
       openbis_type: JSON
       openbis_label: Evaporation temperatures
@@ -2234,7 +2236,7 @@ slots:
       openbis_label: Experiment type
 
   face:
-    description: face
+    description: Face
     range: string
     slot_uri: ncit:NCIT_C126364
     multivalued: false
@@ -2269,7 +2271,7 @@ slots:
       openbis_label: Force convergence threshold
 
   fridge:
-    description: fridge
+    description: Fridge
     range: boolean
     multivalued: false
     annotations:
@@ -2277,7 +2279,7 @@ slots:
       openbis_label: Fridge
 
   funder:
-    description: funder
+    description: Funder
     range: string
     multivalued: false
     annotations:
@@ -2301,7 +2303,7 @@ slots:
       openbis_label: Geometry constraints increments
 
   has_angle_unit:
-    description: Angle unit
+    description: Unit
     range: AngleUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2310,7 +2312,7 @@ slots:
       openbis_label: Unit
 
   has_current_unit:
-    description: Current unit
+    description: Unit
     range: CurrentUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2319,7 +2321,7 @@ slots:
       openbis_label: Unit
 
   has_duration_unit:
-    description: Duration unit
+    description: Unit
     range: DurationUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2328,7 +2330,7 @@ slots:
       openbis_label: Unit
 
   has_mass_unit:
-    description: Mass unit
+    description: Unit
     range: MassUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2337,7 +2339,7 @@ slots:
       openbis_label: Unit
 
   has_pressure_unit:
-    description: Pressure unit
+    description: Unit
     range: PressureUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2346,7 +2348,7 @@ slots:
       openbis_label: Unit
 
   has_rate_unit:
-    description: Rate unit
+    description: Unit
     range: RateUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2355,7 +2357,7 @@ slots:
       openbis_label: Unit
 
   has_temperature_unit:
-    description: Temperature unit
+    description: Unit
     range: TemperatureUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2364,7 +2366,7 @@ slots:
       openbis_label: Unit
 
   has_unit:
-    description: unit
+    description: Unit
     range: string
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2382,7 +2384,7 @@ slots:
       openbis_label: Value
 
   has_voltage_unit:
-    description: Voltage unit
+    description: Unit
     range: VoltageUnitsEnum
     slot_uri: qudt:hasUnit
     multivalued: false
@@ -2391,7 +2393,7 @@ slots:
       openbis_label: Unit
 
   hazardous:
-    description: hazardous
+    description: Hazardous
     range: boolean
     slot_uri: ncit:NCIT_C73538
     multivalued: false
@@ -2401,7 +2403,7 @@ slots:
 
   hazardous_specification:
     range: string
-    description: hazardous specification
+    description: Hazardous Specification
     multivalued: false
     annotations:
       openbis_type: VARCHAR
@@ -2452,7 +2454,7 @@ slots:
       openbis_label: Isovalues
 
   iupac_name:
-    description: iupac name
+    description: IUPAC Name
     range: string
     slot_uri: schema:iupacName
     multivalued: false
@@ -2478,7 +2480,7 @@ slots:
       openbis_label: Level of theory
 
   material:
-    description: material
+    description: Material
     range: string
     slot_uri: schema:material
     multivalued: false
@@ -2522,7 +2524,7 @@ slots:
       openbis_label: Model
 
   molecule_temperature:
-    description: molecule temperature
+    description: Molecule Temperature
     range: TemperatureQuantityValue
     multivalued: false
     annotations:
@@ -2530,7 +2532,7 @@ slots:
       openbis_label: Molecule temperature
   
   name:
-    description: name
+    description: Name
     range: string
     slot_uri: schema:name
     multivalued: false
@@ -2539,7 +2541,7 @@ slots:
       openbis_label: Name
 
   no_light:
-    description: no light
+    description: No Light
     range: boolean
     multivalued: false
     annotations:
@@ -2547,7 +2549,7 @@ slots:
       openbis_label: No light
 
   no_oxygen:
-    description: no oxygen
+    description: No Oxygen
     range: boolean
     multivalued: false
     annotations:
@@ -2587,7 +2589,7 @@ slots:
       openbis_label: On-site Hubbard repulsion U
 
   other_storage_condition:
-    description: other storage condition
+    description: Other Storage Condition
     range: boolean
     multivalued: false
     annotations:
@@ -2595,7 +2597,7 @@ slots:
       openbis_label: Other storage condition
 
   other_storage_condition_specification:
-    description: other storage condition specification
+    description: Other Storage Condition Specification
     range: string
     multivalued: false
     annotations:
@@ -2648,7 +2650,7 @@ slots:
       openbis_label: PID controller values
 
   pressure:
-    description: pressure
+    description: Pressure
     range: PressureQuantityValue
     slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
     multivalued: false
@@ -2684,7 +2686,7 @@ slots:
       openbis_label: Rate
 
   receive_date:
-    description: received date
+    description: Received Date
     range: date
     slot_uri: ncit:NCIT_C164590
     multivalued: false
@@ -2738,7 +2740,7 @@ slots:
       openbis_label: Serial number
 
   short_name:
-    description: username
+    description: Username
     range: string
     slot_uri: foaf:accountName
     multivalued: false
@@ -2748,7 +2750,7 @@ slots:
 
   smiles:
     range: string
-    description: smiles
+    description: SMILES
     slot_uri: schema:smiles
     multivalued: false
     annotations:
@@ -2765,7 +2767,7 @@ slots:
       openbis_label: Specifications
 
   substrate_temperature:
-    description: substrate temperature
+    description: Substrate Temperature
     range: TemperatureQuantityValue
     multivalued: false
     annotations:
@@ -2774,7 +2776,7 @@ slots:
 
   sum_formula:
     range: string
-    description: sum formula
+    description: Sum Formula
     slot_uri: schema:molecularFormula
     multivalued: false
     annotations:
@@ -2782,7 +2784,7 @@ slots:
       openbis_label: Sum formula
 
   stabilisation_time:
-    description: stabilisation time
+    description: Stabilisation Time
     range: DurationQuantityValue
     multivalued: false
     annotations:
@@ -2824,7 +2826,7 @@ slots:
       openbis_label: Substrates
 
   supplier_own_name:
-    description: supplier own name
+    description: Supplier Own Name
     range: string
     slot_uri: schema:alternateName
     multivalued: false
@@ -2833,7 +2835,7 @@ slots:
       openbis_label: Supplier own name
 
   temperature:
-    description: temperature
+    description: Temperature
     range: TemperatureQuantityValue
     slot_uri: ncit:NCIT_C25206
     multivalued: false
@@ -2875,6 +2877,7 @@ slots:
       openbis_label: 2D layers
 
   type:
+    description: type
     designates_type: true
     range: string
     multivalued: false
@@ -2908,7 +2911,7 @@ slots:
       openbis_label: URL
 
   vial:
-    description: vial
+    description: Vial
     range: string
     pattern: ^(i|ii|iii|iv|v|vi|vii|viii|ix|x)$
     slot_uri: afe:AFE_0000329
@@ -2927,7 +2930,7 @@ slots:
       openbis_label: Volume
 
   voltage:
-    description: voltage
+    description: Voltage
     range: VoltageQuantityValue
     slot_uri: emmo:EMMO_4f2d3939_91b1_4001_b8ab_7d19074bf845
     multivalued: false

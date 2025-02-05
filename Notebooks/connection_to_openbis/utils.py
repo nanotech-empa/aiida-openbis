@@ -464,5 +464,11 @@ def get_object_property(property_type, property_widget):
                 display(Javascript(data = "alert('There is a JSON property that is not a valid JSON object.')"))
     elif property_type == "DATE":
         property_value = str(property_widget.value)
+    elif property_type == "MULTIVALUE_BOOLEAN":
+        property_value = []
+        for child in property_widget.children:
+            property_value.append(child.value)
     else:
         property_value = property_widget.value
+    
+    return property_value

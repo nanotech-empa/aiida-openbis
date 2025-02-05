@@ -381,3 +381,10 @@ Next tasks:
     - Clean data schema (Remove not used classes and properties) [x]
     - Update the webapp to follow the data model we agreed with Bruno [x]
     - Make the webapp more general making it easier to add new features
+
+03-02-2025:
+Meeting with Carlo, Pascal, and Bruno:
+- Show more properties in hierarchy graph.
+- Naming: First prep and some ..... last prep name. It could also have some details about the properties of the preparation steps.
+- When creating a new experiment, pull the image of the object that is being used (e.g. molecule) and some description in order to know what was used in the experiment
+- How to setup openbis dropbox to upload measurements automatically? At the moment it seems that it is uploading every hour and now right after adding files to a folder.

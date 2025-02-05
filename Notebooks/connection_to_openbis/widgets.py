@@ -8,9 +8,10 @@ import nanonis_importer
 import shutil
 import utils
 import base64
-from datetime import datetime
+import datetime
 from aiida import orm
 
+DATA_MODEL = utils.read_yaml("/home/jovyan/aiida-openbis/Notebooks/Metadata_Schemas_LinkML/materialMLinfo.yaml")
 CONFIG = utils.read_json("config.json")
 CONFIG_ELN = utils.get_aiidalab_eln_config()
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
@@ -262,6 +263,128 @@ class MultipleSelectorWidget(ipw.VBox):
         self.children = self.selectors
 
 class ObjectPropertiesWidgets(ipw.VBox):
+    def __init__(self, task):
+        super().__init__()
+        self.task = task
+        self.properties_widgets = {}
+        self.properties_names = []
+    
+    def get_properties_widgets(self):
+        properties = CONFIG["objects"][self.task]["properties"]
+        for prop_key in properties:
+            prop_widget = None
+            property = CONFIG["properties"][prop_key]
+            
+            if property["property_widget"] == "TEXT":
+                prop_widget = utils.Text(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                    placeholder = property["placeholder"], 
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+                
+            elif property["property_widget"] == "TEXTAREA":
+                widget_args = {
+                    "description": property["title"], "disabled": property["disabled"], 
+                    "layout": ipw.Layout(width = property["box_layout"]["width"]), 
+                    "placeholder": property["placeholder"], 
+                    "style": {'description_width': property["box_layout"]["description_width"]}
+                }
+                if property["property_type"] == "JSON":
+                    widget_args["value"] = property["default_value"]
+                    
+                prop_widget = utils.Textarea(**widget_args)
+            
+            elif property["property_widget"] == "MULTIPLE_CHECKBOXES":
+                checkboxes_list = []
+                label_widget = ipw.Label(property["title"])
+                checkboxes_list.append(label_widget)
+                for i in range(property["num_elements"]):
+                    checkbox_widget = utils.Checkbox(
+                        disabled = property["disabled"], 
+                        layout = ipw.Layout(width = property["box_layout"]["width"]),
+                        style = {'description_width': property["box_layout"]["description_width"]},
+                        indent = False, value = False
+                    )
+                    checkboxes_list.append(checkbox_widget)
+                
+                prop_widget = ipw.HBox(checkboxes_list)
+            
+            elif property["property_widget"] == "CHECKBOX":
+                prop_widget = utils.Checkbox(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    style = {'description_width': property["box_layout"]["description_width"]},
+                    indent = True, value = False
+                )
+            elif property["property_widget"] == "DATE":
+                prop_widget = ipw.DatePicker(
+                    description = property["title"], disabled = property["disabled"],
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    style = {'description_width': property["box_layout"]["description_width"]},
+                    value = datetime.date.today()
+                )
+            elif property["property_widget"] == "INTTEXT":
+                prop_widget = utils.IntText(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                    placeholder = property["placeholder"], 
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+            
+            elif property["property_widget"] == "FLOATTEXT":
+                prop_widget = utils.FloatText(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                    placeholder = property["placeholder"], 
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+            
+            elif property["property_widget"] == "DROPDOWN":
+                prop_widget = utils.Dropdown(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
+                    options = property["options"],
+                    value = property["default_value"],
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+            
+            elif property["property_widget"] == "TEXT_W_DROPDOWN":
+                text_widget = utils.Text(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    value = str(property["default_value"]),
+                    style = {'description_width': property["box_layout"]["description_width"]}
+                )
+                dropdown_widget = utils.Dropdown(
+                    layout = ipw.Layout(width = property["dropdown_layout"]["width"]), 
+                    options = property["units"],
+                    value = property["default_unit"]
+                )
+                prop_widget = ipw.HBox([text_widget, dropdown_widget])
+            
+            elif property["property_widget"] == "INTEGER_SLIDER_W_DETAILS":
+                slider_widget = utils.IntSlider(
+                    description = property["title"], disabled = property["disabled"], 
+                    layout = ipw.Layout(width = property["slider_layout"]["width"]),
+                    min = property["slider_values"][0], max = property["slider_values"][-1],
+                    style = {'description_width': property["slider_layout"]["description_width"]}
+                )
+                text_widget = utils.Text(
+                    layout = ipw.Layout(width = property["box_layout"]["width"]),
+                    placeholder = property["placeholder"]
+                )
+                prop_widget = ipw.HBox([slider_widget, text_widget])
+            
+            if prop_widget:
+                self.properties_widgets[prop_key] = prop_widget
+                
+        self.children = list(self.properties_widgets.values())
+    
+    def reset_properties_widgets(self):
+        self.get_properties_widgets()      
+
+class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
     def __init__(self, task):
         super().__init__()
         
