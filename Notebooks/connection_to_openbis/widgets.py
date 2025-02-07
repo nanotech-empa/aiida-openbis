@@ -386,8 +386,8 @@ class ObjectPropertiesWidgets(ipw.VBox):
 class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
     def __init__(self, task):
         super().__init__()
-        self.properties_widgets_list = []
         self.properties_widgets_dict = {}
+        self.properties_widgets_detailed_dict = {}
         self.task = task
     
     def get_properties_widgets(self):
@@ -404,10 +404,10 @@ class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
                     else:
                         new_property = property
                         
-                    self.properties_widgets_list.append(property_widget)
-                    self.properties_widgets_dict[new_property] = property_dict[property]
+                    self.properties_widgets_dict[new_property] = property_widget
+                    self.properties_widgets_detailed_dict[new_property] = property_dict[property]
                 
-        self.children = self.properties_widgets_list
+        self.children = list(self.properties_widgets_dict.values())
     
     def get_property_widget(self, property, is_group = False):
         property_widget = None
@@ -483,8 +483,10 @@ class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
                 
             text_widget = utils.Text(
                 layout = ipw.Layout(width = "200px"), 
-                placeholder = ""
+                placeholder = "",
+                value = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
             )
+                    
             property_widget = ipw.VBox([label_widget, text_widget])
             property_dict = {property: text_widget}
         
@@ -494,9 +496,18 @@ class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
             else:
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
-            int_widget = utils.IntText(
+            int_widget = utils.Text(
                 layout = ipw.Layout(width = "200px")
             )
+            
+            def validate_input(change):
+                """Remove non-numeric characters from input."""
+                new_value = change['new']
+                if not new_value.isdigit():  # Allow only digits
+                    int_widget.value = ''.join(filter(str.isdigit, new_value))
+            
+            int_widget.observe(validate_input, names = 'value')
+            
             property_widget = ipw.VBox([label_widget, int_widget])
             property_dict = {property: int_widget}
         
@@ -506,9 +517,24 @@ class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
             else:
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
-            float_widget = utils.FloatText(
+            float_widget = utils.Text(
                 layout = ipw.Layout(width = "200px")
             )
+            
+            def validate_float_input(change):
+                """Ensure input contains only a valid float format."""
+                new_value = change['new']
+                
+                # Allow only numbers and one decimal point
+                if new_value and not new_value.replace('.', '', 1).isdigit():
+                    float_widget.value = ''.join(filter(lambda c: c.isdigit() or c == '.', new_value))
+                    
+                # Ensure only one decimal point
+                if float_widget.value.count('.') > 1:
+                    float_widget.value = float_widget.value[:-1]
+            
+            float_widget.observe(validate_float_input, names = 'value')
+            
             property_widget = ipw.VBox([label_widget, float_widget])
             property_dict = {property: float_widget}
 

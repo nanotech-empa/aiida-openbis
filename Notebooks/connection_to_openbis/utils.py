@@ -10,6 +10,7 @@ import copy
 import datetime
 import os
 from IPython.display import display
+import re
 
 def full_listdir(path):
     return [f"{path}{os.sep}{filepath}" for filepath in os.listdir(path)]
@@ -469,7 +470,25 @@ def get_widget_values(widgets_dict):
                 nested_values = extract_values(widget)
                 values[key] = json.dumps(nested_values)
             else:
-                values[key] = widget.value
+                widget_value = widget.value
+                if isinstance(widget_value, datetime.date):
+                    widget_value = widget_value.strftime("%m/%d/%Y")
+
+                if widget_value:
+                    values[key] = widget_value
         return values
 
     return extract_values(widgets_dict)
+
+def is_numeric(s):
+    try:
+        float(s)  # Attempt conversion to float
+        return True
+    except ValueError:
+        return False
+
+def validate_input(change):
+    """Remove non-numeric characters from input."""
+    new_value = change['new']
+    if not new_value.isdigit():  # Allow only digits
+        text_box.value = ''.join(filter(str.isdigit, new_value))
