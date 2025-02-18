@@ -150,10 +150,14 @@ class MaterialSelectionWidget(ipw.Output):
             layout=ipw.Layout(border='solid 1px #cccccc', width = '220px', height = '250px')
         )
     
-    def load_dropdown_box(self, object_type, placeholder):
+    def load_dropdown_box(self, type):
+        self.schema_object_type = type
+        openbis_type = DATA_MODEL["classes"][type]["annotations"]["openbis_label"].replace(" ", "_").upper()
+        placeholder = DATA_MODEL["classes"][type]["title"]
+        
         items = utils.get_openbis_objects(
             OPENBIS_SESSION,
-            type = object_type
+            type = openbis_type
         )
         items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select {placeholder}...', -1))
@@ -200,7 +204,7 @@ class MaterialSelectionWidget(ipw.Output):
             self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
 
         # Make a string with the property values of the object
-        metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, "", CONFIG)
+        metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, self.schema_object_type, "", DATA_MODEL)
         self.details_textbox.value = metadata_string
     
 class MultipleSelectorWidget(ipw.VBox):
@@ -218,7 +222,7 @@ class MultipleSelectorWidget(ipw.VBox):
                 "image": {"width": "220px", "height": "250px"}
             }
             selector = ObjectSelectionWidget("Molecule", selector_config)
-            selector.load_dropdown_box("MOLECULE", "molecule")
+            selector.load_dropdown_box()
             selector.dropdown.observe(selector.load_metadata, names = "value")
             
         elif self.selector_type == "molecule_concept":
@@ -227,8 +231,8 @@ class MultipleSelectorWidget(ipw.VBox):
                 "details": {"width": "415px", "height": "250px"},
                 "image": {"width": "220px", "height": "250px"}
             }
-            selector = ObjectSelectionWidget("Molecule Concept", selector_config)
-            selector.load_dropdown_box("MOLECULE_CONCEPT", "molecule concept")
+            selector = ObjectSelectionWidget("MoleculeConcept", selector_config)
+            selector.load_dropdown_box()
             selector.dropdown.observe(selector.load_metadata, names = "value")
             
         elif self.selector_type == "product":
@@ -237,8 +241,8 @@ class MultipleSelectorWidget(ipw.VBox):
                 "details": {"width": "415px", "height": "250px"},
                 "image": {"width": "220px", "height": "250px"}
             }
-            selector = ObjectSelectionWidget("Reaction Product", selector_config)
-            selector.load_dropdown_box("REACTION_PRODUCT", "reaction product")
+            selector = ObjectSelectionWidget("ReactionProduct", selector_config)
+            selector.load_dropdown_box()
             selector.dropdown.observe(selector.load_metadata, names = "value")
         
         elif self.selector_type == "product_concept":
@@ -247,8 +251,8 @@ class MultipleSelectorWidget(ipw.VBox):
                 "details": {"width": "415px", "height": "250px"},
                 "image": {"width": "220px", "height": "250px"}
             }
-            selector = ObjectSelectionWidget("Reaction Product Concept", selector_config)
-            selector.load_dropdown_box("REACTION_PRODUCT_CONCEPT", "reaction product concept")
+            selector = ObjectSelectionWidget("ReactionProductConcept", selector_config)
+            selector.load_dropdown_box()
             selector.dropdown.observe(selector.load_metadata, names = "value")
             
         self.selectors.append(selector)
@@ -264,126 +268,6 @@ class MultipleSelectorWidget(ipw.VBox):
         self.children = self.selectors
 
 class ObjectPropertiesWidgets(ipw.VBox):
-    def __init__(self, task):
-        super().__init__()
-        self.task = task
-        self.properties_widgets = {}
-        self.properties_names = []
-    
-    def get_properties_widgets(self):
-        properties = CONFIG["objects"][self.task]["properties"]
-        for prop_key in properties:
-            prop_widget = None
-            property = CONFIG["properties"][prop_key]
-            
-            if property["property_widget"] == "TEXT":
-                prop_widget = utils.Text(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-                
-            elif property["property_widget"] == "TEXTAREA":
-                widget_args = {
-                    "description": property["title"], "disabled": property["disabled"], 
-                    "layout": ipw.Layout(width = property["box_layout"]["width"]), 
-                    "placeholder": property["placeholder"], 
-                    "style": {'description_width': property["box_layout"]["description_width"]}
-                }
-                    
-                prop_widget = utils.Textarea(**widget_args)
-            
-            elif property["property_widget"] == "MULTIPLE_CHECKBOXES":
-                checkboxes_list = []
-                label_widget = ipw.Label(property["title"])
-                checkboxes_list.append(label_widget)
-                for i in range(property["num_elements"]):
-                    checkbox_widget = utils.Checkbox(
-                        disabled = property["disabled"], 
-                        layout = ipw.Layout(width = property["box_layout"]["width"]),
-                        style = {'description_width': property["box_layout"]["description_width"]},
-                        indent = False, value = False
-                    )
-                    checkboxes_list.append(checkbox_widget)
-                
-                prop_widget = ipw.HBox(checkboxes_list)
-            
-            elif property["property_widget"] == "CHECKBOX":
-                prop_widget = utils.Checkbox(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    style = {'description_width': property["box_layout"]["description_width"]},
-                    indent = True, value = False
-                )
-            elif property["property_widget"] == "DATE":
-                prop_widget = ipw.DatePicker(
-                    description = property["title"], disabled = property["disabled"],
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    style = {'description_width': property["box_layout"]["description_width"]},
-                    value = datetime.date.today()
-                )
-            elif property["property_widget"] == "INTTEXT":
-                prop_widget = utils.IntText(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            
-            elif property["property_widget"] == "FLOATTEXT":
-                prop_widget = utils.FloatText(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    placeholder = property["placeholder"], 
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            
-            elif property["property_widget"] == "DROPDOWN":
-                prop_widget = utils.Dropdown(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]), 
-                    options = property["options"],
-                    value = property["default_value"],
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-            
-            elif property["property_widget"] == "TEXT_W_DROPDOWN":
-                text_widget = utils.Text(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    value = str(property["default_value"]),
-                    style = {'description_width': property["box_layout"]["description_width"]}
-                )
-                dropdown_widget = utils.Dropdown(
-                    layout = ipw.Layout(width = property["dropdown_layout"]["width"]), 
-                    options = property["units"],
-                    value = property["default_unit"]
-                )
-                prop_widget = ipw.HBox([text_widget, dropdown_widget])
-            
-            elif property["property_widget"] == "INTEGER_SLIDER_W_DETAILS":
-                slider_widget = utils.IntSlider(
-                    description = property["title"], disabled = property["disabled"], 
-                    layout = ipw.Layout(width = property["slider_layout"]["width"]),
-                    min = property["slider_values"][0], max = property["slider_values"][-1],
-                    style = {'description_width': property["slider_layout"]["description_width"]}
-                )
-                text_widget = utils.Text(
-                    layout = ipw.Layout(width = property["box_layout"]["width"]),
-                    placeholder = property["placeholder"]
-                )
-                prop_widget = ipw.HBox([slider_widget, text_widget])
-            
-            if prop_widget:
-                self.properties_widgets[prop_key] = prop_widget
-                
-        self.children = list(self.properties_widgets.values())
-    
-    def reset_properties_widgets(self):
-        self.get_properties_widgets()      
-
-class ObjectPropertiesWidgetsNewVersion(ipw.VBox):
     def __init__(self, task):
         super().__init__()
         self.properties_widgets_dict = {}
@@ -639,7 +523,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         self.selector.options = selector_options
 
 class ObjectSelectionWidget(ipw.HBox):
-    def __init__(self, description, widgets_types = {"dropdown": {"width": "982px"}}, checkboxes_descriptions = ["Name", "Registration date"]):
+    def __init__(self, type, widgets_types = {"dropdown": {"width": "982px"}}, checkboxes_descriptions = ["Name", "Registration date"]):
         # Initialize the parent HBox
         super().__init__()
         
@@ -647,13 +531,14 @@ class ObjectSelectionWidget(ipw.HBox):
         self.dropdown_boxes = None
         self.details_textbox = None
         self.image_box = None
+        self.schema_object_type = type
         
-        self.description = description
+        self.description = DATA_MODEL["classes"][type]["title"]
         self.checkboxes_descriptions = checkboxes_descriptions
         
         if "dropdown" in widgets_types:
             self.dropdown = utils.Dropdown(
-                description = description, 
+                description = self.description, 
                 disabled = False, 
                 layout = ipw.Layout(width = widgets_types["dropdown"]["width"]), 
                 style = {'description_width': "110px"}, 
@@ -694,13 +579,14 @@ class ObjectSelectionWidget(ipw.HBox):
         
         self.children = widgets_list
     
-    def load_dropdown_box(self, type = None, placeholder = "", source = "openbis"):
-        self.type = type
+    def load_dropdown_box(self, source = "openbis"):
+        self.type = DATA_MODEL["classes"][self.schema_object_type]["annotations"]["openbis_label"].replace(" ", "_").upper()
+        placeholder = DATA_MODEL["classes"][self.schema_object_type]["title"]
         
         if source == "openbis":
             items = utils.get_openbis_objects(
                 OPENBIS_SESSION,
-                type = type
+                type = self.type
             )
             if type == "SAMPLE":
                 options = [(f"{item.props['$name']}", item.permId) for item in items if item.props["exists"] == "true"]
@@ -775,7 +661,7 @@ class ObjectSelectionWidget(ipw.HBox):
         object = OPENBIS_SESSION.get_object(self.dropdown.value)
         
         if self.image_box:
-            if self.type in ["CRYSTAL", "MOLECULE"]:
+            if self.type in ["CRYSTAL", "MOLECULE", "CHEMICAL"]:
                 parents = object.get_parents()
                 for parent in parents:
                     if parent.type == f"{self.type}_CONCEPT":
@@ -797,7 +683,7 @@ class ObjectSelectionWidget(ipw.HBox):
                 self.image_box.value = utils.read_file(CONFIG["default_image_filepath"])
 
         if self.details_textbox:
-            metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, "", CONFIG)
+            metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, self.schema_object_type, "", DATA_MODEL)
             self.details_textbox.value = metadata_string
 
 class ProjectSelectionWidget(ipw.VBox):
@@ -859,11 +745,11 @@ class SamplePreparationAccordionWidget(ipw.Accordion):
         self.tasks_properties_widgets = []
 
 class SamplePreparationMultipleSelectionWidget(ipw.HBox):
-    def __init__(self):
+    def __init__(self, sample_preparation_tasks):
         # Initialize the parent HBox
         super().__init__()
         self.selector = ipw.SelectMultiple()
-        self.sample_preparation_options = [object_key for object_key, object_info in CONFIG["objects"].items() if object_info["object_type"] == "sample_preparation"]
+        self.sample_preparation_options = [(DATA_MODEL["classes"][sample_preparation]["description"], sample_preparation) for sample_preparation in sample_preparation_tasks]
         self.selector.description = "Processes"
         self.selector.disabled = False
         self.selector.style = {'description_width': "65px"}

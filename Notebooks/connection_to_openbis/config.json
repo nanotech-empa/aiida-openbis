@@ -1,6 +1,10 @@
 {
     "samples_collection_openbis_path": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
     "measurement_file_extensions": [".sxm", ".dat"],
+    "slabs_concepts": ["CrystalConcept", "TwoDLayerMaterialConcept"],
+    "slabs": ["Crystal", "TwoDLayerMaterial", "WaferSubstrate"],
+    "simulations": ["BandStructure", "GeometryOptimisation", "PDOS", "TwoDMeasurement", "UnclassifiedSimulation", "VibrationalSpectroscopy"],
+    "sample_preparation": ["Annealing", "Cracker", "Deposition", "Dosing", "LightIrradiation", "Sputtering", "UnclassifiedExperiment"],
     "properties": {
         "$name": {
             "title": "Name",

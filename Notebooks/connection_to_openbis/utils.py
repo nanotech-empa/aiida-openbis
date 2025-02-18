@@ -309,36 +309,47 @@ def get_object_type(openbis_object_type, config):
         if config["objects"][object_type]["openbis_object_type"] == openbis_object_type:
             return object_type
 
-def get_metadata_string(openbis_session, object, metadata_string, config):
+def get_metadata_string(openbis_session, object, schema_object_type, metadata_string, data_model):
     
-    object_type = get_object_type(object.type, config)
+    schema_object = copy.deepcopy(data_model["classes"][schema_object_type])
+    schema_object_copy = schema_object
+    while "is_a" in schema_object_copy:
+        schema_parent_object = data_model["classes"][schema_object_copy["is_a"]]
+        # Used when the object inherits all the properties from another object
+        if schema_object["slots"]:
+            schema_object["slots"] = schema_parent_object["slots"] + schema_object["slots"]
+        else:
+            schema_object["slots"] = schema_parent_object["slots"]
+        schema_object_copy = schema_parent_object
     
-    for prop_key in config["objects"][object_type]["properties"]:
-        prop_title = config["properties"][prop_key]["title"]
-        prop_datatype = config["properties"][prop_key]["property_type"]
-        prop_string = get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, config)
+    for prop_key in schema_object["slots"]:
+        prop_datatype = data_model["slots"][prop_key]["annotations"]["openbis_type"]
+        if prop_datatype == "Not used":
+            continue
+        
+        prop_title = data_model["slots"][prop_key]["title"]
+        prop_key = "$name" if prop_key == "name" else prop_key
+        prop_string = get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, data_model)
         metadata_string += prop_string
-
+    
     return metadata_string
         
-def get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, config):
+def get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, data_model):
     property_string = ""
     object_metadata = object.props.all()
-    if prop_datatype == "QUANTITY_VALUE":
+    
+    if prop_datatype == "JSON":
         value = object_metadata.get(prop_key)
-        if value:
-            prop_dict = json.loads(value)
-            property_string = f"{prop_title}: {prop_dict['has_value']} {prop_dict['has_unit']}\n"
-        else:
-            property_string = f"{prop_title}: {value}\n"
-    elif prop_datatype == "PARENT_OBJECT":
-        parent_object_type = config["properties"][prop_key]["parent_object_type"]
+        property_string = f"{prop_title}: {value}\n"
+    elif prop_datatype == "OBJECT (PARENT)":
+        prop_range = data_model["slots"][prop_key]["range"]
+        parent_object_type = data_model["classes"][prop_range]["annotations"]["openbis_label"].replace(" ", "_").upper()
         parents_objects = object.get_parents()
         for parent_object in parents_objects:
             if parent_object.type == parent_object_type:
                 # For each property related to an object type there should be no more than one parent
                 property_string = f"-------\n{prop_title}:\n" 
-                property_string = get_metadata_string(openbis_session, parent_object, property_string, config)
+                property_string = get_metadata_string(openbis_session, parent_object, prop_range, property_string, data_model)
                 property_string = f"{property_string}-------\n"
                 break
     else:
