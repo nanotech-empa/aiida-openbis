@@ -385,10 +385,18 @@ class ObjectPropertiesWidgets(ipw.VBox):
             )
             
             def validate_input(change):
-                """Remove non-numeric characters from input."""
+                """Allow only valid negative or positive integer input."""
                 new_value = change['new']
-                if not new_value.isdigit():  # Allow only digits
-                    int_widget.value = ''.join(filter(str.isdigit, new_value))
+                
+                # Check if the input is a valid integer (negative or positive)
+                if new_value == "-" or new_value.lstrip('-').isdigit():
+                    int_widget.value = new_value
+                else:
+                    # Remove all invalid characters while keeping only a leading '-'
+                    cleaned_value = ''.join(filter(str.isdigit, new_value))
+                    if new_value.startswith('-'):
+                        cleaned_value = '-' + cleaned_value  # Keep '-' at the start if it was originally there
+                    int_widget.value = cleaned_value
             
             int_widget.observe(validate_input, names = 'value')
             
@@ -405,18 +413,25 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 layout = ipw.Layout(width = "200px")
             )
             
+            import re
+
             def validate_float_input(change):
-                """Ensure input contains only a valid float format."""
+                """Ensure input contains only a valid float format, including negative and scientific notation."""
                 new_value = change['new']
-                
-                # Allow only numbers and one decimal point
-                if new_value and not new_value.replace('.', '', 1).isdigit():
-                    float_widget.value = ''.join(filter(lambda c: c.isdigit() or c == '.', new_value))
-                    
-                # Ensure only one decimal point
-                if float_widget.value.count('.') > 1:
-                    float_widget.value = float_widget.value[:-1]
-            
+
+                # Allow empty value to support gradual input
+                if new_value == "":
+                    return  
+
+                # Strict valid float pattern (final valid numbers)
+                valid_float_pattern = re.compile(r"^-?\d+(\.\d+)?([eE]-?\d+)?$")
+
+                # Allow intermediate valid inputs while typing
+                intermediate_pattern = re.compile(r"^-?$|^-?\d+\.?$|^-?\d*\.\d*([eE]-?)?$|^-?\d+([eE]-?)?$")
+
+                if not valid_float_pattern.fullmatch(new_value) and not intermediate_pattern.fullmatch(new_value):
+                    float_widget.value = change["old"]  # Revert to previous valid value
+                        
             float_widget.observe(validate_float_input, names = 'value')
             
             property_widget = ipw.VBox([label_widget, float_widget])

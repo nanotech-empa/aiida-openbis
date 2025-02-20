@@ -309,6 +309,8 @@ classes:
       openbis_code: DEPOS
       openbis_label: Deposition
     slots:
+     - current
+     - voltage
      - deposition_time
      - stabilisation_time
      - evaporator_slot
@@ -332,7 +334,6 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - sum_formula
      - duration
      - pressure
      - temperature
