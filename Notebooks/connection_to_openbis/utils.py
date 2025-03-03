@@ -231,6 +231,21 @@ def get_openbis_projects(openbis_session, **kwargs):
 def get_openbis_objects(openbis_session, **kwargs):
     return openbis_session.get_objects(**kwargs)
 
+def get_openbis_object(openbis_session, **kwargs):
+    return openbis_session.get_object(**kwargs)
+
+def get_openbis_object_data(openbis_session, identifier):
+    object = get_openbis_object(openbis_session, sample_ident = identifier)
+    object_data = {
+        "permId": object.attrs.permId,
+        "type": object.attrs.type,
+        "props": object.props.all(),
+        "registration_date": object.registrationDate,
+        "parents": object.parents if object.parents else None,
+        "children": object.children if object.children else None,
+    }
+    return object_data
+
 def get_current_datetime():
     return datetime.datetime.now()
 
