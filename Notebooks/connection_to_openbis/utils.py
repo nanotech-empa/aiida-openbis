@@ -26,7 +26,7 @@ def is_valid_json(string):
     try:
         json.loads(string)
         return True
-    except ValueError:
+    except (ValueError, TypeError) as error:
         return False
 
 def get_aiidalab_eln_config():
@@ -499,12 +499,21 @@ def get_widget_values(widgets_dict):
                 widget_value = widget.value
                 if isinstance(widget_value, datetime.date):
                     widget_value = widget_value.strftime("%m/%d/%Y")
-
                 if widget_value:
                     values[key] = widget_value
         return values
 
     return extract_values(widgets_dict)
+
+def load_widget_values(widgets_dict, widgets_data):
+    for key, value in widgets_data.items():
+        if value:
+            widget = widgets_dict[key]
+            if is_valid_json(value):
+                value = json.loads(value)
+                load_widget_values(widget, value)
+            else:
+                widget.value = str(value)
 
 def is_numeric(s):
     try:
@@ -513,8 +522,10 @@ def is_numeric(s):
     except ValueError:
         return False
 
-def validate_input(change):
-    """Remove non-numeric characters from input."""
-    new_value = change['new']
-    if not new_value.isdigit():  # Allow only digits
-        text_box.value = ''.join(filter(str.isdigit, new_value))
+def build_dynamic_hbox(elements, max_per_row=3):
+    """Creates a dynamic layout with at most `max_per_row` elements per row."""
+    rows = []
+    for i in range(0, len(elements), max_per_row):
+        row = ipw.HBox(elements[i:i+max_per_row])  # Create an HBox for each row
+        rows.append(row)
+    return ipw.VBox(rows)  # Stack all rows in a VBox

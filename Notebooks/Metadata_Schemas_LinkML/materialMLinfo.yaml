@@ -93,11 +93,7 @@ classes:
       openbis_code: ANNEAL
       openbis_label: Annealing
     slots:
-     - duration
-     - current
-     - temperature
-     - pressure
-     - voltage
+     - settings
      - comments
      # ---- Object properties ----
      - instrument
@@ -309,14 +305,7 @@ classes:
       openbis_code: DEPOS
       openbis_label: Deposition
     slots:
-     - current
-     - voltage
-     - deposition_time
-     - stabilisation_time
-     - evaporator_slot
-     - molecule_temperature
-     - substrate_temperature
-     - pressure
+     - settings
      - comments
      # ---- Object properties ----
      - instrument
@@ -334,9 +323,7 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - duration
-     - pressure
-     - temperature
+     - settings
      - comments
      # ---- Object properties ----
      - instrument
@@ -479,6 +466,7 @@ classes:
       openbis_code: LIGIRR
       openbis_label: Light Irradiation
     slots:
+     - settings
      - comments
 
   Maintenance:
@@ -628,6 +616,21 @@ classes:
      - comments
      # ---- Object properties ----
      - sample
+  
+  Observable:
+    title: Observable
+    is_a: Thing
+    class_uri: 
+    description: Observable
+    annotations:
+      openbis_object: true
+      openbis_code: OBS
+      openbis_label: Observable
+    slots:
+     - channel_data
+     - sampling_rate
+     # ---- Object properties ----
+     - component
   
   OneDMeasurement:
     title: 1D Measurement
@@ -844,6 +847,28 @@ classes:
      - two_d_layer_material
      - wafer_substrate
   
+  Settings:
+    title: Settings
+    is_a: Thing
+    class_uri: 
+    description: Settings
+    annotations:
+      openbis_object: true
+      openbis_code: SET
+      openbis_label: Settings
+    slots:
+     - angle
+     - discharge_voltage
+     - current
+     - duration
+     - pressure
+     - voltage
+     - temperature
+     - deposition_time
+     - stabilisation_time
+     - molecule_temperature
+     - substrate_temperature
+  
   Simulation:
     title: Simulation
     is_a: Thing
@@ -878,13 +903,7 @@ classes:
       openbis_code: SPUT
       openbis_label: Sputtering
     slots:
-     - duration
-     - angle
-     - current
-     - discharge_voltage
-     - pressure
-     - temperature
-     - voltage
+     - settings
      - comments
      # ---- Object properties ----
      - instrument
@@ -1078,6 +1097,7 @@ classes:
       openbis_code: UNCEXP
       openbis_label: Unclassified experiment
     slots:
+     - settings
      - comments
      # ---- Object properties ----
      - preparation
@@ -1289,6 +1309,17 @@ classes:
     slots:
      - has_value
      - has_pressure_unit
+     - type
+  
+  ChannelTimeSeries:
+    title: Quantity time series
+    class_uri:
+    description: Time series together with unit
+    annotations:
+      openbis_object: false
+    slots:
+     - has_time_series
+     - has_unit
      - type
   
   QuantityValue:
@@ -1804,7 +1835,7 @@ slots:
 
   angle:
     title: Angle
-    description: angle
+    description: Angle
     range: AngleQuantityValue
     slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
     multivalued: false
@@ -1929,6 +1960,25 @@ slots:
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Cell optimised
+
+  channel_data:
+    title: Channel Data
+    description: Channel Data
+    range: ChannelTimeSeries
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Channel data
+  
+  channel_name:
+    title: Channel Name
+    description: Channel Name
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Channel name
 
   charge:
     title: Charge
@@ -2497,6 +2547,16 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Unit
+  
+  has_time_series:
+    title: Time series
+    description: Time series
+    range: double
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: REAL
+      openbis_label: Time series
 
   has_unit:
     title: Unit
@@ -2922,6 +2982,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Sample plate
+  
+  sampling_rate:
+    title: Sampling Rate
+    description: Sampling Rate
+    range: QuantityValue
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Sampling rate
 
   serial_number:
     title: Serial Number
@@ -2932,6 +3002,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Serial number
+  
+  settings:
+    title: Settings
+    description: settings
+    range: Settings
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Settings
 
   short_name:
     title: Username

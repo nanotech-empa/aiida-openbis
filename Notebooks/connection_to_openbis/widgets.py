@@ -268,11 +268,12 @@ class MultipleSelectorWidget(ipw.VBox):
         self.children = self.selectors
 
 class ObjectPropertiesWidgets(ipw.VBox):
-    def __init__(self, task):
+    def __init__(self, task, disabled = False):
         super().__init__()
         self.properties_widgets_dict = {}
         self.properties_widgets_detailed_dict = {}
         self.task = task
+        self.disabled = disabled
     
     def get_properties_widgets(self):
         self.all_schema_classes = DATA_MODEL["classes"]
@@ -304,17 +305,29 @@ class ObjectPropertiesWidgets(ipw.VBox):
         
         # Multivalued properties are a special case of properties
         if property_multivalued:
-            return None, None
+            if is_group:
+                label_widget = ipw.HTML(value = property_description)
+            else:
+                label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
+            
+            text_widget = utils.Text(
+                layout = ipw.Layout(width = "150px"), 
+                placeholder = "",
+                disabled = self.disabled
+            )
+            property_widget = ipw.VBox([label_widget, text_widget])
+            property_dict = {property: text_widget}
         
-        if property_openbis_type == "VARCHAR":
+        elif property_openbis_type == "VARCHAR":
             if is_group:
                 label_widget = ipw.HTML(value = property_description)
             else:
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             text_widget = utils.Text(
-                layout = ipw.Layout(width = "200px"), 
+                layout = ipw.Layout(width = "150px"), 
                 placeholder = "",
+                disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, text_widget])
             property_dict = {property: text_widget}
@@ -328,6 +341,7 @@ class ObjectPropertiesWidgets(ipw.VBox):
             textarea_widget = utils.Textarea(
                 layout = ipw.Layout(width = "200px", height = "100px"), 
                 placeholder = "",
+                disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, textarea_widget])
             property_dict = {property: textarea_widget}
@@ -339,9 +353,10 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             boolean_widget = utils.Checkbox(
-                layout = ipw.Layout(width = "200px"),
+                layout = ipw.Layout(width = "150px"),
                 value = False,
-                indent = False
+                indent = False,
+                disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, boolean_widget])
             property_dict = {property: boolean_widget}
@@ -353,8 +368,9 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             datepicker_widget = ipw.DatePicker(
-                layout = ipw.Layout(width = "200px"), 
-                value = datetime.date.today()
+                layout = ipw.Layout(width = "150px"), 
+                value = datetime.date.today(),
+                disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, datepicker_widget])
             property_dict = {property: datepicker_widget}
@@ -366,9 +382,10 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             text_widget = utils.Text(
-                layout = ipw.Layout(width = "200px"), 
+                layout = ipw.Layout(width = "150px"), 
                 placeholder = "",
-                value = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S")
+                value = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                disabled = self.disabled
             )
                     
             property_widget = ipw.VBox([label_widget, text_widget])
@@ -381,7 +398,8 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             int_widget = utils.Text(
-                layout = ipw.Layout(width = "200px")
+                layout = ipw.Layout(width = "150px"),
+                disabled = self.disabled
             )
             
             def validate_input(change):
@@ -410,7 +428,8 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
             float_widget = utils.Text(
-                layout = ipw.Layout(width = "200px")
+                layout = ipw.Layout(width = "150px"),
+                disabled = self.disabled
             )
             
             import re
@@ -446,9 +465,10 @@ class ObjectPropertiesWidgets(ipw.VBox):
             property_vocabulary = DATA_MODEL["enums"][property_range]["permissible_values"].keys()
             property_vocabulary = list(property_vocabulary)
             dropdown_widget = utils.Dropdown(
-                layout = ipw.Layout(width = "200px"), 
+                layout = ipw.Layout(width = "100px"), 
                 options = property_vocabulary,
-                value = property_vocabulary[0]
+                value = property_vocabulary[0],
+                disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, dropdown_widget])
             property_dict = {property: dropdown_widget}
@@ -465,9 +485,14 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 text_widget = utils.Text(
                     layout = ipw.Layout(width = "200px"), 
                     placeholder = "",
+                    disabled = self.disabled
                 )
                 property_widget = ipw.VBox([label_widget, text_widget])
                 property_dict = {property: text_widget}
+
+        elif property_openbis_type == "OBJECT":
+            if "slots" in self.all_schema_classes[property_range]:
+                property_widget, property_dict = self.get_property_widgets_recursive(property, property_range)
         
         return property_widget, property_dict
 
@@ -479,8 +504,8 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 sub_property_widget, sub_property_dict = self.get_property_widget(slot, True)
                 property_dict[property][slot] = sub_property_dict[slot]
                 widget_accordion_children.append(sub_property_widget)
-        property_widget = ipw.HBox(children = widget_accordion_children)
-        property_description = self.all_schema_slots[property]["description"]
+        property_widget = utils.build_dynamic_hbox(widget_accordion_children, max_per_row=3)
+        property_description = self.all_schema_slots[property]["title"]
         
         return ipw.VBox([ipw.HTML(value = f"<b>{property_description}</b>"), property_widget]), property_dict
     
@@ -538,11 +563,12 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         self.selector.options = selector_options
 
 class ObjectSelectionWidget(ipw.HBox):
-    def __init__(self, type, widgets_types = {"dropdown": {"width": "982px"}}, checkboxes_descriptions = ["Name", "Registration date"]):
+    def __init__(self, type, disabled = False, widgets_types = {"dropdown": {"width": "500px"}}, checkboxes_descriptions = ["Name", "Registration date"]):
         # Initialize the parent HBox
         super().__init__()
         
         widgets_list = []
+        self.disabled = disabled
         self.dropdown_boxes = None
         self.details_textbox = None
         self.image_box = None
@@ -554,7 +580,7 @@ class ObjectSelectionWidget(ipw.HBox):
         if "dropdown" in widgets_types:
             self.dropdown = utils.Dropdown(
                 description = self.description, 
-                disabled = False, 
+                disabled = self.disabled, 
                 layout = ipw.Layout(width = widgets_types["dropdown"]["width"]), 
                 style = {'description_width': "110px"}, 
                 options = [-1]
@@ -563,8 +589,8 @@ class ObjectSelectionWidget(ipw.HBox):
             self.sorting_checkboxes_list = ipw.HBox(
                 [
                     ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
-                    utils.Checkbox(description = self.checkboxes_descriptions[0], value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
-                    utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
+                    utils.Checkbox(description = self.checkboxes_descriptions[0], value = False, disabled = self.disabled, layout = ipw.Layout(width = "60px"), indent = False),
+                    utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = self.disabled, layout = ipw.Layout(width = "200px"), indent = False)
                 ]
             )
         
@@ -603,7 +629,8 @@ class ObjectSelectionWidget(ipw.HBox):
                 OPENBIS_SESSION,
                 type = self.type
             )
-            if type == "SAMPLE":
+            
+            if self.type == "SAMPLE":
                 options = [(f"{item.props['$name']}", item.permId) for item in items if item.props["exists"] == "true"]
             else:
                 options = [(f"{item.props['$name']}", item.permId) for item in items]
