@@ -505,13 +505,13 @@ def get_widget_values(widgets_dict):
 
     return extract_values(widgets_dict)
 
-def load_widget_values(widgets_dict, widgets_data):
+def load_widget_values(openbis_session, widgets_dict, widgets_data):
     for key, value in widgets_data.items():
         if value:
             widget = widgets_dict[key]
             if is_valid_json(value):
                 value = json.loads(value)
-                load_widget_values(widget, value)
+                load_widget_values(openbis_session, widget, value)
             else:
                 widget.value = str(value)
 

@@ -51,6 +51,20 @@ classes:
         required: true
     annotations:
       openbis_object: false
+  
+  Action:
+    title: Action
+    is_a: Thing
+    class_uri: 
+    description: Action
+    annotations:
+      openbis_object: true
+      openbis_code: ACT
+      openbis_label: Action
+    slots:
+     - action_type
+     - settings
+     - comments
 
   AiidaNode:
     title: AiiDA Node
@@ -738,6 +752,7 @@ classes:
       openbis_label: Protocol
     slots:
      - description
+     - protocol_template
      - comments
 
   Publication:
@@ -1825,6 +1840,16 @@ slots:
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Acknowledgement sentence
+  
+  action_type:
+    title: Action Type
+    description: Action Type
+    range: ActionTypeEnum
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Action Type
 
   address:
     title: Address
@@ -2925,6 +2950,16 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Project ID
 
+  protocol_template:
+    title: Protocol template
+    description: Protocol template
+    range: object
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Protocol template
+
   q_factor:
     title: Q-factor
     description: Q-factor
@@ -3774,6 +3809,36 @@ slots:
       openbis_label: Wafer substrate concept
 
 enums:
+  ActionTypeEnum:
+    description: Action Type
+    annotations:
+      openbis_label: Action type vocabulary
+    permissible_values:
+      DEPO:
+        meaning: 
+        description: deposition
+        annotations:
+          openbis_label: Deposition
+      GASD:
+        meaning: 
+        description: gas dosing
+        annotations:
+          openbis_label: Gas Dosing
+      HEAT:
+        meaning: 
+        description: annealing
+        annotations:
+          openbis_label: Annealing
+      IONB:
+        meaning: 
+        description: sputtering
+        annotations:
+          openbis_label: Sputtering
+      LITE:
+        meaning: 
+        description: light irradiation
+        annotations:
+          openbis_label: Light Irradiation
   
   AngleUnitsEnum:
     description: angle units

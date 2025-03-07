@@ -462,12 +462,15 @@ class ObjectPropertiesWidgets(ipw.VBox):
             else:
                 label_widget = ipw.HTML(value = f"<b>{property_description}</b>")
                 
-            property_vocabulary = DATA_MODEL["enums"][property_range]["permissible_values"].keys()
-            property_vocabulary = list(property_vocabulary)
+            property_options = []
+            property_vocabulary = DATA_MODEL["enums"][property_range]["permissible_values"]
+            for key, item in property_vocabulary.items():
+                property_options.append((item["annotations"]["openbis_label"], key))
+            
             dropdown_widget = utils.Dropdown(
                 layout = ipw.Layout(width = "100px"), 
-                options = property_vocabulary,
-                value = property_vocabulary[0],
+                options = property_options,
+                value = property_options[0][1],
                 disabled = self.disabled
             )
             property_widget = ipw.VBox([label_widget, dropdown_widget])
@@ -563,7 +566,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         self.selector.options = selector_options
 
 class ObjectSelectionWidget(ipw.HBox):
-    def __init__(self, type, disabled = False, widgets_types = {"dropdown": {"width": "500px"}}, checkboxes_descriptions = ["Name", "Registration date"]):
+    def __init__(self, type, widgets_types = {"dropdown": {"width": "500px"}}, checkboxes_descriptions = ["Name", "Registration date"], disabled = False):
         # Initialize the parent HBox
         super().__init__()
         
@@ -582,13 +585,13 @@ class ObjectSelectionWidget(ipw.HBox):
                 description = self.description, 
                 disabled = self.disabled, 
                 layout = ipw.Layout(width = widgets_types["dropdown"]["width"]), 
-                style = {'description_width': "110px"}, 
+                style = {'description_width': "initial"}, 
                 options = [-1]
             )
         
             self.sorting_checkboxes_list = ipw.HBox(
                 [
-                    ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                    ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "100px", display = "flex", justify_content='flex-end')),
                     utils.Checkbox(description = self.checkboxes_descriptions[0], value = False, disabled = self.disabled, layout = ipw.Layout(width = "60px"), indent = False),
                     utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = self.disabled, layout = ipw.Layout(width = "200px"), indent = False)
                 ]
