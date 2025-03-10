@@ -641,6 +641,7 @@ classes:
       openbis_code: OBS
       openbis_label: Observable
     slots:
+     - settings
      - channel_data
      - sampling_rate
      # ---- Object properties ----
@@ -707,7 +708,7 @@ classes:
       openbis_code: PERS
       openbis_label: Person
     slots:
-     - short_name
+     - username
      - email
      - mobile_phone
      - work_phone
@@ -751,6 +752,7 @@ classes:
       openbis_code: PROT
       openbis_label: Protocol
     slots:
+     - short_name
      - description
      - protocol_template
      - comments
@@ -3061,14 +3063,14 @@ slots:
       openbis_label: Settings
 
   short_name:
-    title: Username
-    description: Username
+    title: Short name
+    description: Short name
     range: string
-    slot_uri: foaf:accountName
+    slot_uri:
     multivalued: false
     annotations:
       openbis_type: VARCHAR
-      openbis_label: Username
+      openbis_label: Short name
 
   smiles:
     title: SMILES
@@ -3250,6 +3252,16 @@ slots:
     annotations:
       openbis_type: HYPERLINK
       openbis_label: URL
+  
+  username:
+    title: Username
+    description: Username
+    range: string
+    slot_uri: foaf:accountName
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Username
 
   vial:
     title: Vial

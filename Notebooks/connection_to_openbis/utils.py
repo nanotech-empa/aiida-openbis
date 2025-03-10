@@ -11,6 +11,7 @@ import datetime
 import os
 from IPython.display import display
 import re
+from collections import deque
 
 def full_listdir(path):
     return [f"{path}{os.sep}{filepath}" for filepath in os.listdir(path)]
@@ -24,8 +25,8 @@ def upload_datasets(openbis_session, method_object, support_files_widget, datase
 
 def is_valid_json(string):
     try:
-        json.loads(string)
-        return True
+        obj = json.loads(string)
+        return isinstance(obj, (dict, list))
     except (ValueError, TypeError) as error:
         return False
 
@@ -236,14 +237,40 @@ def get_openbis_object(openbis_session, **kwargs):
 
 def get_openbis_object_data(openbis_session, identifier):
     object = get_openbis_object(openbis_session, sample_ident = identifier)
+    object_properties = object.props.all()
+    queue = deque([object_properties])
+    
+    while queue:
+        current_props = queue.popleft()  # Get the next set of properties to process
+        for key, value in current_props.items():
+            if value:
+                prop = openbis_session.get_property_type(key)
+                if prop.dataType == "SAMPLE":
+                    prop_object = openbis_session.get_object(value)
+                    resolved_props = prop_object.props.all()
+                    resolved_props.pop("$name") # Name is not needed
+                    
+                    # Overwrite the original sample reference with its properties
+                    current_props[key] = resolved_props
+                    
+                    # Add the new properties to the queue
+                    queue.append(resolved_props)
+    
+    for key, value in object_properties.items():
+        if value:
+            prop = openbis_session.get_property_type(key)
+            if prop.dataType == "SAMPLE":
+                object_properties[key] = json.dumps(value)
+    
     object_data = {
         "permId": object.attrs.permId,
         "type": object.attrs.type,
-        "props": object.props.all(),
+        "props": object_properties,
         "registration_date": object.registrationDate,
         "parents": object.parents if object.parents else None,
         "children": object.children if object.children else None,
     }
+    
     return object_data
 
 def get_current_datetime():

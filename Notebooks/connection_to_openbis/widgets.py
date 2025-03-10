@@ -30,13 +30,13 @@ class ExperimentSelectionWidget(ipw.VBox):
         self.dropdown = utils.Dropdown(
             description='Experiment', 
             disabled=False, 
-            layout = ipw.Layout(width = '993px'), 
-            style = {'description_width': "110px"}, 
+            layout = ipw.Layout(width = '500px'), 
+            style = {'description_width': "initial"}, 
             options = [-1]
         )
         self.sorting_checkboxes_list = ipw.HBox(
             [
-                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "130px", display = "flex", justify_content='flex-end')),
+                ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "100px", display = "flex", justify_content='flex-end')),
                 utils.Checkbox(description = 'Name', value = False, disabled = False, layout = ipw.Layout(width = "60px"), indent = False),
                 utils.Checkbox(description = 'Registration date', value = False, disabled = False, layout = ipw.Layout(width = "200px"), indent = False)
             ]

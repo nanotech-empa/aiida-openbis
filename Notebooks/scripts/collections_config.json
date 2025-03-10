@@ -51,6 +51,14 @@
         "MATERIALS": {
             "description": "Materials",
             "projects": {
+                "SETTINGS": {
+                    "description": "Settings",
+                    "experiments": {
+                        "SETTINGS_COLLECTION": {
+                            "name": "Settings"
+                        }
+                    }
+                },
                 "CRYSTALS": {
                     "description": "Crystals",
                     "experiments": {
