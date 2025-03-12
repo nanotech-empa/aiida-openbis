@@ -235,7 +235,7 @@ def get_openbis_objects(openbis_session, **kwargs):
 def get_openbis_object(openbis_session, **kwargs):
     return openbis_session.get_object(**kwargs)
 
-def get_openbis_object_data(openbis_session, identifier):
+def get_openbis_object_data(openbis_session, identifier, data_model):
     object = get_openbis_object(openbis_session, sample_ident = identifier)
     object_properties = object.props.all()
     queue = deque([object_properties])
@@ -262,8 +262,19 @@ def get_openbis_object_data(openbis_session, identifier):
             if prop.dataType == "SAMPLE":
                 object_properties[key] = json.dumps(value)
     
+    object_identifier = object.attrs.code
+    object_code = re.sub(r'\d+$', '', object_identifier)
+    object_class = None
+    for object_class, item in data_model["classes"]. items():
+        if "annotations" in item:
+            if "openbis_code" in item["annotations"]:
+                if item["annotations"]["openbis_code"] == object_code:
+                    object_schema_class = object_class
+                    break
+    
     object_data = {
         "permId": object.attrs.permId,
+        "schema_class": object_class,
         "type": object.attrs.type,
         "props": object_properties,
         "registration_date": object.registrationDate,
@@ -541,6 +552,77 @@ def load_widget_values(openbis_session, widgets_dict, widgets_data):
                 load_widget_values(openbis_session, widget, value)
             else:
                 widget.value = str(value)
+
+def load_object_widget_values(openbis_session, widgets_dict, props_data):
+    for key, value in props_data.items():
+        if value:
+            if key in widgets_dict:
+                if isinstance(widgets_dict[key], dict):
+                    if "value_widget" in widgets_dict[key]:
+                        widget = widgets_dict[key]["value_widget"]
+                    else:
+                        widget = widgets_dict[key]
+                else:
+                    widget = widgets_dict[key]
+                    
+                if is_valid_json(value):
+                    value = json.loads(value)
+                    load_object_widget_values(openbis_session, widget, value)
+                else:
+                    widget.value = str(value)
+
+def load_object_widget_parents(openbis_session, widgets_dict, widgets_parents, data_model):
+    for prop, item in widgets_dict.items():
+        if prop in data_model["slots"]:
+            if data_model["slots"][prop]["annotations"]["openbis_type"] == "OBJECT (PARENT)":
+                prop_range = data_model["slots"][prop]["range"]
+                for identifier in widgets_parents:
+                    parent_object_data = get_openbis_object_data(openbis_session, identifier, data_model)
+                    if prop_range == parent_object_data["schema_class"]:
+                        widgets_dict[prop]["value_widget"].value = parent_object_data["permId"]
+                        break
+
+def get_object_widget_values(widgets_dict):
+    def extract_values(d):
+        values = {}
+        for key, widget in d.items():
+            if isinstance(widget, dict):
+                if "value_widget" in widget:
+                    widget = widget["value_widget"]
+                
+                if isinstance(widget, dict):
+                    nested_values = extract_values(widget)
+                    values[key] = json.dumps(nested_values)
+                else:
+                    widget_value = widget.value
+                    if isinstance(widget_value, datetime.date):
+                        widget_value = widget_value.strftime("%m/%d/%Y")
+                    if widget_value:
+                        values[key] = widget_value
+        return values
+    
+    return extract_values(widgets_dict)
+
+def get_object_widget_parents(widgets_dict):
+    def extract_values(d):
+        values = {}
+        for key, widget in d.items():
+            if isinstance(widget, dict):
+                if "value_widget" in widget:
+                    widget = widget["value_widget"]
+                
+                if isinstance(widget, dict):
+                    nested_values = extract_values(widget)
+                    values[key] = json.dumps(nested_values)
+                else:
+                    widget_value = widget.value
+                    if isinstance(widget_value, datetime.date):
+                        widget_value = widget_value.strftime("%m/%d/%Y")
+                    if widget_value:
+                        values[key] = widget_value
+        return values
+    
+    return extract_values(widgets_dict)
 
 def is_numeric(s):
     try:

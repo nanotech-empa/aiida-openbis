@@ -11,6 +11,7 @@ import base64
 import datetime
 import copy
 from aiida import orm
+import re
 
 DATA_MODEL = utils.read_yaml("/home/jovyan/aiida-openbis/Notebooks/Metadata_Schemas_LinkML/materialMLinfo.yaml")
 CONFIG = utils.read_json("config.json")
@@ -431,8 +432,6 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 layout = ipw.Layout(width = "150px"),
                 disabled = self.disabled
             )
-            
-            import re
 
             def validate_float_input(change):
                 """Ensure input contains only a valid float format, including negative and scientific notation."""
@@ -581,8 +580,9 @@ class ObjectSelectionWidget(ipw.HBox):
         self.checkboxes_descriptions = checkboxes_descriptions
         
         if "dropdown" in widgets_types:
+            self.label = ipw.Label(value = self.description)
+            
             self.dropdown = utils.Dropdown(
-                description = self.description, 
                 disabled = self.disabled, 
                 layout = ipw.Layout(width = widgets_types["dropdown"]["width"]), 
                 style = {'description_width': "initial"}, 
@@ -591,13 +591,13 @@ class ObjectSelectionWidget(ipw.HBox):
         
             self.sorting_checkboxes_list = ipw.HBox(
                 [
-                    ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "100px", display = "flex", justify_content='flex-end')),
-                    utils.Checkbox(description = self.checkboxes_descriptions[0], value = False, disabled = self.disabled, layout = ipw.Layout(width = "60px"), indent = False),
-                    utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = self.disabled, layout = ipw.Layout(width = "200px"), indent = False)
+                    ipw.Label(value = "Sort by:", layout = ipw.Layout(width = "initial")),
+                    utils.Checkbox(description = self.checkboxes_descriptions[0], value = False, disabled = self.disabled, layout = ipw.Layout(width = "initial"), indent = False),
+                    utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = self.disabled, layout = ipw.Layout(width = "initial"), indent = False)
                 ]
             )
         
-            self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
+            self.dropdown_boxes = ipw.VBox([self.label, self.dropdown, self.sorting_checkboxes_list])
             
             widgets_list.append(self.dropdown_boxes)
         

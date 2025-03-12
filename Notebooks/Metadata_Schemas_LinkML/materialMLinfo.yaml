@@ -65,6 +65,7 @@ classes:
      - action_type
      - settings
      - comments
+     - component
 
   AiidaNode:
     title: AiiDA Node
@@ -110,8 +111,8 @@ classes:
      - settings
      - comments
      # ---- Object properties ----
-     - instrument
-     - preparation
+     - component
+     - sample_process
      - sample
 
   AtomisticModel:
@@ -322,9 +323,9 @@ classes:
      - settings
      - comments
      # ---- Object properties ----
-     - instrument
+     - component
      - molecule
-     - preparation
+     - sample_process
      - sample
 
   Dosing:
@@ -340,8 +341,8 @@ classes:
      - settings
      - comments
      # ---- Object properties ----
-     - instrument
-     - preparation
+     - component
+     - sample_process
      - sample
 
   Draft:
@@ -482,6 +483,10 @@ classes:
     slots:
      - settings
      - comments
+     # ---- Object properties ----
+     - component
+     - sample_process
+     - sample
 
   Maintenance:
     title: Maintenance
@@ -897,6 +902,7 @@ classes:
      - stabilisation_time
      - molecule_temperature
      - substrate_temperature
+     # ---- Object properties ----
   
   Simulation:
     title: Simulation
@@ -935,8 +941,8 @@ classes:
      - settings
      - comments
      # ---- Object properties ----
-     - instrument
-     - preparation
+     - component
+     - sample_process
      - sample
   
   SRD:
@@ -3710,6 +3716,16 @@ slots:
     annotations:
       openbis_type: OBJECT (PARENT)
       openbis_label: Sample
+  
+  sample_process:
+    title: Sample Process
+    range: SampleProcess
+    description: sample process
+    inlined: true
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Sample Process
 
   softwares:
     title: Softwares
