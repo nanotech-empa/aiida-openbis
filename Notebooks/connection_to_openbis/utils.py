@@ -262,6 +262,9 @@ def get_openbis_object_data(openbis_session, identifier, data_model):
             if prop.dataType == "SAMPLE":
                 object_properties[key] = json.dumps(value)
     
+    # Filter dictionary. Only valid values should be saved.
+    object_properties = {k: v for k, v in object_properties.items() if v is not None}
+    
     object_identifier = object.attrs.code
     object_code = re.sub(r'\d+$', '', object_identifier)
     object_class = None
@@ -599,30 +602,24 @@ def get_object_widget_values(widgets_dict):
                         widget_value = widget_value.strftime("%m/%d/%Y")
                     if widget_value:
                         values[key] = widget_value
+            else:
+                widget_value = widget.value
+                if isinstance(widget_value, datetime.date):
+                    widget_value = widget_value.strftime("%m/%d/%Y")
+                if widget_value:
+                    values[key] = widget_value
         return values
     
     return extract_values(widgets_dict)
 
-def get_object_widget_parents(widgets_dict):
-    def extract_values(d):
-        values = {}
-        for key, widget in d.items():
-            if isinstance(widget, dict):
-                if "value_widget" in widget:
-                    widget = widget["value_widget"]
-                
-                if isinstance(widget, dict):
-                    nested_values = extract_values(widget)
-                    values[key] = json.dumps(nested_values)
-                else:
-                    widget_value = widget.value
-                    if isinstance(widget_value, datetime.date):
-                        widget_value = widget_value.strftime("%m/%d/%Y")
-                    if widget_value:
-                        values[key] = widget_value
-        return values
-    
-    return extract_values(widgets_dict)
+def get_object_widget_parents(widgets_dict, data_model):
+    values = {}
+    for prop, item in widgets_dict.items():
+        if prop in data_model["slots"]:
+            if data_model["slots"][prop]["annotations"]["openbis_type"] == "OBJECT (PARENT)":
+                parent_value = widgets_dict[prop]["value_widget"].value
+                values[prop] = parent_value
+    return values
 
 def is_numeric(s):
     try:
