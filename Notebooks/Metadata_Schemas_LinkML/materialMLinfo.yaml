@@ -342,6 +342,7 @@ classes:
      - comments
      # ---- Object properties ----
      - component
+     - chemical
      - sample_process
      - sample
 

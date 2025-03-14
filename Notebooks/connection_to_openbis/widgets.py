@@ -565,7 +565,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         self.selector.options = selector_options
 
 class ObjectSelectionWidget(ipw.HBox):
-    def __init__(self, type, widgets_types = {"dropdown": {"width": "500px"}}, checkboxes_descriptions = ["Name", "Registration date"], disabled = False):
+    def __init__(self, type, widgets_types = {"dropdown": {"width": "500px"}}, checkboxes_descriptions = ["Name", "Registration date"], disabled = False, contains_label = True):
         # Initialize the parent HBox
         super().__init__()
         
@@ -580,7 +580,10 @@ class ObjectSelectionWidget(ipw.HBox):
         self.checkboxes_descriptions = checkboxes_descriptions
         
         if "dropdown" in widgets_types:
-            self.label = ipw.Label(value = self.description)
+            if contains_label:
+                self.label = ipw.Label(value = self.description)
+            else:
+                self.label = None
             
             self.dropdown = utils.Dropdown(
                 disabled = self.disabled, 
@@ -596,8 +599,11 @@ class ObjectSelectionWidget(ipw.HBox):
                     utils.Checkbox(description = self.checkboxes_descriptions[1], value = False, disabled = self.disabled, layout = ipw.Layout(width = "initial"), indent = False)
                 ]
             )
-        
-            self.dropdown_boxes = ipw.VBox([self.label, self.dropdown, self.sorting_checkboxes_list])
+
+            if contains_label:
+                self.dropdown_boxes = ipw.VBox([self.label, self.dropdown, self.sorting_checkboxes_list])
+            else:
+                self.dropdown_boxes = ipw.VBox([self.dropdown, self.sorting_checkboxes_list])
             
             widgets_list.append(self.dropdown_boxes)
         

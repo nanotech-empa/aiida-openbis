@@ -558,7 +558,7 @@ def load_widget_values(openbis_session, widgets_dict, widgets_data):
 
 def load_object_widget_values(openbis_session, widgets_dict, props_data):
     for key, value in props_data.items():
-        if value:
+        if value is not None:
             if key in widgets_dict:
                 if isinstance(widgets_dict[key], dict):
                     if "value_widget" in widgets_dict[key]:
@@ -600,14 +600,14 @@ def get_object_widget_values(widgets_dict):
                     widget_value = widget.value
                     if isinstance(widget_value, datetime.date):
                         widget_value = widget_value.strftime("%m/%d/%Y")
-                    if widget_value:
-                        values[key] = widget_value
+                    
+                    values[key] = widget_value
             else:
                 widget_value = widget.value
                 if isinstance(widget_value, datetime.date):
                     widget_value = widget_value.strftime("%m/%d/%Y")
-                if widget_value:
-                    values[key] = widget_value
+                
+                values[key] = widget_value
         return values
     
     return extract_values(widgets_dict)
