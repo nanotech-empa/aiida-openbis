@@ -531,13 +531,13 @@ class ObjectPropertiesWidgets(ipw.VBox):
         self.get_properties_widgets()
 
 class ObjectMultipleSelectionWidget(ipw.HBox):
-    def __init__(self, description):
+    def __init__(self, description, disabled = False):
         # Initialize the parent HBox
         super().__init__()
         self.description = description
-        
+        self.disabled = disabled
         # Select multiple drafts
-        self.selector = utils.SelectMultiple(description = description, disabled = False, 
+        self.selector = utils.SelectMultiple(description = description, disabled = self.disabled, 
                                              layout = ipw.Layout(width = '800px', height = '300px'), 
                                              style = {'description_width': "110px"})
         

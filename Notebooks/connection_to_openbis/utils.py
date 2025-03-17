@@ -579,11 +579,19 @@ def load_object_widget_parents(openbis_session, widgets_dict, widgets_parents, d
         if prop in data_model["slots"]:
             if data_model["slots"][prop]["annotations"]["openbis_type"] == "OBJECT (PARENT)":
                 prop_range = data_model["slots"][prop]["range"]
+                prop_multivalued = data_model["slots"][prop]["multivalued"]
+                parents_permid = []
                 for identifier in widgets_parents:
                     parent_object_data = get_openbis_object_data(openbis_session, identifier, data_model)
                     if prop_range == parent_object_data["schema_class"]:
-                        widgets_dict[prop]["value_widget"].value = parent_object_data["permId"]
-                        break
+                        if prop_multivalued:
+                            parents_permid.append(parent_object_data["permId"])
+                        else:
+                            widgets_dict[prop]["value_widget"].value = parent_object_data["permId"]
+                            break
+                # Populate select multiple widget
+                if prop_multivalued:
+                    widgets_dict[prop]["value_widget"].value = parents_permid
 
 def get_object_widget_values(widgets_dict):
     def extract_values(d):

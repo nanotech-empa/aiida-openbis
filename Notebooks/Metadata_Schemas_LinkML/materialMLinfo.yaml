@@ -108,10 +108,9 @@ classes:
       openbis_code: ANNEAL
       openbis_label: Annealing
     slots:
-     - settings
      - comments
-     # ---- Object properties ----
-     - component
+     - components
+     - settings
      - sample_process
      - sample
 
@@ -320,10 +319,10 @@ classes:
       openbis_code: DEPOS
       openbis_label: Deposition
     slots:
-     - settings
      - comments
      # ---- Object properties ----
-     - component
+     - components
+     - settings
      - molecule
      - sample_process
      - sample
@@ -338,10 +337,10 @@ classes:
       openbis_code: DOS
       openbis_label: Dosing
     slots:
-     - settings
      - comments
      # ---- Object properties ----
-     - component
+     - components
+     - settings
      - chemical
      - sample_process
      - sample
@@ -482,10 +481,10 @@ classes:
       openbis_code: LIGIRR
       openbis_label: Light Irradiation
     slots:
-     - settings
      - comments
      # ---- Object properties ----
-     - component
+     - components
+     - settings
      - sample_process
      - sample
 
@@ -647,11 +646,10 @@ classes:
       openbis_code: OBS
       openbis_label: Observable
     slots:
-     - settings
      - channel_data
      - sampling_rate
-     # ---- Object properties ----
      - component
+     - settings
   
   OneDMeasurement:
     title: 1D Measurement
@@ -939,10 +937,10 @@ classes:
       openbis_code: SPUT
       openbis_label: Sputtering
     slots:
-     - settings
      - comments
      # ---- Object properties ----
-     - component
+     - components
+     - settings
      - sample_process
      - sample
   
