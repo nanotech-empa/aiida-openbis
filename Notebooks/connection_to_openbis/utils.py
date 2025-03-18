@@ -238,32 +238,6 @@ def get_openbis_object(openbis_session, **kwargs):
 def get_openbis_object_data(openbis_session, identifier, data_model):
     object = get_openbis_object(openbis_session, sample_ident = identifier)
     object_properties = object.props.all()
-    queue = deque([object_properties])
-    
-    while queue:
-        current_props = queue.popleft()  # Get the next set of properties to process
-        for key, value in current_props.items():
-            if value:
-                prop = openbis_session.get_property_type(key)
-                if prop.dataType == "SAMPLE":
-                    prop_object = openbis_session.get_object(value)
-                    resolved_props = prop_object.props.all()
-                    resolved_props.pop("$name") # Name is not needed
-                    
-                    # Overwrite the original sample reference with its properties
-                    current_props[key] = resolved_props
-                    
-                    # Add the new properties to the queue
-                    queue.append(resolved_props)
-    
-    for key, value in object_properties.items():
-        if value:
-            prop = openbis_session.get_property_type(key)
-            if prop.dataType == "SAMPLE":
-                object_properties[key] = json.dumps(value)
-    
-    # Filter dictionary. Only valid values should be saved.
-    object_properties = {k: v for k, v in object_properties.items() if v is not None}
     
     object_identifier = object.attrs.code
     object_code = re.sub(r'\d+$', '', object_identifier)
@@ -277,7 +251,7 @@ def get_openbis_object_data(openbis_session, identifier, data_model):
     
     object_data = {
         "permId": object.attrs.permId,
-        "schema_class": object_class,
+        "schema_class": object_schema_class,
         "type": object.attrs.type,
         "props": object_properties,
         "registration_date": object.registrationDate,

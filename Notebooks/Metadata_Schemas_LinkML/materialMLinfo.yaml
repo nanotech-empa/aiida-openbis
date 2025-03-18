@@ -51,21 +51,6 @@ classes:
         required: true
     annotations:
       openbis_object: false
-  
-  Action:
-    title: Action
-    is_a: Thing
-    class_uri: 
-    description: Action
-    annotations:
-      openbis_object: true
-      openbis_code: ACT
-      openbis_label: Action
-    slots:
-     - action_type
-     - settings
-     - comments
-     - component
 
   AiidaNode:
     title: AiiDA Node
@@ -109,7 +94,7 @@ classes:
       openbis_label: Annealing
     slots:
      - comments
-     - components
+     # ---- Object properties ----
      - settings
      - sample_process
      - sample
@@ -321,7 +306,6 @@ classes:
     slots:
      - comments
      # ---- Object properties ----
-     - components
      - settings
      - molecule
      - sample_process
@@ -339,7 +323,6 @@ classes:
     slots:
      - comments
      # ---- Object properties ----
-     - components
      - settings
      - chemical
      - sample_process
@@ -483,7 +466,6 @@ classes:
     slots:
      - comments
      # ---- Object properties ----
-     - components
      - settings
      - sample_process
      - sample
@@ -902,6 +884,7 @@ classes:
      - molecule_temperature
      - substrate_temperature
      # ---- Object properties ----
+     - component
   
   Simulation:
     title: Simulation
@@ -939,7 +922,6 @@ classes:
     slots:
      - comments
      # ---- Object properties ----
-     - components
      - settings
      - sample_process
      - sample
@@ -3062,7 +3044,7 @@ slots:
     description: settings
     range: Settings
     slot_uri: 
-    multivalued: false
+    multivalued: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Settings
@@ -4139,7 +4121,7 @@ enums:
         meaning: unit:BAR
         description: bar
         annotations:
-          openbis_label: Grams
+          openbis_label: Bar
       Pa:
         meaning: unit:PA
         description: pascal
