@@ -1,0 +1,26 @@
+{
+    "20250303101612423-33243": {
+        "$name": "PBN stage",
+        "Annealing": ["target_temperature"]
+    },
+    "20250319100454432-34199": {
+        "$name": "Heat/Cool stage",
+        "Annealing": ["target_temperature"]
+    },
+    "20250319100510399-34200": {
+        "$name": "Direct Current stage",
+        "Annealing": ["target_temperature"]
+    },
+    "20250319100524028-34201": {
+        "$name": "Manipulator",
+        "Cooling": ["coolant"]
+    },
+    "20250319100547829-34202": {
+        "$name": "Sputter gun",
+        "Deposition": ["ion", "pressure", "discharge_current", "bias", "angle", "substrate_temperature"]
+    },
+    "20250317101726952-34089": {
+        "$name": "6-fold evaporator",
+        "Deposition": ["coolant"]
+    },
+}

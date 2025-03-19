@@ -1,0 +1,1 @@
+{"instrument": "", "processes": [{"$name": "Process 1", "actions": [{"$name": "Sputter 1", "action_type": "Sputtering", "components: []}], "observables": [{"$name": "Current", "components: []}]}, {"$name": "Process 2", "actions": [{"$name": "Anneal 1", "action_type": "Annealing", "components: []}], "observables": [{"$name": "Voltage", "components: []}]}]}

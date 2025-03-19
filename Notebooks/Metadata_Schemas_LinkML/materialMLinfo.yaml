@@ -92,6 +92,7 @@ classes:
       openbis_object: true
       openbis_code: ANNEAL
       openbis_label: Annealing
+      is_action: true
     slots:
      - comments
      # ---- Object properties ----
@@ -209,6 +210,23 @@ classes:
      - repository_url
      - comments
   
+  Coating:
+    title: Coating
+    is_a: Thing
+    class_uri: 
+    description: Coating
+    annotations:
+      openbis_object: true
+      openbis_code: COAT
+      openbis_label: Coating
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
+  
   Component:
     title: Component
     is_a: Thing
@@ -228,6 +246,23 @@ classes:
      - comments
      # ---- Object properties ----
      - manufacturer
+
+  Cooldown:
+    title: Cooldown
+    is_a: Thing
+    class_uri: 
+    description: Cooldown
+    annotations:
+      openbis_object: true
+      openbis_code: COOL
+      openbis_label: Cooldown
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
   
   Cracker:
     title: Cracker
@@ -294,6 +329,23 @@ classes:
      - storage
      - supplier
 
+  Delamination:
+    title: Delamination
+    is_a: Thing
+    class_uri: 
+    description: Delamination
+    annotations:
+      openbis_object: true
+      openbis_code: DELA
+      openbis_label: Delamination
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
+
   Deposition:
     title: Deposition
     is_a: Thing
@@ -303,6 +355,7 @@ classes:
       openbis_object: true
       openbis_code: DEPOS
       openbis_label: Deposition
+      is_action: true
     slots:
      - comments
      # ---- Object properties ----
@@ -320,6 +373,7 @@ classes:
       openbis_object: true
       openbis_code: DOS
       openbis_label: Dosing
+      is_action: true
     slots:
      - comments
      # ---- Object properties ----
@@ -357,6 +411,40 @@ classes:
      # ---- Object properties ----
      - component
      - instrument
+  
+  Etching:
+    title: Etching
+    is_a: Thing
+    class_uri: 
+    description: Etching
+    annotations:
+      openbis_object: true
+      openbis_code: ETCH
+      openbis_label: Etching
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
+
+  FieldEmission:
+    title: Field Emission
+    is_a: Thing
+    class_uri: 
+    description: Field emission
+    annotations:
+      openbis_object: true
+      openbis_code: FIEM
+      openbis_label: Field emission
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
 
   FillCryostat:
     title: Fill Cryostat
@@ -376,6 +464,23 @@ classes:
      - chemical
      - component
      - instrument
+
+  Fishing:
+    title: Fishing
+    is_a: Thing
+    class_uri: 
+    description: Fishing
+    annotations:
+      openbis_object: true
+      openbis_code: FISH
+      openbis_label: Fishing
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
 
   GeometryOptimisation:
     title: Geometry Optimisation
@@ -461,8 +566,9 @@ classes:
     description: Light irradiation
     annotations:
       openbis_object: true
-      openbis_code: LIGIRR
+      openbis_code: LITE
       openbis_label: Light Irradiation
+      is_action: true
     slots:
      - comments
      # ---- Object properties ----
@@ -534,6 +640,23 @@ classes:
      - comments
      # ---- Object properties ----
      - measurements
+
+  MechanicalPressing:
+    title: Mechanical Pressing
+    is_a: Thing
+    class_uri: 
+    description: Mechanical Pressing
+    annotations:
+      openbis_object: true
+      openbis_code: MACH
+      openbis_label: Mechanical Pressing
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
 
   MinimumEnergyPotential:
     title: Minimum Energy Potential
@@ -741,6 +864,7 @@ classes:
      - short_name
      - description
      - protocol_template
+     - instrument_property
      - comments
 
   Publication:
@@ -816,6 +940,23 @@ classes:
      - pdoss
      - two_d_measurements
      - vibrational_spectroscopies
+  
+  Rinse:
+    title: Rinse
+    is_a: Thing
+    class_uri: 
+    description: Rinse
+    annotations:
+      openbis_object: true
+      openbis_code: RINS
+      openbis_label: Rinse
+      is_action: true
+    slots:
+     - comments
+     # ---- Object properties ----
+     - settings
+     - sample_process
+     - sample
 
   Room:
     title: Room
@@ -919,6 +1060,7 @@ classes:
       openbis_object: true
       openbis_code: SPUT
       openbis_label: Sputtering
+      is_action: true
     slots:
      - comments
      # ---- Object properties ----
@@ -1112,11 +1254,13 @@ classes:
       openbis_object: true
       openbis_code: UNCEXP
       openbis_label: Unclassified experiment
+      is_action: true
     slots:
-     - settings
      - comments
      # ---- Object properties ----
-     - preparation
+     - settings
+     - sample_process
+     - sample
 
   UnclassifiedSimulation:
     title: Unclassified simulation
@@ -3588,6 +3732,16 @@ slots:
     slot_uri:
     annotations:
       openbis_type: OBJECT (PARENT)
+      openbis_label: Instrument
+  
+  instrument_property:
+    title: Instrument
+    range: Instrument
+    description: instrument
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT
       openbis_label: Instrument
 
   manufacturer:
