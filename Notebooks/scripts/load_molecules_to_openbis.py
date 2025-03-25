@@ -131,20 +131,18 @@ def upload_molecules_to_openbis(session, molecules_folderpath):
             # Molecule properties
             molecule_props["$name"] = molecule_name
             molecule_props["empa_number"] = int(molecule_series_number)
+            molecule_props["molecule_concept"] = molecule_concept_object.permId
             if molecule_batch:
                 molecule_props["batch"] = molecule_batch
             if molecule_vial:
                 molecule_props["vial"] = molecule_vial
             if molecule_receive_date:
                 molecule_props["receive_date"] = molecule_receive_date
-
-            molecule_parents = [molecule_concept_object]
             
             molecule_object = session.new_sample(
                 type = "MOLECULE", 
                 experiment = "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION", 
-                props = molecule_props,
-                parents = molecule_parents
+                props = molecule_props
             )
             molecule_object.save()
 
