@@ -9,7 +9,8 @@
         ],
         "observables": [
             "Pressure"
-        ]
+        ],
+        "settings": []
     },
     {
         "component": {
@@ -21,7 +22,8 @@
         ],
         "observables": [
             "Pressure"
-        ]
+        ],
+        "settings": []
     },
     {
         "component": {
@@ -33,7 +35,8 @@
         ],
         "observables": [
             "Pressure"
-        ]
+        ],
+        "settings": []
     },
     {
         "component": {
@@ -296,6 +299,18 @@
     },
     {
         "component": {
+            "$name": "Light collection",
+            "permId": "20250320084632516-34275"
+        },
+        "actions": [
+
+        ],
+        "observables": [
+
+        ]
+    },
+    {
+        "component": {
             "$name": "THz_pump-probe",
             "permId": "20250319101000279-34216"
         },
@@ -304,6 +319,18 @@
         ],
         "observables": [
             "Current"
+        ]
+    },
+    {
+        "component": {
+            "$name": "Etching Setup",
+            "permId": "20250320084610614-34274"
+        },
+        "actions": [
+            
+        ],
+        "observables": [
+            
         ]
     },
     {

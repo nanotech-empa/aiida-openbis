@@ -26,8 +26,12 @@ def upload_datasets(openbis_session, method_object, support_files_widget, datase
 def is_valid_json(string):
     try:
         obj = json.loads(string)
-        return isinstance(obj, (dict, list))
-    except (ValueError, TypeError) as error:
+        if isinstance(obj, dict):
+            return True  # Accept JSON objects
+        if isinstance(obj, list) and all(isinstance(item, dict) for item in obj):
+            return True  # Accept lists of JSON objects
+        return False  # Reject primitive lists and other types
+    except (ValueError, TypeError):
         return False
 
 def get_aiidalab_eln_config():
@@ -242,7 +246,7 @@ def get_openbis_object_data(openbis_session, identifier, data_model):
     object_identifier = object.attrs.code
     object_code = re.sub(r'\d+$', '', object_identifier)
     object_class = None
-    for object_class, item in data_model["classes"]. items():
+    for object_class, item in data_model["classes"].items():
         if "annotations" in item:
             if "openbis_code" in item["annotations"]:
                 if item["annotations"]["openbis_code"] == object_code:
