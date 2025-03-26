@@ -743,7 +743,7 @@ classes:
     slots:
      - channel_data
      - sampling_rate
-     - settings
+     - setting
   
   OneDMeasurement:
     title: 1D Measurement
@@ -994,20 +994,19 @@ classes:
      - wafer_substrate
      - process_step
   
-  Settings:
-    title: Settings
+  Setting:
+    title: Setting
     is_a: Thing
     class_uri: 
-    description: Settings
+    description: Setting
     annotations:
       openbis_object: true
       openbis_code: SETT
-      openbis_label: Settings
+      openbis_label: Setting
     slots:
      - angle
      - discharge_voltage
      - current
-     - duration
      - pressure
      - voltage
      - target_temperature
@@ -1239,15 +1238,15 @@ classes:
      - sample
     #  - tip_sensor
   
-  UnclassifiedExperiment:
-    title: Unclassified experiment
+  UnclassifiedAction:
+    title: Unclassified action
     is_a: Thing
     class_uri: 
-    description: Unclassified experiment
+    description: Unclassified action
     annotations:
       openbis_object: true
-      openbis_code: UNXP
-      openbis_label: Unclassified experiment
+      openbis_code: UNAC
+      openbis_label: Unclassified action
       is_action: true
     slots:
      - comments
@@ -3740,7 +3739,7 @@ slots:
     multivalued: true
     inlined: true
     annotations:
-      openbis_type: OBJECT
+      openbis_type: OBJECT (PARENT)
       openbis_label: Measurement Session
 
   measurements:
@@ -3869,12 +3868,22 @@ slots:
       openbis_type: OBJECT (PARENT)
       openbis_label: Sample
   
+  setting:
+    title: Setting
+    description: setting
+    range: Setting
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Setting
+
   settings:
     title: Settings
     description: settings
     range: Settings
     slot_uri: 
-    multivalued: false
+    multivalued: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Settings
