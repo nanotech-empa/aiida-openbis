@@ -855,6 +855,7 @@ classes:
      - preparation
      - process_step
      - protocol
+     - instrument
 
   Protocol:
     title: Protocol
@@ -1018,7 +1019,6 @@ classes:
      - evaporator_number
      # ---- Object properties ----
      - component
-     - instrument
   
   Simulation:
     title: Simulation
