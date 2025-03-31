@@ -29,6 +29,9 @@
                         },
                         "COMPONENT_COLLECTION": {
                             "name": "Components"
+                        },
+                        "SETTING_COLLECTION": {
+                            "name": "Settings"
                         }
                     }
                 },

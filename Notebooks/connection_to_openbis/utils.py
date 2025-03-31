@@ -621,3 +621,12 @@ def build_dynamic_hbox(elements, max_per_row=3):
         row = ipw.HBox(elements[i:i+max_per_row])  # Create an HBox for each row
         rows.append(row)
     return ipw.VBox(rows)  # Stack all rows in a VBox
+
+def create_collection(openbis_session, **kwargs):
+    try:
+        collection = openbis_session.get_collection(f"{kwargs['project']}/{kwargs['code']}")
+    except ValueError:
+        collection = openbis_session.new_collection(**kwargs)
+        collection.save()
+    
+    return collection.identifier
