@@ -3,8 +3,7 @@ import os
 import ipywidgets as ipw
 from IPython.display import display, clear_output, Javascript
 import sys
-sys.path.append('/home/jovyan/aiida-openbis/Notebooks/importer')
-import nanonis_importer
+sys.path.append('/home/jovyan/aiida-openbis/Notebooks/nanonis_importer/')
 import shutil
 import utils
 import base64
@@ -74,7 +73,7 @@ class ExperimentSelectionWidget(ipw.VBox):
             OPENBIS_SESSION,
             type = "EXPERIMENT"
         )
-        items_names_permids = [(f"{item.props['$name']} (Project: {item.project.code})", item.permId) for item in items]
+        items_names_permids = [(f"{item.props['name']} (Project: {item.project.code})", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select experiment...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -160,7 +159,7 @@ class MaterialSelectionWidget(ipw.Output):
             OPENBIS_SESSION,
             type = openbis_type
         )
-        items_names_permids = [(f"{item.props['$name']}", item.permId) for item in items]
+        items_names_permids = [(f"{item.props['name']}", item.permId) for item in items]
         items_names_permids.insert(0, (f'Select {placeholder}...', -1))
         self.dropdown.options = items_names_permids
         self.dropdown.value = -1
@@ -286,7 +285,7 @@ class ObjectPropertiesWidgets(ipw.VBox):
                 property_widget, property_dict = self.get_property_widget(property)
                 if property_widget:
                     if property == "name":
-                        new_property = "$name"
+                        new_property = "name"
                     else:
                         new_property = property
                         
@@ -558,7 +557,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
             if type == "2D_MEASUREMENT" and self.description == "Simulations":
                 items = [item for item in items if item.props["wfms_uuid"]]
             
-            options = [(f"{item.props['$name']} ({item.permId})", item.permId) for item in items]
+            options = [(f"{item.props['name']} ({item.permId})", item.permId) for item in items]
             selector_options += options
         
         selector_options.sort(key=lambda x: (x[1], x[0]), reverse = True)
@@ -640,9 +639,9 @@ class ObjectSelectionWidget(ipw.HBox):
             )
             
             if self.type == "SAMPLE":
-                options = [(f"{item.props['$name']}", item.permId) for item in items if item.props["exists"] == "true"]
+                options = [(f"{item.props['name']}", item.permId) for item in items if item.props["exists"] == "true"]
             else:
-                options = [(f"{item.props['$name']}", item.permId) for item in items]
+                options = [(f"{item.props['name']}", item.permId) for item in items]
             
             options.insert(0, (f'Select {placeholder}...', -1))
             

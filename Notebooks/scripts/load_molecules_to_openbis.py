@@ -38,7 +38,7 @@ def find_cdxml_file(filepaths, number):
 
 def get_openbis_object_by_name(session, object_type, property_value):
     for object in session.get_samples(type = object_type):
-        if object.props.all()['$name'] == property_value:
+        if object.props.all()['name'] == property_value:
             return object
         
 def convert_date(date_str, format):
@@ -68,7 +68,7 @@ def upload_molecules_to_openbis(session, molecules_folderpath):
         
         # ------ CREATE MOLECULE CONCEPT OBJECT ------
         molecule_series_number = row["Series Number"]
-        molecule_concept_props["$name"] = molecule_series_number
+        molecule_concept_props["name"] = molecule_series_number
         
         # Find molecule concept object in openBIS
         molecule_concept_object = get_openbis_object_by_name(session, "MOLECULE_CONCEPT", molecule_series_number)
@@ -129,7 +129,7 @@ def upload_molecules_to_openbis(session, molecules_folderpath):
             continue
         else:
             # Molecule properties
-            molecule_props["$name"] = molecule_name
+            molecule_props["name"] = molecule_name
             molecule_props["empa_number"] = int(molecule_series_number)
             molecule_props["molecule_concept"] = molecule_concept_object.permId
             if molecule_batch:

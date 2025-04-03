@@ -187,7 +187,7 @@ def save_file(file_content, filename):
         f.write(file_content)
 
 def get_openbis_parents_recursive(openbis_session, object, object_parents_metadata):
-    object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate,object.props['$name']])
+    object_parents_metadata.append([object.attrs.type, object.attrs.permId, object.attrs.registrationDate,object.props['name']])
     
     for parent in object.parents:
         get_openbis_parents_recursive(openbis_session, openbis_session.get_object(parent), object_parents_metadata)
@@ -207,8 +207,8 @@ def create_experiment_in_openbis(openbis_session, project_id, experiment_name):
         type = "EXPERIMENT", 
         project = project_id, 
         props = {
-            "$name": experiment_name, 
-            "$default_collection_view": "IMAGING_GALLERY_VIEW"
+            "name": experiment_name, 
+            "default_collection_view": "IMAGING_GALLERY_VIEW"
         }
     )
     experiment.save()
@@ -362,7 +362,7 @@ def get_metadata_string(openbis_session, object, schema_object_type, metadata_st
             continue
         
         prop_title = data_model["slots"][prop_key]["title"]
-        prop_key = "$name" if prop_key == "name" else prop_key
+        prop_key = "name" if prop_key == "name" else prop_key
         prop_string = get_property_string(openbis_session, object, prop_title, prop_key, prop_datatype, data_model)
         metadata_string += prop_string
     
@@ -423,7 +423,7 @@ def get_sample_details(openbis_session, sample_object, sample_preparation_types,
                 deposition_parent_object = openbis_session.get_object(parent_id)
                 if deposition_parent_object.type == "MOLECULE":
                     deposition_parent_object_metadata = deposition_parent_object.props.all()
-                    molecule_metadata = [deposition_parent_object_metadata["$name"], deposition_parent_object.permId]
+                    molecule_metadata = [deposition_parent_object_metadata["name"], deposition_parent_object.permId]
                     
             if molecule_metadata: # If deposition does not contain any molecule, the app must not try to display it
                 sample_metadata_string = f"> {parent_metadata[0]} ({parent_metadata[3]}, {parent_metadata[1]}, {parent_metadata[2]}) [{molecule_metadata[0]} ({molecule_metadata[1]})]"

@@ -490,7 +490,7 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     ase_geo = structure.get_ase()
     dimensionality = guess_dimensionality(ase_geo)
     dictionary={
-        '$name': ase_geo.get_chemical_formula(),
+        'name': ase_geo.get_chemical_formula(),
         'wfms_uuid': structure.uuid,
         'volume': structure.get_cell_volume(),
         'cell': json.dumps({"cell": structure.cell})
@@ -620,7 +620,7 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
+        geoopt_object_parameters["name"] = f"GeoOpt - {workchain_name}"
     
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
@@ -674,7 +674,7 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["$name"] = f"BANDS - {workchain_name}"
+        dictionary["name"] = f"BANDS - {workchain_name}"
     
     # Create BANDSTRUCURE object
     bands_obobject = utils.create_openbis_object(
@@ -736,7 +736,7 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["$name"] = f"PDOS - {workchain_name}"
+        dictionary["name"] = f"PDOS - {workchain_name}"
     
     # Create PDOS object
     pdos_obobject = utils.create_openbis_object(
@@ -794,7 +794,7 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["$name"] = f"VibroSpec - {workchain_name}"
+        dictionary["name"] = f"VibroSpec - {workchain_name}"
     
     # Create VIBSPEC object
     vibro_spec_obobject = utils.create_openbis_object(
@@ -877,7 +877,7 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     
     if workchain.description:
         workchain_name = workchain.description[:30]
-        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
+        geoopt_object_parameters["name"] = f"GeoOpt - {workchain_name}"
         
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
@@ -952,12 +952,13 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     
     if workchain.description:
         workchain_name = workchain.description[:30]
-        dictionary["$name"] = f"STM - {workchain_name}"
+        dictionary["name"] = f"STM - {workchain_name}"
     
+    dictionary["default_object_view"] = "IMAGING_GALLERY_VIEW"
     # create oBIS 2D_MEASUREMENT object (how to knwo if it is 2D or 1D???)
     obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "2D_MEASUREMENT",
+        type = "MEASUREMENT_SESSION",
         props = dictionary,
         collection = experiment_id
     )
@@ -1000,7 +1001,7 @@ def get_codes_info(workchain_uuid):
     codes = set([node.inputs.code for node in workchain.called_descendants if isinstance(node, orm.CalcJobNode)])
     for code in codes:
         codesinfo = {
-            "$name": code.filepath_executable.name, 
+            "name": code.filepath_executable.name, 
             "description": code.description,
             "filepath_executable": code.filepath_executable.as_posix()
         }

@@ -1,0 +1,295 @@
+{
+    "20250325144313718-2881": {
+        "name": "THz-STM",
+        "components": {
+            "20250325144348549-2882": {
+                "name": "Scroll Pump Prep",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325144434533-2883": {
+                "name": "Scroll Pump FEL",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325144443795-2884": {
+                "name": "Turbo Prep",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325144452596-2885": {
+                "name": "Turbo FEL",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325144506662-2886": {
+                "name": "Ion/TSP Pump Prep",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": []
+            },
+            "20250325144519693-2887": {
+                "name": "Ion/TSP Pump STM",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": []
+            },
+            "20250325145732406-2888": {
+                "name": "Thyracont FEL",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": []
+            },
+            "20250325145743034-2889": {
+                "name": "Ion Gauge Prep",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": ["filament_number", "filament_type"]
+            },
+            "20250325145753870-2890": {
+                "name": "Ion Gauge STM",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": ["filament_number", "filament_type"]
+            },
+            "20250325145807153-2891": {
+                "name": "Pirani Gauge Scroll Prep",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": []
+            },
+            "20250325145818024-2892": {
+                "name": "Pirani Gauge Scroll FEL",
+                "actions": [],
+                "observables": ["Pressure"],
+                "settings": []
+            },
+            "20250325145829556-2893": {
+                "name": "Preparation chamber",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325145838595-2894": {
+                "name": "STM chamber",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325145846186-2895": {
+                "name": "FEL chamber",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325145857520-2896": {
+                "name": "PBN stage",
+                "actions": ["Annealing"],
+                "observables": ["Temperature", "Current"],
+                "settings": ["target_temperature"]
+            },
+            "20250325145906749-2897": {
+                "name": "Heat/Cool stage",
+                "actions": ["Annealing"],
+                "observables": ["Temperature", "Current"],
+                "settings": ["target_temperature"]
+            },
+            "20250325145916056-2898": {
+                "name": "Direct Current stage",
+                "actions": ["Annealing"],
+                "observables": ["Current"],
+                "settings": ["target_temperature"]
+            },
+            "20250325145924275-2899": {
+                "name": "Manipulator",
+                "actions": ["Cooldown"],
+                "observables": ["Temperature"],
+                "settings": ["coolant"]
+            },
+            "20250325145936941-2900": {
+                "name": "Sputter gun",
+                "actions": ["Sputtering"],
+                "observables": ["Voltage", "Current"],
+                "settings": ["ion", "pressure", "discharge_current", "bias", "angle", "substrate_temperature"]
+            },
+            "20250325145949387-2901": {
+                "name": "6-fold evaporator",
+                "actions": ["Deposition"],
+                "observables": ["Temperature"],
+                "settings": ["target_temperature", "P_coef", "I_coef", "D_coef", "slot", "shutter_hole", "substrate_temperature"]
+            },
+            "20250325145958955-2902": {
+                "name": "CO dosing valve",
+                "actions": ["Dosing"],
+                "observables": [],
+                "settings": ["gas", "pressure", "substrate_temperature"]
+            },
+            "20250325150007058-2903": {
+                "name": "Gas panel",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150024020-2904": {
+                "name": "Mass spectrometer",
+                "actions": [],
+                "observables": ["ElementalComposition"],
+                "settings": ["electron_multiplier", "mode"]
+            },
+            "20250325150030905-2905": {
+                "name": "QCM",
+                "actions": [],
+                "observables": ["Flux"],
+                "settings": ["z_factor", "density"]
+            },
+            "20250325150040836-2906": {
+                "name": "Wobble stick STM",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150051056-2907": {
+                "name": "Wobble stick 6-fold",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150059506-2908": {
+                "name": "Carousel",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150108084-2909": {
+                "name": "STM head",
+                "actions": [],
+                "observables": ["Temperature"],
+                "settings": []
+            },
+            "20250325150117125-2910": {
+                "name": "Tip/sensor",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150124804-2911": {
+                "name": "Femto",
+                "actions": [],
+                "observables": ["Current"],
+                "settings": ["gain", "bandwidth"]
+            },
+            "20250325150136587-2912": {
+                "name": "NF preamp",
+                "actions": [],
+                "observables": ["Current"],
+                "settings": ["gain", "bandwidth"]
+            },
+            "20250325150149861-2913": {
+                "name": "Internal preamplifier board",
+                "actions": [],
+                "observables": ["Current"],
+                "settings": []
+            },
+            "20250325150203711-2914": {
+                "name": "RF cabling",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150215355-2915": {
+                "name": "Nanonis",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150329938-2916": {
+                "name": "Cryostat",
+                "actions": ["Cooldown"],
+                "observables": ["Temperature"],
+                "settings": ["coolant"]
+            },
+            "20250325150337470-2917": {
+                "name": "Heater",
+                "actions": ["Annealing"],
+                "observables": ["Temperature"],
+                "settings": ["target_temperature", "current", "voltage"]
+            },
+            "20250325150346223-2918": {
+                "name": "Pyrometer",
+                "actions": [],
+                "observables": ["Temperature"],
+                "settings": ["emissivity"]
+            },
+            "20250325150354879-2919": {
+                "name": "Front camera",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150404498-2920": {
+                "name": "Vibrational damping",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150411946-2921": {
+                "name": "He panel",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150421727-2922": {
+                "name": "Bakeout panels",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150432437-2923": {
+                "name": "Delta power supply",
+                "actions": [],
+                "observables": ["Voltage", "Current"],
+                "settings": []
+            },
+            "20250325150449534-2924": {
+                "name": "Multimeter",
+                "actions": [],
+                "observables": ["Voltage", "Current", "Resistance", "Inductance"],
+                "settings": []
+            },
+            "20250325150502086-2925": {
+                "name": "In-situ direct current evaporator",
+                "actions": ["Deposition"],
+                "observables": [],
+                "settings": ["target_temperature", "current", "voltage", "substrate_temperature"]
+            },
+            "20250325150513985-2926": {
+                "name": "Light collection setup",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150529303-2927": {
+                "name": "THz pump probe setup",
+                "actions": ["Etching"],
+                "observables": ["Current"],
+                "settings": ["etch_solution", "voltage"]
+            },
+            "20250325150539316-2928": {
+                "name": "Etching Setup",
+                "actions": [],
+                "observables": [],
+                "settings": []
+            },
+            "20250325150600401-2929": {
+                "name": "KISS_TMD_stamp_01",
+                "actions": ["MechanicalPressing"],
+                "observables": [],
+                "settings": ["material", "force", "temperature"]
+            }
+        }
+    }
+}

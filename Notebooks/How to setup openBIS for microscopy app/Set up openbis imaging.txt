@@ -25,9 +25,10 @@ imaging.nanonis.dat-script-path=${core-plugins-folder}/imaging-nanonis/1/dss/ser
 3. Configure python path
     Nanonis adapter makes use of python scripts so it is required to have python and adequate libraries installed in you environment. There are 2 ways of achieving that:
     First option: install python3 in docker
-        - apt install python3 
-        - go to /home/openbis/servers/core-plugins/imaging-nanonis/1/scripts
-        - pip3 install -r python_requirements.txt
+        - apt-get update
+        - apt install software-properties-common -y
+        - apt install python3-pip -y
+        - pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt
 
     Second option: make use of python environment outside docker
     - install python virtual environment in the shared folder (it should be the one you configured as /data in docker configuration) -> let's assume this environment will be called 'my_env'

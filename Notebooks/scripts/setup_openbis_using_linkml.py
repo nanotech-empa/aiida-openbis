@@ -47,15 +47,17 @@ def create_experiment_type_in_openbis(session):
     try:
         experiment_type = session.new_experiment_type("EXPERIMENT", description = "Experiment")
         experiment_type.save()
-        experiment_type.assign_property(prop = '$name', section = 'General info')
+        experiment_type.assign_property(prop = 'name', section = 'General info')
+        experiment_type.assign_property(prop = 'default_collection_view', section = 'General info')
     except ValueError:
         print(f"Experiment type EXPERIMENT exists already.")
             
 def create_property_type_in_openbis(session, property_type_dict: dict):
-    try:
-        session.new_property_type(**property_type_dict).save()
-    except ValueError:
+    property_type = session.get_property_types(code=property_type_dict["code"])
+    if property_type:
         print(f"{property_type_dict['code']} already exists.")
+    else:
+        session.new_property_type(**property_type_dict).save()
         
 def create_space_in_openbis(session, space_code: str, space_info: dict):
     try:
@@ -73,7 +75,7 @@ def create_project_in_openbis(session, space_code: str, project_code: str, proje
 def create_experiment_in_openbis(session, space_code: str, project_code: str, experiment_code: str, experiment_info: dict):
     try:
         experiment = session.new_experiment(code = experiment_code, type = "COLLECTION", project = f"/{space_code}/{project_code}/")
-        experiment.set_props({"$name": experiment_info["name"]})
+        experiment.set_props({"name": experiment_info["name"]})
         experiment.save()
     except ValueError:
         print(f"Experiment {experiment_code} exists already.")
@@ -81,7 +83,7 @@ def create_experiment_in_openbis(session, space_code: str, project_code: str, ex
 def show_object_in_openbis_menu(session, object_type_code: str):
     settings_sample = session.get_sample("/ELN_SETTINGS/GENERAL_ELN_SETTINGS")
     try:
-        settings = json.loads(settings_sample.props["$eln_settings"])
+        settings = json.loads(settings_sample.props["eln_settings"])
         settings['sampleTypeDefinitionsExtension'][object_type_code] = {'SAMPLE_PARENTS_DISABLED': False,
                                                                         'SAMPLE_PARENTS_ANY_TYPE_DISABLED': False,
                                                                         'SAMPLE_CHILDREN_DISABLED': False,
@@ -90,7 +92,7 @@ def show_object_in_openbis_menu(session, object_type_code: str):
                                                                         'ENABLE_STORAGE': False,
                                                                         'SHOW': True, 
                                                                         'SHOW_ON_NAV': True}
-        settings_sample.props['$eln_settings'] = json.dumps(settings)
+        settings_sample.props['eln_settings'] = json.dumps(settings)
         settings_sample.save()
     except TypeError:
         print("The object is not available in the main menu. For that, open openBIS, go to Settings, click on Edit, open one object type in the Object Type definitions Extension and add to the main menu. Then, this function works.")
@@ -180,12 +182,6 @@ class OpenBisDatabase:
         return property_type_dict
     
     def create_property_type(self, property_type: str) -> str:
-        if property_type == "name":
-            return "$name"
-        
-        if property_type == "description":
-            return "description"
-        
         if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)"]:
             property_type_dict = self.generate_property_type_dictionary(property_type)
             create_property_type_in_openbis(self.session, property_type_dict)
