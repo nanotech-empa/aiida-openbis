@@ -537,7 +537,7 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
         self.disabled = disabled
         # Select multiple drafts
         self.selector = utils.SelectMultiple(description = description, disabled = self.disabled, 
-                                             layout = ipw.Layout(width = '800px', height = '300px'), 
+                                             layout = ipw.Layout(width = '500px', height = '100px'), 
                                              style = {'description_width': "110px"})
         
         self.children = [self.selector]
@@ -554,8 +554,11 @@ class ObjectMultipleSelectionWidget(ipw.HBox):
             else:
                 items = utils.get_openbis_objects(OPENBIS_SESSION, type = type)
             
-            if type == "2D_MEASUREMENT" and self.description == "Simulations":
-                items = [item for item in items if item.props["wfms_uuid"]]
+            if type == "MEASUREMENT_SESSION":
+                if self.description == "Simulations":
+                    items = [item for item in items if item.props["wfms_uuid"]]
+                elif self.description == "Measurements":
+                    items = [item for item in items if not item.props["wfms_uuid"]]
             
             options = [(f"{item.props['name']} ({item.permId})", item.permId) for item in items]
             selector_options += options
@@ -736,6 +739,260 @@ class ObjectSelectionWidget(ipw.HBox):
             metadata_string = utils.get_metadata_string(OPENBIS_SESSION, object, self.schema_object_type, "", DATA_MODEL)
             self.details_textbox.value = metadata_string
 
+class OpenbisObjectWidget(ipw.VBox):
+    def __init__(self, obj_type, data_model, disabled = False, properties = []):
+        super().__init__()
+        self.data_model = data_model
+        self.disabled = disabled
+        obj = self.data_model["classes"][obj_type]
+        if properties:
+            self.properties = properties
+        else:
+            self.properties = self.get_object_properties(obj)
+        self.properties_widgets = {}
+        
+        for prop in self.properties:
+            if prop in self.data_model["slots"]:
+                prop_title = self.data_model["slots"][prop]["title"]
+                prop_range = self.data_model["slots"][prop]["range"]
+                prop_openbis_type = self.data_model["slots"][prop]["annotations"]["openbis_type"]
+                prop_multivalued = self.data_model["slots"][prop]["multivalued"]
+                prop_widget, prop_value_widget = self.get_property_widget(prop_title, prop_range, prop_openbis_type, prop_multivalued)
+                if prop_widget and prop_value_widget:
+                    # openBIS property type correction
+                    if prop == "name":
+                        prop = "name"
+                        
+                    self.properties_widgets[prop] = {"widget": prop_widget, "value_widget": prop_value_widget}
+        
+        prop_widgets = []
+        for prop, item in self.properties_widgets.items():
+            prop_widgets.append(item["widget"])
+            
+        self.children = prop_widgets
+    
+    def get_object_properties(self, obj):
+        properties = obj["slots"]
+        while "is_a" in obj:
+            obj_type = obj["is_a"]
+            obj = self.data_model["classes"][obj_type]
+            properties = obj["slots"] + properties
+            
+        return properties
+    
+    def get_property_widget(self, title, range, openbis_type, multivalued):
+        widget = None
+        value_widget = None
+        
+        if multivalued == False:
+            if openbis_type == "VARCHAR":
+                label_widget = ipw.HTML(value = f"{title}")
+                
+                text_widget = utils.Text(
+                    layout = ipw.Layout(width = "150px"), 
+                    placeholder = "",
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, text_widget]) # Widget with both label and input box
+                value_widget = text_widget # Widget with the value of the property
+            
+            elif openbis_type == "MULTILINE_VARCHAR":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                textarea_widget = utils.Textarea(
+                    layout = ipw.Layout(width = "200px", height = "100px"), 
+                    placeholder = "",
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, textarea_widget])
+                value_widget = textarea_widget
+            
+            elif openbis_type == "BOOLEAN":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                boolean_widget = utils.Checkbox(
+                    layout = ipw.Layout(width = "150px"),
+                    value = False,
+                    indent = False,
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, boolean_widget])
+                value_widget = boolean_widget
+            
+            elif openbis_type == "DATE":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                datepicker_widget = ipw.DatePicker(
+                    layout = ipw.Layout(width = "150px"), 
+                    value = datetime.date.today(),
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, datepicker_widget])
+                value_widget = datepicker_widget
+            
+            elif openbis_type == "TIMESTAMP":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                text_widget = utils.Text(
+                    layout = ipw.Layout(width = "150px"), 
+                    placeholder = "",
+                    value = datetime.datetime.now().strftime("%m/%d/%Y %H:%M:%S"),
+                    disabled = self.disabled
+                )
+                        
+                widget = ipw.VBox([label_widget, text_widget])
+                value_widget = text_widget
+            
+            elif openbis_type == "INTEGER":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                int_widget = utils.Text(
+                    layout = ipw.Layout(width = "150px"),
+                    disabled = self.disabled
+                )
+                
+                def validate_input(change):
+                    """Allow only valid negative or positive integer input."""
+                    new_value = change['new']
+                    
+                    # Check if the input is a valid integer (negative or positive)
+                    if new_value == "-" or new_value.lstrip('-').isdigit():
+                        int_widget.value = new_value
+                    else:
+                        # Remove all invalid characters while keeping only a leading '-'
+                        cleaned_value = ''.join(filter(str.isdigit, new_value))
+                        if new_value.startswith('-'):
+                            cleaned_value = '-' + cleaned_value  # Keep '-' at the start if it was originally there
+                        int_widget.value = cleaned_value
+                
+                int_widget.observe(validate_input, names = 'value')
+                
+                widget = ipw.VBox([label_widget, int_widget])
+                value_widget = int_widget
+            
+            elif openbis_type == "REAL":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                float_widget = utils.Text(
+                    layout = ipw.Layout(width = "150px"),
+                    disabled = self.disabled
+                )
+
+                def validate_float_input(change):
+                    """Ensure input contains only a valid float format, including negative and scientific notation."""
+                    new_value = change['new']
+
+                    # Allow empty value to support gradual input
+                    if new_value == "":
+                        return  
+
+                    # Strict valid float pattern (final valid numbers)
+                    valid_float_pattern = re.compile(r"^-?\d+(\.\d+)?([eE]-?\d+)?$")
+
+                    # Allow intermediate valid inputs while typing
+                    intermediate_pattern = re.compile(r"^-?$|^-?\d+\.?$|^-?\d*\.\d*([eE]-?)?$|^-?\d+([eE]-?)?$")
+
+                    if not valid_float_pattern.fullmatch(new_value) and not intermediate_pattern.fullmatch(new_value):
+                        float_widget.value = change["old"]  # Revert to previous valid value
+                            
+                float_widget.observe(validate_float_input, names = 'value')
+                
+                widget = ipw.VBox([label_widget, float_widget])
+                value_widget = float_widget
+            
+            elif openbis_type == "CONTROLLEDVOCABULARY":
+                label_widget = ipw.HTML(value = f"{title}")
+                    
+                property_options = []
+                property_vocabulary = DATA_MODEL["enums"][range]["permissible_values"]
+                for key, item in property_vocabulary.items():
+                    property_options.append((item["annotations"]["openbis_label"], key))
+                
+                dropdown_widget = utils.Dropdown(
+                    layout = ipw.Layout(width = "100px"), 
+                    options = property_options,
+                    value = property_options[0][1],
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, dropdown_widget])
+                value_widget = dropdown_widget
+            
+            elif openbis_type == "JSON":
+                prop_widgets = {}
+                prop_class = self.data_model["classes"][range]
+                if "slots" in prop_class:
+                    prop_slots = self.get_object_properties(prop_class)
+                    prop_widgets = {}
+                    prop_value_widgets = {}
+                    for slot in prop_slots:
+                        slot_title = self.data_model["slots"][slot]["title"]
+                        slot_range = self.data_model["slots"][slot]["range"]
+                        slot_openbis_type = self.data_model["slots"][slot]["annotations"]["openbis_type"]
+                        slot_multivalued = self.data_model["slots"][slot]["multivalued"]
+                        widget, value_widget = self.get_property_widget(slot_title, slot_range, slot_openbis_type, slot_multivalued)
+                        if widget and value_widget:
+                            # openBIS property type correction
+                            if slot == "name":
+                                slot = "name"
+                            prop_widgets[slot] = widget
+                            prop_value_widgets[slot] = value_widget
+                    
+                    label_widget = ipw.HTML(value = f"{title}")
+                    json_widget = ipw.HBox(list(prop_widgets.values()))
+                    widget = ipw.VBox([label_widget, json_widget])
+                    value_widget = prop_value_widgets
+                else:
+                    label_widget = ipw.HTML(value = f"{title}")
+                        
+                    text_widget = utils.Text(
+                        layout = ipw.Layout(width = "200px"), 
+                        placeholder = "",
+                        disabled = self.disabled
+                    )
+                    widget = ipw.VBox([label_widget, text_widget])
+                    value_widget = text_widget
+
+            # elif openbis_type == "OBJECT":
+            #     prop_widgets = {}
+            #     prop_class = self.data_model["classes"][range]
+            #     if "slots" in prop_class:
+            #         prop_slots = self.get_object_properties(prop_class)
+            #         prop_widgets = {}
+            #         prop_value_widgets = {}
+            #         for slot in prop_slots:
+            #             slot_title = self.data_model["slots"][slot]["title"]
+            #             slot_range = self.data_model["slots"][slot]["range"]
+            #             slot_openbis_type = self.data_model["slots"][slot]["annotations"]["openbis_type"]
+            #             slot_multivalued = self.data_model["slots"][slot]["multivalued"]
+            #             widget, value_widget = self.get_property_widget(slot_title, slot_range, slot_openbis_type, slot_multivalued)
+            #             if widget and value_widget:
+            #                 # openBIS property type correction
+            #                 if slot == "name":
+            #                     slot = "name"
+            #                 prop_widgets[slot] = widget
+            #                 prop_value_widgets[slot] = value_widget
+                    
+            #         label_widget = ipw.HTML(value = f"{title}")
+            #         object_widget = ipw.VBox(list(prop_widgets.values()))
+            #         widget = ipw.Accordion([object_widget])
+            #         widget.set_title(0, f"Edit {title}")
+            #         widget = ipw.VBox([label_widget, widget])
+            #         value_widget = prop_value_widgets
+        
+        else:
+            if openbis_type == "REAL":
+                label_widget = ipw.HTML(value = f"{title}")
+                
+                text_widget = utils.Text(
+                    layout = ipw.Layout(width = "150px"), 
+                    placeholder = "",
+                    disabled = self.disabled
+                )
+                widget = ipw.VBox([label_widget, text_widget]) # Widget with both label and input box
+                value_widget = text_widget # Widget with the value of the property
+                
+        return widget, value_widget
+            
 class ProjectSelectionWidget(ipw.VBox):
     def __init__(self):
         # Initialize the parent HBox
@@ -744,7 +1001,7 @@ class ProjectSelectionWidget(ipw.VBox):
         self.dropdown = utils.Dropdown(
             description='Project', 
             disabled=False, 
-            layout = ipw.Layout(width='982px'), 
+            layout = ipw.Layout(width='500px'), 
             style = {'description_width': "110px"}, 
             options = [-1]
         )

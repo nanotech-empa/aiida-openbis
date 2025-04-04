@@ -401,6 +401,18 @@ def find_first_object_permid(openbis_session, openbis_object, openbis_type):
     
     return first_object
 
+def find_first_atomistic_model(openbis_session, openbis_object, openbis_type):
+    if openbis_type == "ATOMISTIC_MODEL":
+        first_object = openbis_object
+        
+    object_parents_identifiers = openbis_object.parents
+    for parent_identifier in object_parents_identifiers:
+        parent_object = openbis_session.get_object(parent_identifier)
+        if parent_object.type == "GEOMETRY_OPTIMISATION" or parent_object.type == "ATOMISTIC_MODEL":
+            first_object = find_first_atomistic_model(openbis_session, parent_object, parent_object.type)
+        
+    return first_object
+
 def get_sample_details(openbis_session, sample_object, sample_preparation_types, slabs_types):
     sample_parents_metadata = get_openbis_parents_recursive(openbis_session, sample_object, [])
     sample_details = {

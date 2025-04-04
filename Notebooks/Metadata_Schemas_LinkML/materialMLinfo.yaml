@@ -111,15 +111,17 @@ classes:
       openbis_label: Atomistic Model
     slots:
      - atoms_positions
+     - atomistic_model_structure
      - cell
      - dimensionality
      - periodic_boundary_conditions
      - volume
      - comments
      # ---- Object properties ----
-     - crystal
+     - crystal_concept_parent
      - geoopts
-     - molecule
+     - molecule_concepts_parent
+     - reaction_product_concepts_parent
 
   BandStructure:
     title: Band Structure
@@ -926,7 +928,8 @@ classes:
      - sum_formula
      - comments
      # ---- Object properties ----
-     - molecule_concept
+     - molecule_concepts
+     - crystal_concept
 
   Results:
     title: Results
@@ -1081,19 +1084,19 @@ classes:
   #    # ---- Object properties ----
   #    - molecule
   
-  # Storage:
-  #   title: Storage
-  #   is_a: Thing
-  #   class_uri: ncit:NCIT_C16143
-  #   description: Storage
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: STORG
-  #     openbis_label: Storage Custom
-  #   slots:
-  #    - comments
-  #    # ---- Object properties ----
-  #    - room
+  Storage:
+    title: Storage
+    is_a: Thing
+    class_uri: ncit:NCIT_C16143
+    description: Storage
+    annotations:
+      openbis_object: true
+      openbis_code: STRG
+      openbis_label: Storage Custom
+    slots:
+     - comments
+     # ---- Object properties ----
+     - room
   
   Supplier:
     title: Supplier
@@ -1996,6 +1999,15 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Angle
+  
+  atomistic_model_structure:
+    title: Structure
+    description: Structure
+    range: object
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Structure
 
   atoms_positions:
     title: Atoms Positions
@@ -3662,6 +3674,17 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Crystal Concept
+  
+  crystal_concept_parent:
+    title: Crystal Concept
+    range: CrystalConcept
+    description: crystal concept parent
+    multivalued: false
+    inlined_as_list: true
+    slot_uri: 
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Crystal Concept
     
   default_object_view:
     title: Default object view
@@ -3786,6 +3809,24 @@ slots:
       openbis_type: OBJECT
       openbis_label: Molecule Concept
   
+  molecule_concepts:
+    title: Molecule Concepts
+    range: MoleculeConcept
+    description: molecule concepts
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Molecule Concepts
+  
+  molecule_concepts_parent:
+    title: Molecule Concepts
+    range: MoleculeConcept
+    description: molecule concepts parent
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Molecule Concepts
+  
   observables:
     title: Observables
     range: Any
@@ -3849,6 +3890,24 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Reaction Product Concept
+  
+  reaction_product_concepts:
+    title: Reaction Product Concepts
+    range: ReactionProductConcept
+    description: reaction product concepts
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Reaction Product Concepts
+  
+  reaction_product_concepts_parent:
+    title: Reaction Product Concepts
+    range: ReactionProductConcept
+    description: reaction product concepts parent
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT (PARENT)
+      openbis_label: Reaction Product Concepts
 
   results:
     title: Results

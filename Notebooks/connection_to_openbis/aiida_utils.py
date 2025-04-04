@@ -499,6 +499,8 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     if dimensionality:
         dictionary["dimensionality"] = int(dimensionality[0])
         dictionary["periodic_boundary_conditions"] = [bool(i) for i in dimensionality[1]]
+        
+    
     
     obobject = utils.create_openbis_object(
         openbis_session, 

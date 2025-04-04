@@ -206,6 +206,14 @@
                             "name": "UHV transfer"
                         }
                     }
+                },
+                "PROTOCOLS": {
+                    "description": "Protocols",
+                    "experiments": {
+                        "PROTOCOL_COLLECTION": {
+                            "name": "Methods Protocols"
+                        }
+                    }
                 }
             }
         },
