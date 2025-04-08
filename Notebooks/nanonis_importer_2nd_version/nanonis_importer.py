@@ -29,17 +29,23 @@ VERBOSE = False
 DEFAULT_URL = "local.openbis.ch"
 
 def get_instance(url=None, token=None):
+    user = "admin"
+    pw = "123456789"
+    
     if url is None:
         url = DEFAULT_URL
+        
     openbis_instance = Openbis(
         url=url,
         verify_certificates=False,
         allow_http_but_do_not_use_this_in_production_and_only_within_safe_networks=True
     )
+    
     if token is None:
-        token = openbis_instance.login('admin', '123456789')
+        token = openbis_instance.login(user, pw)
     else:
         openbis_instance.token = token
+        
     print(f'Connected to {url} -> token: {token}')
     return openbis_instance
 
