@@ -33,6 +33,42 @@ imports:
 default_prefix: materialsML
   
 classes:
+  # ---- New object types ----
+  SPM:
+    title: SPM
+    is_a: Instrument
+    class_uri: 
+    description: SPM
+    annotations:
+      openbis_object: true
+      openbis_code: SCPM
+      openbis_label: SPM
+    slots:
+  
+  Pump:
+    title: Pump
+    is_a: Component
+    class_uri: 
+    description: Pump
+    annotations:
+      openbis_object: true
+      openbis_code: PUMP
+      openbis_label: Pump
+    slots:
+  
+  Gauge:
+    title: Gauge
+    is_a: Component
+    class_uri: 
+    description: Gauge
+    annotations:
+      openbis_object: true
+      openbis_code: GAUG
+      openbis_label: Gauge
+    slots:
+  
+  # -------------------
+
   Any:
     class_uri: linkml:Any
     annotations:

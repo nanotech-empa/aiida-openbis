@@ -53,11 +53,7 @@ def create_experiment_type_in_openbis(session):
         print(f"Experiment type EXPERIMENT exists already.")
             
 def create_property_type_in_openbis(session, property_type_dict: dict):
-    property_type = session.get_property_types(code=property_type_dict["code"])
-    if property_type:
-        print(f"{property_type_dict['code']} already exists.")
-    else:
-        session.new_property_type(**property_type_dict).save()
+    session.new_property_type(**property_type_dict).save()
         
 def create_space_in_openbis(session, space_code: str, space_info: dict):
     try:
@@ -183,9 +179,14 @@ class OpenBisDatabase:
     
     def create_property_type(self, property_type: str) -> str:
         if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)"]:
-            property_type_dict = self.generate_property_type_dictionary(property_type)
-            create_property_type_in_openbis(self.session, property_type_dict)
-            return property_type
+            property_type_openbis = self.session.get_property_types(code = property_type)
+            if property_type_openbis:
+                print(f"{property_type} already exists.")
+                return property_type
+            else:
+                property_type_dict = self.generate_property_type_dictionary(property_type)
+                create_property_type_in_openbis(self.session, property_type_dict)
+                return property_type
         else:
             return None
     

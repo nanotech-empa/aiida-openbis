@@ -1,0 +1,128 @@
+[
+    {
+        "names": [
+            "Triangulene",
+            "[3]Triangulene",
+            "3T"
+        ],
+        "structure_sketch": "images/structure.png",
+        "structure_file": "structures/structure.cdxml",
+        "classification": "Open Shell Molecule",
+        "simulations": [
+            {
+                "substrate": "None (gas phase)",
+                "uks_multiplicity": 3,
+                "charge": 0,
+                "number_alpha_electrons": 47,
+                "number_beta_electrons": 45,
+                "energy_au": -130.036,
+                "energy_ev": -3538.472,
+                "gap_ev": 0.6984,
+                "band_energies": [
+                    {
+                        "index": -1,
+                        "label": "VB",
+                        "e_ef_ev": -0.84,
+                        "effective_mass_m_e": 0.40
+                    },
+                    {
+                        "index": 1,
+                        "label": "CB",
+                        "e_ef_ev": 1.52,
+                        "effective_mass_m_e": 0.42
+                    }
+                ],
+                "ldos_orbital_maps": "images/ldos_orbital_maps.png"
+            },
+            {
+                "substrate": "None (gas phase)",
+                "energy_ev": -3538.472,
+                "gap_ev": 0.6984,
+                "band_energies": [
+                    {
+                        "index": -1,
+                        "e_ef_ev": -0.84
+                    }
+                ],
+                "ldos_orbital_maps": "images/ldos_orbital_maps.png"
+            }
+        ],
+        "experiments": [
+            {
+                "doi": "https://doi.org...",
+                "year": 2015,
+                "comments_flags": "FT analysis gives precise information...",
+                "substrate": "Au(111)",
+                "gap_ev": 23.13,
+                "spin_excitation_energy_ev": 0.008,
+                "band_energies": [
+                    {
+                        "index": -1,
+                        "label": "HOMO",
+                        "e_ef_ev": -0.54,
+                        "error_ev": 0.05,
+                        "effective_mass_m_e": 0.41,
+                        "error_m_e": 0.08
+                    },
+                    {
+                        "index": 1,
+                        "label": "LUMO",
+                        "e_ef_ev": 1.67,
+                        "error_ev": 0.03,
+                        "effective_mass_m_e": 0.20,
+                        "error_m_e": 0.18
+                    }
+                ],
+                "relevant_stm_images": [
+                    {
+                        "path": "images/stm1.png",
+                        "caption": "STM image 1"
+                    },
+                    {
+                        "path": "images/stm2.png",
+                        "caption": "STM image 2"
+                    }
+                ],
+                "relevant_sts_images": [
+                    {
+                        "path": "images/sts1.png",
+                        "caption": "STS 1"
+                    },
+                    {
+                        "path": "images/sts2.png",
+                        "caption": "STS 2"
+                    }
+                ],
+                "precursor": {
+                    "image_path": "images/precursor.png",
+                    "structure_path": "structures/precursor.cdxml",
+                    "caption": "Precursor"
+                }
+            },
+            {
+                "doi": "https://doi.org...",
+                "year": 2015,
+                "comments_flags": "FT analysis gives precise information...",
+                "substrate": "Au(111)",
+                "gap_ev": 23.13,
+                "spin_excitation_energy_ev": 0.008,
+                "band_energies": [
+                    {
+                        "index": -1,
+                        "e_ef_ev": -0.54
+                    },
+                    {
+                        "index": 1,
+                        "e_ef_ev": 1.67
+                    }
+                ],
+                "relevant_sts_images": [
+                    {
+                        "path": "images/sts1.png",
+                        "caption": "STS 1"
+                    }
+                ]
+            }
+        ]
+    }
+]
