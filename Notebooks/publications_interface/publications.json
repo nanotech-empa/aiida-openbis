@@ -2,15 +2,15 @@
     {
         "names": [
             "Triangulene",
-            "[3]Triangulene",
-            "3T"
+            " [3]Triangulene",
+            " 3T"
         ],
-        "structure_sketch": "images/structure.png",
-        "structure_file": "structures/structure.cdxml",
+        "structure_sketch_file": "images/structure.png",
+        "structure_file": "structures/677a.cdxml",
         "classification": "Open Shell Molecule",
         "simulations": [
             {
-                "substrate": "None (gas phase)",
+                "substrate": "none (gas phase)",
                 "uks_multiplicity": 3,
                 "charge": 0,
                 "number_alpha_electrons": 47,
@@ -23,7 +23,7 @@
                         "index": -1,
                         "label": "VB",
                         "e_ef_ev": -0.84,
-                        "effective_mass_m_e": 0.40
+                        "effective_mass_m_e": 0.4
                     },
                     {
                         "index": 1,
@@ -32,10 +32,19 @@
                         "effective_mass_m_e": 0.42
                     }
                 ],
-                "ldos_orbital_maps": "images/ldos_orbital_maps.png"
+                "ldos_orbital_maps": [
+                    {
+                        "file": "images/what-is-big-data.png",
+                        "caption": "SOMO"
+                    },
+                    {
+                        "file": "images/image (3).png",
+                        "caption": "SUMO"
+                    }
+                ]
             },
             {
-                "substrate": "None (gas phase)",
+                "substrate": "none (gas phase)",
                 "energy_ev": -3538.472,
                 "gap_ev": 0.6984,
                 "band_energies": [
@@ -44,20 +53,25 @@
                         "e_ef_ev": -0.84
                     }
                 ],
-                "ldos_orbital_maps": "images/ldos_orbital_maps.png"
+                "ldos_orbital_maps": [
+                    {
+                        "file": "images/IMG-20241111-WA0000.jpg",
+                        "caption": "1"
+                    }
+                ]
             }
         ],
         "experiments": [
             {
-                "doi": "https://doi.org...",
+                "doi": "https://doi.org/10.1103/PhysRevB.91.045429",
                 "year": 2015,
-                "comments_flags": "FT analysis gives precise information...",
+                "comments_flags": "FT analysis gives precise information on CB and VB onsets.",
                 "substrate": "Au(111)",
-                "gap_ev": 23.13,
                 "spin_excitation_energy_ev": 0.008,
+                "gap_ev": 23.13,
                 "band_energies": [
                     {
-                        "index": -1,
+                        "index": 1,
                         "label": "HOMO",
                         "e_ef_ev": -0.54,
                         "error_ev": 0.05,
@@ -65,61 +79,60 @@
                         "error_m_e": 0.08
                     },
                     {
-                        "index": 1,
+                        "index": -1,
                         "label": "LUMO",
                         "e_ef_ev": 1.67,
                         "error_ev": 0.03,
-                        "effective_mass_m_e": 0.20,
+                        "effective_mass_m_e": 0.2,
                         "error_m_e": 0.18
                     }
                 ],
                 "relevant_stm_images": [
                     {
-                        "path": "images/stm1.png",
-                        "caption": "STM image 1"
+                        "file": "images/bands_goncalo.png",
+                        "caption": "STM 1"
                     },
                     {
-                        "path": "images/stm2.png",
-                        "caption": "STM image 2"
+                        "file": "images/7AGNR_Preview.PNG",
+                        "caption": "STM 2"
                     }
                 ],
                 "relevant_sts_images": [
                     {
-                        "path": "images/sts1.png",
+                        "file": "images/What_is_Data_Types_of_Data_and_How_To_Analyze_Data.avif",
                         "caption": "STS 1"
                     },
                     {
-                        "path": "images/sts2.png",
+                        "file": "images/elog_20240618_142433_0.png",
                         "caption": "STS 2"
                     }
                 ],
                 "precursor": {
-                    "image_path": "images/precursor.png",
-                    "structure_path": "structures/precursor.cdxml",
-                    "caption": "Precursor"
+                    "image_file": "images/531a.png",
+                    "structure_file": "structures/531a.cdxml",
+                    "caption": "Precursor 1"
                 }
             },
             {
-                "doi": "https://doi.org...",
+                "doi": "https://doi.org/10.1103/PhysRevB.91.045429",
                 "year": 2015,
-                "comments_flags": "FT analysis gives precise information...",
+                "comments_flags": "FT analysis gives precise information on CB and VB onsets.",
                 "substrate": "Au(111)",
                 "gap_ev": 23.13,
-                "spin_excitation_energy_ev": 0.008,
                 "band_energies": [
                     {
-                        "index": -1,
+                        "index": 1,
                         "e_ef_ev": -0.54
                     },
                     {
-                        "index": 1,
+                        "index": -1,
                         "e_ef_ev": 1.67
                     }
                 ],
                 "relevant_sts_images": [
                     {
-                        "path": "images/sts1.png",
-                        "caption": "STS 1"
+                        "file": "images/e_10iCl.jpg",
+                        "caption": "STS 2.1"
                     }
                 ]
             }

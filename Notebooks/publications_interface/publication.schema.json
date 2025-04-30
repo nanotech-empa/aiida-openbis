@@ -9,7 +9,7 @@
             "minItems": 1,
             "items": { "type": "string" }
         },
-        "structure_sketch": { "type": "string" },
+        "structure_sketch_file": { "type": "string" },
         "structure_file": { "type": "string" },
         "classification": { "type": "string" },
         "simulations": {
@@ -41,7 +41,10 @@
                         "type": "array",
                         "items": { "$ref": "#/$defs/band_energy_sim" }
                     },
-                    "ldos_orbital_maps": { "type": "string" }
+                    "ldos_orbital_maps": {
+                        "type": "array",
+                        "items": { "$ref": "#/$defs/image_object" }
+                    }
                 },
                 "required": ["substrate", "energy_ev", "gap_ev"]
             }
@@ -73,13 +76,13 @@
                     "precursor": {
                         "type": "object",
                         "properties": {
-                            "image_path": { "type": "string" },
-                            "structure_path": { "type": "string" },
+                            "image_file": { "type": "string" },
+                            "structure_file": { "type": "string" },
                             "caption": { "type": "string" }
                         }
-                    },
-                    "required": ["doi", "year", "comments_flags", "substrate", "gap_ev"]
-                }
+                    }
+                },
+                "required": ["doi", "year", "comments_flags", "substrate", "gap_ev", "relevant_sts_images"]
             }
         }
     },
@@ -109,11 +112,11 @@
         "image_object": {
             "type": "object",
             "properties": {
-                "path": { "type": "string" },
+                "file": { "type": "string" },
                 "caption": { "type": "string" }
             },
             "required": ["caption"]
         }
     },
-    "required": ["names", "structure_sketch", "structure_file", "classification"]
+    "required": ["names", "structure_sketch_file", "structure_file", "classification"]
 }

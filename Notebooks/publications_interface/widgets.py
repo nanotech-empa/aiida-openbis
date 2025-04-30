@@ -2,6 +2,7 @@ import ipywidgets as ipw
 from IPython.display import display, clear_output
 import utils
 import io
+import os
 import urllib.parse
 import rdkit
 from rdkit.Chem import AllChem, Draw, rdMolDescriptors
@@ -11,18 +12,35 @@ class SummaryObjectWidget(ipw.VBox):
         # Initialize the parent
         super().__init__()
         
-        self.name_label = utils.Label(
-            value = "Name: "
+        self.names_label = utils.Label(
+            value = "Names: "
         )
         
-        self.name_textbox = utils.Text(
-            layout = ipw.Layout(width = '30%')
+        self.names_textbox = utils.Text(
+            layout = ipw.Layout(width = '30%'),
+            placeholder = "Write names separated by ;"
         )
         
-        self.name_widgets = utils.HBox(
+        self.names_widgets = utils.HBox(
             [
-                self.name_label,
-                self.name_textbox
+                self.names_label,
+                self.names_textbox
+            ]
+        )
+        
+        self.structure_file_uploader_label = utils.Label(
+            value = "Upload structure:"
+        )
+        
+        self.structure_file_uploader = utils.FileUpload(
+            accept = ".cdxml",
+            multiple = False
+        )
+        
+        self.structure_file_uploader_widgets = utils.HBox(
+            [
+                self.structure_file_uploader_label,
+                self.structure_file_uploader
             ]
         )
         
@@ -30,8 +48,10 @@ class SummaryObjectWidget(ipw.VBox):
             value = "Structure sketch: "
         )
         
+        self.structure_sketch_image_file = "images/white_screen.jpg"
+        
         self.structure_sketch_imagebox = utils.Image(
-            value = utils.read_file("images/white_screen.jpg"),
+            value = utils.read_file(self.structure_sketch_image_file),
             layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
         )
         
@@ -43,23 +63,19 @@ class SummaryObjectWidget(ipw.VBox):
         )
         
         self.structure_file_label = utils.Label(
-            value = "Structure file: "
+            value = "Structure file:"
         )
         
         self.structure_file_hyperlink = utils.HTML(
             value = ""
         )
         
-        self.structure_file_uploader = utils.FileUpload(
-            accept = ".cdxml",
-            multiple = False
-        )
+        self.structure_cdxml_file = ""
         
         self.structure_file_widgets = utils.HBox(
             [
                 self.structure_file_label,
-                self.structure_file_hyperlink,
-                self.structure_file_uploader
+                self.structure_file_hyperlink
             ]
         )
         
@@ -83,7 +99,8 @@ class SummaryObjectWidget(ipw.VBox):
         )
         
         self.children = [
-            self.name_widgets,
+            self.names_widgets,
+            self.structure_file_uploader_widgets,
             self.structure_sketch_widgets,
             self.structure_file_widgets,
             self.classification_widgets
@@ -93,6 +110,7 @@ class SummaryObjectWidget(ipw.VBox):
         for filename, data in self.structure_file_uploader.value.items():
             content = data["content"]
             cdxml_filepath = f"structures/{filename}"
+            self.structure_cdxml_file = cdxml_filepath
             utils.save_file(content, cdxml_filepath)
             encoded_path = urllib.parse.quote(cdxml_filepath)
             self.structure_file_hyperlink.value = f"<a href='{encoded_path}' target='_blank'>Download structure cdxml file</a>"
@@ -116,6 +134,7 @@ class SummaryObjectWidget(ipw.VBox):
                     image_filepath = "images/structure.png"
                     image.save(image_filepath)
                     self.structure_sketch_imagebox.value = image_bytes
+                    self.structure_sketch_image_file = image_filepath
                     
             if generate_molecule_image == False:
                 self.structure_sketch_imagebox.value = utils.read_file("images/white_screen.jpg")
@@ -149,14 +168,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "UKS Multi.: "
         )
         
-        self.uks_multi_inttextbox = utils.IntText(
+        self.uks_multi_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.uks_multi_widgets = utils.HBox(
             [
                 self.uks_multi_label,
-                self.uks_multi_inttextbox
+                self.uks_multi_textbox
             ]
         )
         
@@ -164,14 +183,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Charge: "
         )
         
-        self.charge_inttextbox = utils.IntText(
+        self.charge_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.charge_widgets = utils.HBox(
             [
                 self.charge_label,
-                self.charge_inttextbox
+                self.charge_textbox
             ]
         )
         
@@ -179,14 +198,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Number of alpha: "
         )
         
-        self.num_alpha_inttextbox = utils.IntText(
+        self.num_alpha_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.num_alpha_widgets = utils.HBox(
             [
                 self.num_alpha_label,
-                self.num_alpha_inttextbox
+                self.num_alpha_textbox
             ]
         )
         
@@ -194,14 +213,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Number of beta: "
         )
         
-        self.num_beta_inttextbox = utils.IntText(
+        self.num_beta_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.num_beta_widgets = utils.HBox(
             [
                 self.num_beta_label,
-                self.num_beta_inttextbox
+                self.num_beta_textbox
             ]
         )
         
@@ -209,14 +228,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Energy [au]: "
         )
         
-        self.energy_au_floattextbox = utils.FloatText(
+        self.energy_au_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.energy_au_widgets = utils.HBox(
             [
                 self.energy_au_label,
-                self.energy_au_floattextbox
+                self.energy_au_textbox
             ]
         )
         
@@ -224,14 +243,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Energy [eV]: "
         )
         
-        self.energy_ev_floattextbox = utils.FloatText(
+        self.energy_ev_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.energy_ev_widgets = utils.HBox(
             [
                 self.energy_ev_label,
-                self.energy_ev_floattextbox
+                self.energy_ev_textbox
             ]
         )
         
@@ -239,14 +258,14 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Gap [eV]: "
         )
         
-        self.gap_ev_floattextbox = utils.FloatText(
+        self.gap_ev_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.gap_ev_widgets = utils.HBox(
             [
                 self.gap_ev_label,
-                self.gap_ev_floattextbox
+                self.gap_ev_textbox
             ]
         )
         
@@ -254,7 +273,7 @@ class SimulationObjectWidget(ipw.VBox):
             value = "Band energies (wrt E_F)"
         )
         
-        self.bands_energies_items = [
+        self.band_energies_items = [
             utils.Label(
                 value = "Index"
             ),
@@ -267,22 +286,22 @@ class SimulationObjectWidget(ipw.VBox):
             utils.Label(
                 value = "Effective mass (m_e)"
             ),
-            utils.IntText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
             utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             )
         ]
         
         self.band_energies_gridbox = utils.GridBox(
-            self.bands_energies_items,
+            self.band_energies_items,
             layout = ipw.Layout(grid_template_columns = "repeat(4, 15%)")
         )
         
@@ -321,6 +340,8 @@ class SimulationObjectWidget(ipw.VBox):
         self.ldos_orbital_maps_image_output = utils.Output()
         
         self.ldos_orbital_maps_widgets = utils.VBox([])
+        
+        self.ldos_orbital_maps_files = []
         
         self.add_row_band_energies_button.on_click(
             self.add_band_energies_row
@@ -384,7 +405,10 @@ class SimulationObjectWidget(ipw.VBox):
                     ]
                 )
                 
+                image_filepath = f"images/{image_filename}"
+                utils.save_file(image_binary, image_filepath)
                 images_content.append(image_widgets)
+                self.ldos_orbital_maps_files.append(image_filepath)
             
             self.ldos_orbital_maps_widgets.children = images_content
             display(self.ldos_orbital_maps_widgets)
@@ -393,16 +417,16 @@ class SimulationObjectWidget(ipw.VBox):
         band_energies_grid_box_items = list(self.band_energies_gridbox.children)
         band_energies_grid_box_items.extend(
             [
-                utils.IntText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
                 utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 )
             ]
@@ -462,14 +486,14 @@ class ExperimentObjectWidget(ipw.VBox):
             value = "Year: "
         )
         
-        self.year_inttextbox = utils.IntText(
+        self.year_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.year_widgets = utils.HBox(
             [
                 self.year_label,
-                self.year_inttextbox
+                self.year_textbox
             ]
         )
         
@@ -507,14 +531,14 @@ class ExperimentObjectWidget(ipw.VBox):
             value = "Spin excitation energy [eV]: "
         )
         
-        self.spin_excitation_energy_ev_floattextbox = utils.FloatText(
+        self.spin_excitation_energy_ev_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.spin_excitation_energy_ev_widgets = utils.HBox(
             [
                 self.spin_excitation_energy_ev_label,
-                self.spin_excitation_energy_ev_floattextbox
+                self.spin_excitation_energy_ev_textbox
             ]
         )
         
@@ -522,14 +546,14 @@ class ExperimentObjectWidget(ipw.VBox):
             value = "Gap [eV]: "
         )
         
-        self.gap_ev_floattextbox = utils.FloatText(
+        self.gap_ev_textbox = utils.Text(
             layout = ipw.Layout(width = '20%')
         )
         
         self.gap_ev_widgets = utils.HBox(
             [
                 self.gap_ev_label,
-                self.gap_ev_floattextbox
+                self.gap_ev_textbox
             ]
         )
         
@@ -556,22 +580,22 @@ class ExperimentObjectWidget(ipw.VBox):
             utils.Label(
                 value = "Error (m_e)"
             ),
-            utils.IntText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
             utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             ),
-            utils.FloatText(
+            utils.Text(
                 layout = ipw.Layout(width = "80%")
             )
         ]
@@ -616,6 +640,8 @@ class ExperimentObjectWidget(ipw.VBox):
         
         self.relevant_stm_image_widgets = utils.VBox([])
         
+        self.relevant_stm_image_files = []
+        
         self.relevant_stm_image_uploader = utils.FileUpload(
             multiple = True
         )
@@ -627,6 +653,8 @@ class ExperimentObjectWidget(ipw.VBox):
         self.relevant_sts_output = utils.Output()
         
         self.relevant_sts_image_widgets = utils.VBox([])
+        
+        self.relevant_sts_image_files = []
         
         self.relevant_sts_image_uploader = utils.FileUpload(
             multiple = True
@@ -643,10 +671,39 @@ class ExperimentObjectWidget(ipw.VBox):
             layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
         )
         
+        self.precursor_cdxml_uploader_label = utils.Label(
+            value = "Upload precursor CDXML file:"
+        )
+        
         self.precursor_cdxml_uploader = utils.FileUpload(
             accept = ".cdxml",
             multiple = False
         )
+        
+        self.precursor_cdxml_uploader_widgets = utils.HBox(
+            [
+                self.precursor_cdxml_uploader_label,
+                self.precursor_cdxml_uploader
+            ]
+        )
+        
+        self.precursor_file_hyperlink_label = utils.Label(
+            value = "Precursor file:"
+        )
+        
+        self.precursor_file_hyperlink = utils.HTML(
+            value = ""
+        )
+        
+        self.precursor_file_hyperlink_widgets = utils.HBox(
+            [
+                self.precursor_file_hyperlink_label,
+                self.precursor_file_hyperlink
+            ]
+        )
+        
+        self.precursor_cdxml_file = ""
+        self.precursor_image_file = ""
         
         self.precursor_caption_label = utils.Label(
             value = "Precursor caption: "
@@ -698,118 +755,128 @@ class ExperimentObjectWidget(ipw.VBox):
             self.change_rows_band_energies_buttons,
             self.relevant_stm_label,
             self.relevant_stm_image_uploader,
-            self.relevant_stm_output,
+            self.relevant_stm_image_widgets,
             self.relevant_sts_label,
             self.relevant_sts_image_uploader,
-            self.relevant_sts_output,
+            self.relevant_sts_image_widgets,
             self.precursor_label,
-            self.precursor_cdxml_uploader,
-            self.precursor_image_output,
+            self.precursor_cdxml_uploader_widgets,
+            self.precursor_file_hyperlink_widgets,
+            self.precursor_imagebox,
+            self.precursor_caption_widgets,
             self.remove_experiment_button
         ]
     
     def load_relevant_stm(self, change):
-        with self.relevant_stm_output:
-            clear_output()
-            images_content = []
-            for image_filename, image_data in self.relevant_stm_image_uploader.value.items():
-                image_binary = image_data["content"]
-                image_widget = utils.Image(
-                    value = image_binary,
-                    layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
-                )
-                
-                image_caption = utils.Text(
-                    description = "Caption: "
-                )
-                
-                image_widgets = utils.VBox(
-                    [
-                        image_widget,
-                        image_caption
-                    ]
-                )
-                
-                images_content.append(image_widgets)
+        images_content = []
+        for image_filename, image_data in self.relevant_stm_image_uploader.value.items():
+            image_binary = image_data["content"]
+            image_widget = utils.Image(
+                value = image_binary,
+                layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
+            )
             
-            self.relevant_stm_image_widgets.children = images_content
-            display(self.relevant_stm_image_widgets)
+            image_caption = utils.Text(
+                description = "Caption: "
+            )
+            
+            image_widgets = utils.VBox(
+                [
+                    image_widget,
+                    image_caption
+                ]
+            )
+            
+            image_filepath = f"images/{image_filename}"
+            utils.save_file(image_binary, image_filepath)
+            images_content.append(image_widgets)
+            self.relevant_stm_image_files.append(image_filepath)
+        
+        self.relevant_stm_image_widgets.children = images_content
     
     def load_relevant_sts(self, change):
-        with self.relevant_sts_output:
-            clear_output()
-            images_content = []
-            for image_filename, image_data in self.relevant_sts_image_uploader.value.items():
-                image_binary = image_data["content"]
-                image_widget = utils.Image(
-                    value = image_binary,
-                    layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
-                )
-                
-                image_caption = utils.Text(
-                    description = "Caption: "
-                )
-                
-                image_widgets = utils.VBox(
-                    [
-                        image_widget,
-                        image_caption
-                    ]
-                )
-                
-                images_content.append(image_widgets)
+        images_content = []
+        for image_filename, image_data in self.relevant_sts_image_uploader.value.items():
+            image_binary = image_data["content"]
+            image_widget = utils.Image(
+                value = image_binary,
+                layout = ipw.Layout(border = 'solid 1px #cccccc', width = '250px', height = '250px')
+            )
             
-            self.relevant_sts_image_widgets.children = images_content
-            display(self.relevant_sts_image_widgets)
+            image_caption = utils.Text(
+                description = "Caption: "
+            )
+            
+            image_widgets = utils.VBox(
+                [
+                    image_widget,
+                    image_caption
+                ]
+            )
+            
+            image_filepath = f"images/{image_filename}"
+            utils.save_file(image_binary, image_filepath)
+            images_content.append(image_widgets)
+            self.relevant_sts_image_files.append(image_filepath)
+        
+        self.relevant_sts_image_widgets.children = images_content
     
     def load_precursor_cdxml(self, change):
-        with self.precursor_image_output:
-            clear_output()
-            for filename, data in self.precursor_cdxml_uploader.value.items():
-                content = data["content"]
-                molecules = rdkit.Chem.MolsFromCDXML(content)
-                generate_molecule_image = False
+        for filename, data in self.precursor_cdxml_uploader.value.items():
+            content = data["content"]
+            cdxml_filepath = f"structures/{filename}"
+            self.precursor_cdxml_file = cdxml_filepath
+            utils.save_file(content, cdxml_filepath)
+            encoded_path = urllib.parse.quote(cdxml_filepath)
+            self.precursor_file_hyperlink.value = f"<a href='{encoded_path}' target='_blank'>Download precursor cdxml file</a>"
+            
+            # Convert CDXML to PNG
+            molecules = rdkit.Chem.MolsFromCDXML(content)
+            generate_molecule_image = False
+            
+            if len(molecules) == 1:
+                mol = molecules[0] # Get first molecule
+                mol_name = os.path.splitext(filename)[0]
+                mol_smiles = rdkit.Chem.MolToSmiles(mol) # Canonical Smiles
+                chem_mol = rdkit.Chem.MolFromSmiles(mol_smiles)
                 
-                if len(molecules) == 1:
-                    mol = molecules[0] # Get first molecule
-                    mol_smiles = rdkit.Chem.MolToSmiles(mol) # Canonical Smiles
-                    chem_mol = rdkit.Chem.MolFromSmiles(mol_smiles)
+                if chem_mol is not None:
+                    generate_molecule_image = True
+                    AllChem.Compute2DCoords(chem_mol) # Add coords to the atoms in the molecule
+                    image = Draw.MolToImage(chem_mol)
+                    buffer = io.BytesIO()
+                    image.save(buffer, format='PNG')
+                    image_bytes = buffer.getvalue()
+                    image_filepath = f"images/{mol_name}.png"
+                    image.save(image_filepath)
+                    self.precursor_imagebox.value = image_bytes
+                    self.precursor_image_file = image_filepath
                     
-                    if chem_mol is not None:
-                        generate_molecule_image = True
-                        AllChem.Compute2DCoords(chem_mol) # Add coords to the atoms in the molecule
-                        image = Draw.MolToImage(chem_mol)
-                        buffer = io.BytesIO()
-                        image.save(buffer, format='PNG')
-                        image_bytes = buffer.getvalue()
-                        self.precursor_imagebox.value = image_bytes
-                        
-                if generate_molecule_image == False:
-                    self.precursor_imagebox.value = utils.read_file("images/white_screen.jpg")
-                    print(f"Cannot generate molecule image.")
-                        
-            display(self.precursor_imagebox)
+            if generate_molecule_image == False:
+                self.precursor_imagebox.value = utils.read_file("images/white_screen.jpg")
+                print(f"Cannot generate molecule image.")
+
       
     def add_band_energies_row(self, b):
         band_energies_grid_box_items = list(self.band_energies_gridbox.children)
         band_energies_grid_box_items.extend(
             [
-                utils.IntText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
                 utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 ),
-                utils.FloatText(
+                utils.Text(
                     layout = ipw.Layout(width = "80%")
                 )
             ]
@@ -895,11 +962,228 @@ class PublicationObjectWidget(ipw.VBox):
             self.add_experiment_button
         ]
     
-    def search_publication_by_keyword(self, keyword):
-        pass
-    
-    def search_publication_by_file(self, file):
-        pass
+    def get_widgets_data(self):
+        widgets_data = {}
+        
+        if self.summary_info_widgets.names_textbox.value:
+            names = self.summary_info_widgets.names_textbox.value
+            widgets_data["names"] = names.split(";")
+        
+        if self.summary_info_widgets.structure_sketch_image_file:
+            widgets_data["structure_sketch_file"] = self.summary_info_widgets.structure_sketch_image_file
+        
+        if self.summary_info_widgets.structure_cdxml_file:
+            widgets_data["structure_file"] = self.summary_info_widgets.structure_cdxml_file
+        
+        if self.summary_info_widgets.classification_textbox.value:
+            widgets_data["classification"] = self.summary_info_widgets.classification_textbox.value
+        
+        simulations_data = []
+        simulations_objects = self.simulations_accordion.children
+        for simulation in simulations_objects:
+            simulation_dict = {}
+            
+            if simulation.substrate_textbox.value:
+                simulation_dict["substrate"] = simulation.substrate_textbox.value
+            
+            if simulation.uks_multi_textbox.value:
+                uks_multiplicity = simulation.uks_multi_textbox.value
+                if utils.is_integer(uks_multiplicity):
+                    simulation_dict["uks_multiplicity"] = int(uks_multiplicity)
+            
+            if simulation.charge_textbox.value:
+                charge = simulation.charge_textbox.value
+                if utils.is_integer(charge):
+                    simulation_dict["charge"] = int(charge)
+            
+            if simulation.num_alpha_textbox.value:
+                num_alpha = simulation.num_alpha_textbox.value
+                if utils.is_integer(num_alpha):
+                    simulation_dict["number_alpha_electrons"] = int(num_alpha)
+            
+            if simulation.num_beta_textbox.value:
+                num_beta = simulation.num_beta_textbox.value
+                if utils.is_integer(num_beta):
+                    simulation_dict["number_beta_electrons"] = int(num_beta)
+            
+            if simulation.energy_au_textbox.value:
+                energy_au = simulation.energy_au_textbox.value
+                if utils.is_number(energy_au):
+                    simulation_dict["energy_au"] = float(energy_au)
+            
+            if simulation.energy_ev_textbox.value:
+                energy_ev = simulation.energy_ev_textbox.value
+                if utils.is_number(energy_ev):
+                    simulation_dict["energy_ev"] = float(energy_ev)
+            
+            if simulation.gap_ev_textbox.value:
+                gap_ev = simulation.gap_ev_textbox.value
+                if utils.is_number(gap_ev):
+                    simulation_dict["gap_ev"] = float(gap_ev)
+            
+            band_energies_data = []
+            band_energies_objects = simulation.band_energies_gridbox.children
+            for idx in range(4, len(band_energies_objects), 4):
+                band_energy_dict = {}
+                if band_energies_objects[idx].value:
+                    index = band_energies_objects[idx].value
+                    if utils.is_integer(index):
+                        band_energy_dict["index"] = int(index)
+                
+                if band_energies_objects[idx + 1].value:
+                    band_energy_dict["label"] = band_energies_objects[idx + 1].value
+                
+                if band_energies_objects[idx + 2].value:
+                    e_ef_ev = band_energies_objects[idx + 2].value
+                    if utils.is_number(e_ef_ev):
+                        band_energy_dict["e_ef_ev"] = float(e_ef_ev)
+                
+                if band_energies_objects[idx + 3].value:
+                    effective_mass_m_e = band_energies_objects[idx + 3].value
+                    if utils.is_number(effective_mass_m_e):
+                        band_energy_dict["effective_mass_m_e"] = float(effective_mass_m_e)
+                
+                band_energies_data.append(band_energy_dict)
+
+            if band_energies_data:
+                simulation_dict["band_energies"] = band_energies_data
+            
+            ldos_orbital_maps = []
+            ldos_orbital_maps_objects = simulation.ldos_orbital_maps_widgets.children
+            for idx, ldos_orbital_map in enumerate(ldos_orbital_maps_objects):
+                ldos_orbital_map_dict = {}
+                ldos_orbital_map_dict["file"] = simulation.ldos_orbital_maps_files[idx]
+                
+                if ldos_orbital_map.children[1].value:
+                    ldos_orbital_map_dict["caption"] = ldos_orbital_map.children[1].value
+                
+                ldos_orbital_maps.append(ldos_orbital_map_dict)
+            
+            if ldos_orbital_maps:
+                simulation_dict["ldos_orbital_maps"] = ldos_orbital_maps
+            
+            if simulation_dict:
+                simulations_data.append(simulation_dict)
+        
+        if simulations_data:
+            widgets_data["simulations"] = simulations_data
+        
+        # Experiment data
+        experiments_data = []
+        experiments_objects = self.experiments_accordion.children
+        
+        for experiment in experiments_objects:
+            experiment_dict = {}
+            
+            if experiment.doi_textbox.value:
+                experiment_dict["doi"] = experiment.doi_textbox.value
+                
+            if experiment.year_textbox.value:
+                year = experiment.year_textbox.value
+                if utils.is_integer(year):
+                    experiment_dict["year"] = int(year)
+            
+            if experiment.comments_textareabox.value:
+                experiment_dict["comments_flags"] = experiment.comments_textareabox.value
+            
+            if experiment.substrate_textbox.value:
+                experiment_dict["substrate"] = experiment.substrate_textbox.value
+            
+            if experiment.spin_excitation_energy_ev_textbox.value:
+                spin_excitation_energy_ev = experiment.spin_excitation_energy_ev_textbox.value
+                if utils.is_number(spin_excitation_energy_ev):
+                    experiment_dict["spin_excitation_energy_ev"] = float(spin_excitation_energy_ev)
+            
+            if experiment.gap_ev_textbox.value:
+                gap_ev = experiment.gap_ev_textbox.value
+                if utils.is_number(gap_ev):
+                    experiment_dict["gap_ev"] = float(gap_ev)
+            
+            band_energies_data = []
+            band_energies_objects = experiment.band_energies_gridbox.children
+            for idx in range(6, len(band_energies_objects), 6):
+                band_energy_dict = {}
+                if band_energies_objects[idx].value:
+                    index = band_energies_objects[idx].value
+                    if utils.is_integer(index):
+                        band_energy_dict["index"] = int(index)
+                
+                if band_energies_objects[idx + 1].value:
+                    band_energy_dict["label"] = band_energies_objects[idx + 1].value
+                
+                if band_energies_objects[idx + 2].value:
+                    e_ef_ev = band_energies_objects[idx + 2].value
+                    if utils.is_number(e_ef_ev):
+                        band_energy_dict["e_ef_ev"] = float(e_ef_ev)
+                
+                if band_energies_objects[idx + 3].value:
+                    error_ev = band_energies_objects[idx + 3].value
+                    if utils.is_number(error_ev):
+                        band_energy_dict["error_ev"] = float(error_ev)
+                
+                if band_energies_objects[idx + 4].value:
+                    effective_mass_m_e = band_energies_objects[idx + 4].value
+                    if utils.is_number(effective_mass_m_e):
+                        band_energy_dict["effective_mass_m_e"] = float(effective_mass_m_e)
+                
+                if band_energies_objects[idx + 5].value:
+                    error_m_e = band_energies_objects[idx + 5].value
+                    if utils.is_number(error_m_e):
+                        band_energy_dict["error_m_e"] = float(error_m_e)
+                
+                band_energies_data.append(band_energy_dict)
+
+            if band_energies_data:
+                experiment_dict["band_energies"] = band_energies_data
+            
+            relevant_stm_images = []
+            stm_images_objects = experiment.relevant_stm_image_widgets.children
+            for idx, stm_image in enumerate(stm_images_objects):
+                stm_image_dict = {}
+                stm_image_dict["file"] = experiment.relevant_stm_image_files[idx]
+                
+                if stm_image.children[1].value:
+                    stm_image_dict["caption"] = stm_image.children[1].value
+                
+                relevant_stm_images.append(stm_image_dict)
+
+            relevant_sts_images = []
+            sts_images_objects = experiment.relevant_sts_image_widgets.children
+            for idx, sts_image in enumerate(sts_images_objects):
+                sts_image_dict = {}
+                sts_image_dict["file"] = experiment.relevant_sts_image_files[idx]
+                
+                if sts_image.children[1].value:
+                    sts_image_dict["caption"] = sts_image.children[1].value
+                
+                relevant_sts_images.append(sts_image_dict)
+            
+            precursor_dict = {}
+            if experiment.precursor_image_file:
+                precursor_dict["image_file"] = experiment.precursor_image_file
+            
+            if experiment.precursor_cdxml_file:
+                precursor_dict["structure_file"] = experiment.precursor_cdxml_file
+            
+            if experiment.precursor_caption_textbox.value:
+                precursor_dict["caption"] = experiment.precursor_caption_textbox.value
+            
+            if relevant_stm_images:
+                experiment_dict["relevant_stm_images"] = relevant_stm_images
+            
+            if relevant_sts_images:
+                experiment_dict["relevant_sts_images"] = relevant_sts_images
+            
+            if precursor_dict:
+                experiment_dict["precursor"] = precursor_dict
+            
+            if experiment_dict:
+                experiments_data.append(experiment_dict)
+        
+        if experiments_data:
+            widgets_data["experiments"] = experiments_data
+        
+        return widgets_data
     
     def add_simulation(self, b):
         simulations_accordion_children = list(self.simulations_accordion.children)
@@ -918,11 +1202,3 @@ class PublicationObjectWidget(ipw.VBox):
         experiments_accordion_children.append(experiment_object_widget)
         self.experiments_accordion.set_title(experiment_index, f"Experiment {num_experiments + 1}")
         self.experiments_accordion.children = experiments_accordion_children
-    
-    def remove_simulation(self, b):
-        # Should be inside the simulation object widget
-        pass
-    
-    def remove_experiment(self, b):
-        # Should be inside the experiment object widget
-        pass
