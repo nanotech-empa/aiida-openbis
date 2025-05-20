@@ -264,6 +264,10 @@ Parameters:
     nickname: z
     scaling: 1e9
     unit: nm
+  scan_range:
+    nickname: scan_range
+    scaling: 1e9
+    unit: nm
   bias:
     nickname: V
     scaling: 1
@@ -275,7 +279,7 @@ Parameters:
   scan_angle:
     nickname: angle
     scaling: 1
-    unit: deg
+    unit: °
   Comments:
     nickname: comment
     scaling: null

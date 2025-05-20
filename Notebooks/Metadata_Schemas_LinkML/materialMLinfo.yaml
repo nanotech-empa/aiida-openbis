@@ -34,17 +34,28 @@ default_prefix: materialsML
   
 classes:
   # ---- New object types ----
-  SPM:
-    title: SPM
-    is_a: Instrument
+  Gauge:
+    title: Gauge
+    is_a: Component
     class_uri: 
-    description: SPM
+    description: Gauge
     annotations:
       openbis_object: true
-      openbis_code: SCPM
-      openbis_label: SPM
+      openbis_code: GAUG
+      openbis_label: Gauge
     slots:
   
+  HeatStage:
+    title: Heat 
+    is_a: Instrument
+    class_uri: 
+    description: Valve
+    annotations:
+      openbis_object: true
+      openbis_code: VALV
+      openbis_label: Valve
+    slots:
+
   Pump:
     title: Pump
     is_a: Component
@@ -56,15 +67,37 @@ classes:
       openbis_label: Pump
     slots:
   
-  Gauge:
-    title: Gauge
-    is_a: Component
+  SPM:
+    title: SPM
+    is_a: Instrument
     class_uri: 
-    description: Gauge
+    description: SPM
     annotations:
       openbis_object: true
-      openbis_code: GAUG
-      openbis_label: Gauge
+      openbis_code: SCPM
+      openbis_label: SPM
+    slots:
+  
+  VacuumChamber:
+    title: Vacuum Chamber
+    is_a: Instrument
+    class_uri: 
+    description: Vacuum Chamber
+    annotations:
+      openbis_object: true
+      openbis_code: VCCH
+      openbis_label: Vaccum Chamber
+    slots:
+  
+  Valve:
+    title: Valve
+    is_a: Instrument
+    class_uri: 
+    description: Valve
+    annotations:
+      openbis_object: true
+      openbis_code: VALV
+      openbis_label: Valve
     slots:
   
   # -------------------

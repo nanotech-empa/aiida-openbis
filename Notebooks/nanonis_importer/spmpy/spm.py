@@ -1,51 +1,47 @@
 import os
 import re
 import warnings
-
 import matplotlib.pyplot as plt
 import numpy as np
 import spiepy
 import yaml
+import datetime
 from matplotlib.colors import LogNorm
-
 from . import nanonispy as nap
 
 
 class Spm:
-    DEFAULT_CONFIG = os.path.dirname(os.path.abspath(__file__)) + "/machine_config.yaml"
+    current_abspath = os.path.abspath(__file__)
+    current_directory = os.path.dirname(current_abspath)
+    DEFAULT_CONFIG = os.path.join(current_directory, "machine_config.yaml")
 
-    # constructor
     def __init__(self, path: str, config_file=DEFAULT_CONFIG):
-        """
-        Spm constructor
-
-        Parameters
-        ----------
-        path : str
-            SPM filepath.
-
-        Returns
-        -------
-        None.
-
-        """
-
+        
+        # Configuration parameters
         config = self.load_machine_configuration_from_yaml_file(config_file)
-
-        # self.path = path.replace('//', '/')
+        
+        # Get name, path, and file extension
         abspath = os.path.abspath(path)
-        self.path = "/".join(abspath.split("\\")[-4:])
+        split_abspath = abspath.split("\\")
+        self.path = "/".join(split_abspath)
         self.name = self.path.split("/")[-1]
-        file_extension = os.path.splitext(path)[1]
+        file_extension = os.path.splitext(self.name)[-1]
 
         if file_extension == ".sxm":
             self.napImport = nap.read.Scan(path)
             self.napImport.header["z-controller>tiplift (m)"] = self.napImport.header.get("z-controller>tiplift (m)", 0)
             self.napImport.header["z-controller>setpoint"] = float(self.napImport.header["z-controller"]["Setpoint"][0].split(" ")[0])
             self.type = "scan"
+            self.header = self.napImport.header
+            self.record_datetime = datetime.datetime.strptime(f"{self.header['rec_date']} {self.header['rec_time']}", "%d.%m.%Y %H:%M:%S")
         elif file_extension == ".dat":
             self.napImport = nap.read.Spec(path)
             self.type = "spec"
+            self.header = self.napImport.header
+            if "Saved Date" in self.header:
+                self.record_datetime = datetime.datetime.strptime(self.header["Saved Date"], "%d.%m.%Y %H:%M:%S")
+            elif "Date" in self.header:
+                self.record_datetime = datetime.datetime.strptime(self.header["Date"], "%d.%m.%Y %H:%M:%S")
         elif file_extension == ".3ds":
             self.napImport = nap.read.Grid(path)
             self.type = "grid"
@@ -53,37 +49,40 @@ class Spm:
             print("Datatype not supported.")
             return
 
-        self.SignalsList = []
+        self.signals = {}
         for key in self.napImport.signals.keys():
-            in_config = key in config["Channels"]
-            self.SignalsList.append(
-                {
-                    "ChannelName": key,
-                    "ChannelNickname": config["Channels"][key]["nickname"]
-                    if in_config
-                    else key,
-                    "ChannelScaling": config["Channels"][key]["scaling"]
-                    if in_config
-                    else 1.0,
-                    "ChannelUnit": config["Channels"][key]["unit"]
-                    if in_config
-                    else "N/A",
-                }
-            )
+            channel_name = key
+            channel_nickname = key
+            channel_scaling = 1.0
+            channel_unit = "N/A"
+            
+            if key in config["Channels"]:
+                channel_nickname = config["Channels"][key]["nickname"]
+                channel_scaling = config["Channels"][key]["scaling"]
+                channel_unit = config["Channels"][key]["unit"]
+            
+            channel_info = {
+                "ChannelName": channel_name,
+                "ChannelScaling": channel_scaling,
+                "ChannelUnit": channel_unit
+            }
+            
+            self.signals[channel_nickname] = channel_info
 
-        self.channels = [c["ChannelNickname"] for c in self.SignalsList]
-
-        self.ParamListReference = []
+        self.parameters = {}
         for key in config["Parameters"].keys():
-            self.ParamListReference.append(
-                {
-                    "ParamName": key,
-                    "ParamNickname": config["Parameters"][key]["nickname"],
-                    "ParamScaling": config["Parameters"][key]["scaling"],
-                    "ParamUnit": config["Parameters"][key]["unit"],
-                }
-            )
-        self.header = self.napImport.header
+            parameter_nickname = config["Parameters"][key]["nickname"]
+            parameter_scaling = config["Parameters"][key]["scaling"]
+            parameter_unit = config["Parameters"][key]["unit"]
+            parameter_info = {
+                "ParamName": key,
+                "ParamScaling": parameter_scaling,
+                "ParamUnit": parameter_unit
+            }
+            
+            self.parameters[parameter_nickname] = parameter_info
+        
+        self.default_channels, self.measurement_type = self.__get_default_channels()
 
     def load_machine_configuration_from_yaml_file(self, filepath):
         """
@@ -131,15 +130,150 @@ class Spm:
     def __repr__(self):
         return self.path
 
+    def __get_default_channels(self):
+        measurement_type = ""
+        default_channels = []
+        
+        if self.type == "scan":
+            """
+            Lock-in>Lock-in status: ON > dIdV vs V
+            Lock-in>Lock-in status: OFF:
+                Z-Ctrl hold: TRUE > z vs V
+                Z-Ctrl hold: FALSE:
+                    Oscillation Control>output off: TRUE > df vs V
+                    Oscillation Control>output off: FALSE > I vs V
+            """
+            # Get Lock-in status
+            lock_in_status = None
+            if "lock-in>lock-in status" in self.header:
+                if self.header["lock-in>lock-in status"] == "ON":
+                    lock_in_status = True
+                else:
+                    lock_in_status = False
+            
+            # Get Z-controller status
+            z_controller_status = None
+            if "z-controller" in self.header:
+                if "on" in self.header["z-controller"]:
+                    if self.header["z-controller"]["on"][0] == "1":
+                        z_controller_status = True
+                    else:
+                        z_controller_status = False
+            
+            # Get oscillation control output off status
+            oscillation_control_output_off = None
+            if "oscillation control>output off" in self.header:
+                if self.header["oscillation control>output off"] == "TRUE":
+                    oscillation_control_output_off = True
+                else:
+                    oscillation_control_output_off = False
+            
+            try:
+                if lock_in_status:
+                    default_channel = "dIdV"
+                    measurement_type = "dI/dV image"
+                elif lock_in_status == False:
+                    if z_controller_status:
+                        default_channel = "z"
+                        measurement_type = "STM image"
+                    else:
+                        if oscillation_control_output_off:
+                            default_channel = "df"
+                            measurement_type = "AFM image"
+                        else:
+                            default_channel = "I"
+                            measurement_type = "Current image"
+                else:
+                    default_channel = "z" if "z" in self.signals else next(iter(self.signals)) # Select first channel available
+                    measurement_type = "Image"
+            except:
+                default_channel = next(iter(self.signals))
+                measurement_type = "Image"
+
+            default_channels = [default_channel]
+
+        elif self.type == "spec":
+            """
+            Bias spectroscopy:
+                Lock-in>Lock-in status: ON > dIdV vs V
+                Lock-in>Lock-in status: OFF
+                    Z-Ctrl hold: TRUE > z vs V
+                    Z-Ctrl hold: FALSE
+                        Oscillation Control>output off: TRUE > df vs V
+                        Oscillation Control>output off: FALSE > I vs V
+
+            Z spectroscopy:
+                Lock-in>Lock-in status: ON > dIdV vs z
+                Lock-in>Lock-in status: OFF
+                    Oscillation Control>output off: TRUE > df vs z
+                    Oscillation Control>output off: FALSE > I vs z
+            """
+
+            default_channels = []
+            measurement_type = ""
+            # Get Lock-in status
+            lock_in_status = None
+            if "Lock-in>Lock-in status" in self.header:
+                if lock_in_status == "ON":
+                    lock_in_status = True
+                else:
+                    lock_in_status = False
+            
+            # Get Z-control hold status
+            z_control_hold = None
+            if "Z-Ctrl hold" in self.header:
+                if self.header["Z-Ctrl hold"] == "TRUE":
+                    z_control_hold = True
+                else:
+                    z_control_hold = False
+            
+            # Get oscillation control output off status
+            oscillation_control_output_off = None
+            if "oscillation control>output off" in self.header:
+                if self.header["oscillation control>output off"] == "TRUE":
+                    oscillation_control_output_off = True
+                else:
+                    oscillation_control_output_off = False
+
+            measurement_type = self.header.get("Experiment")
+            if self.header.get("Experiment") == "bias spectroscopy":
+                if lock_in_status:
+                    if "V" in self.signals and "dIdV" in self.signals:
+                        measurement_type += " dIdV vs V"
+                        default_channels = ["V", "dIdV"]
+                elif lock_in_status == False:
+                    if z_control_hold == False:
+                        if "zspec" in self.signals and "V" in self.signals:
+                            measurement_type += " z vs V"
+                            default_channels = ["V", "zspec"]
+                    else:
+                        if oscillation_control_output_off:
+                            if "V" in self.signals and "df" in self.signals:
+                                measurement_type += " df vs V"
+                                default_channels = ["V", "df"]
+                        else:
+                            if "V" in self.signals and "I" in self.signals:
+                                measurement_type += " I vs V"
+                                default_channels = ["V", "I"]
+            elif self.header.get("Experiment") == "Z spectroscopy":
+                if lock_in_status:
+                    if "zspec" in self.signals and "dIdV" in self.signals:
+                        measurement_type += " dIdV vs z"
+                        default_channels = ["zspec", "dIdV"]
+                elif lock_in_status == False:
+                    if oscillation_control_output_off:
+                        if "zspec" in self.signals and "df" in self.signals:
+                            measurement_type += " df vs z"
+                            default_channels = ["zspec", "df"]
+                    else:
+                        if "zspec" in self.signals and "I" in self.signals:
+                            measurement_type += " I vs z"
+                            default_channels = ["zspec", "I"]
+            
+        return default_channels, measurement_type
+    
     # get channel
-    def get_channel(
-            self,
-            channel: str,
-            direction: str = "forward",
-            flatten: bool = False,
-            offset: bool = False,
-            zero: bool = False,
-    ):
+    def get_channel(self, channel: str, direction: str = "forward", flatten: bool = False, offset: bool = False, zero: bool = False):
         """
         Returns the measurement values and the channel unit.
 
@@ -164,11 +298,10 @@ class Spm:
         """
 
         if self.type == "scan":
-            chNum = [d["ChannelNickname"] for d in self.SignalsList].index(channel)
-            im = self.napImport.signals[self.SignalsList[chNum]["ChannelName"]][
-                direction
-            ]
-            im = im * self.SignalsList[chNum]["ChannelScaling"]
+            channel_name = self.signals[channel]["ChannelName"]
+            channel_scaling = self.signals[channel]["ChannelScaling"]
+            im = self.napImport.signals[channel_name][direction]
+            im = im * channel_scaling
 
             if flatten:
                 if ~np.isnan(np.sum(im)):
@@ -189,19 +322,19 @@ class Spm:
             if zero:
                 im = im + abs(np.min(im))
 
-            unit = self.SignalsList[chNum]["ChannelUnit"]
+            unit = self.signals[channel]["ChannelUnit"]
 
             return (im, unit)
 
         elif self.type == "spec":
             if direction == "backward":
                 channel = channel + "_bw"
-                # print(channel)
 
-            chNum = [d["ChannelNickname"] for d in self.SignalsList].index(channel)
-            data = self.napImport.signals[self.SignalsList[chNum]["ChannelName"]]
-            data = data * self.SignalsList[chNum]["ChannelScaling"]
-            unit = self.SignalsList[chNum]["ChannelUnit"]
+            channel_name = self.signals[channel]["ChannelName"]
+            channel_scaling = self.signals[channel]["ChannelScaling"]
+            data = self.napImport.signals[channel_name]
+            data = data * channel_scaling
+            unit = self.signals[channel]["ChannelUnit"]
 
             return (data, unit)
 
@@ -236,40 +369,29 @@ class Spm:
 
         """
 
-        if any(d["ParamNickname"] == param for d in self.ParamListReference):
-            paNum = [d["ParamNickname"] for d in self.ParamListReference].index(param)
+        if param in self.parameters:
+            parameter_name = self.parameters[param]["ParamName"]
+            parameter_scaling = self.parameters[param]["ParamScaling"]
 
-            if self.ParamListReference[paNum]["ParamScaling"] is None:
-                return self.napImport.header[
-                    self.ParamListReference[paNum]["ParamName"]
-                ]
+            if parameter_scaling is None:
+                return self.napImport.header[parameter_name]
             else:
-                return (
-                    float(
-                        self.napImport.header[
-                            self.ParamListReference[paNum]["ParamName"]
-                        ]
-                    )
-                    * self.ParamListReference[paNum]["ParamScaling"],
-                    self.ParamListReference[paNum]["ParamUnit"],
-                )
+                value = np.float64(self.napImport.header[parameter_name]) * parameter_scaling
+                unit = self.parameters[param]["ParamUnit"]
+                return (value, unit)
 
         elif param == "width" or param == "height":
-            param_value = 0
+            unit = self.parameters['scan_range']["ParamUnit"]
+            parameter_scaling = self.parameters['scan_range']["ParamScaling"]
             if param == "width":
-                param_value = self.get_param('scan_range')[0]
-                param_value = float(param_value) * 10**9
+                value = self.get_param('scan_range')[0][0]
             elif param == "height":
-                param_value = self.get_param('scan_range')[1]
-                param_value = float(param_value) * 10**9
+                value = self.get_param('scan_range')[0][1]
 
-            return (param_value, "nm")
+            return (value, unit)
 
         else:
-            if param in self.napImport.header.keys():
-                return self.napImport.header[param]
-            else:
-                return
+            return self.napImport.header.get(param, None)
 
     # print essential parameters for plotting
     def print_params(self, show: bool = True):
@@ -303,6 +425,7 @@ class Spm:
                 "controller": "z-controller>controller name",
                 "date": "rec_date",
                 "time": "rec_time",
+                "acq_time": "acq_time"
             }
             for key, value in parameters.items():
                 try:
@@ -313,7 +436,6 @@ class Spm:
                     parameters[key] = "N/A"
 
             fb_enable = parameters["fb_enable"]
-
             bias = parameters["bias"]
             set_point = parameters["set_point"]
             z_offset = parameters["z_offset"]
@@ -334,9 +456,9 @@ class Spm:
                 bias[1] = "mV"
                 bias = tuple(bias)
 
+            label.append(f"Bias = {bias[0]:.2f}{bias[1]}")
             label.append(f"I = {set_point[0]:.0f}{set_point[1]}")
-            label.append(f"bias = {bias[0]:.2f}{bias[1]}")
-            # label.append(f'size: {width[0]}{width[1]} x {height[0]:.1f}{height[1]} ({angle[0]:.0f}{angle[1]})')
+            label.append(f"Measurement type = {self.measurement_type}")
             label.append(f"comment: {comment}")
             label.append(f"Date: {date} - {time}")
 
@@ -399,35 +521,51 @@ class Spm:
 
     def print_params_dict(self, show = True):
 
-        # import numpy as np
-
         label = dict()
 
         if self.type == 'scan':
-            fb_enable = self.get_param('z-controller>controller status')
-            fb_ctrl = self.get_param('z-controller>controller name')
-            bias = self.get_param('V')
-            set_point = self.get_param('setpoint')
-            height = self.get_param("height")
-            width = self.get_param("width")
-            angle = float(self.get_param('scan_angle'))
-            z_offset = self.get_param('z_offset')
-            comment = self.get_param('comments')
+            parameters = {
+                "fb_enable": "z-controller>controller status",
+                "fb_ctrl": "z-controller>controller name",
+                "bias": "V",
+                "set_point": "setpoint",
+                "z_offset": "z_offset",
+                "comment": "comments",
+                "height": "height",
+                "width": "width",
+                "angle": "angle",
+                "controller": "z-controller>controller name",
+                "date": "rec_date",
+                "time": "rec_time",
+                "acq_time": "acq_time"
+            }
+            
+            for key, value in parameters.items():
+                try:
+                    parameters[key] = self.get_param(value)
+                except Exception as err:
+                    if type(err) == type(KeyError()):
+                        print(f"Missing Header Key, {err}")
+                    parameters[key] = "N/A"
 
-            if fb_enable == 'OFF':
+            if parameters["fb_enable"] == 'OFF':
                 label['constant height'] = 'TRUE'
-                label['z-offset'] ='%.3f%s' % z_offset
+                label['z-offset'] ='%.3f%s' % parameters["z_offset"]
 
-            if np.abs(bias[0])<0.1:
-                bias = list(bias)
+            if np.abs(parameters["bias"][0])<0.1:
+                bias = list(parameters["bias"])
                 bias[0] = bias[0]*1000
                 bias[1] = 'mV'
-                bias = tuple(bias)
-
-            label['I'] = '%.0f%s' % set_point
-            label['bias'] = '%.2f%s' % bias
-            label['size'] ='%.1f%s x %.1f%s (%.0f)' % (width[0], width[1], height[0], height[1], angle)
-            label['comment'] = '%s' % comment
+                parameters["bias"] = tuple(bias)
+                
+            label['start date'] = f"{parameters['date']} {parameters['time']}"
+            label['acquisition duration'] = f"{parameters['acq_time']} s"
+            label['bias'] = '%.2f %s' % parameters["bias"]
+            label['I'] = '%.0f %s' % parameters["set_point"]
+            label['size'] ='%.1f %s x %.1f %s (%.0f%s)' % (parameters["width"] + parameters["height"] + parameters["angle"])
+            label['measurement type'] = self.measurement_type
+            label['comment'] = parameters["comment"]
+            label['title'] = self.name
 
 
         elif self.type == 'spec':
@@ -435,33 +573,23 @@ class Spm:
             fb_enable = self.get_param('Z-Ctrl hold')
             set_point = self.get_param('setpoint_spec')
             bias = self.get_param('V_spec')
-            #lockin_status = self.get_param('Lock-in>Lock-in status')
+            lockin_status = self.get_param('Lock-in>Lock-in status')
             lockin_amplitude = self.get_param('lockin_amplitude')
             lockin_phase= self.get_param('lockin_phase')
             lockin_frequency= self.get_param('lockin_frequency')
             comment = self.get_param('comment_spec')
 
 
-            #if lockin_status == 'ON':
-            label['lockin'] =  'A = %.0f%s (θ = %.0f%s, f = %.0f%s)' % (lockin_amplitude+lockin_phase+lockin_frequency)
-
+            if lockin_status == 'ON':
+                label['lockin'] =  'A = %.0f%s (θ = %.0f%s, f = %.0f%s)' % (lockin_amplitude + lockin_phase + lockin_frequency)
 
             if fb_enable == 'FALSE':
                 label['feedback'] = 'on'
-
             elif fb_enable == 'TRUE':
                 label['feedback'] = 'off'
 
-
-            label['setpoint'] = 'I = %.0f%s, V = %.1f%s' % (set_point+bias)
-
-            label['comment'] = '%s' % comment
-
-        # label.append('path: %s' % self.path)
-        # label = '\n'.join(label)
-
-        # if show:
-        #     print('\n'.join(label))
+            label['setpoint'] = 'I = %.0f %s, V = %.1f %s' % (set_point + bias)
+            label['comment'] = comment
 
         return label
 
@@ -770,7 +898,7 @@ class Spm:
 
             return fig
 
-    def importall(FilePath: str, FilePrefix="", ImportOnly=""):
+    def importall(FilePath: str, ImportOnly=""):
         """
         Returns a list of Spm objects from a specific folder
 
@@ -798,15 +926,15 @@ class Spm:
 
         for root, dirs, filenames in walk(FilePath):
             for file in filenames:
-                if file.endswith(".sxm") and file.startswith(FilePrefix):
+                if file.endswith(".sxm"):
                     if not ((ImportOnly == "spec") or (ImportOnly == "grid")):
                         files.append(Spm(root + "/" + file))
                         NumScan = NumScan + 1
-                elif file.endswith(".dat") and file.startswith(FilePrefix):
+                elif file.endswith(".dat"):
                     if not ((ImportOnly == "scan") or (ImportOnly == "grid")):
                         files.append(Spm(root + "/" + file))
                         NumSpec = NumSpec + 1
-                elif file.endswith(".3ds") and file.startswith(FilePrefix):
+                elif file.endswith(".3ds"):
                     if not ((ImportOnly == "scan") or (ImportOnly == "spec")):
                         files.append(Spm(root + "/" + file))
                         NumGrid = NumGrid + 1
