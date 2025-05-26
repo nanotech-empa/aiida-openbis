@@ -1288,6 +1288,7 @@
             "Inventory": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_edit_inventory.ipynb' target='_blank' style='font-size: 13px;'>Register/edit inventory</a></li>",
                 "<li><a href='create_molecule_concept.ipynb' target='_blank' style='font-size: 13px;'>Create molecule concept</a></li>",
                 "<li><a href='create_molecule.ipynb' target='_blank' style='font-size: 13px;'>Create molecule</a></li>",
                 "<li><a href='create_product_concept.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product concept</a></li>",

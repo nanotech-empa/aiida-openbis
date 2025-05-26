@@ -218,7 +218,8 @@ classes:
       openbis_label: Annealing
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -235,7 +236,7 @@ classes:
       openbis_label: Atomistic Model
     slots:
      - atoms_positions
-     - atomistic_model_structure
+    #  - atomistic_model_structure
      - cell
      - dimensionality
      - periodic_boundary_conditions
@@ -257,8 +258,10 @@ classes:
       openbis_code: BAND
       openbis_label: Band Structure
     slots:
-     - band_gap
-     - level_theory
+     - band_gap_value
+     - band_gap_unit
+     - level_theory_method
+     - level_theory_parameters
      - input_parameters
      - output_parameters
      - comments
@@ -279,9 +282,10 @@ classes:
      - description
      - comments
      - state
-     - pressure
+     - pressure_value
+     - pressure_unit
+     - supplier_name
      # ---- Object properties ----
-     - supplier
 
   ChemicalConcept:
     title: Chemical Concept
@@ -347,7 +351,8 @@ classes:
       openbis_label: Coating
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -367,10 +372,10 @@ classes:
      - empa_id
      - model
      - serial_number
+     - manufacturer_name
      - receive_date
      - comments
      # ---- Object properties ----
-     - manufacturer
 
   Cooldown:
     title: Cooldown
@@ -383,7 +388,8 @@ classes:
       openbis_label: Cooldown
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -430,8 +436,10 @@ classes:
       openbis_code: CRRE
       openbis_label: Crystal
     slots:
-     - diameter
-     - height
+     - diameter_value
+     - diameter_unit
+     - height_value
+     - height_unit
      - hazardous
      - hazardous_specification
      - dry
@@ -444,11 +452,11 @@ classes:
      - sample_plate
      - specifications
      - receive_date
+     - stored_in
+     - supplier_name
      - comments
      # ---- Object properties ----
      - crystal_concept
-     - storage
-     - supplier
 
   Delamination:
     title: Delamination
@@ -461,7 +469,8 @@ classes:
       openbis_label: Delamination
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -478,7 +487,8 @@ classes:
       openbis_label: Deposition
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -496,7 +506,8 @@ classes:
       openbis_label: Dosing
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -615,8 +626,9 @@ classes:
      - driver_code
      - constrained
      - force_convergence_threshold
+     - level_theory_method
+     - level_theory_parameters
      - input_parameters
-     - level_theory
      - output_parameters
      - comments
      # ---- Object properties ----
@@ -635,10 +647,11 @@ classes:
     slots:
      - project_id
      - acknowledgement_sentence
-     - budget
+     - budget_value
+     - budget_currency
      - start_date
      - end_date
-     - funder
+     - funder_name
      - comments
 
   Institution:
@@ -670,11 +683,11 @@ classes:
      - empa_id
      - receive_date
      - serial_number
+     - manufacturer_name
+     - room_id
      - comments
      # ---- Object properties ----
      - components
-     - manufacturer
-     - room
 
   LightIrradiation:
     title: Light Irradiation
@@ -735,7 +748,8 @@ classes:
      - down_densities
      - down_electrons
      - number_k_points
-     - on_site_hubbard_repulsion_u
+     - on_site_hubbard_repulsion_u_value
+     - on_site_hubbard_repulsion_u_unit
      - up_densities
      - up_electrons
      - comments
@@ -784,8 +798,10 @@ classes:
       openbis_code: MEPO
       openbis_label: Minimum Energy Potential
     slots:
-     - energies
-     - energy_barrier
+     - energies_value
+     - energies_unit
+     - energy_barrier_value
+     - energy_barrier_unit
      - geometry_constraints
      - geometry_constraints_increments
      - method_type
@@ -804,6 +820,9 @@ classes:
       openbis_code: MORE
       openbis_label: Molecule
     slots:
+     # ---- Object properties ----
+     #  - chemist
+     - molecule_concept
      - empa_number
      - batch
      - vial
@@ -816,16 +835,14 @@ classes:
      - no_oxygen
      - other_storage_condition
      - other_storage_condition_specification
-     - amount
+     - amount_value
+     - amount_unit
      - chemist_molecule_name
      - supplier_name
      - synthesised_by
      - stored_in
      - receive_date
      - comments
-     # ---- Object properties ----
-    #  - chemist
-     - molecule_concept
 
   MoleculeConcept:
     title: Molecule Concept
@@ -837,10 +854,10 @@ classes:
       openbis_code: MOCO
       openbis_label: Molecule Concept
     slots:
-     - cas_number
-     - iupac_name
      - smiles
      - sum_formula
+     - cas_number
+     - iupac_name
      - comments
 
   # Notes:
@@ -913,7 +930,8 @@ classes:
       openbis_code: PDOS
       openbis_label: PDOS
     slots:
-     - level_theory
+     - level_theory_method
+     - level_theory_parameters
      - input_parameters
      - output_parameters
      - comments
@@ -949,8 +967,10 @@ classes:
       openbis_code: PECA
       openbis_label: Potential Energy Calculation
     slots:
-     - energy
-     - level_theory
+     - energy_value
+     - energy_unit
+     - level_theory_method
+     - level_theory_parameters
      - comments
 
   Preparation:
@@ -1032,7 +1052,8 @@ classes:
       openbis_code: RPRE
       openbis_label: Reaction Product
     slots:
-     - temperature
+     - temperature_value
+     - temperature_unit
      - yield
      - comments
      # ---- Object properties ----
@@ -1086,7 +1107,8 @@ classes:
       openbis_label: Rinse
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -1133,17 +1155,27 @@ classes:
       openbis_code: SETT
       openbis_label: Setting
     slots:
-     - angle
-     - discharge_voltage
-     - current
-     - pressure
-     - voltage
+     - angle_value
+     - angle_unit
+     - discharge_voltage_value
+     - discharge_voltage_unit
+     - current_value
+     - current_unit
+     - pressure_value
+     - pressure_unit
+     - voltage_value
+     - voltage_unit
      - target_temperature
-     - temperature
-     - deposition_time
-     - stabilisation_time
-     - molecule_temperature
-     - substrate_temperature
+     - temperature_value
+     - temperature_unit
+     - deposition_time_value
+     - deposition_time_unit
+     - stabilisation_time_value
+     - stabilisation_time_unit
+     - molecule_temperature_value
+     - molecule_temperature_unit
+     - substrate_temperature_value
+     - substrate_temperature_unit
      - evaporator_number
      # ---- Object properties ----
      - component
@@ -1183,7 +1215,8 @@ classes:
       openbis_label: Sputtering
       is_action: true
     slots:
-     - duration
+     - duration_value
+     - duration_unit
      - comments
      # ---- Object properties ----
      - settings
@@ -1218,9 +1251,9 @@ classes:
       openbis_code: STRG
       openbis_label: Storage Custom
     slots:
+     - room_id
      - comments
      # ---- Object properties ----
-     - room
   
   Supplier:
     title: Supplier
@@ -1303,9 +1336,12 @@ classes:
      - sample_plate
      - substrates
      - two_d_layers
-     - width
-     - thickness
-     - length
+     - width_value
+     - width_unit
+     - thickness_value
+     - thickness_unit
+     - length_value
+     - length_unit
      - hazardous
      - hazardous_specification
      - dry
@@ -1316,11 +1352,11 @@ classes:
      - other_storage_condition_specification
      - receive_date
      - supplier_own_name
+     - supplier_name
+     - stored_in
+     - synthesised_by
      - comments
      # ---- Object properties ----
-     - chemist
-     - storage
-     - supplier
 
   # TwoDMeasurement:
   #   title: 2D Measurement
@@ -1394,7 +1430,8 @@ classes:
       openbis_code: VSPEC
       openbis_label: Vibrational Spectroscopy
     slots:
-     - level_theory
+     - level_theory_method
+     - level_theory_parameters
      - input_parameters
      - output_parameters
      - comments
@@ -1415,8 +1452,10 @@ classes:
      - batch
      - sample_plate
      - substrates
-     - diameter
-     - thickness
+     - diameter_value
+     - diameter_unit
+     - thickness_value
+     - thickness_unit
      - dry
      - fridge
      - hazardous
@@ -1427,10 +1466,10 @@ classes:
      - other_storage_condition
      - other_storage_condition_specification
      - receive_date
+     - synthesised_by
+     - stored_in
      - comments
      # ---- Object properties ----
-     - chemist
-     - storage
      - wafer_substrate_concept
   
   WaferSubstrateConcept:
@@ -1522,7 +1561,8 @@ classes:
     slots:
      - datetime
      - instrument_name
-     - temperature
+     - temperature_value
+     - temperature_unit
   
   LengthQuantityValue:
     title: Length quantity value
@@ -1609,7 +1649,8 @@ classes:
       openbis_object: false
     slots:
      - material
-     - thickness
+     - thickness_value
+     - thickness_unit
      - coverage
      - dopants
 
@@ -2092,24 +2133,64 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Address
 
-  amount:
-    title: Amount
-    description: Amount
-    range: MassQuantityValue
+  amount_value:
+    title: Amount (value)
+    description: Amount (value)
+    range: double
+    slot_uri: 
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Amount
+      openbis_type: REAL
+      openbis_label: Amount (value)
+  
+  amount_unit:
+    title: Amount (unit)
+    description: Amount (unit)
+    range: AmountUnitsEnum
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Amount (unit)
 
-  angle:
-    title: Angle
-    description: Angle
-    range: AngleQuantityValue
-    slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
+  # amount:
+  #   title: Amount
+  #   description: Amount
+  #   range: MassQuantityValue
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Amount
+
+  angle_value:
+    title: Angle Value
+    description: Angle value
+    range: double
+    slot_uri: 
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Angle
+      openbis_type: REAL
+      openbis_label: Angle value
+  
+  angle_unit:
+    title: Angle Unit
+    description: Angle unit
+    range: AngleUnitsEnum
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Angle unit
+
+  # angle:
+  #   title: Angle
+  #   description: Angle
+  #   range: AngleQuantityValue
+  #   slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Angle
   
   atomistic_model_structure:
     title: Structure
@@ -2123,10 +2204,10 @@ slots:
   atoms_positions:
     title: Atoms Positions
     description: list of atomic symbols and cartesian coordinates
-    range: AtomsPositions
-    multivalued: true
+    range: string
+    multivalued: false
     annotations:
-      openbis_type: JSON
+      openbis_type: DATASET
       openbis_label: Atoms positions
 
   atom_symbol:
@@ -2139,15 +2220,35 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Atom symbol
 
-  band_gap:
-    title: Band Gap
-    description: Band Gap
-    range: QuantityValue
+  band_gap_value:
+    title: Band Gap (value)
+    description: Band gap (value)
+    range: double
+    slot_uri: 
     multivalued: false
-    slot_uri:
     annotations:
-      openbis_type: JSON
-      openbis_label: Band gap
+      openbis_type: REAL
+      openbis_label: Band gap (value)
+  
+  band_gap_unit:
+    title: Band Gap (unit)
+    description: Band gap (unit)
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Band gap (unit)
+
+  # band_gap:
+  #   title: Band Gap
+  #   description: Band Gap
+  #   range: QuantityValue
+  #   multivalued: false
+  #   slot_uri:
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Band gap
 
   batch:
     title: Batch
@@ -2179,6 +2280,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Bias voltages
+
+  budget_value:
+    title: Budget (value)
+    description: budget (value)
+    range: double
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Budget (value)
+  
+  budget_currency:
+    title: Budget (currency)
+    description: budget (currency)
+    range: BudgetCurrencyEnum
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Budget (currency)
 
   budget:
     title: Budget
@@ -2342,6 +2463,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Current
+  
+  current_value:
+    title: Current (value)
+    description: Current (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Current (value)
+  
+  current_unit:
+    title: Current (unit)
+    description: Current (unit)
+    range: CurrentUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Current (unit)
 
   current_setpoint:
     title: Current Setpoint
@@ -2390,6 +2531,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Deposition time
+  
+  deposition_time_value:
+    title: Deposition Time (value)
+    description: Deposition Time (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Deposition time (value)
+  
+  deposition_time_unit:
+    title: Deposition Time (unit)
+    description: Deposition Time (unit)
+    range: DurationUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Deposition time (unit)
 
   description:
     title: Description
@@ -2438,16 +2599,36 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Dewar
-
-  diameter:
-    title: Diameter
-    description: diameter
-    range: QuantityValue
-    slot_uri: ncit:NCIT_C25285
+  
+  diameter_value:
+    title: Diameter (value)
+    description: Diameter (value)
+    range: double
+    slot_uri:
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Diameter
+      openbis_type: REAL
+      openbis_label: Diameter (value)
+  
+  diameter_unit:
+    title: Diameter (unit)
+    description: Diameter (unit)
+    range: LengthUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Diameter (unit)
+
+  # diameter:
+  #   title: Diameter
+  #   description: diameter
+  #   range: QuantityValue
+  #   slot_uri: ncit:NCIT_C25285
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Diameter
 
   dimensionality:
     title: Dimensionality
@@ -2458,6 +2639,26 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: Dimensionality
+
+  discharge_voltage_value:
+    title: Discharge Voltage (value)
+    description: Discharge Voltage (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Discharge voltage (value)
+  
+  discharge_voltage_unit:
+    title: Discharge Voltage (unit)
+    description: Discharge Voltage (unit)
+    range: VoltageUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Discharge voltage (unit)
 
   discharge_voltage:
     title: Discharge Voltage
@@ -2505,7 +2706,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: INTEGER
+      openbis_type: ARRAY_INTEGER
       openbis_label: Down densities
 
   down_electrons:
@@ -2514,7 +2715,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: INTEGER
+      openbis_type: ARRAY_INTEGER
       openbis_label: Down electrons
 
   draft_type:
@@ -2545,15 +2746,35 @@ slots:
       openbis_type: BOOLEAN
       openbis_label: Dry
 
-  duration:
-    title: Duration
-    description: Duration
-    range: DurationQuantityValue
-    slot_uri: ncit:NCIT_C25330
+  duration_value:
+    title: Duration (value)
+    description: Duration (value)
+    range: double
+    slot_uri:
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Duration
+      openbis_type: REAL
+      openbis_label: Duration (value)
+
+  duration_unit:
+    title: Duration (unit)
+    description: Duration (unit)
+    range: DurationUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Duration (unit)
+
+  # duration:
+  #   title: Duration
+  #   description: Duration
+  #   range: DurationQuantityValue
+  #   slot_uri: ncit:NCIT_C25330
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Duration
 
   email:
     title: Email
@@ -2594,6 +2815,24 @@ slots:
     annotations:
       openbis_type: DATE
       openbis_label: End date
+  
+  energies_value:
+    title: Energies (value)
+    description: Energies (value)
+    range: double
+    multivalued: true
+    annotations:
+      openbis_type: ARRAY_REAL
+      openbis_label: Energies (value)
+  
+  energies_unit:
+    title: Energies (unit)
+    description: Energies (unit)
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Energies (unit)
 
   energies:
     title: Energies
@@ -2604,6 +2843,26 @@ slots:
       openbis_type: JSON
       openbis_label: Energies
 
+  energy_value:
+    title: Energy (value)
+    description: Energy (value)
+    range: double
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Energy (value)
+  
+  energy_unit:
+    title: Energy (unit)
+    description: Energy (unit)
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Energy (unit)
+  
   energy:
     title: Energy
     description: Energy
@@ -2613,6 +2872,24 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Energy
+  
+  energy_barrier_value:
+    title: Energy Barrier (value)
+    description: difference in energy between the initial geometry and the transition state geometry
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Energy barrier (value)
+  
+  energy_barrier_unit:
+    title: Energy Barrier (unit)
+    description: Energy Barrier (unit)
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Energy barrier (unit)
 
   energy_barrier:
     title: Energy Barrier
@@ -2644,7 +2921,7 @@ slots:
   evaporation_temperatures:
     title: Evaporation Temperatures
     range: EvaporationTemperature
-    multivalued: false
+    multivalued: true
     description: Evaporation Temperatures
     annotations:
       openbis_type: JSON
@@ -2718,14 +2995,14 @@ slots:
       openbis_type: BOOLEAN
       openbis_label: Fridge
 
-  funder:
-    title: Funder
-    description: Funder
+  funder_name:
+    title: Funder name
+    description: Funder name
     range: string
     multivalued: false
     annotations:
       openbis_type: VARCHAR
-      openbis_label: Funder
+      openbis_label: Funder name
 
   geometry_constraints:
     title: Geometry Constraints
@@ -2733,7 +3010,7 @@ slots:
     range: double
     multivalued: true
     annotations:
-      openbis_type: REAL
+      openbis_type: ARRAY_REAL
       openbis_label: Geometry constraints
 
   geometry_constraints_increments:
@@ -2742,7 +3019,7 @@ slots:
     range: double
     multivalued: true
     annotations:
-      openbis_type: REAL
+      openbis_type: ARRAY_REAL
       openbis_label: Geometry constraints increments
 
   has_angle_unit:
@@ -2884,6 +3161,26 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Hazardous (specification)
 
+  height_value:
+    title: Height (value)
+    description: Height (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Height (value)
+  
+  height_unit:
+    title: Height (unit)
+    description: Height (unit)
+    range: LengthUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Height (unit)
+
   height:
     title: Height
     description: height
@@ -2962,15 +3259,53 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Length
-
-  level_theory:
-    title: Level of Theory
-    description: Level of Theory
-    range: LevelTheory
+  
+  length_value:
+    title: Length (value)
+    description: Length (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Length (value)
+  
+  length_unit:
+    title: Length (unit)
+    description: Length (unit)
+    range: LengthUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Length (unit)
+  
+  level_theory_method:
+    title: Level of Theory (method)
+    description: Level of Theory (method)
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Level of theory (method)
+  
+  level_theory_parameters:
+    title: Level of Theory (parameters)
+    description: Level of Theory (parameters)
+    range: Any
     multivalued: false
     annotations:
       openbis_type: JSON
-      openbis_label: Level of theory
+      openbis_label: Level of theory (parameters)
+
+  # level_theory:
+  #   title: Level of Theory
+  #   description: Level of Theory
+  #   range: LevelTheory
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Level of theory
 
   material:
     title: Material
@@ -3048,6 +3383,26 @@ slots:
       openbis_type: JSON
       openbis_label: Molecule temperature
   
+  molecule_temperature_value:
+    title: Molecule Temperature (value)
+    description: Molecule Temperature (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Molecule temperature (value)
+  
+  molecule_temperature_unit:
+    title: Molecule Temperature (unit)
+    description: Molecule Temperature (unit)
+    range: TemperatureUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Molecule temperature (unit)
+  
   name:
     title: Name
     description: Name
@@ -3103,6 +3458,24 @@ slots:
       openbis_type: INTEGER
       openbis_label: Number of 2D layers
 
+  on_site_hubbard_repulsion_u_value:
+    title: On-site Hubbard Repulsion U (value)
+    description: On-site Hubbard repulsion U (value)
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: On-site Hubbard repulsion U (value)
+  
+  on_site_hubbard_repulsion_u_unit:
+    title: On-site Hubbard Repulsion U (unit)
+    description: On-site Hubbard repulsion U (unit)
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: On-site Hubbard repulsion U (unit)
+  
   on_site_hubbard_repulsion_u:
     title: On-site Hubbard Repulsion U
     description: On-site Hubbard repulsion U
@@ -3180,15 +3553,35 @@ slots:
   #     openbis_type: VARCHAR
   #     openbis_label: PID controller values
 
-  pressure:
-    title: Pressure
-    description: Pressure
-    range: PressureQuantityValue
-    slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+  pressure_value:
+    title: Pressure (value)
+    description: Pressure (value)
+    range: double
+    slot_uri:
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Pressure
+      openbis_type: REAL
+      openbis_label: Pressure (value)
+  
+  pressure_unit:
+    title: Pressure (unit)
+    description: Pressure (unit)
+    range: PressureUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Pressure (unit)
+
+  # pressure:
+  #   title: Pressure
+  #   description: Pressure
+  #   range: PressureQuantityValue
+  #   slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: JSON
+  #     openbis_label: Pressure
 
   project_id:
     title: Project ID
@@ -3338,6 +3731,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Substrate temperature
+  
+  substrate_temperature_value:
+    title: Substrate Temperature (value)
+    description: Substrate Temperature (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Substrate temperature (value)
+  
+  substrate_temperature_unit:
+    title: Substrate Temperature (unit)
+    description: Substrate Temperature (unit)
+    range: TemperatureUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Substrate temperature (unit)
 
   sum_formula:
     title: Sum Formula
@@ -3367,6 +3780,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Stabilisation time
+  
+  stabilisation_time_value:
+    title: Stabilisation Time (value)
+    description: Stabilisation Time (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Stabilisation time (value)
+
+  stabilisation_time_unit:
+    title: Stabilisation Time (unit)
+    description: Stabilisation Time (unit)
+    range: DurationUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Stabilisation time (unit)
 
   start_date:
     title: Start Date
@@ -3413,7 +3846,7 @@ slots:
     range: SubstratesDetails
     multivalued: true
     annotations:
-      openbis_type: XML
+      openbis_type: JSON
       openbis_label: Substrates
   
   supplier:
@@ -3456,6 +3889,26 @@ slots:
       openbis_type: JSON
       openbis_label: Target temperature
 
+  temperature_value:
+    title: Temperature (value)
+    description: Temperature (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Temperature (value)
+  
+  temperature_unit:
+    title: Temperature (unit)
+    description: Temperature (unit)
+    range: TemperatureUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Temperature (unit)
+  
   temperature:
     title: Temperature
     description: Temperature
@@ -3475,6 +3928,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Thickness
+  
+  thickness_value:
+    title: Thickness (value)
+    description: Thickness (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Thickness (value)
+  
+  thickness_unit:
+    title: Thickness (unit)
+    description: Thickness (unit)
+    range: LengthUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Thickness (unit)
 
   # tip_preparation_type:
   #   title: Tip Preparation Type
@@ -3500,7 +3973,7 @@ slots:
     range: TwoDLayersDetails
     multivalued: true
     annotations:
-      openbis_type: XML
+      openbis_type: JSON
       openbis_label: 2D layers
 
   type:
@@ -3518,7 +3991,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: INTEGER
+      openbis_type: ARRAY_INTEGER
       openbis_label: Up densities
 
   up_electrons:
@@ -3527,7 +4000,7 @@ slots:
     range: integer
     multivalued: true
     annotations:
-      openbis_type: INTEGER
+      openbis_type: ARRAY_INTEGER
       openbis_label: Up electrons
 
   url:
@@ -3581,6 +4054,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Voltage
+  
+  voltage_value:
+    title: Voltage (value)
+    description: Voltage (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Voltage (value)
+  
+  voltage_unit:
+    title: Voltage (unit)
+    description: Voltage (unit)
+    range: VoltageUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Voltage (unit)
 
   weight_after:
     title: Weight After
@@ -3619,6 +4112,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Width
+  
+  width_value:
+    title: Width (value)
+    description: Width (value)
+    range: double
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Width (value)
+  
+  width_unit:
+    title: Width (unit)
+    description: Width (unit)
+    range: LengthUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Width (unit)
 
   wire_material:
     title: Wire Material
@@ -3917,6 +4430,16 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Instrument
+  
+  manufacturer_name:
+    title: Manufacturer name
+    description: Manufacturer name
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Manufacturer name
 
   manufacturer:
     title: Manufacturer
@@ -4080,6 +4603,16 @@ slots:
       openbis_type: OBJECT
       openbis_label: Results
 
+  room_id:
+    title: Room ID
+    description: room id
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Room ID
+
   room:
     title: Room
     range: Room
@@ -4240,6 +4773,37 @@ enums:
         annotations:
           openbis_label: Light Irradiation
   
+  AmountUnitsEnum:
+    description: amount units
+    annotations:
+      openbis_label: Amount units vocabulary
+    permissible_values:
+      mg:
+        meaning: unit:MilliGM
+        description: milligram
+        annotations:
+          openbis_label: Milligram
+      g:
+        meaning: unit:GM
+        description: gram
+        annotations:
+          openbis_label: Gram
+      kg:
+        meaning: unit:KiloGM
+        description: kilogram
+        annotations:
+          openbis_label: Kilogram
+      ml:
+        meaning: unit:MilliL
+        description: milliliter
+        annotations:
+          openbis_label: Milliliter
+      l:
+        meaning: unit:L
+        description: liter
+        annotations:
+          openbis_label: Liter
+  
   AngleUnitsEnum:
     description: angle units
     annotations:
@@ -4255,6 +4819,28 @@ enums:
         description: radian
         annotations:
           openbis_label: Radian
+  
+  BudgetCurrencyEnum:
+    description: budget currency values
+    annotations:
+      openbis_label: Budget currency vocabulary
+    permissible_values:
+      EUR:
+        description: euro
+        annotations:
+          openbis_label: Euro
+      USD:
+        description: US dollar
+        annotations:
+          openbis_label: US Dollar
+      GBP:
+        description: British pound
+        annotations:
+          openbis_label: British Pound
+      CHF:
+        description: Swiss franc
+        annotations:
+          openbis_label: Swiss Franc
 
   ComponentTypeEnum:
     description: ultra high vacuum component type values
