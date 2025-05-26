@@ -75,12 +75,12 @@ class Spm:
             parameter_scaling = config["Parameters"][key]["scaling"]
             parameter_unit = config["Parameters"][key]["unit"]
             parameter_info = {
-                "ParamName": key,
+                "ParamName": parameter_nickname,
                 "ParamScaling": parameter_scaling,
                 "ParamUnit": parameter_unit
             }
-            
-            self.parameters[parameter_nickname] = parameter_info
+            self.parameters[key] = parameter_info
+            # self.parameters[parameter_nickname] = parameter_info
         
         self.default_channels, self.measurement_type = self.__get_default_channels()
 
@@ -370,13 +370,12 @@ class Spm:
         """
 
         if param in self.parameters:
-            parameter_name = self.parameters[param]["ParamName"]
             parameter_scaling = self.parameters[param]["ParamScaling"]
 
             if parameter_scaling is None:
-                return self.napImport.header[parameter_name]
+                return self.napImport.header[param]
             else:
-                value = np.float64(self.napImport.header[parameter_name]) * parameter_scaling
+                value = np.float64(self.napImport.header[param]) * parameter_scaling
                 unit = self.parameters[param]["ParamUnit"]
                 return (value, unit)
 
@@ -525,19 +524,22 @@ class Spm:
 
         if self.type == 'scan':
             parameters = {
-                "fb_enable": "z-controller>controller status",
-                "fb_ctrl": "z-controller>controller name",
-                "bias": "V",
-                "set_point": "setpoint",
-                "z_offset": "z_offset",
+                "z-controller_status": "z-controller>controller status",
+                "z-controller_name": "z-controller>controller name",
+                "bias": "bias",
+                "z-controller_setpoint": "z-controller>setpoint",
                 "comment": "comments",
                 "height": "height",
                 "width": "width",
-                "angle": "angle",
-                "controller": "z-controller>controller name",
+                "angle": "scan_angle",
                 "date": "rec_date",
                 "time": "rec_time",
-                "acq_time": "acq_time"
+                "lock_in_amplitude": "lock-in>amplitude",
+                "lock_in_frequency": "lock-in>frequency (hz)",
+                "lock_in_phase": "lock-in>reference phase d1 (deg)",
+                "oscillation_control_frequency": "oscillation control>center frequency (hz)",
+                "oscillation_control_amplitude_ctrl": "oscillation control>amplitude controller on",
+                "oscillation_control_amplitude_setpoint": "oscillation control>amplitude setpoint (m)",
             }
             
             for key, value in parameters.items():
@@ -547,49 +549,116 @@ class Spm:
                     if type(err) == type(KeyError()):
                         print(f"Missing Header Key, {err}")
                     parameters[key] = "N/A"
-
-            if parameters["fb_enable"] == 'OFF':
-                label['constant height'] = 'TRUE'
-                label['z-offset'] ='%.3f%s' % parameters["z_offset"]
-
-            if np.abs(parameters["bias"][0])<0.1:
-                bias = list(parameters["bias"])
-                bias[0] = bias[0]*1000
-                bias[1] = 'mV'
-                parameters["bias"] = tuple(bias)
+            
+            if parameters["z-controller_status"] is None:
+                parameters["z-controller_status"] = self.header['z-controller']['on'][0]
+            
+            if parameters["z-controller_setpoint"] is None:
+                setpoint_values = self.header['z-controller']["Setpoint"][0].split()
+                parameters["z-controller_setpoint"] = (np.float64(setpoint_values[0]), setpoint_values[1])
+            
+            if self.measurement_type == "dI/dV image":
+                label['z-controller (status)'] = '%.2f %s' % parameters["z-controller_status"]
+                label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                label['lock-in (amplitude)'] = '%.2f %s' % parameters["lock_in_amplitude"]
+                label['lock-in (frequency)'] = '%.2f %s' % parameters["lock_in_frequency"]
+                label['lock-in (phase)'] = '%.2f %s' % parameters["lock_in_phase"]
                 
-            label['start date'] = f"{parameters['date']} {parameters['time']}"
-            label['acquisition duration'] = f"{parameters['acq_time']} s"
+            elif self.measurement_type == "STM image":
+                label['z-controller (status)'] = parameters["z-controller_status"]
+                label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                
+            elif self.measurement_type == "AFM image":
+                label["oscillation control (center frequency)"] = '%.2f %s' % parameters["oscillation_control_frequency"]
+                label["oscillation control (amplitude controller)"] = parameters["oscillation_control_amplitude_ctrl"]
+                label["oscillation control (amplitude setpoint)"] = '%.2f %s' % parameters["oscillation_control_amplitude_setpoint"]
+                
+            elif self.measurement_type == "Current image":
+                label['z-controller (status)'] = parameters["z-controller_status"]
+            else:
+                label['z-controller (status)'] = parameters["z-controller_status"]
+                label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+            
             label['bias'] = '%.2f %s' % parameters["bias"]
-            label['I'] = '%.0f %s' % parameters["set_point"]
-            label['size'] ='%.1f %s x %.1f %s (%.0f%s)' % (parameters["width"] + parameters["height"] + parameters["angle"])
+            label['size'] ='%.2f %s x %.2f %s (%.2f%s)' % (parameters["width"] + parameters["height"] + parameters["angle"])
             label['measurement type'] = self.measurement_type
-            label['comment'] = parameters["comment"]
+            label['start date'] = f"{parameters['date']} {parameters['time']}"
             label['title'] = self.name
+            label['comment'] = parameters["comment"]
 
 
         elif self.type == 'spec':
-
-            fb_enable = self.get_param('Z-Ctrl hold')
-            set_point = self.get_param('setpoint_spec')
-            bias = self.get_param('V_spec')
-            lockin_status = self.get_param('Lock-in>Lock-in status')
-            lockin_amplitude = self.get_param('lockin_amplitude')
-            lockin_phase= self.get_param('lockin_phase')
-            lockin_frequency= self.get_param('lockin_frequency')
-            comment = self.get_param('comment_spec')
-
-
-            if lockin_status == 'ON':
-                label['lockin'] =  'A = %.0f%s (θ = %.0f%s, f = %.0f%s)' % (lockin_amplitude + lockin_phase + lockin_frequency)
-
-            if fb_enable == 'FALSE':
-                label['feedback'] = 'on'
-            elif fb_enable == 'TRUE':
-                label['feedback'] = 'off'
-
-            label['setpoint'] = 'I = %.0f %s, V = %.1f %s' % (set_point + bias)
-            label['comment'] = comment
+            parameters = {
+                "bias": "Bias>Bias (V)", 
+                "date": "Saved Date",
+                "z-controller_hold": "Z-Ctrl hold",
+                "z-controller_setpoint": "Z-Controller>Setpoint",
+                "lock_in_amplitude": "Lock-in>Amplitude",
+                "lock_in_frequency": "Lock-in>Frequency (Hz)",
+                "lock_in_phase": "Lock-in>Reference Phase D1 (deg)",
+                "oscillation_control_frequency": "Oscillation Control>Center Frequency (Hz)",
+                "oscillation_control_amplitude_ctrl": "Oscillation Control>Amplitude controller on",
+                "oscillation_control_amplitude_setpoint": "Oscillation Control>Amplitude Setpoint (m)",
+            }
+            
+            for key, value in parameters.items():
+                try:
+                    parameters[key] = self.get_param(value)
+                except Exception as err:
+                    if type(err) == type(KeyError()):
+                        print(f"Missing Header Key, {err}")
+                    parameters[key] = "N/A"
+                    
+            if "bias spectroscopy" in self.measurement_type:
+                if self.measurement_type == "bias spectroscopy dIdV vs V":
+                    label['lock-in (amplitude)'] = '%.2f %s' % parameters["lock_in_amplitude"]
+                    label['lock-in (frequency)'] = '%.2f %s' % parameters["lock_in_frequency"]
+                    label['lock-in (phase)'] = '%.2f %s' % parameters["lock_in_phase"]
+                    label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                    label['z-controller (hold)'] = parameters["z-controller_hold"]
+                    
+                elif self.measurement_type == "bias spectroscopy z vs V":
+                    label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                    label['z-controller (hold)'] = parameters["z-controller_hold"]
+                    
+                elif self.measurement_type == "bias spectroscopy df vs V":
+                    label['oscillation control (center frequency)'] = '%.2f %s' % parameters["oscillation_control_frequency"]
+                    label['oscillation control (amplitude controller)'] = parameters["oscillation_control_amplitude_ctrl"]
+                    label['oscillation control (amplitude setpoint)'] = '%.2f %s' % parameters["oscillation_control_amplitude_setpoint"]
+                    
+                elif self.measurement_type == "bias spectroscopy I vs V":
+                    label['z-controller (hold)'] = parameters["z-controller_hold"]
+                    if len(parameters['z-controller_setpoint']) == 2:
+                        label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                    else:
+                        label['z-controller (setpoint)'] = parameters["z-controller_setpoint"]
+                        
+                else:
+                    label['z-controller (hold)'] = parameters["z-controller_hold"]
+                    if len(parameters['z-controller_setpoint']) == 2:
+                        label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                    else:
+                        label['z-controller (setpoint)'] = parameters["z-controller_setpoint"]
+                    
+            elif "Z spectroscopy" in self.measurement_type:
+                label['bias'] = '%.2f %s' % parameters["bias"]
+                
+                # There are files where this parameter is not available
+                if len(parameters['z-controller_setpoint']) == 2:
+                    label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                else:
+                    label['z-controller (setpoint)'] = parameters["z-controller_setpoint"]
+                    
+                if self.measurement_type == "Z spectroscopy dIdV vs z":
+                    label['lock-in (amplitude)'] = '%.2f %s' % parameters["lock_in_amplitude"]
+                    label['lock-in (frequency)'] = '%.2f %s' % parameters["lock_in_frequency"]
+                    label['lock-in (phase)'] = '%.2f %s' % parameters["lock_in_phase"]
+                    
+                elif self.measurement_type == "Z spectroscopy df vs z":
+                    label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
+                    label['oscillation control (center frequency)'] = '%.2f %s' % parameters["oscillation_control_frequency"]
+                    label['oscillation control (amplitude controller)'] = parameters["oscillation_control_amplitude_ctrl"]
+                    label['oscillation control (amplitude setpoint)'] = '%.2f %s' % parameters["oscillation_control_amplitude_setpoint"]
 
         return label
 

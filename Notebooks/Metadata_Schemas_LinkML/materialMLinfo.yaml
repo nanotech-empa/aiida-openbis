@@ -34,6 +34,39 @@ default_prefix: materialsML
   
 classes:
   # ---- New object types ----
+  Cryostat:
+    title: Cryostat
+    is_a: Component
+    class_uri: 
+    description: Cryostat
+    annotations:
+      openbis_object: true
+      openbis_code: CRYO
+      openbis_label: Cryostat
+    slots:
+  
+  DepositionTool:
+    title: Deposition Tool
+    is_a: Component
+    class_uri: 
+    description: Deposition Tool
+    annotations:
+      openbis_object: true
+      openbis_code: DEPT
+      openbis_label: Deposition Tool
+    slots:
+  
+  Electronics:
+    title: Electronics
+    is_a: Component
+    class_uri: 
+    description: Electronics
+    annotations:
+      openbis_object: true
+      openbis_code: ELET
+      openbis_label: Electronics
+    slots:
+
   Gauge:
     title: Gauge
     is_a: Component
@@ -45,15 +78,26 @@ classes:
       openbis_label: Gauge
     slots:
   
-  HeatStage:
-    title: Heat 
-    is_a: Instrument
+  Heater:
+    title: Heater
+    is_a: Component
     class_uri: 
-    description: Valve
+    description: Heater
     annotations:
       openbis_object: true
-      openbis_code: VALV
-      openbis_label: Valve
+      openbis_code: HTER
+      openbis_label: Heater
+    slots:
+  
+  IonBeam:
+    title: Ion Beam
+    is_a: Component
+    class_uri: 
+    description: Ion Beam
+    annotations:
+      openbis_object: true
+      openbis_code: IBEA
+      openbis_label: Ion Beam
     slots:
 
   Pump:
@@ -67,37 +111,48 @@ classes:
       openbis_label: Pump
     slots:
   
-  SPM:
-    title: SPM
-    is_a: Instrument
+  Sensor:
+    title: Sensor
+    is_a: Component
     class_uri: 
-    description: SPM
+    description: Sensor
     annotations:
       openbis_object: true
-      openbis_code: SCPM
-      openbis_label: SPM
+      openbis_code: SENS
+      openbis_label: Sensor
+    slots:
+  
+  THzSTM:
+    title: THz STM
+    is_a: Instrument
+    class_uri: 
+    description: THz STM
+    annotations:
+      openbis_object: true
+      openbis_code: TSTM
+      openbis_label: THz STM
+    slots:
+  
+  TipSTMAFM:
+    title: Tip STM-AFM
+    is_a: Instrument
+    class_uri: 
+    description: Tip STM-AFM
+    annotations:
+      openbis_object: true
+      openbis_code: TSPM
+      openbis_label: Tip STM-AFM
     slots:
   
   VacuumChamber:
     title: Vacuum Chamber
-    is_a: Instrument
+    is_a: Component
     class_uri: 
     description: Vacuum Chamber
     annotations:
       openbis_object: true
       openbis_code: VCCH
-      openbis_label: Vaccum Chamber
-    slots:
-  
-  Valve:
-    title: Valve
-    is_a: Instrument
-    class_uri: 
-    description: Valve
-    annotations:
-      openbis_object: true
-      openbis_code: VALV
-      openbis_label: Valve
+      openbis_label: Vacuum Chamber
     slots:
   
   # -------------------
@@ -308,7 +363,6 @@ classes:
       openbis_code: COMP
       openbis_label: Component
     slots:
-     - component_type
      - description
      - empa_id
      - model
@@ -764,13 +818,14 @@ classes:
      - other_storage_condition_specification
      - amount
      - chemist_molecule_name
+     - supplier_name
+     - synthesised_by
+     - stored_in
      - receive_date
      - comments
      # ---- Object properties ----
-     - chemist
+    #  - chemist
      - molecule_concept
-     - storage
-     - supplier
 
   MoleculeConcept:
     title: Molecule Concept
@@ -817,36 +872,36 @@ classes:
      - sampling_rate
      - setting
   
-  OneDMeasurement:
-    title: 1D Measurement
-    is_a: Simulation
-    class_uri: fairmat_sts:nxsts
-    description: 1D Measurement
-    annotations:
-      openbis_object: true
-      openbis_code: ODMS
-      openbis_label: 1D Measurement
-    slots:
-     - start_time
-     - duration
-     - experiment_type
-     - z_position
-     - bias_setpoint
-     - current_setpoint
-     - acquisition_coordinate_x
-     - acquisition_coordinate_y
-     - acquisition_coordinate_z
-     - final_z
-     - level_theory
-     - input_parameters
-     - output_parameters
-     - z_controller_setpoint
-     - comments
-     # ---- Object properties ----
-     - atomistic_models
-     - settings
-     - measurement_session
-     - sample
+  # OneDMeasurement:
+  #   title: 1D Measurement
+  #   is_a: Simulation
+  #   class_uri: fairmat_sts:nxsts
+  #   description: 1D Measurement
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: ODMS
+  #     openbis_label: 1D Measurement
+  #   slots:
+  #    - start_time
+  #    - duration
+  #    - experiment_type
+  #    - z_position
+  #    - bias_setpoint
+  #    - current_setpoint
+  #    - acquisition_coordinate_x
+  #    - acquisition_coordinate_y
+  #    - acquisition_coordinate_z
+  #    - final_z
+  #    - level_theory
+  #    - input_parameters
+  #    - output_parameters
+  #    - z_controller_setpoint
+  #    - comments
+  #    # ---- Object properties ----
+  #    - atomistic_models
+  #    - settings
+  #    - measurement_session
+  #    - sample
 
   PDOS:
     title: PDOS
@@ -1266,50 +1321,37 @@ classes:
      - chemist
      - storage
      - supplier
-     - two_d_layer_material_concept
 
-  TwoDLayerMaterialConcept:
-    title: 2D Layer Material Concept
-    is_a: Thing
-    class_uri: 
-    description: 2D Layer Material Concept
-    annotations:
-      openbis_object: true
-      openbis_code: LMCO
-      openbis_label: 2D Layer Material Concept
-    slots:
-     - comments
-
-  TwoDMeasurement:
-    title: 2D Measurement
-    is_a: Simulation
-    class_uri:
-    description: 2D Measurement
-    annotations:
-      openbis_object: true
-      openbis_code: TDMS
-      openbis_label: 2D Measurement
-    slots:
-     - duration
-     - bias_setpoint
-     - bias_voltages
-     - current_setpoint
-     - heights
-     - input_parameters
-     - isovalues
-     - level_theory
-     - output_parameters
-     - p_tip
-     - start_time
-     - z_controller_setpoint
-     - z_position
-     - comments
-     # ---- Object properties ----
-     - atomistic_models
-     - settings
-     - measurement_session
-     - sample
-    #  - tip_sensor
+  # TwoDMeasurement:
+  #   title: 2D Measurement
+  #   is_a: Simulation
+  #   class_uri:
+  #   description: 2D Measurement
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: TDMS
+  #     openbis_label: 2D Measurement
+  #   slots:
+  #    - duration
+  #    - bias_setpoint
+  #    - bias_voltages
+  #    - current_setpoint
+  #    - heights
+  #    - input_parameters
+  #    - isovalues
+  #    - level_theory
+  #    - output_parameters
+  #    - p_tip
+  #    - start_time
+  #    - z_controller_setpoint
+  #    - z_position
+  #    - comments
+  #    # ---- Object properties ----
+  #    - atomistic_models
+  #    - settings
+  #    - measurement_session
+  #    - sample
+  #   #  - tip_sensor
   
   UnclassifiedAction:
     title: Unclassified action
@@ -1479,7 +1521,7 @@ classes:
       openbis_object: false
     slots:
      - datetime
-     - instrument
+     - instrument_name
      - temperature
   
   LengthQuantityValue:
@@ -2602,7 +2644,7 @@ slots:
   evaporation_temperatures:
     title: Evaporation Temperatures
     range: EvaporationTemperature
-    multivalued: true
+    multivalued: false
     description: Evaporation Temperatures
     annotations:
       openbis_type: JSON
@@ -2880,6 +2922,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Method input parameters
+  
+  instrument_name:
+    title: Instrument Name
+    description: Instrument Name
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Instrument name
 
   isovalues:
     title: Isovalues
@@ -3296,6 +3348,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Sum formula
+  
+  supplier_name:
+    title: Supplier Name
+    description: Supplier Name
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Supplier name
 
   stabilisation_time:
     title: Stabilisation Time
@@ -3334,6 +3396,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: State
+  
+  stored_in:
+    title: Stored In
+    description: stored in
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Stored in
 
   substrates:
     title: Substrates
@@ -3341,8 +3413,18 @@ slots:
     range: SubstratesDetails
     multivalued: true
     annotations:
-      openbis_type: JSON
+      openbis_type: XML
       openbis_label: Substrates
+  
+  supplier:
+    title: Supplier
+    description: Supplier
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Supplier
 
   supplier_own_name:
     title: Supplier Own Name
@@ -3353,6 +3435,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Supplier own name
+    
+  synthesised_by:
+    title: Synthesised By
+    description: synthesised by
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Synthesised by
   
   target_temperature:
     title: Target temperature
@@ -3408,7 +3500,7 @@ slots:
     range: TwoDLayersDetails
     multivalued: true
     annotations:
-      openbis_type: JSON
+      openbis_type: XML
       openbis_label: 2D layers
 
   type:
@@ -4049,15 +4141,15 @@ slots:
       openbis_type: OBJECT
       openbis_label: Storage
 
-  supplier:
-    title: Supplier
-    range: Supplier
-    description: supplier
-    multivalued: false
-    slot_uri:
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: Supplier
+  # supplier:
+  #   title: Supplier
+  #   range: Supplier
+  #   description: supplier
+  #   multivalued: false
+  #   slot_uri:
+  #   annotations:
+  #     openbis_type: OBJECT
+  #     openbis_label: Supplier
 
   # tip_sensor:
   #   title: Tip Sensor

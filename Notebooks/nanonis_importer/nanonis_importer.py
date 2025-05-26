@@ -416,7 +416,12 @@ def create_dat_dataset(session, experiment, sample, folder_path, dataset_type = 
         DAT_ADAPTOR, 1.0, ['original', '200x200', '2000x2000'],
         True, [1000, 2000, 5000], exports, inputs, {})
 
-    images = [imaging.ImagingDataSetImage(imaging_config)]
+    images = [
+        imaging.ImagingDataSetImage(
+            imaging_config,
+            metadata = data[0].print_params_dict(False)
+        )
+    ]
     imaging_property_config = imaging.ImagingDataSetPropertyConfig(images)
     if VERBOSE:
         print(imaging_property_config.to_json())

@@ -280,6 +280,26 @@ Parameters:
     nickname: angle
     scaling: 1
     unit: °
+  lock-in>amplitude:
+    nickname: lockin_amplitude
+    scaling: 1e3
+    unit: mV
+  lock-in>reference phase d1 (deg):
+    nickname: lockin_phase
+    scaling: 1
+    unit: °
+  lock-in>frequency (hz):
+    nickname: lockin_frequency
+    scaling: 1
+    unit: Hz
+  oscillation control>center frequency (hz):
+    nickname: oscillation_center_frequency
+    scaling: 1
+    unit: Hz
+  oscillation control>amplitude setpoint (m):
+    nickname: oscillation_amplitude_setpoint
+    scaling: 1e12
+    unit: pm
   Comments:
     nickname: comment
     scaling: null
@@ -288,6 +308,10 @@ Parameters:
     nickname: comment_spec
     scaling: null
     unit: null
+  Z-Controller>Setpoint:
+    nickname: setpoint
+    scaling: 1e12
+    unit: pA
   Lock-in>Amplitude:
     nickname: lockin_amplitude
     scaling: 1e3
@@ -300,6 +324,14 @@ Parameters:
     nickname: lockin_frequency
     scaling: 1
     unit: Hz
+  Oscillation Control>Center Frequency (Hz):
+    nickname: oscillation_center_frequency
+    scaling: 1
+    unit: Hz
+  Oscillation Control>Amplitude setpoint (m):
+    nickname: oscillation_amplitude_setpoint
+    scaling: 1e12
+    unit: pm
   Temperature 2>Temperature 2 (K):
     nickname: temperature
     scaling: 1

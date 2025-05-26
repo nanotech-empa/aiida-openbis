@@ -172,6 +172,9 @@ class OpenBisDatabase:
         if property_type_dict["dataType"] == "MULTILINE_VARCHAR":
             property_type_dict["metaData"] = {"custom_widget": "Word Processor"}
         
+        if property_type_dict["dataType"] == "XML":
+            property_type_dict["metaData"] = {"custom_widget": "Spreadsheet"}
+        
         if property_type_dict["dataType"] == "CONTROLLEDVOCABULARY":
             property_type_dict["vocabulary"] = self.create_vocabulary(property_type)
         

@@ -931,9 +931,6 @@ class OpenbisObjectWidget(ipw.VBox):
                         slot_multivalued = self.data_model["slots"][slot]["multivalued"]
                         widget, value_widget = self.get_property_widget(slot_title, slot_range, slot_openbis_type, slot_multivalued)
                         if widget and value_widget:
-                            # openBIS property type correction
-                            if slot == "name":
-                                slot = "name"
                             prop_widgets[slot] = widget
                             prop_value_widgets[slot] = value_widget
                     
@@ -952,32 +949,8 @@ class OpenbisObjectWidget(ipw.VBox):
                     widget = ipw.VBox([label_widget, text_widget])
                     value_widget = text_widget
 
-            # elif openbis_type == "OBJECT":
-            #     prop_widgets = {}
-            #     prop_class = self.data_model["classes"][range]
-            #     if "slots" in prop_class:
-            #         prop_slots = self.get_object_properties(prop_class)
-            #         prop_widgets = {}
-            #         prop_value_widgets = {}
-            #         for slot in prop_slots:
-            #             slot_title = self.data_model["slots"][slot]["title"]
-            #             slot_range = self.data_model["slots"][slot]["range"]
-            #             slot_openbis_type = self.data_model["slots"][slot]["annotations"]["openbis_type"]
-            #             slot_multivalued = self.data_model["slots"][slot]["multivalued"]
-            #             widget, value_widget = self.get_property_widget(slot_title, slot_range, slot_openbis_type, slot_multivalued)
-            #             if widget and value_widget:
-            #                 # openBIS property type correction
-            #                 if slot == "name":
-            #                     slot = "name"
-            #                 prop_widgets[slot] = widget
-            #                 prop_value_widgets[slot] = value_widget
-                    
-            #         label_widget = ipw.HTML(value = f"{title}")
-            #         object_widget = ipw.VBox(list(prop_widgets.values()))
-            #         widget = ipw.Accordion([object_widget])
-            #         widget.set_title(0, f"Edit {title}")
-            #         widget = ipw.VBox([label_widget, widget])
-            #         value_widget = prop_value_widgets
+            elif openbis_type == "OBJECT":
+                pass
         
         else:
             if openbis_type == "REAL":
