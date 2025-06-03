@@ -945,7 +945,7 @@ class OpenbisObjectWidget(ipw.VBox):
                                 new_prop_value_widgets[slot] = value_widget
                         
                         new_json_items_widgets = ipw.HBox(list(new_widgets.values()))
-                        json_widget.children = [ipw.VBox(json_widget.children[:-1]), new_json_items_widgets, edit_table_buttons]
+                        json_widget.children = list(json_widget.children[:-1]) + [new_json_items_widgets, edit_table_buttons]
                         prop_value_widgets.append(new_prop_value_widgets)
                     
                     def remove_row(change):

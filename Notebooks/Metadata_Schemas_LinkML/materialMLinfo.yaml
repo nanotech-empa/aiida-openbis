@@ -245,7 +245,7 @@ classes:
      # ---- Object properties ----
      - crystal_concept_parent
      - geoopts
-     - molecule_concepts_parent
+     - molecules_parent
      - reaction_product_concepts_parent
 
   BandStructure:
@@ -284,35 +284,35 @@ classes:
      - state
      - pressure_value
      - pressure_unit
-     - supplier_name
+     - supplier
      # ---- Object properties ----
 
-  ChemicalConcept:
-    title: Chemical Concept
-    is_a: Thing
-    class_uri:
-    description: Chemical concept
-    annotations:
-      openbis_object: true
-      openbis_code: CHCO
-      openbis_label: Chemical Concept
-    slots:
-     - sum_formula
-     - comments
+  # ChemicalConcept:
+  #   title: Chemical Concept
+  #   is_a: Thing
+  #   class_uri:
+  #   description: Chemical concept
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: CHCO
+  #     openbis_label: Chemical Concept
+  #   slots:
+  #    - sum_formula
+  #    - comments
 
-  Chemical:
-    title: Chemical
-    is_a: Thing
-    class_uri:
-    description: Chemical
-    annotations:
-      openbis_object: true
-      openbis_code: CHRE
-      openbis_label: Chemical
-    slots:
-     - comments
-     # ---- Object properties ----
-     - chemical_concept
+  # Chemical:
+  #   title: Chemical
+  #   is_a: Thing
+  #   class_uri:
+  #   description: Chemical
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: CHRE
+  #     openbis_label: Chemical
+  #   slots:
+  #    - comments
+  #    # ---- Object properties ----
+  #    - chemical_concept
   
   Chemist:
     title: Chemist
@@ -422,9 +422,14 @@ classes:
       openbis_code: CRCO
       openbis_label: Crystal Concept
     slots:
+     # General info
      - face
      - material
+     - crystal_lattice_constant
+     - crystal_space_group
      - comments
+     # Documentation
+     # - xyz_files
 
   Crystal:
     title: Crystal
@@ -436,27 +441,26 @@ classes:
       openbis_code: CRRE
       openbis_label: Crystal
     slots:
-     - diameter_value
-     - diameter_unit
-     - height_value
-     - height_unit
-     - hazardous
-     - hazardous_specification
-     - dry
-     - fridge
-     - no_light
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - reference_number
-     - sample_plate
-     - specifications
-     - receive_date
-     - stored_in
-     - supplier_name
-     - comments
-     # ---- Object properties ----
+     # General info
+    #  - thumbnail (Dataset)
      - crystal_concept
+     - dimensions
+     - comments
+     # Documentation
+    #  - supplier_specifications
+    #  - measurement_reports
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
+     - sample_plate
+     - material_status
+     # Supplier Info
+     - supplier
+     - synthesised_by
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
 
   Delamination:
     title: Delamination
@@ -492,8 +496,38 @@ classes:
      - comments
      # ---- Object properties ----
      - settings
-     - molecule
+     - substance
      - sample
+  
+  DeviceSubstrate:
+    title: Device Substrate
+    is_a: Thing
+    class_uri: 
+    description: Device Substrate
+    annotations:
+      openbis_object: true
+      openbis_code: DVSB
+      openbis_label: Device Substrate
+    slots:
+      # General info
+      # - thumbnail (Dataset)
+      - comments
+      # Documentation
+      # - supplier_specifications (Dataset)
+      # - measurement_reports (Dataset)
+      # Storage location/conditions
+      - storage_location
+      - special_storage_conditions
+      # - package_opening_date
+      - sample_plate
+      - material_status
+      # Supplier Info
+      - supplier
+      - synthesised_by
+      - supplier_own_name
+      #  - procurement_information (Dataset)
+      - receive_date
+
 
   Dosing:
     title: Dosing
@@ -704,6 +738,18 @@ classes:
      # ---- Object properties ----
      - settings
      - sample
+  
+  Location:
+    title: Location
+    is_a: Thing
+    class_uri: 
+    description: Location
+    annotations:
+      openbis_object: true
+      openbis_code: LOCT
+      openbis_label: Location
+    slots:
+     - comments
 
   # Maintenance:
   #   title: Maintenance
@@ -813,46 +859,12 @@ classes:
   Molecule:
     title: Molecule
     is_a: Thing
-    class_uri: 
+    class_uri:
     description: Molecule
     annotations:
       openbis_object: true
-      openbis_code: MORE
+      openbis_code: MOLE
       openbis_label: Molecule
-    slots:
-     # ---- Object properties ----
-     #  - chemist
-     - molecule_concept
-     - empa_number
-     - batch
-     - vial
-     - evaporation_temperatures
-     - hazardous
-     - hazardous_specification
-     - dry
-     - fridge
-     - no_light
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - amount_value
-     - amount_unit
-     - chemist_molecule_name
-     - supplier_name
-     - synthesised_by
-     - stored_in
-     - receive_date
-     - comments
-
-  MoleculeConcept:
-    title: Molecule Concept
-    is_a: Thing
-    class_uri:
-    description: Molecule Concept
-    annotations:
-      openbis_object: true
-      openbis_code: MOCO
-      openbis_label: Molecule Concept
     slots:
      - smiles
      - sum_formula
@@ -1029,7 +1041,7 @@ classes:
     annotations:
       openbis_object: true
       openbis_code: PUBL
-      openbis_label: Publication Custom
+      openbis_label: Publication
     slots:
      - abstract
      - doi
@@ -1073,7 +1085,7 @@ classes:
      - sum_formula
      - comments
      # ---- Object properties ----
-     - molecule_concepts
+     - molecules
      - crystal_concept
 
   Results:
@@ -1241,6 +1253,36 @@ classes:
   #    # ---- Object properties ----
   #    - molecule
   
+  # Stamp:
+  #   title: Stamp
+  #   is_a: Thing
+  #   description: Stamp
+  #   class_uri:
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: STMP
+  #     openbis_label: Stamp
+  #   slots:
+  #     # General info
+  #     #  - thumbnail (Dataset)
+  #     - material
+  #     - comments
+  #     # Documentation
+  #     # - supplier_specifications (Dataset)
+  #     # - measurement_reports (Dataset)
+  #     # Storage location/conditions
+  #     - storage_location
+  #     - special_storage_conditions
+  #     # - package_opening_date
+  #     - sample_plate
+  #     - material_status
+  #     # Supplier Info
+  #     - supplier
+  #     - synthesised_by
+  #     - supplier_own_name
+  #     #  - procurement_information (Dataset)
+  #     - receive_date
+
   Storage:
     title: Storage
     is_a: Thing
@@ -1255,6 +1297,40 @@ classes:
      - comments
      # ---- Object properties ----
   
+  Substance:
+    title: Substance
+    is_a: Thing
+    class_uri: 
+    description: Substance
+    annotations:
+      openbis_object: true
+      openbis_code: SUBS
+      openbis_label: Substance
+    slots:
+     # ---- Object properties ----
+     #  - chemist
+     - molecule
+     - empa_number
+     - batch
+     - vial
+     - evaporation_temperatures
+     - hazardous
+     - hazardous_specification
+     - dry
+     - fridge
+     - no_light
+     - no_oxygen
+     - other_storage_condition
+     - other_storage_condition_specification
+     - amount_value
+     - amount_unit
+     - chemist_molecule_name
+     - supplier
+     - synthesised_by
+     - stored_in
+     - receive_date
+     - comments
+  
   Supplier:
     title: Supplier
     is_a: Institution
@@ -1263,7 +1339,7 @@ classes:
     annotations:
       openbis_object: true
       openbis_code: SUPP
-      openbis_label: Supplier Custom
+      openbis_label: Supplier
     slots:
 
   # SystemStatus:
@@ -1328,35 +1404,33 @@ classes:
     description: 2D layer material
     annotations:
       openbis_object: true
-      openbis_code: LMRE
+      openbis_code: TDLM
       openbis_label: 2D Layer Material
     slots:
-     - empa_number
-     - batch
-     - sample_plate
-     - substrates
-     - two_d_layers
-     - width_value
-     - width_unit
-     - thickness_value
-     - thickness_unit
-     - length_value
-     - length_unit
-     - hazardous
-     - hazardous_specification
-     - dry
-     - fridge
-     - no_light
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - receive_date
-     - supplier_own_name
-     - supplier_name
-     - stored_in
-     - synthesised_by
+     # General info
+    #  - thumbnail (Dataset)
+     - two_d_layer_top_layer_material
+     - two_d_layer_layer_count
+     - two_d_layer_impurities
+     - two_d_layer_heterostructure_stack
+     - two_d_layer_substrate
+     - dimensions
      - comments
-     # ---- Object properties ----
+     # Documentation
+     # - supplier_specifications (Dataset)
+     # - measurement_reports (Dataset)
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
+     - sample_plate
+     - material_status
+     # Supplier Info
+     - supplier
+     - synthesised_by
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
 
   # TwoDMeasurement:
   #   title: 2D Measurement
@@ -1446,43 +1520,30 @@ classes:
     description: Wafer Substrate
     annotations:
       openbis_object: true
-      openbis_code: WFRE
+      openbis_code: WFSB
       openbis_label: Wafer Substrate
     slots:
-     - batch
+     # General info
+     - material
+     - face
+     - coating
+     - dimensions
+     - comments
+     # Documentation
+     # - supplier_specifications (Dataset)
+     # - measurement_reports (Dataset)
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
      - sample_plate
-     - substrates
-     - diameter_value
-     - diameter_unit
-     - thickness_value
-     - thickness_unit
-     - dry
-     - fridge
-     - hazardous
-     - hazardous_specification
-     - height
-     - no_light
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - receive_date
+     - material_status
+     # Supplier Info
+     - supplier
      - synthesised_by
-     - stored_in
-     - comments
-     # ---- Object properties ----
-     - wafer_substrate_concept
-  
-  WaferSubstrateConcept:
-    title: Wafer Substrate Concept
-    is_a: Thing
-    class_uri:
-    description: Wafer Substrate Concept
-    annotations:
-      openbis_object: true
-      openbis_code: WFCO
-      openbis_label: Wafer Substrate Concept
-    slots:
-     - comments
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
 
   # Wire:
   #   title: Wire
@@ -1519,6 +1580,27 @@ classes:
     slots:
      - atom_symbol
      - coordinates
+  
+  Coating:
+    title: Coating
+    class_uri: 
+    description: Coating
+    annotations:
+      openbis_object: false
+    slots:
+     - material
+     - face
+     - thickness
+    
+  CrystalLatticeConstantQuantityValue:
+    title: Crystal lattice constant quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with diameter unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - crystal_lattice_constant_unit
 
   CurrentQuantityValue:
     title: Current quantity value
@@ -1530,6 +1612,29 @@ classes:
      - has_value
      - has_current_unit
      - type
+  
+  DiameterQuantityValue:
+    title: Diameter quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with diameter unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - diameter_unit
+  
+  Dimensions:
+    title: Dimensions
+    class_uri: 
+    description: Dimensions
+    annotations:
+      openbis_object: false
+    slots:
+     - shape
+     - diameter
+     - width
+     - height
+     - thickness
 
   DurationQuantityValue:
     title: Duration quantity value
@@ -1564,6 +1669,16 @@ classes:
      - temperature_value
      - temperature_unit
   
+  HeightQuantityValue:
+    title: Height quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with height unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - height_unit
+
   LengthQuantityValue:
     title: Length quantity value
     class_uri: qudt:quantityValue
@@ -1664,6 +1779,28 @@ classes:
      - has_value
      - has_temperature_unit
      - type
+  
+  ThicknessQuantityValue:
+    title: Thickness quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with thickness unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - thickness_unit
+  
+  TwoDLayerHeterostructureStack:
+    title: 2D layer material heterostructure stack
+    class_uri:
+    description: 2D layer material heterostructure stack
+    annotations:
+      openbis_object: false
+    slots:
+     - two_d_layer_heterostructure_material
+     - two_d_layer_heterostructure_impurities
+     - two_d_layer_heterostructure_thickness
+     - two_d_layer_heterostructure_source
 
   TwoDLayersDetails:
     title: 2D layers details
@@ -1687,6 +1824,16 @@ classes:
      - has_value
      - has_voltage_unit
      - type
+  
+  WidthQuantityValue:
+    title: Width quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with width unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - width_unit
 
   # ----------- Containers for LinkML ------------   
 
@@ -1875,12 +2022,6 @@ classes:
         inlined_as_list: true
         range: Molecule
         description: molecules container
-      
-      molecule_concepts:
-        multivalued: true
-        inlined_as_list: true
-        range: MoleculeConcept
-        description: molecule concepts container
 
       notes:
         multivalued: true
@@ -1989,6 +2130,12 @@ classes:
         inlined_as_list: true
         range: Storage
         description: storages container
+      
+      substances:
+        multivalued: true
+        inlined_as_list: true
+        range: Substance
+        description: substances container
       
       suppliers:
         multivalued: true
@@ -2397,6 +2544,16 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Molecule name (given by Chemist)
 
+  coating:
+    title: Coating
+    description: Coating
+    range: Coating
+    slot_uri: schema:comment
+    multivalued: false
+    annotations:
+      openbis_type: MULTILINE_VARCHAR
+      openbis_label: Comments
+
   comments:
     title: Comments
     description: Comments
@@ -2453,6 +2610,33 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Coverage
+  
+  crystal_lattice_constant:
+    title: Crystal lattice constant
+    description: crystal lattice constant
+    range: CrystalLatticeConstantQuantityValue
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Lattice constant
+  
+  crystal_lattice_constant_unit:
+    title: Crystal lattice constant unit
+    description: crystal lattice constant unit
+    range: LengthUnitsEnum
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Crystal lattice constant unit
+  
+  crystal_space_group:
+    title: Crystal space group
+    description: crystal space group
+    range: integer
+    multivalued: false
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Space group
 
   current:
     title: Current
@@ -2599,36 +2783,26 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Dewar
-  
-  diameter_value:
-    title: Diameter (value)
-    description: Diameter (value)
-    range: double
-    slot_uri:
+
+  diameter:
+    title: Diameter
+    description: diameter
+    range: DiameterQuantityValue
+    slot_uri: ncit:NCIT_C25285
     multivalued: false
     annotations:
-      openbis_type: REAL
-      openbis_label: Diameter (value)
+      openbis_type: JSON
+      openbis_label: Diameter
   
   diameter_unit:
-    title: Diameter (unit)
-    description: Diameter (unit)
+    title: Diameter unit
+    description: Diameter unit
     range: LengthUnitsEnum
     slot_uri:
     multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Diameter (unit)
-
-  # diameter:
-  #   title: Diameter
-  #   description: diameter
-  #   range: QuantityValue
-  #   slot_uri: ncit:NCIT_C25285
-  #   multivalued: false
-  #   annotations:
-  #     openbis_type: JSON
-  #     openbis_label: Diameter
+      openbis_label: diameter unit
 
   dimensionality:
     title: Dimensionality
@@ -2639,6 +2813,16 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: Dimensionality
+
+  dimensions:
+    title: Dimensions
+    description: Dimensions
+    range: Dimensions
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: XML (Spreadsheet)
+      openbis_label: Dimensions
 
   discharge_voltage_value:
     title: Discharge Voltage (value)
@@ -3161,16 +3345,16 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Hazardous (specification)
 
-  height_value:
-    title: Height (value)
-    description: Height (value)
-    range: double
-    slot_uri:
+  height:
+    title: Height
+    description: height
+    range: HeightQuantityValue
+    slot_uri: ncit:NCIT_C25347
     multivalued: false
     annotations:
-      openbis_type: REAL
-      openbis_label: Height (value)
-  
+      openbis_type: JSON
+      openbis_label: Height
+
   height_unit:
     title: Height (unit)
     description: Height (unit)
@@ -3179,17 +3363,7 @@ slots:
     multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Height (unit)
-
-  height:
-    title: Height
-    description: height
-    range: QuantityValue
-    slot_uri: ncit:NCIT_C25347
-    multivalued: false
-    annotations:
-      openbis_type: JSON
-      openbis_label: Height
+      openbis_label: height unit
 
   heights:
     title: Heights
@@ -3316,6 +3490,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Material
+  
+  material_status:
+    title: Material status
+    description: Material status
+    range: MaterialStatusEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Material status
   
   measurements_folder_path:
     title: Measurements Folder Path
@@ -3522,6 +3706,15 @@ slots:
     annotations:
       openbis_type: REAL
       openbis_label: P-tip
+  
+  package_opening_date:
+    title: Package opening date
+    description: package opening date
+    range: date
+    multivalued: true
+    annotations:
+      openbis_type: DATE
+      openbis_label: Package opening date
 
   periodic_boundary_conditions:
     title: Periodic Boundary Conditions
@@ -3582,6 +3775,16 @@ slots:
   #   annotations:
   #     openbis_type: JSON
   #     openbis_label: Pressure
+
+  procurement_information:
+    title: Procurement information
+    description: procurement information
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Procurement information
 
   project_id:
     title: Project ID
@@ -3682,6 +3885,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Sampling rate
+  
+  shape:
+    title: Shape
+    description: Shape
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Shape
 
   serial_number:
     title: Serial Number
@@ -3712,6 +3925,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Smiles
+  
+  special_storage_conditions:
+    title: Special storage conditions
+    range: SpecialStorageConditionsEnum
+    description: Special storage conditions
+    slot_uri: 
+    multivalued: true
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Special storage conditions
 
   specifications:
     title: Specifications
@@ -3762,15 +3985,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Sum formula
   
-  supplier_name:
-    title: Supplier Name
-    description: Supplier Name
-    range: string
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Supplier name
+  # supplier_name:
+  #   title: Supplier Name
+  #   description: Supplier Name
+  #   range: string
+  #   slot_uri:
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: VARCHAR
+  #     openbis_label: Supplier name
 
   stabilisation_time:
     title: Stabilisation Time
@@ -3830,6 +4053,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: State
   
+  storage_location:
+    title: Storage location
+    description: Storage location
+    range: Location
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Storage location
+  
   stored_in:
     title: Stored In
     description: stored in
@@ -3872,11 +4104,11 @@ slots:
   synthesised_by:
     title: Synthesised By
     description: synthesised by
-    range: string
+    range: Person
     slot_uri:
     multivalued: false
     annotations:
-      openbis_type: VARCHAR
+      openbis_type: OBJECT
       openbis_label: Synthesised by
   
   target_temperature:
@@ -3922,22 +4154,12 @@ slots:
   thickness:
     title: Thickness
     description: Thickness
-    range: LengthQuantityValue
+    range: ThicknessQuantityValue
     slot_uri: ncit:NCIT_C41145
     multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Thickness
-  
-  thickness_value:
-    title: Thickness (value)
-    description: Thickness (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Thickness (value)
   
   thickness_unit:
     title: Thickness (unit)
@@ -3947,7 +4169,7 @@ slots:
     multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Thickness (unit)
+      openbis_label: thickness unit
 
   # tip_preparation_type:
   #   title: Tip Preparation Type
@@ -3966,6 +4188,96 @@ slots:
   #   annotations:
   #     openbis_type: CONTROLLEDVOCABULARY
   #     openbis_label: Tip sensor type
+  
+  two_d_layer_heterostructure_impurities:
+    title: 2D layer material heterostructure stack impurities
+    description: 2D layer material heterostructure stack impurities
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Impurities
+  
+  two_d_layer_heterostructure_material:
+    title: 2D layer material heterostructure stack material
+    description: 2D layer material heterostructure stack material
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Material
+  
+  two_d_layer_heterostructure_thickness:
+    title: 2D layer material heterostructure stack thickness
+    description: 2D layer material heterostructure stack thickness
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Thickness
+  
+  two_d_layer_heterostructure_source:
+    title: 2D layer material heterostructure stack source
+    description: 2D layer material heterostructure stack source
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Source
+  
+  two_d_layer_heterostructure_stack:
+    title: 2D layer material heterostructure stack
+    description: 2D layer material heterostructure stack
+    range: TwoDLayerHeterostructureStack
+    multivalued: true
+    annotations:
+      openbis_type: XML (Spreadsheet)
+      openbis_label: Heterostructure stack
+  
+  two_d_layer_impurities:
+    title: 2D layer material impurities
+    description: 2D layer material impurities
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Impurities
+  
+  two_d_layer_layer_count:
+    title: 2D layer material layer count
+    description: 2D layer material layer count
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Layer count
+  
+  two_d_layer_top_layer_material:
+    title: 2D layer material top layer material
+    description: 2D layer material top layer material
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Top layer material
+  
+  two_d_layer_substrate:
+    title: 2D layer material substrate
+    description: 2D layer material substrate
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Substrate
+  
+  two_d_layer_growth_method:
+    title: 2D layer material growth method
+    description: 2D layer material growth method
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Growth/Fabrication method
 
   two_d_layers:
     title: 2D Layers
@@ -4023,6 +4335,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Username
+  
+  value:
+    title: Value
+    description: Value
+    range: double
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: Value
 
   vial:
     title: Vial
@@ -4106,22 +4428,12 @@ slots:
   width:
     title: Width
     description: Width
-    range: LengthQuantityValue
+    range: WidthQuantityValue
     slot_uri: schema:width
     multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Width
-  
-  width_value:
-    title: Width (value)
-    description: Width (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Width (value)
   
   width_unit:
     title: Width (unit)
@@ -4131,7 +4443,7 @@ slots:
     multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Width (unit)
+      openbis_label: width unit
 
   wire_material:
     title: Wire Material
@@ -4483,33 +4795,24 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Molecule
-
-  molecule_concept:
-    title: Molecule Concept
-    range: MoleculeConcept
-    description: molecule concept
-    multivalued: false
-    annotations:
-      openbis_type: OBJECT
-      openbis_label: Molecule Concept
   
-  molecule_concepts:
-    title: Molecule Concepts
-    range: MoleculeConcept
-    description: molecule concepts
+  molecules:
+    title: Molecules
+    range: Molecule
+    description: molecules
     multivalued: true
     annotations:
       openbis_type: OBJECT
-      openbis_label: Molecule Concepts
+      openbis_label: Molecules
   
-  molecule_concepts_parent:
-    title: Molecule Concepts
+  molecules_parent:
+    title: Molecules
     range: MoleculeConcept
-    description: molecule concepts parent
+    description: molecules parent
     multivalued: true
     annotations:
       openbis_type: OBJECT (PARENT)
-      openbis_label: Molecule Concepts
+      openbis_label: Molecules
   
   observables:
     title: Observables
@@ -4673,16 +4976,25 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Storage
+  
+  substance:
+    title: Substance
+    range: Substance
+    description: substance
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Substance
 
-  # supplier:
-  #   title: Supplier
-  #   range: Supplier
-  #   description: supplier
-  #   multivalued: false
-  #   slot_uri:
-  #   annotations:
-  #     openbis_type: OBJECT
-  #     openbis_label: Supplier
+  supplier:
+    title: Supplier
+    range: Supplier
+    description: supplier
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Supplier
 
   # tip_sensor:
   #   title: Tip Sensor
@@ -5043,6 +5355,11 @@ enums:
     annotations:
       openbis_label: Length units vocabulary
     permissible_values:
+      angstrom:
+        meaning: unit:ANGSTROM
+        description: angstrom
+        annotations:
+          openbis_label: Angstrom
       um:
         meaning: unit:MicroM
         description: micrometer
@@ -5079,6 +5396,32 @@ enums:
         description: kilogram
         annotations:
           openbis_label: Kilogram
+  
+  MaterialStatusEnum:
+    description: material status
+    annotations:
+      openbis_label: Material status vocabulary
+    permissible_values:
+      active:
+        meaning: 
+        description: active
+        annotations:
+          openbis_label: Active
+      inactive:
+        meaning: 
+        description: inactive
+        annotations:
+          openbis_label: Inactive
+      broken:
+        meaning: 
+        description: broken
+        annotations:
+          openbis_label: Broken
+      disposed:
+        meaning: 
+        description: disposed
+        annotations:
+          openbis_label: Disposed
 
   MethodTypeEnum:
     description: method type values
@@ -5130,6 +5473,47 @@ enums:
         description: angstrom per minute
         annotations:
           openbis_label: Angstrom per minute
+  
+  SpecialStorageConditionsEnum:
+    description: special storage conditions
+    annotations:
+      openbis_label: Special storage conditions vocabulary
+    permissible_values:
+      dry:
+        meaning: 
+        description: dry
+        annotations:
+          openbis_label: Dry
+      no_oxygen:
+        meaning: 
+        description: no oxygen
+        annotations:
+          openbis_label: No oxygen
+      fridge:
+        meaning: 
+        description: fridge
+        annotations:
+          openbis_label: Fridge
+      freezer:
+        meaning: 
+        description: freezer
+        annotations:
+          openbis_label: Freezer
+      dark:
+        meaning: 
+        description: dark
+        annotations:
+          openbis_label: Dark
+      flammable:
+        meaning: 
+        description: flammable
+        annotations:
+          openbis_label: Flammable
+      poisenous:
+        meaning: 
+        description: poisenous
+        annotations:
+          openbis_label: Poisenous
 
   TemperatureUnitsEnum:
     description: temperature units
