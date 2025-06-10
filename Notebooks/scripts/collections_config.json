@@ -25,13 +25,10 @@
                     "description": "iLog",
                     "experiments": {
                         "INSTRUMENT_COLLECTION": {
-                            "name": "Instruments"
+                            "$name": "Instruments"
                         },
                         "COMPONENT_COLLECTION": {
-                            "name": "Components"
-                        },
-                        "SETTING_COLLECTION": {
-                            "name": "Settings"
+                            "$name": "Components"
                         }
                     }
                 },
@@ -39,13 +36,16 @@
                     "description": "Accessories",
                     "experiments": {
                         "STM_TIP_COLLECTION": {
-                            "name": "STM tips"
+                            "$name": "STM tips"
                         },
                         "QPLUS_SENSOR_COLLECTION": {
-                            "name": "qPlus sensors"
+                            "$name": "qPlus sensors"
                         },
                         "SAMPLE_HOLDER_COLLECTION": {
-                            "name": "Sample holders"
+                            "$name": "Sample holders"
+                        },
+                        "CRUCIBLE_COLLECTION": {
+                            "$name": "Crucibles"
                         }
                     }
                 }
@@ -54,14 +54,11 @@
         "MATERIALS": {
             "description": "Materials",
             "projects": {
-                "CRYSTALS": {
-                    "description": "Crystals",
+                "SINGLE_CRYSTALS": {
+                    "description": "Single crystals",
                     "experiments": {
-                        "AU_COLLECTION": {
-                            "name": "Au"
-                        },
-                        "PDGA_COLLECTION": {
-                            "name": "PdGa"
+                        "SINGLE_CRYSTAL_COLLECTION": {
+                            "$name": "Single crystals"
                         }
                     }
                 },
@@ -69,10 +66,10 @@
                     "description": "Molecules",
                     "experiments": {
                         "PRECURSOR_COLLECTION": {
-                            "name": "Precursors"
+                            "$name": "Precursors"
                         },
                         "PRODUCT_COLLECTION": {
-                            "name": "Reaction Products"
+                            "$name": "Reaction Products"
                         }
                     }
                 },
@@ -80,37 +77,16 @@
                     "description": "Wafer samples",
                     "experiments": {
                         "SUBSTRATE_COLLECTION": {
-                            "name": "Substrates"
+                            "$name": "Substrates"
                         },
-                        "GROWN_2D_MATERIALS_COLLECTION": {
-                            "name": "Grown 2D materials"
+                        "2D_MATERIAL_COLLECTION": {
+                            "$name": "2D Materials"
                         },
-                        "EXFOLIATED_2D_MATERIALS_COLLECTION": {
-                            "name": "Exfoliated 2D materials"
-                        }
-                    }
-                },
-                "ATOMISTIC_MODELS": {
-                    "description": "Atomistic Models",
-                    "experiments": {
-                        "ATOMISTIC_MODEL_COLLECTION": {
-                            "name": "Atomistic Models"
-                        }
-                    }
-                },
-                "AIIDA_NODES": {
-                    "description": "AiiDA Nodes",
-                    "experiments": {
-                        "AIIDA_NODE_COLLECTION": {
-                            "name": "AiiDA Nodes"
-                        }
-                    }
-                },
-                "SAMPLES": {
-                    "description": "Samples",
-                    "experiments": {
-                        "SAMPLE_COLLECTION": {
-                            "name": "Samples"
+                        "DEVICE_SUBSTRATE_COLLECTION": {
+                            "$name": "Device Substrates"
+                        },
+                        "STAMP_COLLECTION": {
+                            "$name": "Stamps"
                         }
                     }
                 },
@@ -118,13 +94,37 @@
                     "description": "Raw materials",
                     "experiments": {
                         "WAFER_COLLECTION": {
-                            "name": "Wafers"
+                            "$name": "Wafers"
                         },
                         "CHEMICAL_COLLECTION": {
-                            "name": "Chemicals"
+                            "$name": "Chemicals"
                         },
                         "WIRE_COLLECTION": {
-                            "name": "Wires"
+                            "$name": "Wires"
+                        }
+                    }
+                },
+                "SAMPLES": {
+                    "description": "Samples",
+                    "experiments": {
+                        "SAMPLE_COLLECTION": {
+                            "$name": "Samples"
+                        }
+                    }
+                },
+                "ATOMISTIC_MODELS": {
+                    "description": "Atomistic Models",
+                    "experiments": {
+                        "ATOMISTIC_MODEL_COLLECTION": {
+                            "$name": "Atomistic Models"
+                        }
+                    }
+                },
+                "AIIDA_NODES": {
+                    "description": "AiiDA Nodes",
+                    "experiments": {
+                        "AIIDA_NODE_COLLECTION": {
+                            "$name": "AiiDA Nodes"
                         }
                     }
                 }
@@ -133,14 +133,11 @@
         "ADMINISTRATIVE":{
             "description": "Administrative",
             "projects": {
-                "PERSONS": {
-                    "description": "Persons",
+                "PUBLICATIONS": {
+                    "description": "Publications",
                     "experiments": {
-                        "LAB_205_PERSON_COLLECTION": {
-                            "name": "Lab 205"
-                        },
-                        "COLLABORATOR_COLLECTION": {
-                            "name": "Collaborators"
+                        "LAB_205_PUBLICATION_COLLECTION": {
+                            "$name": "Lab 205"
                         }
                     }
                 },
@@ -148,43 +145,46 @@
                     "description": "Funding",
                     "experiments": {
                         "GRANT_COLLECTION": {
-                            "name": "Grants"
+                            "$name": "Grants"
+                        }
+                    }
+                },
+                "INSTITUTIONS": {
+                    "description": "Institutions/Manufacturers/Suppliers",
+                    "experiments": {
+                        "ACADEMIC_INSTITUTION_COLLECTION": {
+                            "$name": "Institutions"
+                        },
+                        "CHEMISTRY_INSTITUTION_COLLECTION": {
+                            "$name": "Chemistry"
+                        },
+                        "SPM_INSTITUTION_COLLECTION": {
+                            "$name": "SPM"
+                        },
+                        "OPTICS_INSTITUTION_COLLECTION": {
+                            "$name": "Optics"
+                        },
+                        "VARIOUS_INSTITUTION_COLLECTION": {
+                            "$name": "Various"
+                        }
+                    }
+                },
+                "PEOPLE": {
+                    "description": "People",
+                    "experiments": {
+                        "LAB_205_PERSON_COLLECTION": {
+                            "$name": "Lab 205"
+                        },
+                        "COLLABORATOR_COLLECTION": {
+                            "$name": "Collaborators"
                         }
                     }
                 },
                 "LOCATIONS": {
                     "description": "Locations",
                     "experiments": {
-                        "EMPA_DUBENDORF_COLLECTION": {
-                            "name": "Empa Dubendorf"
-                        }
-                    }
-                },
-                "PUBLICATIONS": {
-                    "description": "Publications",
-                    "experiments": {
-                        "LAB_205_PUBLICATION_COLLECTION": {
-                            "name": "Lab 205"
-                        }
-                    }
-                },
-                "INSTITUTIONS": {
-                    "description": "Institutions",
-                    "experiments": {
-                        "ACADEMIC_INSTITUTION_COLLECTION": {
-                            "name": "Academic"
-                        },
-                        "CHEMISTRY_INSTITUTION_COLLECTION": {
-                            "name": "Chemistry"
-                        },
-                        "SPM_INSTITUTION_COLLECTION": {
-                            "name": "SPM"
-                        },
-                        "OPTICS_INSTITUTION_COLLECTION": {
-                            "name": "Optics"
-                        },
-                        "VARIOUS_INSTITUTION_COLLECTION": {
-                            "name": "Various"
+                        "EMPA_DUBENDORF_LOCATION_COLLECTION": {
+                            "$name": "Empa Dubendorf"
                         }
                     }
                 }
@@ -193,25 +193,28 @@
         "METHODS":{
             "description": "Methods",
             "projects": {
-                "SAMPLE_TRANSFER": {
-                    "description": "Sample Transfer",
-                    "experiments": {
-                        "WET_TRANSFER_COLLECTION": {
-                            "name": "Wet transfer"
-                        },
-                        "POLYMER_ASSISTED_TRANSFER_COLLECTION": {
-                            "name": "Polymer-assisted transfer"
-                        },
-                        "UHV_TRANSFER_COLLECTION": {
-                            "name": "UHV transfer"
-                        }
-                    }
-                },
                 "PROTOCOLS": {
                     "description": "Protocols",
                     "experiments": {
-                        "PROTOCOL_COLLECTION": {
-                            "name": "Methods Protocols"
+                        "UHV_PROTOCOL_COLLECTION": {
+                            "$name": "UHV Protocols"
+                        },
+                        "TRANSFER_PROTOCOL_COLLECTION": {
+                            "$name": "Transfer Protocols"
+                        }
+                    }
+                },
+                "PROCESSES": {
+                    "description": "Processes",
+                    "experiments": {
+                        "QPLUS_PROCESS_COLLECTION": {
+                            "$name": "Qplus"
+                        },
+                        "GNR_REACTOR_PROCESS_COLLECTION": {
+                            "$name": "GNR Reactor"
+                        },
+                        "CHEMISTRY_LAB_PROCESS_COLLECTION": {
+                            "$name": "Chemistry Lab"
                         }
                     }
                 }
@@ -224,13 +227,13 @@
                     "description": "Data Processing & Control",
                     "experiments": {
                         "PROPRIETARY_SOFTWARE_COLLECTION": {
-                            "name": "Proprietary software"
+                            "$name": "Proprietary software"
                         },
                         "OPEN_SOURCE_SOFTWARE_COLLECTION": {
-                            "name": "Open-source software"
+                            "$name": "Open-source software"
                         },
                         "CUSTOM_CODE_COLLECTION": {
-                            "name": "Custom code"
+                            "$name": "Custom code"
                         }
                     }
                 },
@@ -238,13 +241,13 @@
                     "description": "Computational Simulations",
                     "experiments": {
                         "PROPRIETARY_SOFTWARE_COLLECTION": {
-                            "name": "Proprietary software"
+                            "$name": "Proprietary software"
                         },
                         "OPEN_SOURCE_SOFTWARE_COLLECTION": {
-                            "name": "Open-source software"
+                            "$name": "Open-source software"
                         },
                         "CUSTOM_CODE_COLLECTION": {
-                            "name": "Custom code"
+                            "$name": "Custom code"
                         }
                     }
                 }

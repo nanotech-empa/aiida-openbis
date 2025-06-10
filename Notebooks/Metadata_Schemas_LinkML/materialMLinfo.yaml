@@ -34,126 +34,251 @@ default_prefix: materialsML
   
 classes:
   # ---- New object types ----
-  Cryostat:
-    title: Cryostat
+  Evaporator:
+    title: Evaporator
     is_a: Component
-    class_uri: 
-    description: Cryostat
+    class_uri:
+    description: Evaporator
     annotations:
       openbis_object: true
-      openbis_code: CRYO
-      openbis_label: Cryostat
+      openbis_code: EVAP
+      openbis_label: Evaporator
     slots:
-  
-  DepositionTool:
-    title: Deposition Tool
-    is_a: Component
-    class_uri: 
-    description: Deposition Tool
-    annotations:
-      openbis_object: true
-      openbis_code: DEPT
-      openbis_label: Deposition Tool
-    slots:
-  
-  Electronics:
-    title: Electronics
-    is_a: Component
-    class_uri: 
-    description: Electronics
-    annotations:
-      openbis_object: true
-      openbis_code: ELET
-      openbis_label: Electronics
-    slots:
+      - target_temperature
+      - evaporator_slot
+      - evaporator_p_value
+      - evaporator_i_value
+      - ep_percentage
 
-  Gauge:
-    title: Gauge
+  IonGauge:
+    title: Ion Gauge
     is_a: Component
-    class_uri: 
-    description: Gauge
+    class_uri:
+    description: Ion Gauge
     annotations:
       openbis_object: true
-      openbis_code: GAUG
-      openbis_label: Gauge
+      openbis_code: IONG
+      openbis_label: Ion Gauge
     slots:
-  
-  Heater:
-    title: Heater
-    is_a: Component
-    class_uri: 
-    description: Heater
-    annotations:
-      openbis_object: true
-      openbis_code: HTER
-      openbis_label: Heater
-    slots:
-  
-  IonBeam:
-    title: Ion Beam
-    is_a: Component
-    class_uri: 
-    description: Ion Beam
-    annotations:
-      openbis_object: true
-      openbis_code: IBEA
-      openbis_label: Ion Beam
-    slots:
+      - filament
+      - filament_current
 
-  Pump:
-    title: Pump
+  IonPump:
+    title: Ion Pump
     is_a: Component
-    class_uri: 
-    description: Pump
+    class_uri:
+    description: Ion Pump
     annotations:
       openbis_object: true
-      openbis_code: PUMP
-      openbis_label: Pump
+      openbis_code: IONP
+      openbis_label: Ion Pump
     slots:
   
-  Sensor:
-    title: Sensor
+  PBNStage:
+    title: PBN Stage
     is_a: Component
-    class_uri: 
-    description: Sensor
+    class_uri:
+    description: PBN Stage
     annotations:
       openbis_object: true
-      openbis_code: SENS
-      openbis_label: Sensor
+      openbis_code: PBNS
+      openbis_label: PBN Stage
     slots:
+      - target_temperature
+  
+  QCM:
+    title: QCM
+    is_a: Component
+    class_uri:
+    description: QCM
+    annotations:
+      openbis_object: true
+      openbis_code: QCM
+      openbis_label: QCM
+    slots:
+      - density
+
+  SputterGun:
+    title: Sputter Gun
+    is_a: Component
+    class_uri:
+    description: Sputter Gun
+    annotations:
+      openbis_object: true
+      openbis_code: SPTG
+      openbis_label: Sputter Gun
+    slots:
+      - bias_voltage
+      - discharge_voltage
+      - discharge_current
   
   THzSTM:
-    title: THz STM
+    title: THz-STM
     is_a: Instrument
-    class_uri: 
-    description: THz STM
+    class_uri:
+    description: THz-STM
     annotations:
       openbis_object: true
       openbis_code: TSTM
-      openbis_label: THz STM
+      openbis_label: THz-STM
     slots:
+      # Components
+      # Vacuum system
+      - pumps
+      - gauges
+      - vacuum_chambers
+      - ports_valves
+      # Sample Preparation & Handling
+      - preparation_tools
+      - analysers
+      - mechanical_components
+      # Microscope Core Components
+      - stm_components
+      - control_data_acquisition
+      - auxiliary_components
+      # Consumables
+      - consumables
+      # Materials
+      - molecules
+      - single_crystals
+      - wafer_samples
+      # Accessories
+      - tips_sensors
+      - accessories
+      # Logbook
+      - logbook_entries
   
-  TipSTMAFM:
-    title: Tip STM-AFM
-    is_a: Instrument
-    class_uri: 
-    description: Tip STM-AFM
-    annotations:
-      openbis_object: true
-      openbis_code: TSPM
-      openbis_label: Tip STM-AFM
-    slots:
-  
-  VacuumChamber:
-    title: Vacuum Chamber
+  Valve:
+    title: Valve
     is_a: Component
-    class_uri: 
-    description: Vacuum Chamber
+    class_uri:
+    description: Valve
     annotations:
       openbis_object: true
-      openbis_code: VCCH
-      openbis_label: Vacuum Chamber
+      openbis_code: VALV
+      openbis_label: Valve
     slots:
+
+  # Cryostat:
+  #   title: Cryostat
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Cryostat
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: CRYO
+  #     openbis_label: Cryostat
+  #   slots:
+  
+  # DepositionTool:
+  #   title: Deposition Tool
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Deposition Tool
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: DEPT
+  #     openbis_label: Deposition Tool
+  #   slots:
+  
+  # Electronics:
+  #   title: Electronics
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Electronics
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: ELET
+  #     openbis_label: Electronics
+  #   slots:
+
+  # Gauge:
+  #   title: Gauge
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Gauge
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: GAUG
+  #     openbis_label: Gauge
+  #   slots:
+  
+  # Heater:
+  #   title: Heater
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Heater
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: HTER
+  #     openbis_label: Heater
+  #   slots:
+  
+  # IonBeam:
+  #   title: Ion Beam
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Ion Beam
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: IBEA
+  #     openbis_label: Ion Beam
+  #   slots:
+
+  # Pump:
+  #   title: Pump
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Pump
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: PUMP
+  #     openbis_label: Pump
+  #   slots:
+  
+  # Sensor:
+  #   title: Sensor
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Sensor
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: SENS
+  #     openbis_label: Sensor
+  #   slots:
+  
+  # THzSTM:
+  #   title: THz STM
+  #   is_a: Instrument
+  #   class_uri: 
+  #   description: THz STM
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: TSTM
+  #     openbis_label: THz STM
+  #   slots:
+  
+  # TipSTMAFM:
+  #   title: Tip STM-AFM
+  #   is_a: Instrument
+  #   class_uri: 
+  #   description: Tip STM-AFM
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: TSPM
+  #     openbis_label: Tip STM-AFM
+  #   slots:
+  
+  # VacuumChamber:
+  #   title: Vacuum Chamber
+  #   is_a: Component
+  #   class_uri: 
+  #   description: Vacuum Chamber
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: VCCH
+  #     openbis_label: Vacuum Chamber
+  #   slots:
   
   # -------------------
 
@@ -235,7 +360,7 @@ classes:
       openbis_code: ATMO
       openbis_label: Atomistic Model
     slots:
-     - atoms_positions
+    #  - atoms_positions (Dataset)
     #  - atomistic_model_structure
      - cell
      - dimensionality
@@ -269,23 +394,23 @@ classes:
      - atomistic_models
      - codes
 
-  CanGasBottle:
-    title: Can Gas Bottle
-    is_a: Thing
-    class_uri: 
-    description: Bottle/Can of Gas
-    annotations:
-      openbis_object: true
-      openbis_code: CGAS
-      openbis_label: Bottle of Gas
-    slots:
-     - description
-     - comments
-     - state
-     - pressure_value
-     - pressure_unit
-     - supplier
-     # ---- Object properties ----
+  # CanGasBottle:
+  #   title: Can Gas Bottle
+  #   is_a: Thing
+  #   class_uri: 
+  #   description: Bottle/Can of Gas
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: CGAS
+  #     openbis_label: Bottle of Gas
+  #   slots:
+  #    - description
+  #    - comments
+  #    - state
+  #    - pressure_value
+  #    - pressure_unit
+  #    - supplier
+  #    # ---- Object properties ----
 
   # ChemicalConcept:
   #   title: Chemical Concept
@@ -314,16 +439,16 @@ classes:
   #    # ---- Object properties ----
   #    - chemical_concept
   
-  Chemist:
-    title: Chemist
-    is_a: Person
-    class_uri:
-    description: Chemist
-    annotations:
-      openbis_object: true
-      openbis_code: CHEM
-      openbis_label: Chemist
-    slots:
+  # Chemist:
+  #   title: Chemist
+  #   is_a: Person
+  #   class_uri:
+  #   description: Chemist
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: CHEM
+  #     openbis_label: Chemist
+  #   slots:
 
   Code:
     title: Code
@@ -368,14 +493,30 @@ classes:
       openbis_code: COMP
       openbis_label: Component
     slots:
+     # General info
+    #  - thumbnail (Dataset)
      - description
-     - empa_id
+     - manufacturer
      - model
      - serial_number
-     - manufacturer_name
+     - empa_id
      - receive_date
+     - location
+     - material_status
      - comments
-     # ---- Object properties ----
+     # Documentation
+    #  - photos
+    #  - manuals
+    #  - technical_specifications
+    #  - procurement_information
+    #  - other_attachments
+     # Properties
+     - actions_settings
+     - observables_settings
+     # Components
+     # Materials
+     # Accessories
+     # Logbook
 
   Cooldown:
     title: Cooldown
@@ -713,15 +854,16 @@ classes:
       openbis_code: ISTR
       openbis_label: Instrument
     slots:
-     - documentation_website
+     - description
+     - manufacturer
+     - model
+     - serial_number
      - empa_id
      - receive_date
-     - serial_number
-     - manufacturer_name
-     - room_id
+     - location
+     - material_status
+     - responsibles
      - comments
-     # ---- Object properties ----
-     - components
 
   LightIrradiation:
     title: Light Irradiation
@@ -1157,40 +1299,40 @@ classes:
      - wafer_substrate
      - process_step
   
-  Setting:
-    title: Setting
-    is_a: Thing
-    class_uri: 
-    description: Setting
-    annotations:
-      openbis_object: true
-      openbis_code: SETT
-      openbis_label: Setting
-    slots:
-     - angle_value
-     - angle_unit
-     - discharge_voltage_value
-     - discharge_voltage_unit
-     - current_value
-     - current_unit
-     - pressure_value
-     - pressure_unit
-     - voltage_value
-     - voltage_unit
-     - target_temperature
-     - temperature_value
-     - temperature_unit
-     - deposition_time_value
-     - deposition_time_unit
-     - stabilisation_time_value
-     - stabilisation_time_unit
-     - molecule_temperature_value
-     - molecule_temperature_unit
-     - substrate_temperature_value
-     - substrate_temperature_unit
-     - evaporator_number
-     # ---- Object properties ----
-     - component
+  # Setting:
+  #   title: Setting
+  #   is_a: Thing
+  #   class_uri: 
+  #   description: Setting
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: SETT
+  #     openbis_label: Setting
+  #   slots:
+  #    - angle_value
+  #    - angle_unit
+  #    - discharge_voltage_value
+  #    - discharge_voltage_unit
+  #    - current_value
+  #    - current_unit
+  #    - pressure_value
+  #    - pressure_unit
+  #    - voltage_value
+  #    - voltage_unit
+  #    - target_temperature
+  #    - temperature_value
+  #    - temperature_unit
+  #    - deposition_time_value
+  #    - deposition_time_unit
+  #    - stabilisation_time_value
+  #    - stabilisation_time_unit
+  #    - molecule_temperature_value
+  #    - molecule_temperature_unit
+  #    - substrate_temperature_value
+  #    - substrate_temperature_unit
+  #    - evaporator_number
+  #    # ---- Object properties ----
+  #    - component
   
   Simulation:
     title: Simulation
@@ -1307,29 +1449,32 @@ classes:
       openbis_code: SUBS
       openbis_label: Substance
     slots:
-     # ---- Object properties ----
-     #  - chemist
+     # General info
+     # - thumbnail (Dataset)
      - molecule
      - empa_number
      - batch
      - vial
      - evaporation_temperatures
-     - hazardous
-     - hazardous_specification
-     - dry
-     - fridge
-     - no_light
-     - no_oxygen
-     - other_storage_condition
-     - other_storage_condition_specification
-     - amount_value
-     - amount_unit
-     - chemist_molecule_name
+     - purity
+     - substance_type
+     - amount
+     - chemist_own_name
+     # Documentation
+     # - safety_datasheet (Dataset)
+     # - website (Dataset)
+     # - supplier_specifications (Dataset)
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
+     - material_status
+     # Supplier Info
      - supplier
      - synthesised_by
-     - stored_in
+     - supplier_own_name
+    #  - procurement_information (Dataset)
      - receive_date
-     - comments
   
   Supplier:
     title: Supplier
@@ -1414,6 +1559,7 @@ classes:
      - two_d_layer_impurities
      - two_d_layer_heterostructure_stack
      - two_d_layer_substrate
+     - two_d_layer_growth_method
      - dimensions
      - comments
      # Documentation
@@ -1513,6 +1659,38 @@ classes:
      - atomistic_models
      - codes
 
+  Wafer:
+    title: Wafer
+    is_a: Thing
+    class_uri:
+    description: Wafer
+    annotations:
+      openbis_object: true
+      openbis_code: WAFR
+      openbis_label: Wafer
+    slots:
+     # General info
+     - material
+     - face
+     - doping
+     - material_coating
+     - dimensions
+     - comments
+     # Documentation
+     # - website (Dataset)
+     # - supplier_specifications (Dataset)
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
+     - material_status
+     # Supplier Info
+     - supplier
+     - synthesised_by
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
+
   WaferSubstrate:
     title: Wafer Substrate
     is_a: Thing
@@ -1526,7 +1704,7 @@ classes:
      # General info
      - material
      - face
-     - coating
+     - material_coating
      - dimensions
      - comments
      # Documentation
@@ -1545,19 +1723,47 @@ classes:
     #  - procurement_information (Dataset)
      - receive_date
 
-  # Wire:
-  #   title: Wire
-  #   is_a: Thing
-  #   class_uri:
-  #   description: Wire
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: WIRE
-  #     openbis_label: Wire
-  #   slots:
-  #    - comments
+  Wire:
+    title: Wire
+    is_a: Thing
+    class_uri:
+    description: Wire
+    annotations:
+      openbis_object: true
+      openbis_code: WIRE
+      openbis_label: Wire
+    slots:
+     # General info
+     - material
+     - dimensions
+     - purity
+     - comments
+     # Documentation
+     # - website (Dataset)
+     # - supplier_specifications (Dataset)
+     # Storage location/conditions
+     - storage_location
+     - special_storage_conditions
+     - package_opening_date
+     - material_status
+     # Supplier Info
+     - supplier
+     - synthesised_by
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
   
   # ----------- Complex properties ------------
+
+  AmountQuantityValue:
+    title: Angle quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with amount unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - amount_unit
 
   AngleQuantityValue:
     title: Angle quantity value
@@ -1569,7 +1775,6 @@ classes:
      - has_value
      - has_angle_unit
      - type
-     
 
   AtomsPositions:
     title: Atoms positions
@@ -1581,10 +1786,10 @@ classes:
      - atom_symbol
      - coordinates
   
-  Coating:
-    title: Coating
+  MaterialCoating:
+    title: Material coating
     class_uri: 
-    description: Coating
+    description: Material coating
     annotations:
       openbis_object: false
     slots:
@@ -1609,8 +1814,19 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_current_unit
+     - value
+     - current_unit
+     - type
+  
+  DensityQuantityValue:
+    title: Density quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with density unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - density_unit
      - type
   
   DiameterQuantityValue:
@@ -1821,8 +2037,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_voltage_unit
+     - value
+     - voltage_unit
      - type
   
   WidthQuantityValue:
@@ -2229,6 +2445,16 @@ slots:
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Abstract
+  
+  accessories:
+    title: Accessories
+    description: Accessories
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Accessories
 
   acquisition_coordinate_x:
     title: Acquisition Coordinate X
@@ -2269,6 +2495,16 @@ slots:
     annotations:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Acknowledgement sentence
+  
+  actions_settings:
+    title: Actions settings
+    description: actions settings
+    range: Any
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Actions settings
 
   address:
     title: Address
@@ -2280,15 +2516,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Address
 
-  amount_value:
-    title: Amount (value)
-    description: Amount (value)
-    range: double
+  amount:
+    title: Amount
+    description: Amount
+    range: Amount
     slot_uri: 
     multivalued: false
     annotations:
-      openbis_type: REAL
-      openbis_label: Amount (value)
+      openbis_type: JSON
+      openbis_label: Amount
   
   amount_unit:
     title: Amount (unit)
@@ -2308,6 +2544,15 @@ slots:
   #   annotations:
   #     openbis_type: JSON
   #     openbis_label: Amount
+
+  analysers:
+    title: Analysers
+    description: Analysers
+    range: Any
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Analysers
 
   angle_value:
     title: Angle Value
@@ -2366,6 +2611,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Atom symbol
+  
+  auxiliary_components:
+    title: Auxiliary Components
+    description: Auxiliary Components
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Auxiliary
 
   band_gap_value:
     title: Band Gap (value)
@@ -2417,6 +2672,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Bias setpoint
+  
+  bias_voltage:
+    title: Bias Voltage
+    description: Bias Voltage
+    range: VoltageQuantityValue
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: JSON
+      openbis_label: Bias voltage
 
   bias_voltages:
     title: Bias Voltages
@@ -2534,25 +2799,15 @@ slots:
       openbis_type: REAL
       openbis_label: Charge
 
-  chemist_molecule_name:
-    title: Chemist Molecule Name
-    description: Chemist Molecule Name
+  chemist_own_name:
+    title: Chemist own name
+    description: Chemist own name
     range: string
     slot_uri: schema:alternateName
     multivalued: false
     annotations:
       openbis_type: VARCHAR
-      openbis_label: Molecule name (given by Chemist)
-
-  coating:
-    title: Coating
-    description: Coating
-    range: Coating
-    slot_uri: schema:comment
-    multivalued: false
-    annotations:
-      openbis_type: MULTILINE_VARCHAR
-      openbis_label: Comments
+      openbis_label: Name (given by Chemist)
 
   comments:
     title: Comments
@@ -2582,6 +2837,26 @@ slots:
     annotations:
       openbis_type: BOOLEAN
       openbis_label: Constrained
+  
+  consumables:
+    title: Consumables
+    description: Consumables
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Consumables
+  
+  control_data_acquisition:
+    title: Control and data acquisition
+    description: Control and data acquisition
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Control and Data Acquisition
 
   convergence_coefficient:
     title: Convergence Coefficient
@@ -2617,7 +2892,7 @@ slots:
     range: CrystalLatticeConstantQuantityValue
     multivalued: false
     annotations:
-      openbis_type: VARCHAR
+      openbis_type: JSON
       openbis_label: Lattice constant
   
   crystal_lattice_constant_unit:
@@ -2697,6 +2972,25 @@ slots:
     annotations:
       openbis_type: TIMESTAMP
       openbis_label: Datetime
+  
+  density:
+    title: Density
+    description: density
+    range: DensityQuantityValue
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Density
+  
+  density_unit:
+    title: Density (unit)
+    description: Density (unit)
+    range: DensityUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Density (unit)
 
   density_tolerance:
     title: Density Tolerance
@@ -2821,28 +3115,18 @@ slots:
     multivalued: false
     slot_uri:
     annotations:
-      openbis_type: XML (Spreadsheet)
+      openbis_type: JSON
       openbis_label: Dimensions
-
-  discharge_voltage_value:
-    title: Discharge Voltage (value)
-    description: Discharge Voltage (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Discharge voltage (value)
   
-  discharge_voltage_unit:
-    title: Discharge Voltage (unit)
-    description: Discharge Voltage (unit)
-    range: VoltageUnitsEnum
-    slot_uri:
+  discharge_current:
+    title: Discharge Current
+    description: discharge current
+    range: CurrentQuantityValue
+    slot_uri: 
     multivalued: false
     annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Discharge voltage (unit)
+      openbis_type: JSON
+      openbis_label: Discharge current
 
   discharge_voltage:
     title: Discharge Voltage
@@ -2874,6 +3158,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: DOI
+  
+  doping:
+    title: Doping
+    description: Doping
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Doping
 
   dopants:
     title: Dopants
@@ -3083,6 +3377,24 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Energy barrier
+  
+  ep_percentage:
+    title: EP(%)
+    description: EP(%)
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: EP(%)
+  
+  evaporator_i_value:
+    title: I-value
+    description: I-value
+    range: double
+    multivalued: false
+    annotations:
+      openbis_type: REAL
+      openbis_label: I-value
 
   evaporator_number:
     title: Evaporator Number
@@ -3092,15 +3404,24 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: Evaporator number
-
-  evaporator_slot:
-    title: Evaporator Slot
-    description: Evaporator slot
-    range: EvaporatorSlot
+  
+  evaporator_p_value:
+    title: P-value
+    description: P-value
+    range: double
     multivalued: false
     annotations:
-      openbis_type: JSON
-      openbis_label: Evaporation slot
+      openbis_type: REAL
+      openbis_label: P-value
+
+  evaporator_slot:
+    title: Slot
+    description: Slot
+    range: integer
+    multivalued: false
+    annotations:
+      openbis_type: INTEGER
+      openbis_label: Slot
 
   evaporation_temperatures:
     title: Evaporation Temperatures
@@ -3108,7 +3429,7 @@ slots:
     multivalued: true
     description: Evaporation Temperatures
     annotations:
-      openbis_type: JSON
+      openbis_type: XML (Spreadsheet)
       openbis_label: Evaporation temperatures
 
   exists:
@@ -3140,6 +3461,26 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Face
+  
+  filament:
+    title: Filament
+    description: Filament
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Filament
+  
+  filament_current:
+    title: Filament current
+    description: Filament current
+    range: CurrentQuantityValue
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Filament current
 
   filepath_executable:
     title: Filepath Executable
@@ -3187,6 +3528,15 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Funder name
+  
+  gauges:
+    title: Gauges
+    description: Gauges
+    range: Any
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Gauges
 
   geometry_constraints:
     title: Geometry Constraints
@@ -3471,6 +3821,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Level of theory (parameters)
+  
+  logbook_entries:
+    title: Logbook Entries
+    description: Logbook Entries
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Logbook Entries
 
   # level_theory:
   #   title: Level of Theory
@@ -3491,6 +3851,16 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Material
   
+  material_coating:
+    title: Material coating
+    description: Material coating
+    range: MaterialCoating
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Material Coating
+  
   material_status:
     title: Material status
     description: Material status
@@ -3510,6 +3880,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Measurements folder path
+  
+  mechanical_components:
+    title: Mechanical Components
+    description: Mechanical Components
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Mechanical Components
 
   method:
     title: Method
@@ -3641,6 +4021,16 @@ slots:
     annotations:
       openbis_type: INTEGER
       openbis_label: Number of 2D layers
+  
+  observables_settings:
+    title: Observables settings
+    description: observables settings
+    range: Any
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Observables settings
 
   on_site_hubbard_repulsion_u_value:
     title: On-site Hubbard Repulsion U (value)
@@ -3746,6 +4136,24 @@ slots:
   #     openbis_type: VARCHAR
   #     openbis_label: PID controller values
 
+  ports_valves:
+    title: Ports & Valves
+    description: Ports & Valves
+    range: Any
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Ports & Valves
+  
+  preparation_tools:
+    title: Preparation Tools
+    description: Preparation Tools
+    range: Any
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Preparation Tools
+
   pressure_value:
     title: Pressure (value)
     description: Pressure (value)
@@ -3805,6 +4213,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Protocol template
+  
+  pumps:
+    title: Pumps
+    description: Pumps
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Pumps
+  
+  purity:
+    title: Purity
+    description: Purity
+    range: string
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Purity
 
   q_factor:
     title: Q-factor
@@ -3854,6 +4282,15 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Resonance frequency
+  
+  responsibles:
+    title: Responsibles
+    description: responsibles
+    range: Person
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Responsibles
 
   repository_url:
     title: Repository URL
@@ -3885,6 +4322,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Sampling rate
+
+  serial_number:
+    title: Serial Number
+    description: serial number
+    range: string
+    slot_uri: ncit:NCIT_C73518
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Serial number
   
   shape:
     title: Shape
@@ -3896,16 +4343,6 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Shape
 
-  serial_number:
-    title: Serial Number
-    description: serial number
-    range: string
-    slot_uri: ncit:NCIT_C73518
-    multivalued: false
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Serial number
-
   short_name:
     title: Short name
     description: Short name
@@ -3915,6 +4352,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Short name
+  
+  single_crystals:
+    title: Single Crystals
+    description: Single Crystals
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Single Crystals
 
   smiles:
     title: SMILES
@@ -3945,6 +4392,15 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Specifications
+
+  substance_type:
+    title: Substance type
+    description: Substance type
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Substance type
 
   substrate_temperature:
     title: Substrate Temperature
@@ -4043,6 +4499,16 @@ slots:
     annotations:
       openbis_type: TIMESTAMP
       openbis_label: Start time
+  
+  stm_components:
+    title: STM components
+    description: STM components
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: STM
 
   state:
     title: State
@@ -4099,7 +4565,7 @@ slots:
     multivalued: false
     annotations:
       openbis_type: VARCHAR
-      openbis_label: Supplier own name
+      openbis_label: Name (given by the Supplier)
     
   synthesised_by:
     title: Synthesised By
@@ -4170,6 +4636,16 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: thickness unit
+  
+  tips_sensors:
+    title: Tips/Sensors
+    description: Tips/Sensors
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Tips/Sensors
 
   # tip_preparation_type:
   #   title: Tip Preparation Type
@@ -4232,7 +4708,7 @@ slots:
     multivalued: true
     annotations:
       openbis_type: XML (Spreadsheet)
-      openbis_label: Heterostructure stack
+      openbis_label: Heterostructure stack (Top to Bottom)
   
   two_d_layer_impurities:
     title: 2D layer material impurities
@@ -4336,6 +4812,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Username
   
+  vacuum_chambers:
+    title: Vacuum Chambers
+    description: Vacuum Chambers
+    range: Any
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Vacuum Chambers
+  
   value:
     title: Value
     description: Value
@@ -4396,6 +4881,16 @@ slots:
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Voltage (unit)
+  
+  wafer_samples:
+    title: Wafer Samples
+    description: Wafer Samples
+    range: Any
+    slot_uri:
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Wafer Samples
 
   weight_after:
     title: Weight After
@@ -4742,6 +5237,16 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Instrument
+
+  location:
+    title: Location
+    range: Location
+    description: location
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Location
   
   manufacturer_name:
     title: Manufacturer name
@@ -5232,6 +5737,17 @@ enums:
         description: microampere
         annotations:
           openbis_label: Microampere
+  
+  DensityUnitsEnum:
+    description: density units
+    annotations:
+      openbis_label: Density units vocabulary
+    permissible_values:
+      g_cm3:
+        meaning: unit:GM-PER-CentiM3
+        description: gram per cubic centemetre
+        annotations:
+          openbis_label: Gram per Cubic Centemetre
   
   DefaultObjectViewEnum:
     description: default object view vocabulary
