@@ -183,7 +183,7 @@ class OpenBisDatabase:
         return property_type_dict
     
     def create_property_type(self, property_type: str) -> str:
-        if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)"]:
+        if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)", "OBJECT (CHILDREN)"]:
             # TODO: REMOVE THIS ON VERSION 6.7+
             if property_type == "name":
                 property_type = "$name"

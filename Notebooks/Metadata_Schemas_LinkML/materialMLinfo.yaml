@@ -68,6 +68,17 @@ classes:
       openbis_label: Cryostat
     slots:
 
+  CurrentObservable:
+    title: Current Observable
+    is_a: Observable
+    class_uri:
+    description: Current Observable
+    annotations:
+      openbis_object: true
+      openbis_code: CURR
+      openbis_label: Current Observable
+    slots:
+
   Electronics:
     title: Electronics
     is_a: Component
@@ -77,6 +88,17 @@ classes:
       openbis_object: true
       openbis_code: ELTR
       openbis_label: Electronics
+    slots:
+  
+  ElementalCompositionObservable:
+    title: Elemental Composition Observable
+    is_a: Observable
+    class_uri:
+    description: Elemental Composition Observable
+    annotations:
+      openbis_object: true
+      openbis_code: ELEM
+      openbis_label: Elemental Composition Observable
     slots:
 
   Evaporator:
@@ -106,6 +128,39 @@ classes:
       - evaporator_p_value
       - evaporator_i_value
       - ep_percentage
+  
+  FluxObservable:
+    title: Flux Observable
+    is_a: Observable
+    class_uri:
+    description: Flux Observable
+    annotations:
+      openbis_object: true
+      openbis_code: FLUX
+      openbis_label: Flux Observable
+    slots:
+  
+  ForceObservable:
+    title: Force Observable
+    is_a: Observable
+    class_uri:
+    description: Force Observable
+    annotations:
+      openbis_object: true
+      openbis_code: FORC
+      openbis_label: Force Observable
+    slots:
+  
+  InductanceObservable:
+    title: Inductance Observable
+    is_a: Observable
+    class_uri:
+    description: Inductance Observable
+    annotations:
+      openbis_object: true
+      openbis_code: INDU
+      openbis_label: Inductance Observable
+    slots:
 
   IonGauge:
     title: Ion Gauge
@@ -181,6 +236,39 @@ classes:
     slots:
       - target_temperature
   
+  PHValueObservable:
+    title: pH Value Observable
+    is_a: Observable
+    class_uri:
+    description: pH Value Observable
+    annotations:
+      openbis_object: true
+      openbis_code: PHVA
+      openbis_label: pH Value Observable
+    slots:
+  
+  PressureObservable:
+    title: Pressure Observable
+    is_a: Observable
+    class_uri:
+    description: Pressure Observable
+    annotations:
+      openbis_object: true
+      openbis_code: PRES
+      openbis_label: Pressure Observable
+    slots:
+  
+  ResistanceObservable:
+    title: Resistance Observable
+    is_a: Observable
+    class_uri:
+    description: Resistance Observable
+    annotations:
+      openbis_object: true
+      openbis_code: RESI
+      openbis_label: Resistance Observable
+    slots:
+  
   ScrollPump:
     title: Scroll Pump
     is_a: Component
@@ -190,6 +278,17 @@ classes:
       openbis_object: true
       openbis_code: SCLP
       openbis_label: Scroll Pump
+    slots:
+  
+  SpeedObservable:
+    title: Speed Observable
+    is_a: Observable
+    class_uri:
+    description: Speed Observable
+    annotations:
+      openbis_object: true
+      openbis_code: SPED
+      openbis_label: Speed Observable
     slots:
 
   SputterGun:
@@ -215,6 +314,17 @@ classes:
       openbis_object: true
       openbis_code: SATP
       openbis_label: STM AFM Tip
+    slots:
+
+  TemperatureObservable:
+    title: Temperature Observable
+    is_a: Observable
+    class_uri:
+    description: Temperature Observable
+    annotations:
+      openbis_object: true
+      openbis_code: TEMP
+      openbis_label: Temperature Observable
     slots:
   
   Thyracont:
@@ -248,6 +358,17 @@ classes:
       openbis_object: true
       openbis_code: VALV
       openbis_label: Valve
+    slots:
+  
+  VoltageObservable:
+    title: Voltage Observable
+    is_a: Observable
+    class_uri:
+    description: Voltage Observable
+    annotations:
+      openbis_object: true
+      openbis_code: VOLT
+      openbis_label: Voltage Observable
     slots:
 
   # Cryostat:
@@ -434,8 +555,10 @@ classes:
       openbis_label: Annealing
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - description
+     - duration
+     - target_temperature
+     - component
      - comments
      # ---- Object properties ----
      - settings
@@ -567,8 +690,7 @@ classes:
       openbis_label: Coating
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - duration
      - comments
      # ---- Object properties ----
      - settings
@@ -622,8 +744,11 @@ classes:
       openbis_label: Cooldown
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - description
+     - duration
+     - target_temperature
+     - cryogen
+     - component
      - comments
      # ---- Object properties ----
      - settings
@@ -679,12 +804,13 @@ classes:
     #  - thumbnail (Dataset)
      - crystal_concept
      - dimensions
+     - reference_number
      - comments
      # Documentation
     #  - supplier_specifications
     #  - measurement_reports
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - sample_plate
@@ -707,8 +833,7 @@ classes:
       openbis_label: Delamination
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - duration
      - comments
      # ---- Object properties ----
      - settings
@@ -725,8 +850,9 @@ classes:
       openbis_label: Deposition
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - duration
+     - substrate_temperature
+     - component
      - comments
      # ---- Object properties ----
      - settings
@@ -750,7 +876,7 @@ classes:
       # - supplier_specifications (Dataset)
       # - measurement_reports (Dataset)
       # Storage location/conditions
-      - storage_location
+      - location
       - special_storage_conditions
       # - package_opening_date
       - sample_plate
@@ -774,12 +900,15 @@ classes:
       openbis_label: Dosing
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - description
+     - duration
+     - dosing_gas
+     - pressure
+     - substrate_temperature
+     - component
      - comments
      # ---- Object properties ----
      - settings
-     - chemical
      - sample
 
   Draft:
@@ -1132,9 +1261,10 @@ classes:
       openbis_code: OBSV
       openbis_label: Observable
     slots:
-     - channel_data
-     - sampling_rate
-     - setting
+     - description
+     - channel_name
+     - component
+     - comments
   
   # OneDMeasurement:
   #   title: 1D Measurement
@@ -1230,6 +1360,24 @@ classes:
       openbis_code: PREP
       openbis_label: Preparation
     slots:
+     - description
+     - process_steps
+     - comments
+  
+  Process:
+    title: Process
+    is_a: Thing
+    class_uri: 
+    description: Process (Contains multiple process steps)
+    annotations:
+      openbis_object: true
+      openbis_code: PROC
+      openbis_label: Process
+    slots:
+     - description
+     - process_code
+     - instrument
+     - process_steps_settings
      - comments
   
   ProcessStep:
@@ -1242,14 +1390,12 @@ classes:
       openbis_code: PRST
       openbis_label: Process Step
     slots:
-     - comments
-     # ---- Object properties ----
+     - description
+     - process_code
      - actions
      - observables
-     - preparation
-     - process_step
-     - protocol
      - instrument
+     - comments
 
   Protocol:
     title: Protocol
@@ -1354,8 +1500,7 @@ classes:
       openbis_label: Rinse
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - duration
      - comments
      # ---- Object properties ----
      - settings
@@ -1462,8 +1607,13 @@ classes:
       openbis_label: Sputtering
       is_action: true
     slots:
-     - duration_value
-     - duration_unit
+     - duration
+     - sputter_ion
+     - pressure
+     - current
+     - angle
+     - substrate_temperature
+     - component
      - comments
      # ---- Object properties ----
      - settings
@@ -1506,7 +1656,7 @@ classes:
   #     # - supplier_specifications (Dataset)
   #     # - measurement_reports (Dataset)
   #     # Storage location/conditions
-  #     - storage_location
+  #     - location
   #     - special_storage_conditions
   #     # - package_opening_date
   #     - sample_plate
@@ -1558,7 +1708,7 @@ classes:
      # - website (Dataset)
      # - supplier_specifications (Dataset)
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - object_status
@@ -1659,7 +1809,7 @@ classes:
      # - supplier_specifications (Dataset)
      # - measurement_reports (Dataset)
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - sample_plate
@@ -1773,7 +1923,7 @@ classes:
      # - website (Dataset)
      # - supplier_specifications (Dataset)
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - object_status
@@ -1804,7 +1954,7 @@ classes:
      # - supplier_specifications (Dataset)
      # - measurement_reports (Dataset)
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - sample_plate
@@ -1835,7 +1985,7 @@ classes:
      # - website (Dataset)
      # - supplier_specifications (Dataset)
      # Storage location/conditions
-     - storage_location
+     - location
      - special_storage_conditions
      - package_opening_date
      - object_status
@@ -1865,8 +2015,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_angle_unit
+     - value
+     - angle_unit
      - type
 
   AtomsPositions:
@@ -2038,8 +2188,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_pressure_unit
+     - value
+     - pressure_unit
      - type
   
   ChannelTimeSeries:
@@ -2646,16 +2796,6 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Analysers
-
-  angle_value:
-    title: Angle Value
-    description: Angle value
-    range: double
-    slot_uri: 
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Angle value
   
   angle_unit:
     title: Angle Unit
@@ -2667,15 +2807,15 @@ slots:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Angle unit
 
-  # angle:
-  #   title: Angle
-  #   description: Angle
-  #   range: AngleQuantityValue
-  #   slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
-  #   multivalued: false
-  #   annotations:
-  #     openbis_type: JSON
-  #     openbis_label: Angle
+  angle:
+    title: Angle
+    description: Angle
+    range: AngleQuantityValue
+    slot_uri: emmo:EMMO_f3dd74c0_f480_49e8_9764_33b78638c235
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Angle
   
   atomistic_model_structure:
     title: Structure
@@ -2997,6 +3137,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Coverage
   
+  cryogen:
+    title: Cryogen
+    description: Cooling agent used, if any (e.g. LN2, He, water)
+    range: string
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Cryogen
+  
   crystal_lattice_constant:
     title: Crystal lattice constant
     description: crystal lattice constant
@@ -3288,6 +3437,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Dopants
+  
+  dosing_gas:
+    title: Dosing gas
+    description: Dosing gas
+    range: Substance
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Dosing gas
 
   down_densities:
     title: Down Densitites
@@ -3335,35 +3494,36 @@ slots:
       openbis_type: BOOLEAN
       openbis_label: Dry
 
-  duration_value:
-    title: Duration (value)
-    description: Duration (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Duration (value)
-
-  duration_unit:
-    title: Duration (unit)
-    description: Duration (unit)
-    range: DurationUnitsEnum
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Duration (unit)
-
-  # duration:
-  #   title: Duration
-  #   description: Duration
-  #   range: DurationQuantityValue
-  #   slot_uri: ncit:NCIT_C25330
+  # duration_value:
+  #   title: Duration (value)
+  #   description: Duration (value)
+  #   range: double
+  #   slot_uri:
   #   multivalued: false
   #   annotations:
-  #     openbis_type: JSON
-  #     openbis_label: Duration
+  #     openbis_type: REAL
+  #     openbis_label: Duration (value)
+
+  # duration_unit:
+  #   title: Duration (unit)
+  #   description: Duration (unit)
+  #   range: DurationUnitsEnum
+  #   slot_uri:
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: CONTROLLEDVOCABULARY
+  #     openbis_label: Duration (unit)
+
+  duration:
+    title: Duration
+    description: Duration
+    range: string
+    pattern: "^([0-9]+ days )?[0-2][0-9]:[0-5][0-9]:[0-5][0-9]$"
+    slot_uri: ncit:NCIT_C25330
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Duration
 
   email:
     title: Email
@@ -3427,7 +3587,7 @@ slots:
     title: Energies
     description: Energies
     range: QuantityValue
-    multivalued: true
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Energies
@@ -4274,15 +4434,15 @@ slots:
       openbis_type: OBJECT
       openbis_label: Preparation Tools
 
-  pressure_value:
-    title: Pressure (value)
-    description: Pressure (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Pressure (value)
+  # pressure_value:
+  #   title: Pressure (value)
+  #   description: Pressure (value)
+  #   range: double
+  #   slot_uri:
+  #   multivalued: false
+  #   annotations:
+  #     openbis_type: REAL
+  #     openbis_label: Pressure (value)
   
   pressure_unit:
     title: Pressure (unit)
@@ -4294,15 +4454,45 @@ slots:
       openbis_type: CONTROLLEDVOCABULARY
       openbis_label: Pressure (unit)
 
-  # pressure:
-  #   title: Pressure
-  #   description: Pressure
-  #   range: PressureQuantityValue
-  #   slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
-  #   multivalued: false
-  #   annotations:
-  #     openbis_type: JSON
-  #     openbis_label: Pressure
+  pressure:
+    title: Pressure
+    description: Pressure
+    range: PressureQuantityValue
+    slot_uri: emmo:EMMO_50a44256_9dc5_434b_bad4_74a4d9a29989
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Pressure
+
+  process_code:
+    title: Process code
+    description: Process code
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Process code
+  
+  process_steps:
+    title: Process steps
+    description: Process steps
+    range: ProcessStep
+    slot_uri: 
+    multivalued: true
+    annotations:
+      openbis_type: OBJECT (CHILDREN)
+      openbis_label: Process steps
+
+  process_steps_settings:
+    title: Process steps settings
+    description: Process steps settings
+    range: Any
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Process steps settings
 
   procurement_information:
     title: Procurement information
@@ -4512,6 +4702,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Specifications
+  
+  sputter_ion:
+    title: Ion
+    description: Type of ion used (e.g. Ar+, Ne+)
+    range: string
+    slot_uri: sio:SIO_000090
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Ion
 
   substance_type:
     title: Substance type
@@ -4530,26 +4730,6 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Substrate temperature
-  
-  substrate_temperature_value:
-    title: Substrate Temperature (value)
-    description: Substrate Temperature (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Substrate temperature (value)
-  
-  substrate_temperature_unit:
-    title: Substrate Temperature (unit)
-    description: Substrate Temperature (unit)
-    range: TemperatureUnitsEnum
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Substrate temperature (unit)
 
   sum_formula:
     title: Sum Formula
@@ -4662,7 +4842,7 @@ slots:
     title: Substrates
     description: substrates
     range: SubstratesDetails
-    multivalued: true
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: Substrates
@@ -4889,7 +5069,7 @@ slots:
     title: 2D Layers
     description: details about the 2D layers
     range: TwoDLayersDetails
-    multivalued: true
+    multivalued: false
     annotations:
       openbis_type: JSON
       openbis_label: 2D layers
