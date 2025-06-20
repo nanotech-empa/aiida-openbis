@@ -558,7 +558,7 @@ class Spm:
                 parameters["z-controller_setpoint"] = (np.float64(setpoint_values[0]), setpoint_values[1])
             
             if self.measurement_type == "dI/dV image":
-                label['z-controller (status)'] = '%.2f %s' % parameters["z-controller_status"]
+                label['z-controller (status)'] = parameters["z-controller_status"]
                 label['z-controller (setpoint)'] = '%.2f %s' % parameters["z-controller_setpoint"]
                 label['lock-in (amplitude)'] = '%.2f %s' % parameters["lock_in_amplitude"]
                 label['lock-in (frequency)'] = '%.2f %s' % parameters["lock_in_frequency"]

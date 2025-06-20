@@ -632,6 +632,7 @@ class ObjectSelectionWidget(ipw.HBox):
         self.children = widgets_list
     
     def load_dropdown_box(self, source = "openbis"):
+        print(self.schema_object_type)
         self.type = DATA_MODEL["classes"][self.schema_object_type]["annotations"]["openbis_label"].replace(" ", "_").upper()
         placeholder = DATA_MODEL["classes"][self.schema_object_type]["title"]
         

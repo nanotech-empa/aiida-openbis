@@ -370,134 +370,16 @@ classes:
       openbis_code: VOLT
       openbis_label: Voltage Observable
     slots:
-
-  # Cryostat:
-  #   title: Cryostat
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Cryostat
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CRYO
-  #     openbis_label: Cryostat
-  #   slots:
-  
-  # DepositionTool:
-  #   title: Deposition Tool
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Deposition Tool
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: DEPT
-  #     openbis_label: Deposition Tool
-  #   slots:
-  
-  # Electronics:
-  #   title: Electronics
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Electronics
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: ELET
-  #     openbis_label: Electronics
-  #   slots:
-
-  # Gauge:
-  #   title: Gauge
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Gauge
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: GAUG
-  #     openbis_label: Gauge
-  #   slots:
-  
-  # Heater:
-  #   title: Heater
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Heater
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: HTER
-  #     openbis_label: Heater
-  #   slots:
-  
-  # IonBeam:
-  #   title: Ion Beam
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Ion Beam
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: IBEA
-  #     openbis_label: Ion Beam
-  #   slots:
-
-  # Pump:
-  #   title: Pump
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Pump
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: PUMP
-  #     openbis_label: Pump
-  #   slots:
-  
-  # Sensor:
-  #   title: Sensor
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Sensor
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: SENS
-  #     openbis_label: Sensor
-  #   slots:
-  
-  # THzSTM:
-  #   title: THz STM
-  #   is_a: Instrument
-  #   class_uri: 
-  #   description: THz STM
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: TSTM
-  #     openbis_label: THz STM
-  #   slots:
-  
-  # TipSTMAFM:
-  #   title: Tip STM-AFM
-  #   is_a: Instrument
-  #   class_uri: 
-  #   description: Tip STM-AFM
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: TSPM
-  #     openbis_label: Tip STM-AFM
-  #   slots:
-  
-  # VacuumChamber:
-  #   title: Vacuum Chamber
-  #   is_a: Component
-  #   class_uri: 
-  #   description: Vacuum Chamber
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: VCCH
-  #     openbis_label: Vacuum Chamber
-  #   slots:
   
   # -------------------
 
   Any:
+    title: Any
     class_uri: linkml:Any
     annotations:
       openbis_object: false
+      openbis_CODE: Not used
+      openbis_label: Not used
 
   Thing:
     title: Thing
@@ -559,9 +441,8 @@ classes:
      - duration
      - target_temperature
      - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   AtomisticModel:
@@ -608,62 +489,6 @@ classes:
      - atomistic_models
      - codes
 
-  # CanGasBottle:
-  #   title: Can Gas Bottle
-  #   is_a: Thing
-  #   class_uri: 
-  #   description: Bottle/Can of Gas
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CGAS
-  #     openbis_label: Bottle of Gas
-  #   slots:
-  #    - description
-  #    - comments
-  #    - state
-  #    - pressure_value
-  #    - pressure_unit
-  #    - supplier
-  #    # ---- Object properties ----
-
-  # ChemicalConcept:
-  #   title: Chemical Concept
-  #   is_a: Thing
-  #   class_uri:
-  #   description: Chemical concept
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CHCO
-  #     openbis_label: Chemical Concept
-  #   slots:
-  #    - sum_formula
-  #    - comments
-
-  # Chemical:
-  #   title: Chemical
-  #   is_a: Thing
-  #   class_uri:
-  #   description: Chemical
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CHRE
-  #     openbis_label: Chemical
-  #   slots:
-  #    - comments
-  #    # ---- Object properties ----
-  #    - chemical_concept
-  
-  # Chemist:
-  #   title: Chemist
-  #   is_a: Person
-  #   class_uri:
-  #   description: Chemist
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CHEM
-  #     openbis_label: Chemist
-  #   slots:
-
   Code:
     title: Code
     is_a: Thing
@@ -675,6 +500,7 @@ classes:
       openbis_label: Code
     slots:
      - description
+     - version
      - filepath_executable
      - repository_url
      - comments
@@ -691,9 +517,8 @@ classes:
       is_action: true
     slots:
      - duration
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
   
   Component:
@@ -749,27 +574,9 @@ classes:
      - target_temperature
      - cryogen
      - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
-  
-  # Cracker:
-  #   title: Cracker
-  #   is_a: Thing
-  #   class_uri: 
-  #   description: Cracker
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: CRAC
-  #     openbis_label: Cracker
-  #   slots:
-  #   - duration
-  #   - comments
-  #   # ---- Object properties ----
-  #   - settings
-  #   - sample
-  #   - chemical
   
   CrystalConcept:
     title: Crystal Concept
@@ -784,7 +591,7 @@ classes:
      # General info
      - face
      - material
-     - crystal_lattice_constant
+     - crystal_lattice_parameters
      - crystal_space_group
      - comments
      # Documentation
@@ -834,9 +641,8 @@ classes:
       is_action: true
     slots:
      - duration
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   Deposition:
@@ -853,9 +659,8 @@ classes:
      - duration
      - substrate_temperature
      - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - substance
      - sample
   
@@ -906,9 +711,8 @@ classes:
      - pressure
      - substrate_temperature
      - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   Draft:
@@ -952,9 +756,8 @@ classes:
       openbis_label: Etching
       is_action: true
     slots:
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   FieldEmission:
@@ -968,9 +771,8 @@ classes:
       openbis_label: Field emission
       is_action: true
     slots:
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   # FillCryostat:
@@ -1003,9 +805,8 @@ classes:
       openbis_label: Fishing
       is_action: true
     slots:
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   GeometryOptimisation:
@@ -1044,8 +845,7 @@ classes:
     slots:
      - project_id
      - acknowledgement_sentence
-     - budget_value
-     - budget_currency
+     - budget
      - start_date
      - end_date
      - funder_name
@@ -1098,9 +898,8 @@ classes:
       openbis_label: Light Irradiation
       is_action: true
     slots:
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
   
   Location:
@@ -1193,9 +992,8 @@ classes:
       openbis_label: Mechanical Pressing
       is_action: true
     slots:
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   MinimumEnergyPotential:
@@ -1266,6 +1064,22 @@ classes:
      - component
      - comments
   
+  Organisation:
+    title: Organisation
+    is_a: Thing
+    class_uri: schema:Organization
+    description: Organisation
+    annotations:
+      openbis_object: true
+      openbis_code: ORGA
+      openbis_label: Organisation
+    slots:
+     - address
+     - description
+     - email
+     - work_phone
+     - organisation
+  
   # OneDMeasurement:
   #   title: 1D Measurement
   #   is_a: Simulation
@@ -1296,6 +1110,7 @@ classes:
   #    - settings
   #    - measurement_session
   #    - sample
+
 
   PDOS:
     title: PDOS
@@ -1332,7 +1147,7 @@ classes:
      - work_phone
      - work_status
      # ---- Object properties ----
-     - institutions
+     - organisations
 
   PotentialEnergyCalculation:
     title: Potential Energy Calculation
@@ -1501,6 +1316,8 @@ classes:
       is_action: true
     slots:
      - duration
+     - component
+     - component_settings
      - comments
      # ---- Object properties ----
      - settings
@@ -1518,7 +1335,7 @@ classes:
     slots:
      - comments
      # ---- Object properties ----
-     - institution
+     - organisation
 
   Sample:
     title: Sample
@@ -1536,41 +1353,6 @@ classes:
      - two_d_layer_material
      - wafer_substrate
      - process_step
-  
-  # Setting:
-  #   title: Setting
-  #   is_a: Thing
-  #   class_uri: 
-  #   description: Setting
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: SETT
-  #     openbis_label: Setting
-  #   slots:
-  #    - angle_value
-  #    - angle_unit
-  #    - discharge_voltage_value
-  #    - discharge_voltage_unit
-  #    - current_value
-  #    - current_unit
-  #    - pressure_value
-  #    - pressure_unit
-  #    - voltage_value
-  #    - voltage_unit
-  #    - target_temperature
-  #    - temperature_value
-  #    - temperature_unit
-  #    - deposition_time_value
-  #    - deposition_time_unit
-  #    - stabilisation_time_value
-  #    - stabilisation_time_unit
-  #    - molecule_temperature_value
-  #    - molecule_temperature_unit
-  #    - substrate_temperature_value
-  #    - substrate_temperature_unit
-  #    - evaporator_number
-  #    # ---- Object properties ----
-  #    - component
   
   Simulation:
     title: Simulation
@@ -1594,6 +1376,8 @@ classes:
       openbis_code: SOFT
       openbis_label: Software
     slots:
+     - description
+     - version
      - comments
 
   Sputtering:
@@ -1614,9 +1398,8 @@ classes:
      - angle
      - substrate_temperature
      - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
   
   # SRD:
@@ -1667,20 +1450,6 @@ classes:
   #     - supplier_own_name
   #     #  - procurement_information (Dataset)
   #     - receive_date
-
-  Storage:
-    title: Storage
-    is_a: Thing
-    class_uri: ncit:NCIT_C16143
-    description: Storage
-    annotations:
-      openbis_object: true
-      openbis_code: STRG
-      openbis_label: Storage Custom
-    slots:
-     - room_id
-     - comments
-     # ---- Object properties ----
   
   Substance:
     title: Substance
@@ -1694,7 +1463,7 @@ classes:
     slots:
      # General info
      # - thumbnail (Dataset)
-     - molecule
+     - molecules
      - empa_number
      - batch
      - vial
@@ -1863,9 +1632,10 @@ classes:
       openbis_label: Unclassified action
       is_action: true
     slots:
+     - duration
+     - component
+     - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   UnclassifiedSimulation:
@@ -1997,6 +1767,15 @@ classes:
      - receive_date
   
   # ----------- Complex properties ------------
+  ActionsSettings:
+    title: Action settings
+    class_uri: 
+    description: Settings for the action
+    annotations:
+      openbis_object: false
+    slots:
+     - action_type
+     - action_properties
 
   AmountQuantityValue:
     title: Angle quantity value
@@ -2029,26 +1808,26 @@ classes:
      - atom_symbol
      - coordinates
   
-  MaterialCoating:
-    title: Material coating
-    class_uri: 
-    description: Material coating
-    annotations:
-      openbis_object: false
-    slots:
-     - material
-     - face
-     - thickness
-    
-  CrystalLatticeConstantQuantityValue:
-    title: Crystal lattice constant quantity value
+  BudgetQuantityValue:
+    title: Budget quantity value
     class_uri: qudt:quantityValue
-    description: Value together with diameter unit
+    description: Value together with currency
     annotations:
       openbis_object: false
     slots:
      - value
-     - crystal_lattice_constant_unit
+     - budget_currency
+     - type
+    
+  CrystalLatticeParametersQuantityValue:
+    title: Crystal lattice parameters (quantity value)
+    class_uri: qudt:quantityValue
+    description: Crystal lattice parameters (values together with the units)
+    annotations:
+      openbis_object: false
+    slots:
+     - values
+     - crystal_lattice_constant_units
 
   CurrentQuantityValue:
     title: Current quantity value
@@ -2106,17 +1885,6 @@ classes:
      - has_duration_unit
      - type
 
-  # EvaporatorSlot:
-  #   title: Evaporator slot
-  #   class_uri:
-  #   description: Evaporator slot
-  #   annotations:
-  #     openbis_object: false
-  #   slots:
-  #    - evaporator_number
-  #    - details
-     
-
   EvaporationTemperature:
     title: Evaporation temperature
     description: evaporation temperature details
@@ -2170,17 +1938,39 @@ classes:
      - has_mass_unit
      - type
   
-  RateQuantityValue:
-    title: Rate quantity value
-    class_uri: qudt:quantityValue
-    description: Value together with rate unit
+  MaterialCoating:
+    title: Material coating
+    class_uri: 
+    description: Material coating
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_rate_unit
-     - type
-
+     - material
+     - face
+     - thickness
+  
+  ObservableReading:
+    title: Observable reading
+    class_uri: 
+    description: Observable reading
+    annotations:
+      openbis_object: false
+    slots:
+     - reading_unit
+     - reading_source
+     - reading_variable
+  
+  ObservablesSettings:
+    title: Observables settings
+    class_uri: 
+    description: Settings for the observables
+    annotations:
+      openbis_object: false
+    slots:
+     - observable_type
+     - observable_properties
+     - observable_readings
+  
   PressureQuantityValue:
     title: Pressure quantity value
     class_uri: qudt:quantityValue
@@ -2190,6 +1980,17 @@ classes:
     slots:
      - value
      - pressure_unit
+     - type
+  
+  RateQuantityValue:
+    title: Rate quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with rate unit
+    annotations:
+      openbis_object: false
+    slots:
+     - has_value
+     - has_rate_unit
      - type
   
   ChannelTimeSeries:
@@ -2739,10 +2540,30 @@ slots:
       openbis_type: MULTILINE_VARCHAR
       openbis_label: Acknowledgement sentence
   
+  action_type:
+    title: Action type
+    description: action type
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Action type
+  
+  action_properties:
+    title: Action properties
+    description: action properties
+    range: string
+    slot_uri: 
+    multivalued: true
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Action properties
+  
   actions_settings:
     title: Actions settings
     description: actions settings
-    range: Any
+    range: ActionsSettings
     slot_uri: 
     multivalued: false
     annotations:
@@ -2925,16 +2746,6 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Bias voltages
-
-  budget_value:
-    title: Budget (value)
-    description: budget (value)
-    range: double
-    slot_uri: 
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Budget (value)
   
   budget_currency:
     title: Budget (currency)
@@ -2949,7 +2760,7 @@ slots:
   budget:
     title: Budget
     description: budget
-    range: QuantityValue
+    range: BudgetQuantityValue
     slot_uri: ncit:NCIT_C60757
     multivalued: false
     annotations:
@@ -3061,6 +2872,15 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Main category
   
+  component_settings:
+    title: Component settings
+    description: Component settings
+    range: Any
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Component settings
+  
   component_sub_category:
     title: Sub category
     description: component sub category
@@ -3146,23 +2966,23 @@ slots:
       openbis_type: VARCHAR
       openbis_label: Cryogen
   
-  crystal_lattice_constant:
-    title: Crystal lattice constant
-    description: crystal lattice constant
-    range: CrystalLatticeConstantQuantityValue
+  crystal_lattice_parameters:
+    title: Lattice parameters
+    description: Lattice parameters
+    range: CrystalLatticeParametersQuantityValue
     multivalued: false
     annotations:
       openbis_type: JSON
-      openbis_label: Lattice constant
+      openbis_label: Lattice parameters
   
-  crystal_lattice_constant_unit:
-    title: Crystal lattice constant unit
-    description: crystal lattice constant unit
+  crystal_lattice_parameters_units:
+    title: Crystal lattice parameters units
+    description: crystal lattice parameters units
     range: LengthUnitsEnum
-    multivalued: false
+    multivalued: true
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Crystal lattice constant unit
+      openbis_label: Crystal lattice parameters units
   
   crystal_space_group:
     title: Crystal space group
@@ -4302,10 +4122,40 @@ slots:
       openbis_type: INTEGER
       openbis_label: Number of 2D layers
   
+  observable_readings:
+    title: Observable Readings
+    description: observable readings
+    range: ObservableReading
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: JSON
+      openbis_label: Observable readings
+  
+  observable_properties:
+    title: Observable Properties
+    description: observable properties
+    range: string
+    slot_uri: 
+    multivalued: true
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Observable properties
+  
+  observable_type:
+    title: Observable Type
+    description: observable type
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Observable type
+  
   observables_settings:
     title: Observables settings
     description: observables settings
-    range: Any
+    range: ObservablesSettings
     slot_uri: 
     multivalued: false
     annotations:
@@ -4338,6 +4188,26 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: On-site Hubbard repulsion U
+  
+  organisation:
+    title: Organisation
+    description: Organisation
+    range: Organisation
+    multivalued: false
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Organisation
+    
+  organisations:
+    title: Organisations
+    description: Organisations
+    range: Organisation
+    multivalued: true
+    slot_uri:
+    annotations:
+      openbis_type: OBJECT
+      openbis_label: Organisations
 
   other_storage_condition:
     title: Other Storage Condition
@@ -4563,6 +4433,36 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Rate
+  
+  reading_unit:
+    title: Reading Unit
+    description: Reading Unit
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Reading unit
+  
+  reading_source:
+    title: Reading Source
+    description: Reading Source
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Reading source
+  
+  reading_variable:
+    title: Reading Variable
+    description: Reading Variable
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Reading variable
 
   receive_date:
     title: Receive Date
@@ -4872,7 +4772,7 @@ slots:
     description: synthesised by
     range: Person
     slot_uri:
-    multivalued: false
+    multivalued: true
     annotations:
       openbis_type: OBJECT
       openbis_label: Synthesised by
@@ -5140,6 +5040,26 @@ slots:
     annotations:
       openbis_type: REAL
       openbis_label: Value
+  
+  values:
+    title: Values
+    description: Values
+    range: double
+    slot_uri: 
+    multivalued: true
+    annotations:
+      openbis_type: REAL
+      openbis_label: Values
+  
+  version:
+    title: Version
+    description: Version
+    range: string
+    slot_uri: 
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Version
 
   vial:
     title: Vial
