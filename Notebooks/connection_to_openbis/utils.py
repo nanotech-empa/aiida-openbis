@@ -200,16 +200,13 @@ def get_next_experiment_code(openbis_session):
         experiment_number = max(int(exp.code.rsplit('_')[-1]) for exp in experiments) + 1
     return f"EXPERIMENT_{experiment_number}"
 
-def create_experiment_in_openbis(openbis_session, project_id, experiment_name):
+def create_experiment_in_openbis(openbis_session, project_id, experiment_props):
     experiment_code = get_next_experiment_code(openbis_session)
     experiment = openbis_session.new_experiment(
         code = experiment_code, 
         type = "EXPERIMENT", 
-        project = project_id, 
-        props = {
-            "name": experiment_name, 
-            "default_collection_view": "IMAGING_GALLERY_VIEW"
-        }
+        project = project_id,
+        props = experiment_props
     )
     experiment.save()
 
