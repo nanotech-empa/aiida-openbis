@@ -395,6 +395,24 @@ classes:
         required: true
     annotations:
       openbis_object: false
+  
+    Action:
+      title: Action
+      is_a: Thing
+      class_uri: 
+      description: Action
+      annotations:
+        openbis_object: true
+        openbis_code: ACTN
+        openbis_label: Action
+        is_action: true
+      slots:
+      - description
+      - duration
+      - component
+      - component_settings
+      - comments
+      - sample
 
   AiidaNode:
     title: AiiDA Node
@@ -516,7 +534,9 @@ classes:
       openbis_label: Coating
       is_action: true
     slots:
+     - description
      - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -640,7 +660,9 @@ classes:
       openbis_label: Delamination
       is_action: true
     slots:
+     - description
      - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -656,6 +678,7 @@ classes:
       openbis_label: Deposition
       is_action: true
     slots:
+     - description
      - duration
      - substrate_temperature
      - component
@@ -756,6 +779,9 @@ classes:
       openbis_label: Etching
       is_action: true
     slots:
+     - description
+     - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -771,6 +797,9 @@ classes:
       openbis_label: Field emission
       is_action: true
     slots:
+     - description
+     - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -805,6 +834,9 @@ classes:
       openbis_label: Fishing
       is_action: true
     slots:
+     - description
+     - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -898,6 +930,9 @@ classes:
       openbis_label: Light Irradiation
       is_action: true
     slots:
+     - description
+     - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -992,6 +1027,9 @@ classes:
       openbis_label: Mechanical Pressing
       is_action: true
     slots:
+     - description
+     - duration
+     - component
      - component_settings
      - comments
      - sample
@@ -1062,6 +1100,7 @@ classes:
      - description
      - channel_name
      - component
+     - component_settings
      - comments
   
   Organisation:
@@ -1315,12 +1354,11 @@ classes:
       openbis_label: Rinse
       is_action: true
     slots:
+     - description
      - duration
      - component
      - component_settings
      - comments
-     # ---- Object properties ----
-     - settings
      - sample
 
   Room:
@@ -1334,7 +1372,6 @@ classes:
       openbis_label: Room
     slots:
      - comments
-     # ---- Object properties ----
      - organisation
 
   Sample:
@@ -1348,7 +1385,6 @@ classes:
       openbis_label: Sample
     slots:
      - exists
-     # ---- Object properties ----
      - crystal
      - two_d_layer_material
      - wafer_substrate
@@ -1391,6 +1427,7 @@ classes:
       openbis_label: Sputtering
       is_action: true
     slots:
+     - description
      - duration
      - sputter_ion
      - pressure
@@ -1620,23 +1657,6 @@ classes:
   #    - measurement_session
   #    - sample
   #   #  - tip_sensor
-  
-  UnclassifiedAction:
-    title: Unclassified action
-    is_a: Thing
-    class_uri: 
-    description: Unclassified action
-    annotations:
-      openbis_object: true
-      openbis_code: UNAC
-      openbis_label: Unclassified action
-      is_action: true
-    slots:
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
 
   UnclassifiedSimulation:
     title: Unclassified simulation
@@ -5258,6 +5278,7 @@ slots:
       - range: Fishing
       - range: Coating
       - range: Rinse
+      - range: Action
     description: actions
     slot_uri:
     multivalued: true
