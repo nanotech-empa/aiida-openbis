@@ -3,6 +3,7 @@ import utils
 from IPython.display import display
 import pandas as pd
 import json
+import re
 
 class CreateSampleWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -215,14 +216,14 @@ class RegisterProcessWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Sample history</span>"
         )
         
-        self.register_new_processes_title = ipw.HTML(
+        self.new_processes_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 20px;'>Register new steps</span>"
         )
         
         self.select_experiment_dropdown = SelectExperimentWidget(self.openbis_session)
         self.select_sample_dropdown = SelectSampleWidget(self.openbis_session)
         self.sample_history_vbox = SampleHistoryWidget(self.openbis_session)
-        self.register_new_processes_vbox = RegisterProcessStepWidget(self.openbis_session)
+        self.new_processes_accordion = ipw.Accordion()
         
         self.add_process_template_button = ipw.Button(
             description = 'Add process template', 
@@ -263,8 +264,8 @@ class RegisterProcessWidget(ipw.VBox):
             self.select_sample_dropdown,
             self.sample_history_title,
             self.sample_history_vbox,
-            self.register_new_processes_title,
-            self.register_new_processes_vbox,
+            self.new_processes_title,
+            self.new_processes_accordion,
             self.process_buttons_hbox,
             self.save_button
         ]
@@ -273,6 +274,9 @@ class RegisterProcessWidget(ipw.VBox):
             self.load_sample_data,
             names = "value"
         )
+        
+        # self.add_process_template_button.on_click()
+        self.add_process_step_button.on_click(self.add_process_step)
     
     def load_sample_data(self, change):
         if self.select_sample_dropdown.sample_dropdown.value == "-1":
@@ -302,6 +306,14 @@ class RegisterProcessWidget(ipw.VBox):
             self.sample_history_vbox.load_sample_history(sample_object)
         else:
             self.sample_history_vbox.sample_history.children = []
+            
+    def add_process_step(self, b):
+        processes_accordion_children = list(self.new_processes_accordion.children)
+        process_step_index = len(processes_accordion_children)
+        new_process_step_widget = RegisterProcessStepWidget(self.openbis_session, self.new_processes_accordion, process_step_index)
+        processes_accordion_children.append(new_process_step_widget)
+        self.new_processes_accordion.children = processes_accordion_children
+        
 
 class SelectExperimentWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -1009,6 +1021,424 @@ class ObservableHistoryWidget(ipw.VBox):
             self.component_settings_html.value = component_settings_string
 
 class RegisterProcessStepWidget(ipw.VBox):
-    def __init__(self, openbis_session):
+    def __init__(self, openbis_session, processes_accordion, process_step_index):
         super().__init__()
         self.openbis_session = openbis_session
+        self.processes_accordion = processes_accordion
+        self.process_step_index = process_step_index
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox(children = [self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Text()
+        self.description_hbox = ipw.HBox(children = [self.description_label, self.description_textbox])
+        
+        self.process_code_label = ipw.Label(value = "Process Code")
+        self.process_code_textbox = ipw.Text()
+        self.process_code_hbox = ipw.HBox(children = [self.process_code_label, self.process_code_textbox])
+        
+        self.instrument_label = ipw.Label(value = "Instrument")
+        instrument_objects = utils.get_openbis_objects(self.openbis_session, collection = "/EQUIPMENT/ILOG/INSTRUMENT_COLLECTION")
+        instrument_options = [(obj.props["$name"], obj.permId) for obj in instrument_objects]
+        instrument_options.insert(0, ("Select an instrument...", "-1"))
+        self.instrument_dropdown = ipw.Dropdown(options = instrument_options, value = "-1")
+        self.instrument_hbox = ipw.HBox(children = [self.instrument_label, self.instrument_dropdown])
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textarea = ipw.Textarea()
+        self.comments_hbox = ipw.HBox(children = [self.comments_label, self.comments_textarea])
+        
+        self.actions_label = ipw.Label(value = "Actions")
+        self.actions_accordion = ipw.Accordion()
+        self.add_action_button = ipw.Button(
+            description = 'Add action', 
+            disabled = False, 
+            button_style = 'success', 
+            tooltip = 'Add action', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        self.actions_vbox = ipw.VBox(children = [self.actions_label, self.actions_accordion, self.add_action_button])
+        
+        self.observables_label = ipw.Label(value = "Observables")
+        self.observables_accordion = ipw.Accordion()
+        self.add_observable_button = ipw.Button(
+            description = 'Add observable', 
+            disabled = False, 
+            button_style = 'success', 
+            tooltip = 'Add observable', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        self.observables_vbox = ipw.VBox(children = [self.observables_label, self.observables_accordion, self.add_observable_button])
+        
+        self.remove_process_step_button = ipw.Button(
+            description = 'Remove', 
+            disabled = False, 
+            button_style = 'danger', 
+            tooltip = 'Remove process step', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.remove_process_step_button.on_click(self.remove_process_step)
+        self.name_textbox.observe(self.change_process_step_title, names = "value")
+        self.process_code_textbox.observe(self.change_process_step_title, names = "value")
+        self.add_action_button.on_click(self.add_action)
+        self.add_observable_button.on_click(self.add_observable)
+        
+        self.children = [
+            self.name_hbox,
+            self.description_hbox,
+            self.process_code_hbox,
+            self.instrument_hbox,
+            self.comments_hbox,
+            self.actions_vbox,
+            self.observables_vbox,
+            self.remove_process_step_button
+        ]
+    
+    def change_process_step_title(self, change):
+        name = self.name_textbox.value
+        process_code = self.process_code_textbox.value
+        if process_code:
+            title = f"{name} ({process_code})"
+        else:
+            title = name
+        self.processes_accordion.set_title(self.process_step_index, title)
+    
+    def remove_process_step(self, b):
+        processes_accordion_children = list(self.processes_accordion.children)
+        num_process_steps = len(processes_accordion_children)
+        processes_accordion_children.pop(self.process_step_index)
+        
+        for index, process_step in enumerate(processes_accordion_children):
+            if index >= self.process_step_index:
+                process_step.process_step_index -= 1
+                self.processes_accordion.set_title(self.process_step_index, process_step.name_textbox.value)
+
+        self.processes_accordion.set_title(num_process_steps - 1, "")
+        self.processes_accordion.children = processes_accordion_children
+    
+    def add_action(self, b):
+        instrument_permid = self.instrument_dropdown.value
+        if instrument_permid != "-1":
+            actions_accordion_children = list(self.actions_accordion.children)
+            action_index = len(actions_accordion_children)
+            new_action_widget = RegisterActionWidget(self.openbis_session, self.actions_accordion, action_index, instrument_permid)
+            actions_accordion_children.append(new_action_widget)
+            self.actions_accordion.children = actions_accordion_children
+    
+    def add_observable(self, b):
+        instrument_permid = self.instrument_dropdown.value
+        if instrument_permid != "-1":
+            observables_accordion_children = list(self.observables_accordion.children)
+            observable_index = len(observables_accordion_children)
+            new_observable_widget = RegisterObservableWidget(self.openbis_session, self.observables_accordion, observable_index, instrument_permid)
+            observables_accordion_children.append(new_observable_widget)
+            self.observables_accordion.children = observables_accordion_children
+
+class RegisterActionWidget(ipw.VBox):
+    def __init__(self, openbis_session, actions_accordion, action_index, instrument_permid):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.actions_accordion = actions_accordion
+        self.action_index = action_index
+        self.instrument_permid = instrument_permid
+        
+        self.action_type_label = ipw.Label(value = "Action type")
+        action_type_options = [
+            ("Select an action type...", "-1"),
+            ("Annealing", "ANNEALING"),
+            ("Coating", "COATING"),
+            ("Cooldown", "COOLDOWN"),
+            ("Delamination", "DELAMINATION"),
+            ("Deposition", "DEPOSITION"),
+            ("Dosing", "DOSING"),
+            ("Etching", "ETCHING"),
+            ("Field emission", "FIELD_EMISSION"),
+            ("Fishing", "FISHING"),
+            ("Light irradiation", "LIGHT_IRRADIATION"),
+            ("Mechanical Pressing", "MECHANICAL_PRESSING"),
+            ("Rinse", "RINSE"),
+            ("Sputtering", "SPUTTERING")
+        ]
+        self.action_type_dropdown = ipw.Dropdown(
+            options = action_type_options,
+            value = "-1"
+        )
+        
+        self.action_type_hbox = ipw.HBox(children = [self.action_type_label, self.action_type_dropdown])
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox(children = [self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Text()
+        self.description_hbox = ipw.HBox(children = [self.description_label, self.description_textbox])
+        
+        self.duration_label = ipw.Label(value = "Duration")
+        self.duration_days_intbox = ipw.BoundedIntText(value = 0, min = 0, layout = ipw.Layout(width = "40px"))
+        self.duration_days_label = ipw.Label("days")
+        self.duration_hours_intbox = ipw.BoundedIntText(value = 0, max = 23, layout = ipw.Layout(width = "40px"))
+        self.duration_hours_label = ipw.Label(":")
+        self.duration_minutes_intbox = ipw.BoundedIntText(value = 0, max = 59, layout = ipw.Layout(width = "40px"))
+        self.duration_minutes_label = ipw.Label(":")
+        self.duration_seconds_intbox = ipw.BoundedIntText(value = 0, max = 59, layout = ipw.Layout(width = "40px"))
+        self.duration_hbox = ipw.HBox(
+            children = [
+                self.duration_label, self.duration_days_intbox, self.duration_days_label,
+                self.duration_hours_intbox, self.duration_hours_label,
+                self.duration_minutes_intbox, self.duration_minutes_label,
+                self.duration_seconds_intbox
+            ]
+        )
+        
+        self.substance_label = ipw.Label(value = "Substance")
+        substances_list = utils.get_openbis_objects(self.openbis_session, collection = "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION")
+        substance_options = [(obj.props["$name"], obj.permId) for obj in substances_list]
+        substance_options.insert(0, ("Select a substance...", "-1"))
+        self.substance_dropdown = ipw.Dropdown(
+            options = substance_options,
+            value = "-1"
+        )
+        self.substance_hbox = ipw.HBox(children = [self.substance_label, self.substance_dropdown])
+        
+        self.gas_label = ipw.Label(value = "Dosing gas")
+        gas_list = utils.get_openbis_objects(self.openbis_session, collection = "/MATERIALS/RAW_MATERIALS/CHEMICAL_COLLECTION")
+        gas_options = [(obj.props["$name"], obj.permId) for obj in gas_list]
+        gas_options.insert(0, ("Select a dosing gas...", "-1"))
+        self.gas_dropdown = ipw.Dropdown(
+            options = gas_options,
+            value = "-1"
+        )
+        self.gas_hbox = ipw.HBox(children = [self.gas_label, self.gas_dropdown])
+        
+        self.action_properties_widgets = ipw.VBox()
+        
+        self.instrument_type_components_dictionary = {
+            "INSTRUMENT.STM": [
+                "pumps", "gauges", "vacuum_chambers", "ports_valves",
+                "preparation_tools", "analysers", "mechanical_components",
+                "stm_components", "control_data_acquisition", "temperature_environment_control",
+                "auxiliary_components", "tips_sensors", "accessories"
+            ]
+        }
+        
+        self.component_label = ipw.Label(value = "Component")
+        self.component_dropdown = ipw.Dropdown()
+        self.component_hbox = ipw.HBox(children = [self.component_label, self.component_dropdown])
+        self.component_settings_label = ipw.Label(value = "Component settings:")
+        self.component_settings_vbox = ipw.VBox()
+        self.component_settings_hbox = ipw.HBox(children = [self.component_settings_label, self.component_settings_vbox])
+        self.component_vbox = ipw.VBox(children = [self.component_hbox, self.component_settings_hbox])
+        
+        # BEGIN - Widgets for component properties
+        self.target_temperature_label = ipw.Label("Target temperature")
+        self.target_temperature_value_textbox = ipw.Text()
+        self.target_temperature_unit_dropdown = ipw.Dropdown(options = ["K", "Celsius"], value = "Celsius")
+        self.target_temperature_hbox = ipw.HBox(
+            children = [self.target_temperature_label, self.target_temperature_value_textbox, self.target_temperature_unit_dropdown]
+        )
+        
+        self.cryogen_label = ipw.Label("Cryogen")
+        self.cryogen_textbox = ipw.Text()
+        self.cryogen_hbox = ipw.HBox(children = [self.cryogen_label, self.cryogen_textbox])
+        
+        self.substrate_temperature_label = ipw.Label("Substrate temperature")
+        self.substrate_temperature_value_textbox = ipw.Text()
+        self.substrate_temperature_unit_dropdown = ipw.Dropdown(options = ["K", "Celsius"], value = "Celsius")
+        self.substrate_temperature_hbox = ipw.HBox(
+            children = [self.substrate_temperature_label, self.substrate_temperature_value_textbox, self.substrate_temperature_unit_dropdown]
+        )
+        
+        self.pressure_label = ipw.Label("Pressure")
+        self.pressure_value_textbox = ipw.Text()
+        self.pressure_unit_dropdown = ipw.Dropdown(options = ["mBar", "Pa"], value = "mBar")
+        self.pressure_hbox = ipw.HBox(
+            children = [self.pressure_label, self.pressure_value_textbox, self.pressure_unit_dropdown]
+        )
+        
+        self.sputter_ion_label = ipw.Label("Sputter Ion")
+        self.sputter_ion_textbox = ipw.Text()
+        self.sputter_ion_hbox = ipw.HBox(children = [self.sputter_ion_label, self.sputter_ion_textbox])
+        
+        self.current_label = ipw.Label("Pressure")
+        self.current_value_textbox = ipw.Text()
+        self.current_unit_dropdown = ipw.Dropdown(options = ["A"], value = "A")
+        self.current_hbox = ipw.HBox(
+            children = [self.current_label, self.current_value_textbox, self.current_unit_dropdown]
+        )
+        
+        self.angle_label = ipw.Label("Angle")
+        self.angle_value_textbox = ipw.Text()
+        self.angle_unit_dropdown = ipw.Dropdown(options = ["deg"], value = "deg")
+        self.angle_hbox = ipw.HBox(
+            children = [self.angle_label, self.angle_value_textbox, self.angle_unit_dropdown]
+        )
+        self.components_properties_widgets = {
+            "target_temperature": self.target_temperature_hbox,
+            "cryogen": self.cryogen_hbox,
+            "substrate_temperature": self.substrate_temperature_hbox,
+            "pressure": self.pressure_hbox,
+            "sputter_ion": self.sputter_ion_hbox,
+            "current": self.current_hbox,
+            "angle": self.angle_hbox,
+            "$name": self.name_hbox, #TODO: Remove
+            "description": self.description_hbox #TODO: Remove
+        }
+        # END - Widgets for component properties
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textarea = ipw.Textarea()
+        self.comments_hbox = ipw.HBox(children = [self.comments_label, self.comments_textarea])
+        
+        self.remove_action_button = ipw.Button(
+            description = 'Remove', 
+            disabled = False, 
+            button_style = 'danger', 
+            tooltip = 'Remove action', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.name_textbox.observe(self.change_action_title, names = "value")
+        self.action_type_dropdown.observe(self.load_action_properties, names = "value")
+        self.component_dropdown.observe(self.load_component_settings_list, names = "value")
+        self.remove_action_button.on_click(self.remove_action)
+        
+        self.children = [
+            self.action_type_hbox,
+            self.action_properties_widgets,
+            self.remove_action_button
+        ]
+    
+    def load_action_properties(self, change):
+        action_type = self.action_type_dropdown.value
+        if action_type == "-1":
+            self.action_properties_widgets.children = []
+        else:
+            action_properties = [
+                self.name_hbox,
+                self.description_hbox,
+                self.duration_hbox
+            ]
+            
+            if action_type == "DEPOSITION":
+                action_properties.append(self.substance_hbox)
+            elif action_type == "DOSING":
+                action_properties.append(self.gas_hbox)
+            
+            action_properties.append(self.component_hbox)
+            action_properties.append(self.component_settings_hbox)
+            action_properties.append(self.comments_hbox)
+
+            component_options = self.get_instrument_components(self.instrument_permid, action_type)
+            component_options.insert(0, ("Select an component...", "-1"))
+            self.component_dropdown.options = component_options
+            self.component_dropdown.value = "-1"
+            
+            self.action_properties_widgets.children = action_properties
+    
+    def get_instrument_components(self, instrument_permid, action_type):
+        component_list = []
+        if instrument_permid != "-1":
+            instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+            instrument_type = str(instrument_object.type)
+            instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
+            for prop in instrument_components_properties:
+                prop_value = instrument_object.props[prop]
+                if prop_value:
+                    for component_id in prop_value:
+                        component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                        component_actions_settings_prop = component_object.props["actions_settings"]
+                        if component_actions_settings_prop:
+                            component_actions_settings = json.loads(component_actions_settings_prop)
+                            if action_type in component_actions_settings:
+                                component_list.append((component_object.props["$name"], component_id))
+        return component_list
+    
+    def load_component_settings_list(self, change):
+        action_type = self.action_type_dropdown.value
+        if action_type != "-1":
+            component_permid = self.component_dropdown.value
+            if component_permid != "-1":
+                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                component_settings_property = component_object.props["actions_settings"]
+                component_settings_widgets = []
+                if component_settings_property:
+                    component_settings = json.loads(component_settings_property)[action_type]["settings"]
+                    for setting in component_settings:
+                        setting_widget = self.components_properties_widgets.get(setting, None)
+                        if setting_widget:
+                            component_settings_widgets.append(self.components_properties_widgets[setting])
+                            
+                self.component_settings_vbox.children = component_settings_widgets
+
+    def change_action_title(self, change):
+        title = self.name_textbox.value
+        self.actions_accordion.set_title(self.action_index, title)
+                    
+    def remove_action(self, b):
+        actions_accordion_children = list(self.actions_accordion.children)
+        num_actions = len(actions_accordion_children)
+        actions_accordion_children.pop(self.action_index)
+        
+        for index, action in enumerate(actions_accordion_children):
+            if index >= self.action_index:
+                action.action_index -= 1
+                self.actions_accordion.set_title(self.action_index, action.name_textbox.value)
+
+        self.actions_accordion.set_title(num_actions - 1, "")
+        self.actions_accordion.children = actions_accordion_children
+
+class RegisterObservableWidget(ipw.VBox):
+    def __init__(self, openbis_session, observables_accordion, observable_index, instrument_permid):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.observables_accordion = observables_accordion
+        self.observable_index = observable_index
+        self.instrument_permid = instrument_permid
+        
+        self.observable_type_label = ipw.Label(value = "Observable type")
+        observable_type_options = [
+            ("Select an observable type...", "-1"),
+            ("Current", "CURRENT_OBSERVABLE"),
+            ("Elemental Composition", "ELEMENTAL_COMPOSITION_OBSERVABLE"),
+            ("Flux", "FLUX_OBSERVABLE"),
+            ("Force", "FORCE_OBSERVABLE"),
+            ("Inductance", "INDUCTANCE_OBSERVABLE"),
+            ("Observable", "OBSERVABLE"),
+            ("pH", "PH_VALUE_OBSERVABLE"),
+            ("Pressure", "PRESSURE_OBSERVABLE"),
+            ("Resistance", "RESISTANCE_OBSERVABLE"),
+            ("Speed", "SPEED_OBSERVABLE"),
+            ("Temperature", "TEMPERATURE_OBSERVABLE"),
+            ("Voltage", "VOLTAGE_OBSERVABLE")
+        ]
+        self.observable_type_dropdown = ipw.Dropdown(
+            options = observable_type_options,
+            value = "-1"
+        )
+        
+        self.observable_type_hbox = ipw.HBox(children = [self.observable_type_label, self.observable_type_dropdown])
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox(children = [self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Text()
+        self.description_hbox = ipw.HBox(children = [self.description_label, self.description_textbox])
+        
+        self.children = [
+            self.observable_type_hbox,
+            self.name_hbox,
+            self.description_hbox
+        ]
+
+# self.component_label = ipw.Label(value = "Component")
+# component_objects = utils.get_openbis_objects(self.openbis_session, collection = "/EQUIPMENT/ILOG/INSTRUMENT_COLLECTION")
+# instrument_options = [(obj.props["$name"], obj.permId) for obj in instrument_objects]
+# instrument_options.insert(0, ("Select an instrument...", "-1"))
+# self.instrument_dropdown = ipw.Dropdown(options = instrument_options, value = "-1")
+# self.instrument_hbox = ipw.HBox(children = [self.instrument_label, self.instrument_dropdown])
