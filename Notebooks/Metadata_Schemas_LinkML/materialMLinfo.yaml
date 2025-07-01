@@ -396,23 +396,23 @@ classes:
     annotations:
       openbis_object: false
   
-    Action:
-      title: Action
-      is_a: Thing
-      class_uri: 
-      description: Action
-      annotations:
-        openbis_object: true
-        openbis_code: ACTN
-        openbis_label: Action
-        is_action: true
-      slots:
-      - description
-      - duration
-      - component
-      - component_settings
-      - comments
-      - sample
+  Action:
+    title: Action
+    is_a: Thing
+    class_uri: 
+    description: Action
+    annotations:
+      openbis_object: true
+      openbis_code: ACTN
+      openbis_label: Action
+      is_action: true
+    slots:
+    - description
+    - duration
+    - component
+    - component_settings
+    - comments
+    - sample
 
   AiidaNode:
     title: AiiDA Node

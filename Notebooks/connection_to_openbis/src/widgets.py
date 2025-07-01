@@ -203,6 +203,7 @@ class RegisterProcessWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
         self.openbis_session = openbis_session
+        self.sample_preparation_object = None
         
         self.select_experiment_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 20px;'>Select experiment</span>"
@@ -277,6 +278,7 @@ class RegisterProcessWidget(ipw.VBox):
         
         # self.add_process_template_button.on_click()
         self.add_process_step_button.on_click(self.add_process_step)
+        self.save_button.on_click(self.save_processes)
     
     def load_sample_data(self, change):
         if self.select_sample_dropdown.sample_dropdown.value == "-1":
@@ -301,7 +303,13 @@ class RegisterProcessWidget(ipw.VBox):
             if most_recent_parent.experiment.permId != self.select_experiment_dropdown.experiment_dropdown.value:
                 self.select_experiment_dropdown.experiment_dropdown.value = most_recent_parent.experiment.permId
                 display(utils.Javascript(data = "alert('Experiment was changed!')"))
-                
+            
+            for parent in most_recent_parent.parents:
+                parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent)
+                if parent_object.type == "PREPARATION":
+                    self.sample_preparation_object = parent_object
+                    break
+
             # Load sample history
             self.sample_history_vbox.load_sample_history(sample_object)
         else:
@@ -313,7 +321,250 @@ class RegisterProcessWidget(ipw.VBox):
         new_process_step_widget = RegisterProcessStepWidget(self.openbis_session, self.new_processes_accordion, process_step_index)
         processes_accordion_children.append(new_process_step_widget)
         self.new_processes_accordion.children = processes_accordion_children
-        
+
+    def save_processes(self, b):
+        processes_widgets = self.new_processes_accordion.children
+        if processes_widgets:
+            openbis_transaction_objects = []
+            for process_widget in processes_widgets:
+                
+                current_sample_id = self.select_sample_dropdown.sample_dropdown.value
+                current_sample = utils.get_openbis_object(self.openbis_session, sample_ident = current_sample_id)
+                current_sample.props["exists"] = False
+                current_sample_name = current_sample.props["$name"]
+                
+                new_process_object = self.openbis_session.new_sample(
+                    type = "PROCESS_STEP",
+                    experiment = self.select_experiment_dropdown.experiment_dropdown.value,
+                    parents = [self.sample_preparation_object, current_sample]
+                )
+                
+                process_properties = {
+                    "$name": process_widget.name_textbox.value,
+                    "description": process_widget.description_textbox.value,
+                    "process_code": process_widget.process_code_textbox.value,
+                    "instrument": process_widget.instrument_dropdown.value,
+                    "comments": process_widget.comments_textarea.value,
+                }
+                
+                actions_widgets = process_widget.actions_accordion.children
+                observables_widgets = process_widget.observables_accordion.children
+                actions = []
+                observables = []
+                
+                if actions_widgets:
+                    for action_widget in actions_widgets:
+                        action_properties = {}
+                        action_type = action_widget.action_type_dropdown.value
+                        duration_days = action_widget.duration_days_intbox.value
+                        duration_hours = action_widget.duration_hours_intbox.value
+                        duration_minutes = action_widget.duration_minutes_intbox.value
+                        duration_seconds = action_widget.duration_seconds_intbox.value
+                        
+                        if action_type == "ANNEALING":
+                            target_temperature = {
+                                "value": action_widget.target_temperature_value_textbox.value,
+                                "temperature_unit": action_widget.target_temperature_unit_dropdown.value,
+                            }
+                            action_properties["target_temperature"] = json.dumps(target_temperature)
+                            
+                        elif action_type == "COOLDOWN":
+                            target_temperature = {
+                                "value": action_widget.target_temperature_value_textbox.value,
+                                "temperature_unit": action_widget.target_temperature_unit_dropdown.value,
+                            }
+                            action_properties["target_temperature"] = json.dumps(target_temperature)
+                            action_properties["cryogen"] = action_widget.cryogen_textbox.value
+                            
+                        elif action_type == "DEPOSITION":
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            substance = action_widget.substance_dropdown.value
+                            action_properties["substance"] = substance
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            
+                        elif action_type == "DOSING":
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            pressure = {
+                                "value": action_widget.pressure_value_textbox.value,
+                                "pressure_unit": action_widget.pressure_unit_dropdown.value,
+                            }
+                            gas = action_widget.gas_dropdown.value
+                            action_properties["dosing_gas"] = gas
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties["pressure"] = json.dumps(pressure)
+                            
+                        elif action_type == "SPUTTERING":
+                            pressure = {
+                                "value": action_widget.pressure_value_textbox.value,
+                                "pressure_unit": action_widget.pressure_unit_dropdown.value,
+                            }
+                            current = {
+                                "value": action_widget.current_value_textbox.value,
+                                "current_unit": action_widget.current_unit_dropdown.value,
+                            }
+                            angle = {
+                                "value": action_widget.angle_value_textbox.value,
+                                "angle_unit": action_widget.angle_unit_dropdown.value,
+                            }
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            action_properties["pressure"] = json.dumps(pressure)
+                            action_properties["current"] = json.dumps(current)
+                            action_properties["angle"] = json.dumps(angle)
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties["sputter_ion"] = action_widget.sputter_ion_textbox.value
+                        
+                        component_permid = action_widget.component_dropdown.value
+                        #TODO: Remove this because all actions and observables should have one component
+                        if component_permid != "-1":
+                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                            component_object_settings = component_object.props["actions_settings"]
+                            
+                            if component_object_settings:
+                                component_settings = {}
+                                component_object_settings = json.loads(component_object_settings)
+                                action_component_settings = component_object_settings[action_type]["settings"]
+                                for setting in action_component_settings:
+                                    if setting == "target_temperature":
+                                        component_settings["target_temperature"] = {
+                                            "value": action_widget.target_temperature_value_comp_textbox.value,
+                                            "temperature_unit": action_widget.target_temperature_unit_comp_dropdown.value,
+                                        }
+                                    elif setting == "bias_voltage":
+                                        component_settings["bias_voltage"] = {
+                                            "value": action_widget.bias_voltage_value_textbox.value,
+                                            "voltage_unit": action_widget.bias_voltage_unit_dropdown.value,
+                                        }
+                                    elif setting == "discharge_voltage":
+                                        component_settings["discharge_voltage"] = {
+                                            "value": action_widget.discharge_voltage_value_textbox.value,
+                                            "voltage_unit": action_widget.discharge_voltage_unit_dropdown.value,
+                                        }
+                                    elif setting == "discharge_current":
+                                        component_settings["discharge_current"] = {
+                                            "value": action_widget.discharge_current_value_textbox.value,
+                                            "discharge_current_unit": action_widget.discharge_current_unit_dropdown.value,
+                                        }
+                                    elif setting == "evaporator_p_value":
+                                        component_settings["evaporator_p_value"] = action_widget.evaporator_p_value_textbox.value
+                                        
+                                    elif setting == "evaporator_i_value":
+                                        component_settings["evaporator_i_value"] = action_widget.evaporator_i_value_textbox.value
+                                        
+                                    elif setting == "ep_percentage":
+                                        component_settings["ep_percentage"] = action_widget.ep_percentage_textbox.value
+                                    
+                                    # TODO: Delete these
+                                    elif setting == "$name":
+                                        component_settings["$name"] = action_widget.name_textbox.value
+                                    elif setting == "description":
+                                        component_settings["description"] = action_widget.description_textbox.value
+                                
+                                action_properties["component_settings"] = json.dumps(component_settings)
+                        
+                        action_properties["$name"] = action_widget.name_textbox.value
+                        action_properties["description"] = action_widget.description_textbox.value
+                        action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
+                        action_properties["component"] = component_permid
+                        action_properties["comments"] = action_widget.comments_textarea.value
+                        
+                        #TODO: Create actions collection next to the sample preparation experiment
+                        
+                        new_action_object = self.openbis_session.new_sample(
+                            type = action_type,
+                            experiment = self.select_experiment_dropdown.experiment_dropdown.value,
+                            parents = [new_process_object, current_sample],
+                            props = process_properties
+                        )
+                        
+                        # Append action to list of actions
+                        actions.append(new_action_object)
+                
+                if observables_widgets:
+                    for observable_widget in observables_widgets:
+                        observable_properties = {}
+                        observable_type = observable_widget.observable_type_dropdown.value
+                        
+                        component_permid = observable_widget.component_dropdown.value
+                        #TODO: Remove this because all the actions and observables must have a component
+                        if component_permid != "-1":
+                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                            component_object_settings = component_object.props["observables_settings"]
+                            
+                            if component_object_settings:
+                                component_settings = {}
+                                component_object_settings = json.loads(component_object_settings)
+                                observable_component_settings = component_object_settings[observable_type]["settings"]
+                                for setting in observable_component_settings:
+                                    if setting == "density":
+                                        component_settings["density"] = {
+                                            "value": observable_widget.density_textbox.value,
+                                            "density_unit": observable_widget.density_unit_dropdown.value,
+                                        }
+                                        
+                                    elif setting == "filament":
+                                        component_settings["filament"] = observable_widget.filament_textbox.value
+                                        
+                                    elif setting == "filament_current":
+                                        component_settings["filament_current"] = {
+                                            "value": observable_widget.filament_current_textbox.value,
+                                            "current_unit": observable_widget.filament_current_unit_dropdown.value,
+                                        }
+                                    
+                                    # TODO: Delete these
+                                    elif setting == "$name":
+                                        component_settings["$name"] = observable_widget.name_textbox.value
+                                    elif setting == "description":
+                                        component_settings["description"] = observable_widget.description_textbox.value
+                                
+                                observable_properties["component_settings"] = json.dumps(component_settings)
+                        
+                        observable_properties["$name"] = observable_widget.name_textbox.value
+                        observable_properties["description"] = observable_widget.description_textbox.value
+                        observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
+                        observable_properties["component"] = component_permid
+                        observable_properties["comments"] = observable_widget.comments_textarea.value
+                        
+                        #TODO: Create observables collection next to the sample preparation experiment
+                        
+                        new_observable_object = self.openbis_session.new_sample(
+                            type = observable_type,
+                            experiment = self.select_experiment_dropdown.experiment_dropdown.value,
+                            parents = [new_process_object, current_sample],
+                            props = process_properties
+                        )
+                        
+                        # Append observable to list of observables
+                        observables.append(new_observable_object)
+                        
+                process_properties["actions"] = actions
+                process_properties["observables"] = observables
+                
+                new_sample_name = f"{current_sample_name}:{process_properties['process_code']}"
+                new_process_object.props = process_properties
+                
+                new_sample = self.openbis_session.new_sample(
+                    type = "SAMPLE",
+                    experiment = "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
+                    parents = [new_process_object],
+                    props = {"$name": new_sample_name, "exists": True}
+                )
+                
+                openbis_transaction_objects.append(new_process_object)
+                openbis_transaction_objects.append(current_sample)
+                openbis_transaction_objects.append(new_sample)
+                
+            print(openbis_transaction_objects)
+        else:
+            print("Nothing to save")
 
 class SelectExperimentWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -1168,6 +1419,7 @@ class RegisterActionWidget(ipw.VBox):
         )
         
         self.action_type_hbox = ipw.HBox(children = [self.action_type_label, self.action_type_dropdown])
+        self.action_properties_widgets = ipw.VBox()
         
         self.name_label = ipw.Label(value = "Name")
         self.name_textbox = ipw.Text()
@@ -1214,26 +1466,6 @@ class RegisterActionWidget(ipw.VBox):
         )
         self.gas_hbox = ipw.HBox(children = [self.gas_label, self.gas_dropdown])
         
-        self.action_properties_widgets = ipw.VBox()
-        
-        self.instrument_type_components_dictionary = {
-            "INSTRUMENT.STM": [
-                "pumps", "gauges", "vacuum_chambers", "ports_valves",
-                "preparation_tools", "analysers", "mechanical_components",
-                "stm_components", "control_data_acquisition", "temperature_environment_control",
-                "auxiliary_components", "tips_sensors", "accessories"
-            ]
-        }
-        
-        self.component_label = ipw.Label(value = "Component")
-        self.component_dropdown = ipw.Dropdown()
-        self.component_hbox = ipw.HBox(children = [self.component_label, self.component_dropdown])
-        self.component_settings_label = ipw.Label(value = "Component settings:")
-        self.component_settings_vbox = ipw.VBox()
-        self.component_settings_hbox = ipw.HBox(children = [self.component_settings_label, self.component_settings_vbox])
-        self.component_vbox = ipw.VBox(children = [self.component_hbox, self.component_settings_hbox])
-        
-        # BEGIN - Widgets for component properties
         self.target_temperature_label = ipw.Label("Target temperature")
         self.target_temperature_value_textbox = ipw.Text()
         self.target_temperature_unit_dropdown = ipw.Dropdown(options = ["K", "Celsius"], value = "Celsius")
@@ -1263,7 +1495,7 @@ class RegisterActionWidget(ipw.VBox):
         self.sputter_ion_textbox = ipw.Text()
         self.sputter_ion_hbox = ipw.HBox(children = [self.sputter_ion_label, self.sputter_ion_textbox])
         
-        self.current_label = ipw.Label("Pressure")
+        self.current_label = ipw.Label("Current")
         self.current_value_textbox = ipw.Text()
         self.current_unit_dropdown = ipw.Dropdown(options = ["A"], value = "A")
         self.current_hbox = ipw.HBox(
@@ -1276,14 +1508,76 @@ class RegisterActionWidget(ipw.VBox):
         self.angle_hbox = ipw.HBox(
             children = [self.angle_label, self.angle_value_textbox, self.angle_unit_dropdown]
         )
+        
+        self.instrument_type_components_dictionary = {
+            "INSTRUMENT.STM": [
+                "pumps", "gauges", "vacuum_chambers", "ports_valves",
+                "preparation_tools", "analysers", "mechanical_components",
+                "stm_components", "control_data_acquisition", "temperature_environment_control",
+                "auxiliary_components", "tips_sensors", "accessories"
+            ]
+        }
+        
+        self.component_label = ipw.Label(value = "Component")
+        self.component_dropdown = ipw.Dropdown()
+        self.component_hbox = ipw.HBox(children = [self.component_label, self.component_dropdown])
+        self.component_settings_label = ipw.Label(value = "Component settings:")
+        self.component_settings_vbox = ipw.VBox()
+        self.component_settings_hbox = ipw.HBox(children = [self.component_settings_label, self.component_settings_vbox])
+        self.component_vbox = ipw.VBox(children = [self.component_hbox, self.component_settings_hbox])
+        
+        # BEGIN - Widgets for component properties
+        self.bias_voltage_label = ipw.Label("Bias voltage")
+        self.bias_voltage_value_textbox = ipw.Text()
+        self.bias_voltage_unit_dropdown = ipw.Dropdown(options = ["V"], value = "V")
+        self.bias_voltage_hbox = ipw.HBox(
+            children = [self.bias_voltage_label, self.bias_voltage_value_textbox, self.bias_voltage_unit_dropdown]
+        )
+        
+        self.discharge_voltage_label = ipw.Label("Discharge voltage")
+        self.discharge_voltage_value_textbox = ipw.Text()
+        self.discharge_voltage_unit_dropdown = ipw.Dropdown(options = ["V", "kV"], value = "V")
+        self.discharge_voltage_hbox = ipw.HBox(
+            children = [self.discharge_voltage_label, self.discharge_voltage_value_textbox, self.discharge_voltage_unit_dropdown]
+        )
+        
+        self.discharge_current_label = ipw.Label("Discharge current")
+        self.discharge_current_value_textbox = ipw.Text()
+        self.discharge_current_unit_dropdown = ipw.Dropdown(options = ["A"], value = "A")
+        self.discharge_current_hbox = ipw.HBox(
+            children = [self.discharge_current_label, self.discharge_current_value_textbox, self.discharge_current_unit_dropdown]
+        )
+        
+        # Target temperature set in the component
+        self.target_temperature_comp_label = ipw.Label("Target temperature")
+        self.target_temperature_value_comp_textbox = ipw.Text()
+        self.target_temperature_unit_comp_dropdown = ipw.Dropdown(options = ["K", "Celsius"], value = "Celsius")
+        self.target_temperature_comp_hbox = ipw.HBox(
+            children = [self.target_temperature_comp_label, 
+                        self.target_temperature_value_comp_textbox, 
+                        self.target_temperature_unit_comp_dropdown]
+        )
+        
+        self.evaporator_p_value_label = ipw.Label("P-value")
+        self.evaporator_p_value_textbox = ipw.Text()
+        self.evaporator_p_value_hbox = ipw.HBox(children = [self.evaporator_p_value_label, self.evaporator_p_value_textbox])
+        
+        self.evaporator_i_value_label = ipw.Label("I-value")
+        self.evaporator_i_value_textbox = ipw.Text()
+        self.evaporator_i_value_hbox = ipw.HBox(children = [self.evaporator_i_value_label, self.evaporator_i_value_textbox])
+        
+        self.ep_percentage_label = ipw.Label("EP (%)")
+        self.ep_percentage_textbox = ipw.Text()
+        self.ep_percentage_hbox = ipw.HBox(children = [self.ep_percentage_label, self.ep_percentage_textbox])
+        
         self.components_properties_widgets = {
-            "target_temperature": self.target_temperature_hbox,
-            "cryogen": self.cryogen_hbox,
-            "substrate_temperature": self.substrate_temperature_hbox,
-            "pressure": self.pressure_hbox,
-            "sputter_ion": self.sputter_ion_hbox,
-            "current": self.current_hbox,
-            "angle": self.angle_hbox,
+            "target_temperature": self.target_temperature_comp_hbox,
+            "bias_voltage": self.bias_voltage_hbox,
+            "discharge_voltage": self.discharge_voltage_hbox,
+            "discharge_current": self.discharge_current_hbox,
+            "evaporator_p_value": self.evaporator_p_value_hbox,
+            "evaporator_i_value": self.evaporator_i_value_hbox,
+            "ep_percentage": self.ep_percentage_hbox,
             "$name": self.name_hbox, #TODO: Remove
             "description": self.description_hbox #TODO: Remove
         }
@@ -1323,10 +1617,28 @@ class RegisterActionWidget(ipw.VBox):
                 self.duration_hbox
             ]
             
-            if action_type == "DEPOSITION":
+            if action_type == "ANNEALING":
+                action_properties.append(self.target_temperature_hbox)
+                
+            elif action_type == "COOLDOWN":
+                action_properties.append(self.target_temperature_hbox)
+                action_properties.append(self.cryogen_hbox)
+                
+            elif action_type == "DEPOSITION":
                 action_properties.append(self.substance_hbox)
+                action_properties.append(self.substrate_temperature_hbox)
+                
             elif action_type == "DOSING":
+                action_properties.append(self.substrate_temperature_hbox)
+                action_properties.append(self.pressure_hbox)
                 action_properties.append(self.gas_hbox)
+                
+            elif action_type == "SPUTTERING":
+                action_properties.append(self.pressure_hbox)
+                action_properties.append(self.current_hbox)
+                action_properties.append(self.angle_hbox)
+                action_properties.append(self.substrate_temperature_hbox)
+                action_properties.append(self.sputter_ion_hbox)
             
             action_properties.append(self.component_hbox)
             action_properties.append(self.component_settings_hbox)
@@ -1421,6 +1733,7 @@ class RegisterObservableWidget(ipw.VBox):
         )
         
         self.observable_type_hbox = ipw.HBox(children = [self.observable_type_label, self.observable_type_dropdown])
+        self.observable_properties_widgets = ipw.VBox()
         
         self.name_label = ipw.Label(value = "Name")
         self.name_textbox = ipw.Text()
@@ -1430,15 +1743,150 @@ class RegisterObservableWidget(ipw.VBox):
         self.description_textbox = ipw.Text()
         self.description_hbox = ipw.HBox(children = [self.description_label, self.description_textbox])
         
+        self.ch_name_label = ipw.Label(value = "Channel name")
+        self.ch_name_textbox = ipw.Text()
+        self.ch_name_hbox = ipw.HBox(children = [self.ch_name_label, self.ch_name_textbox])
+        
+        self.instrument_type_components_dictionary = {
+            "INSTRUMENT.STM": [
+                "pumps", "gauges", "vacuum_chambers", "ports_valves",
+                "preparation_tools", "analysers", "mechanical_components",
+                "stm_components", "control_data_acquisition", "temperature_environment_control",
+                "auxiliary_components", "tips_sensors", "accessories"
+            ]
+        }
+        
+        self.component_label = ipw.Label(value = "Component")
+        self.component_dropdown = ipw.Dropdown()
+        self.component_hbox = ipw.HBox(children = [self.component_label, self.component_dropdown])
+        self.component_settings_label = ipw.Label(value = "Component settings:")
+        self.component_settings_vbox = ipw.VBox()
+        self.component_settings_hbox = ipw.HBox(children = [self.component_settings_label, self.component_settings_vbox])
+        self.component_vbox = ipw.VBox(children = [self.component_hbox, self.component_settings_hbox])
+        
+        # BEGIN - Widgets for component properties
+        self.filament_label = ipw.Label("Filament")
+        self.filament_textbox = ipw.Text()
+        self.filament_hbox = ipw.HBox(
+            children = [self.filament_label, self.filament_textbox]
+        )
+        
+        self.filament_current_label = ipw.Label("Filament current")
+        self.filament_current_value_textbox = ipw.Text()
+        self.filament_current_unit_dropdown = ipw.Dropdown(options = ["A"], value = "A")
+        self.filament_current_hbox = ipw.HBox(
+            children = [self.filament_current_label, self.filament_current_value_textbox, self.filament_current_unit_dropdown]
+        )
+        
+        self.density_label = ipw.Label("Density")
+        self.density_value_textbox = ipw.Text()
+        self.density_unit_dropdown = ipw.Dropdown(options = ["g/m3"], value = "g/m3")
+        self.density_hbox = ipw.HBox(
+            children = [self.density_label, self.density_value_textbox, self.density_unit_dropdown]
+        )
+        # END
+        
+        self.components_properties_widgets = {
+            "filament": self.filament_hbox,
+            "filament_current": self.filament_current_hbox,
+            "density": self.density_hbox,
+            "$name": self.name_hbox, #TODO: Remove
+            "description": self.description_hbox #TODO: Remove
+        }
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textarea = ipw.Textarea()
+        self.comments_hbox = ipw.HBox(children = [self.comments_label, self.comments_textarea])
+        
+        self.remove_observable_button = ipw.Button(
+            description = 'Remove', 
+            disabled = False, 
+            button_style = 'danger', 
+            tooltip = 'Remove observable', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.name_textbox.observe(self.change_observable_title, names = "value")
+        self.observable_type_dropdown.observe(self.load_observable_properties, names = "value")
+        self.component_dropdown.observe(self.load_component_settings_list, names = "value")
+        self.remove_observable_button.on_click(self.remove_observable)
+        
         self.children = [
             self.observable_type_hbox,
-            self.name_hbox,
-            self.description_hbox
+            self.observable_properties_widgets,
+            self.remove_observable_button
         ]
+        
+    def load_observable_properties(self, change):
+        observable_type = self.observable_type_dropdown.value
+        if observable_type == "-1":
+            self.observable_properties_widgets.children = []
+        else:
+            observable_properties = [
+                self.name_hbox,
+                self.description_hbox,
+                self.ch_name_hbox,
+                self.component_hbox,
+                self.component_settings_hbox,
+                self.comments_hbox
+            ]
 
-# self.component_label = ipw.Label(value = "Component")
-# component_objects = utils.get_openbis_objects(self.openbis_session, collection = "/EQUIPMENT/ILOG/INSTRUMENT_COLLECTION")
-# instrument_options = [(obj.props["$name"], obj.permId) for obj in instrument_objects]
-# instrument_options.insert(0, ("Select an instrument...", "-1"))
-# self.instrument_dropdown = ipw.Dropdown(options = instrument_options, value = "-1")
-# self.instrument_hbox = ipw.HBox(children = [self.instrument_label, self.instrument_dropdown])
+            component_options = self.get_instrument_components(self.instrument_permid, observable_type)
+            component_options.insert(0, ("Select an component...", "-1"))
+            self.component_dropdown.options = component_options
+            self.component_dropdown.value = "-1"
+            
+            self.observable_properties_widgets.children = observable_properties
+    
+    def get_instrument_components(self, instrument_permid, observable_type):
+        component_list = []
+        if instrument_permid != "-1":
+            instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+            instrument_type = str(instrument_object.type)
+            instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
+            for prop in instrument_components_properties:
+                prop_value = instrument_object.props[prop]
+                if prop_value:
+                    for component_id in prop_value:
+                        component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                        component_observables_settings_prop = component_object.props["observables_settings"]
+                        if component_observables_settings_prop:
+                            component_observables_settings = json.loads(component_observables_settings_prop)
+                            if observable_type in component_observables_settings:
+                                component_list.append((component_object.props["$name"], component_id))
+        return component_list
+    
+    def load_component_settings_list(self, change):
+        observable_type = self.observable_type_dropdown.value
+        if observable_type != "-1":
+            component_permid = self.component_dropdown.value
+            if component_permid != "-1":
+                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                component_settings_property = component_object.props["observables_settings"]
+                component_settings_widgets = []
+                if component_settings_property:
+                    component_settings = json.loads(component_settings_property)[observable_type]["settings"]
+                    for setting in component_settings:
+                        setting_widget = self.components_properties_widgets.get(setting, None)
+                        if setting_widget:
+                            component_settings_widgets.append(self.components_properties_widgets[setting])
+                            
+                self.component_settings_vbox.children = component_settings_widgets
+                
+    def change_observable_title(self, change):
+        title = self.name_textbox.value
+        self.observables_accordion.set_title(self.observable_index, title)
+    
+    def remove_observable(self, b):
+        observables_accordion_children = list(self.observables_accordion.children)
+        num_observables = len(observables_accordion_children)
+        observables_accordion_children.pop(self.observable_index)
+        
+        for index, observable in enumerate(observables_accordion_children):
+            if index >= self.observable_index:
+                observable.observable_index -= 1
+                self.observables_accordion.set_title(self.observable_index, observable.name_textbox.value)
+
+        self.observables_accordion.set_title(num_observables - 1, "")
+        self.observables_accordion.children = observables_accordion_children
+
