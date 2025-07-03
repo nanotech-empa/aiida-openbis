@@ -5,6 +5,8 @@ import pandas as pd
 import json
 import re
 
+OPENBIS_SAMPLES_CACHE = {}
+
 class CreateSampleWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
@@ -286,11 +288,24 @@ class RegisterProcessWidget(ipw.VBox):
             return
         
         sample_identifier = self.select_sample_dropdown.sample_dropdown.value
-        sample_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_identifier)
+        
+        if sample_identifier in OPENBIS_SAMPLES_CACHE:
+            sample_object = OPENBIS_SAMPLES_CACHE[sample_identifier]
+        else:
+            sample_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_identifier)
+            # Save object information
+            OPENBIS_SAMPLES_CACHE[sample_identifier] = sample_object
+        
         sample_object_parents = sample_object.parents
         most_recent_parent = None
         for parent_id in sample_object_parents:
-            parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent_id)
+            if parent_id in OPENBIS_SAMPLES_CACHE:
+                parent_object = OPENBIS_SAMPLES_CACHE[parent_id]
+            else:
+                parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent_id)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[parent_id] = parent_object
+            
             parent_type = parent_object.type
             if parent_type == "PROCESS_STEP":
                 if most_recent_parent:
@@ -305,7 +320,13 @@ class RegisterProcessWidget(ipw.VBox):
                 display(utils.Javascript(data = "alert('Experiment was changed!')"))
             
             for parent in most_recent_parent.parents:
-                parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent)
+                if parent_id in OPENBIS_SAMPLES_CACHE:
+                    parent_object = OPENBIS_SAMPLES_CACHE[parent_id]
+                else:
+                    parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent_id)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[parent_id] = parent_object
+                
                 if parent_object.type == "PREPARATION":
                     self.sample_preparation_object = parent_object
                     break
@@ -326,17 +347,27 @@ class RegisterProcessWidget(ipw.VBox):
         processes_widgets = self.new_processes_accordion.children
         if processes_widgets:
             openbis_transaction_objects = []
+            experiment_object = self.openbis_session.get_experiment(
+                self.select_experiment_dropdown.experiment_dropdown.value
+            )
+            experiment_project_code = experiment_object.project.identifier
+            
             for process_widget in processes_widgets:
-                
                 current_sample_id = self.select_sample_dropdown.sample_dropdown.value
-                current_sample = utils.get_openbis_object(self.openbis_session, sample_ident = current_sample_id)
+                
+                if current_sample_id in OPENBIS_SAMPLES_CACHE:
+                    current_sample = OPENBIS_SAMPLES_CACHE[current_sample_id]
+                else:
+                    current_sample = utils.get_openbis_object(self.openbis_session, sample_ident = current_sample_id)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[current_sample_id] = current_sample
+                
                 current_sample.props["exists"] = False
                 current_sample_name = current_sample.props["$name"]
                 
                 new_process_object = self.openbis_session.new_sample(
                     type = "PROCESS_STEP",
-                    experiment = self.select_experiment_dropdown.experiment_dropdown.value,
-                    parents = [self.sample_preparation_object, current_sample]
+                    experiment = experiment_object.identifier
                 )
                 
                 process_properties = {
@@ -382,7 +413,9 @@ class RegisterProcessWidget(ipw.VBox):
                                 "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
                             }
                             substance = action_widget.substance_dropdown.value
-                            action_properties["substance"] = substance
+                            if substance != "-1":
+                                action_properties["substance"] = substance
+                                
                             action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
                             
                         elif action_type == "DOSING":
@@ -423,9 +456,15 @@ class RegisterProcessWidget(ipw.VBox):
                             action_properties["sputter_ion"] = action_widget.sputter_ion_textbox.value
                         
                         component_permid = action_widget.component_dropdown.value
-                        #TODO: Remove this because all actions and observables should have one component
                         if component_permid != "-1":
-                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                            
+                            if component_permid in OPENBIS_SAMPLES_CACHE:
+                                component_object = OPENBIS_SAMPLES_CACHE[component_permid]
+                            else:
+                                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                                # Save object information
+                                OPENBIS_SAMPLES_CACHE[component_permid] = component_object
+                            
                             component_object_settings = component_object.props["actions_settings"]
                             
                             if component_object_settings:
@@ -470,23 +509,34 @@ class RegisterProcessWidget(ipw.VBox):
                                 
                                 action_properties["component_settings"] = json.dumps(component_settings)
                         
-                        action_properties["$name"] = action_widget.name_textbox.value
-                        action_properties["description"] = action_widget.description_textbox.value
-                        action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
-                        action_properties["component"] = component_permid
-                        action_properties["comments"] = action_widget.comments_textarea.value
-                        
-                        #TODO: Create actions collection next to the sample preparation experiment
-                        
-                        new_action_object = self.openbis_session.new_sample(
-                            type = action_type,
-                            experiment = self.select_experiment_dropdown.experiment_dropdown.value,
-                            parents = [new_process_object, current_sample],
-                            props = process_properties
-                        )
-                        
-                        # Append action to list of actions
-                        actions.append(new_action_object)
+                            action_properties["$name"] = action_widget.name_textbox.value
+                            action_properties["description"] = action_widget.description_textbox.value
+                            action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
+                            action_properties["component"] = component_permid
+                            action_properties["comments"] = action_widget.comments_textarea.value
+                            
+                            #TODO: Create actions collection next to the sample preparation experiment
+                            action_collection_code = "ACTIONS_COLLECTION"
+                            openbis_experiments = self.openbis_session.get_experiments(code = action_collection_code, project = experiment_project_code)
+                            
+                            if openbis_experiments.df.empty:
+                                actions_collection_object = self.openbis_session.new_collection(
+                                    type = "COLLECTION",
+                                    code = action_collection_code,
+                                    project = experiment_project_code,
+                                    props = {"$name": "Actions"}
+                                )
+                                actions_collection_object.save()
+                            
+                            new_action_object = self.openbis_session.new_sample(
+                                type = action_type,
+                                experiment = f"{experiment_project_code}/{action_collection_code}",
+                                props = action_properties
+                            )
+                            new_action_object.save()
+                            
+                            # Append action to list of actions
+                            actions.append(new_action_object.permId)
                 
                 if observables_widgets:
                     for observable_widget in observables_widgets:
@@ -496,7 +546,13 @@ class RegisterProcessWidget(ipw.VBox):
                         component_permid = observable_widget.component_dropdown.value
                         #TODO: Remove this because all the actions and observables must have a component
                         if component_permid != "-1":
-                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                            if component_permid in OPENBIS_SAMPLES_CACHE:
+                                component_object = OPENBIS_SAMPLES_CACHE[component_permid]
+                            else:
+                                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                                # Save object information
+                                OPENBIS_SAMPLES_CACHE[component_permid] = component_object
+                            
                             component_object_settings = component_object.props["observables_settings"]
                             
                             if component_object_settings:
@@ -527,44 +583,63 @@ class RegisterProcessWidget(ipw.VBox):
                                 
                                 observable_properties["component_settings"] = json.dumps(component_settings)
                         
-                        observable_properties["$name"] = observable_widget.name_textbox.value
-                        observable_properties["description"] = observable_widget.description_textbox.value
-                        observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
-                        observable_properties["component"] = component_permid
-                        observable_properties["comments"] = observable_widget.comments_textarea.value
-                        
-                        #TODO: Create observables collection next to the sample preparation experiment
-                        
-                        new_observable_object = self.openbis_session.new_sample(
-                            type = observable_type,
-                            experiment = self.select_experiment_dropdown.experiment_dropdown.value,
-                            parents = [new_process_object, current_sample],
-                            props = process_properties
-                        )
-                        
-                        # Append observable to list of observables
-                        observables.append(new_observable_object)
+                            observable_properties["$name"] = observable_widget.name_textbox.value
+                            observable_properties["description"] = observable_widget.description_textbox.value
+                            observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
+                            observable_properties["component"] = component_permid
+                            observable_properties["comments"] = observable_widget.comments_textarea.value
+                            
+                            #TODO: Create observables collection next to the sample preparation experiment
+                            observable_collection_code = "OBSERVABLES_COLLECTION"
+                            openbis_experiments = self.openbis_session.get_experiments(code = observable_collection_code, project = experiment_project_code)
+                            
+                            if openbis_experiments.df.empty:
+                                observables_collection_object = self.openbis_session.new_collection(
+                                    type = "COLLECTION",
+                                    code = observable_collection_code,
+                                    project = experiment_project_code,
+                                    props = {"$name": "Observables"}
+                                )
+                                observables_collection_object.save()
+                            
+                            new_observable_object = self.openbis_session.new_sample(
+                                type = observable_type,
+                                experiment = f"{experiment_project_code}/{observable_collection_code}",
+                                props = observable_properties
+                            )
+                            new_observable_object.save()
+                            
+                            openbis_transaction_objects.append(new_observable_object)
+                            
+                            # Append observable to list of observables
+                            observables.append(new_observable_object.permId)
                         
                 process_properties["actions"] = actions
                 process_properties["observables"] = observables
                 
-                new_sample_name = f"{current_sample_name}:{process_properties['process_code']}"
-                new_process_object.props = process_properties
+                current_sample_prep_name = self.sample_preparation_object.props["$name"]
+                self.sample_preparation_object.props["$name"] = f"{current_sample_prep_name}:{process_properties['process_code']}"
+                self.sample_preparation_object.save()
                 
+                current_sample.save()
+                
+                new_process_object.props = process_properties
+                new_process_object.parents = [self.sample_preparation_object, current_sample]
+                new_process_object.save()
+                
+                new_sample_name = f"{current_sample_name}:{process_properties['process_code']}"
                 new_sample = self.openbis_session.new_sample(
                     type = "SAMPLE",
                     experiment = "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
                     parents = [new_process_object],
                     props = {"$name": new_sample_name, "exists": True}
                 )
+                new_sample.save()
+            
+            # Refresh sample history
+            self.sample_history_vbox.load_sample_history(new_sample)
+            self.new_processes_accordion.children = []
                 
-                openbis_transaction_objects.append(new_process_object)
-                openbis_transaction_objects.append(current_sample)
-                openbis_transaction_objects.append(new_sample)
-                
-            print(openbis_transaction_objects)
-        else:
-            print("Nothing to save")
 
 class SelectExperimentWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -901,6 +976,7 @@ class SampleHistoryWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
         self.openbis_session = openbis_session
+        self.sample_history_objects = {}
         self.sample_history = ipw.Accordion()
         
         self.children = [
@@ -916,10 +992,19 @@ class SampleHistoryWidget(ipw.VBox):
             for parent in sample_parents:
                 parent_code = parent.split("/")[-1]
                 if "PRST" in parent_code or "SAMP" in parent_code:
-                    parent_object = utils.get_openbis_object(self.openbis_session, sample_ident=parent)
+                    
+                    if parent in OPENBIS_SAMPLES_CACHE:
+                        parent_object = OPENBIS_SAMPLES_CACHE[parent]
+                    else:
+                        parent_object = utils.get_openbis_object(self.openbis_session, sample_ident=parent)
+                        # Save object information
+                        OPENBIS_SAMPLES_CACHE[parent] = parent_object
+                    
                     next_parents.extend(parent_object.parents)
                     if "PRST" in parent_code:
                         process_steps.append(parent_object)
+                        # Save object information
+                        OPENBIS_SAMPLES_CACHE[parent] = parent_object
             sample_parents = next_parents
             
         sample_history_children = []
@@ -989,7 +1074,14 @@ class ProcessStepHistoryWidget(ipw.VBox):
         instrument_id = openbis_object_props["instrument"]
         
         if instrument_id:
-            instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_id)
+            
+            if instrument_id in OPENBIS_SAMPLES_CACHE:
+                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_id]
+            else:
+                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_id)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[instrument_id] = instrument_object
+            
             self.instrument_html.value = instrument_object.props["$name"]
         
         self.load_actions()
@@ -1000,7 +1092,14 @@ class ProcessStepHistoryWidget(ipw.VBox):
         if actions_ids:
             actions_accordion_children = []
             for i, act_id in enumerate(actions_ids):
-                act_object = utils.get_openbis_object(self.openbis_session, sample_ident = act_id)
+                
+                if act_id in OPENBIS_SAMPLES_CACHE:
+                    act_object = OPENBIS_SAMPLES_CACHE[act_id]
+                else:
+                    act_object = utils.get_openbis_object(self.openbis_session, sample_ident = act_id)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[act_id] = act_object
+                
                 act_widget = ActionHistoryWidget(self.openbis_session, act_object)
                 actions_accordion_children.append(act_widget)
                 act_title = act_widget.name_html.value
@@ -1013,7 +1112,14 @@ class ProcessStepHistoryWidget(ipw.VBox):
         if observables_ids:
             observables_accordion_children = []
             for i, obs_id in enumerate(observables_ids):
-                obs_object = utils.get_openbis_object(self.openbis_session, sample_ident = obs_id)
+                
+                if obs_id in OPENBIS_SAMPLES_CACHE:
+                    obs_object = OPENBIS_SAMPLES_CACHE[obs_id]
+                else:
+                    obs_object = utils.get_openbis_object(self.openbis_session, sample_ident = obs_id)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[obs_id] = obs_object
+                
                 obs_widget = ObservableHistoryWidget(self.openbis_session, obs_object)
                 observables_accordion_children.append(obs_widget)
                 obs_title = obs_widget.name_html.value
@@ -1182,12 +1288,26 @@ class ActionHistoryWidget(ipw.VBox):
         if "substance" in openbis_object_props:
             substance_id = openbis_object_props["substance"]
             if substance_id:
-                substance_object = utils.get_openbis_object(self.openbis_session, sample_ident = substance_id)
+                
+                if substance_id in OPENBIS_SAMPLES_CACHE:
+                    substance_object = OPENBIS_SAMPLES_CACHE[substance_id]
+                else:
+                    substance_object = utils.get_openbis_object(self.openbis_session, sample_ident = substance_id)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[substance_id] = substance_object
+                
                 self.substance_html.value = substance_object.props["$name"]
         
         component_id = openbis_object_props["component"]
         if component_id:
-            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+            
+            if component_id in OPENBIS_SAMPLES_CACHE:
+                component_object = OPENBIS_SAMPLES_CACHE[component_id]
+            else:
+                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[component_id] = component_object
+            
             self.component_html.value = component_object.props["$name"]
             
         if openbis_object_props["component_settings"]:
@@ -1258,7 +1378,13 @@ class ObservableHistoryWidget(ipw.VBox):
         component_id = openbis_object_props["component"]
             
         if component_id:
-            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+            if component_id in OPENBIS_SAMPLES_CACHE:
+                component_object = OPENBIS_SAMPLES_CACHE[component_id]
+            else:
+                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[component_id] = component_object
+            
             self.component_html.value = component_object.props["$name"]
             
         if openbis_object_props["component_settings"]:
@@ -1654,14 +1780,27 @@ class RegisterActionWidget(ipw.VBox):
     def get_instrument_components(self, instrument_permid, action_type):
         component_list = []
         if instrument_permid != "-1":
-            instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+            
+            if instrument_permid in OPENBIS_SAMPLES_CACHE:
+                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_permid]
+            else:
+                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[instrument_permid] = instrument_object
+            
             instrument_type = str(instrument_object.type)
             instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
             for prop in instrument_components_properties:
                 prop_value = instrument_object.props[prop]
                 if prop_value:
                     for component_id in prop_value:
-                        component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                        if component_id in OPENBIS_SAMPLES_CACHE:
+                            component_object = OPENBIS_SAMPLES_CACHE[component_id]
+                        else:
+                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                            # Save object information
+                            OPENBIS_SAMPLES_CACHE[component_id] = component_object
+            
                         component_actions_settings_prop = component_object.props["actions_settings"]
                         if component_actions_settings_prop:
                             component_actions_settings = json.loads(component_actions_settings_prop)
@@ -1674,7 +1813,13 @@ class RegisterActionWidget(ipw.VBox):
         if action_type != "-1":
             component_permid = self.component_dropdown.value
             if component_permid != "-1":
-                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                if component_permid in OPENBIS_SAMPLES_CACHE:
+                    component_object = OPENBIS_SAMPLES_CACHE[component_permid]
+                else:
+                    component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[component_permid] = component_object
+                
                 component_settings_property = component_object.props["actions_settings"]
                 component_settings_widgets = []
                 if component_settings_property:
@@ -1841,14 +1986,27 @@ class RegisterObservableWidget(ipw.VBox):
     def get_instrument_components(self, instrument_permid, observable_type):
         component_list = []
         if instrument_permid != "-1":
-            instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+            
+            if instrument_permid in OPENBIS_SAMPLES_CACHE:
+                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_permid]
+            else:
+                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
+                # Save object information
+                OPENBIS_SAMPLES_CACHE[instrument_permid] = instrument_object
+            
             instrument_type = str(instrument_object.type)
             instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
             for prop in instrument_components_properties:
                 prop_value = instrument_object.props[prop]
                 if prop_value:
                     for component_id in prop_value:
-                        component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                        if component_id in OPENBIS_SAMPLES_CACHE:
+                            component_object = OPENBIS_SAMPLES_CACHE[component_id]
+                        else:
+                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
+                            # Save object information
+                            OPENBIS_SAMPLES_CACHE[component_id] = component_object
+                        
                         component_observables_settings_prop = component_object.props["observables_settings"]
                         if component_observables_settings_prop:
                             component_observables_settings = json.loads(component_observables_settings_prop)
@@ -1861,7 +2019,13 @@ class RegisterObservableWidget(ipw.VBox):
         if observable_type != "-1":
             component_permid = self.component_dropdown.value
             if component_permid != "-1":
-                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                if component_permid in OPENBIS_SAMPLES_CACHE:
+                    component_object = OPENBIS_SAMPLES_CACHE[component_permid]
+                else:
+                    component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
+                    # Save object information
+                    OPENBIS_SAMPLES_CACHE[component_permid] = component_object
+                
                 component_settings_property = component_object.props["observables_settings"]
                 component_settings_widgets = []
                 if component_settings_property:
