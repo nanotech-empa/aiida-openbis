@@ -228,8 +228,8 @@ class RegisterProcessWidget(ipw.VBox):
         self.sample_history_vbox = SampleHistoryWidget(self.openbis_session)
         self.new_processes_accordion = ipw.Accordion()
         
-        self.add_process_template_button = ipw.Button(
-            description = 'Add process template', 
+        self.load_process_button = ipw.Button(
+            description = 'Load process', 
             disabled = False, 
             button_style = 'success', 
             tooltip = 'Add process step', 
@@ -246,10 +246,13 @@ class RegisterProcessWidget(ipw.VBox):
         
         self.process_buttons_hbox = ipw.HBox(
             children = [
-                self.add_process_template_button,
+                self.load_process_button,
                 self.add_process_step_button
             ]
         )
+        
+        self.load_processes_vbox = ipw.VBox()
+        self.processes_dropdown = ipw.Dropdown()
         
         self.save_button = ipw.Button(
             description = '', 
@@ -268,6 +271,7 @@ class RegisterProcessWidget(ipw.VBox):
             self.sample_history_title,
             self.sample_history_vbox,
             self.new_processes_title,
+            self.load_processes_vbox,
             self.new_processes_accordion,
             self.process_buttons_hbox,
             self.save_button
@@ -278,7 +282,8 @@ class RegisterProcessWidget(ipw.VBox):
             names = "value"
         )
         
-        # self.add_process_template_button.on_click()
+        self.load_process_button.on_click(self.load_process)
+        self.processes_dropdown.observe(self.load_process_settings, names = "value")
         self.add_process_step_button.on_click(self.add_process_step)
         self.save_button.on_click(self.save_processes)
     
@@ -342,6 +347,45 @@ class RegisterProcessWidget(ipw.VBox):
         new_process_step_widget = RegisterProcessStepWidget(self.openbis_session, self.new_processes_accordion, process_step_index)
         processes_accordion_children.append(new_process_step_widget)
         self.new_processes_accordion.children = processes_accordion_children
+    
+    def load_process(self, b):
+        openbis_processes = utils.get_openbis_objects(self.openbis_session, type = "PROCESS")
+        processes_options = [(obj.props["$name"], obj.permId) for obj in openbis_processes]
+        processes_options.insert(0, ("Select a process...", "-1"))
+        self.processes_dropdown.options = processes_options
+        self.processes_dropdown.value = "-1"
+        self.load_processes_vbox.children = [self.processes_dropdown]
+    
+    def load_process_settings(self, change):
+        process_id = self.processes_dropdown.value
+        if process_id == "-1":
+            return
+        else:
+            if process_id in OPENBIS_SAMPLES_CACHE:
+                process_object = OPENBIS_SAMPLES_CACHE[process_id]
+            else:
+                process_object = utils.get_openbis_object(self.openbis_session, sample_ident = process_id)
+                OPENBIS_SAMPLES_CACHE[process_id] = process_object
+            
+            instrument_id = process_object.props["instrument"]
+            process_steps_settings = process_object.props["process_steps_settings"]
+            if process_steps_settings:
+                process_steps_settings = json.loads(process_steps_settings)
+                for step_settings in process_steps_settings:
+                    step_settings["instrument"] = instrument_id
+                    processes_accordion_children = list(self.new_processes_accordion.children)
+                    process_step_index = len(processes_accordion_children)
+                    new_process_step_widget = RegisterProcessStepWidget(
+                        self.openbis_session, 
+                        self.new_processes_accordion, 
+                        process_step_index,
+                        step_settings
+                    )
+                    processes_accordion_children.append(new_process_step_widget)
+                    self.new_processes_accordion.children = processes_accordion_children
+
+            self.load_processes_vbox.children = []
+            
 
     def save_processes(self, b):
         processes_widgets = self.new_processes_accordion.children
@@ -640,7 +684,6 @@ class RegisterProcessWidget(ipw.VBox):
             self.sample_history_vbox.load_sample_history(new_sample)
             self.new_processes_accordion.children = []
                 
-
 class SelectExperimentWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
@@ -1398,7 +1441,7 @@ class ObservableHistoryWidget(ipw.VBox):
             self.component_settings_html.value = component_settings_string
 
 class RegisterProcessStepWidget(ipw.VBox):
-    def __init__(self, openbis_session, processes_accordion, process_step_index):
+    def __init__(self, openbis_session, processes_accordion, process_step_index, step_settings = None):
         super().__init__()
         self.openbis_session = openbis_session
         self.processes_accordion = processes_accordion
@@ -1463,6 +1506,9 @@ class RegisterProcessStepWidget(ipw.VBox):
         self.add_action_button.on_click(self.add_action)
         self.add_observable_button.on_click(self.add_observable)
         
+        if step_settings:
+            self.load_process_step(step_settings)
+        
         self.children = [
             self.name_hbox,
             self.description_hbox,
@@ -1473,6 +1519,42 @@ class RegisterProcessStepWidget(ipw.VBox):
             self.observables_vbox,
             self.remove_process_step_button
         ]
+    
+    def load_process_step(self, settings):
+        self.name_textbox.value = settings.get("name", "")
+        self.description_textbox.value = settings.get("description", "")
+        self.process_code_textbox.value = settings.get("process_code", "")
+        self.instrument_dropdown.value = settings.get("instrument", "-1")
+        self.comments_textarea.value = settings.get("comments", "")
+        actions = settings.get("actions", {})
+        observables = settings.get("observables", {})
+        for action in actions:
+            actions_accordion_children = list(self.actions_accordion.children)
+            action_index = len(actions_accordion_children)
+            actions[action]["type"] = action
+            new_action_widget = RegisterActionWidget(
+                self.openbis_session, 
+                self.actions_accordion, 
+                action_index, 
+                self.instrument_dropdown.value,
+                actions[action]
+            )
+            actions_accordion_children.append(new_action_widget)
+            self.actions_accordion.children = actions_accordion_children
+        
+        for observable in observables:
+            observables_accordion_children = list(self.observables_accordion.children)
+            observable_index = len(observables_accordion_children)
+            observables[observable]["type"] = observable
+            new_observable_widget = RegisterObservableWidget(
+                self.openbis_session, 
+                self.observables_accordion, 
+                observable_index, 
+                self.instrument_dropdown.value,
+                observables[observable]
+            )
+            observables_accordion_children.append(new_observable_widget)
+            self.observables_accordion.children = observables_accordion_children
     
     def change_process_step_title(self, change):
         name = self.name_textbox.value
@@ -1515,7 +1597,7 @@ class RegisterProcessStepWidget(ipw.VBox):
             self.observables_accordion.children = observables_accordion_children
 
 class RegisterActionWidget(ipw.VBox):
-    def __init__(self, openbis_session, actions_accordion, action_index, instrument_permid):
+    def __init__(self, openbis_session, actions_accordion, action_index, instrument_permid, action_settings = None):
         super().__init__()
         self.openbis_session = openbis_session
         self.actions_accordion = actions_accordion
@@ -1725,12 +1807,69 @@ class RegisterActionWidget(ipw.VBox):
         self.action_type_dropdown.observe(self.load_action_properties, names = "value")
         self.component_dropdown.observe(self.load_component_settings_list, names = "value")
         self.remove_action_button.on_click(self.remove_action)
+
+        if action_settings:
+            self.load_action(action_settings)
         
         self.children = [
             self.action_type_hbox,
             self.action_properties_widgets,
             self.remove_action_button
         ]
+    
+    def load_action(self, settings):
+        self.action_type_dropdown.value = settings["type"]
+        self.name_textbox.value = settings.get("name", "")
+        duration_str = settings.get("duration", "")
+        
+        # Split into days and time
+        days_part, time_part = duration_str.split(" days ")
+        self.duration_days_intbox.value = int(days_part)
+        
+        # Split time into hours, minutes, seconds
+        hours, minutes, seconds = map(int, time_part.split(":"))
+        self.duration_hours_intbox.value = hours
+        self.duration_minutes_intbox.value = minutes
+        self.duration_seconds_intbox.value = seconds
+        
+        self.description_textbox.value = settings.get("description", "")
+        action_target_temperature = settings.get("target_temperature", "")
+        if action_target_temperature:
+            self.target_temperature_value_textbox.value = str(action_target_temperature["value"])
+            self.target_temperature_unit_dropdown.value = action_target_temperature["temperature_unit"]
+        
+        try:
+            component_settings = settings.get("component", {})
+            if component_settings:
+                self.component_dropdown.value = component_settings["permID"]
+                if "target_temperature" in component_settings:
+                    self.target_temperature_value_comp_textbox.value = str(component_settings["target_temperature"]["value"])
+                    self.target_temperature_unit_comp_dropdown.value = component_settings["target_temperature"]["temperature_unit"]
+                    
+                elif "bias_voltage" in component_settings:
+                    self.bias_voltage_value_textbox.value = str(component_settings["bias_voltage"]["value"])
+                    self.bias_voltage_unit_dropdown.value = component_settings["bias_voltage"]["voltage_unit"]
+                
+                elif "discharge_voltage" in component_settings:
+                    self.discharge_voltage_value_textbox.value = str(component_settings["discharge_voltage"]["value"])
+                    self.discharge_voltage_unit_dropdown.value = component_settings["discharge_voltage"]["voltage_unit"]
+                
+                elif "discharge_current" in component_settings:
+                    self.discharge_current_value_textbox.value = str(component_settings["discharge_current"]["value"])
+                    self.discharge_current_unit_dropdown.value = component_settings["discharge_current"]["current_unit"]
+                
+                self.evaporator_p_value_textbox.value = component_settings.get("evaporator_p_value", "")
+                self.evaporator_i_value_textbox.value = component_settings.get("evaporator_i_value", "")
+                self.ep_percentage_textbox.value = component_settings.get("ep_percentage", "")
+        except:
+            pass
+
+        action_substrate_temperature = settings.get("substrate_temperature", "")
+        if action_substrate_temperature:
+            self.substrate_temperature_value_textbox.value = str(action_substrate_temperature["value"])
+            self.substrate_temperature_unit_dropdown.value = action_substrate_temperature["temperature_unit"]
+        
+        self.comments_textarea.value = settings.get("comments", "")
     
     def load_action_properties(self, change):
         action_type = self.action_type_dropdown.value
@@ -1849,7 +1988,7 @@ class RegisterActionWidget(ipw.VBox):
         self.actions_accordion.children = actions_accordion_children
 
 class RegisterObservableWidget(ipw.VBox):
-    def __init__(self, openbis_session, observables_accordion, observable_index, instrument_permid):
+    def __init__(self, openbis_session, observables_accordion, observable_index, instrument_permid, observable_settings = None):
         super().__init__()
         self.openbis_session = openbis_session
         self.observables_accordion = observables_accordion
@@ -1956,11 +2095,37 @@ class RegisterObservableWidget(ipw.VBox):
         self.component_dropdown.observe(self.load_component_settings_list, names = "value")
         self.remove_observable_button.on_click(self.remove_observable)
         
+        if observable_settings:
+            self.load_observable(observable_settings)
+        
         self.children = [
             self.observable_type_hbox,
             self.observable_properties_widgets,
             self.remove_observable_button
         ]
+    
+    def load_observable(self, settings):
+        self.observable_type_dropdown.value = settings["type"]
+        self.name_textbox.value = settings.get("name", "")
+        self.description_textbox.value = settings.get("description", "")
+        self.ch_name_textbox.value = settings.get("channel_name", "")
+        self.comments_textarea.value = settings.get("comments", "")
+        
+        try:
+            component_settings = settings.get("component", {})
+            if component_settings:
+                self.component_dropdown.value = component_settings["permID"]
+                if "density" in component_settings:
+                    self.density_value_textbox.value = str(component_settings["density"]["value"])
+                    self.density_unit_dropdown.value = component_settings["density"]["density_unit"]
+                
+                elif "filament_current" in component_settings:
+                    self.filament_current_value_textbox.value = str(component_settings["filament_current"]["value"])
+                    self.filament_current_unit_dropdown.value = component_settings["filament_current"]["current_unit"]
+                
+                self.filament_textbox.value = component_settings.get("filament", "")
+        except:
+            pass
         
     def load_observable_properties(self, change):
         observable_type = self.observable_type_dropdown.value

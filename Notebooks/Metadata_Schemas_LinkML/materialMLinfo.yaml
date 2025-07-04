@@ -1509,6 +1509,7 @@ classes:
      - substance_type
      - amount
      - chemist_own_name
+     - comments
      # Documentation
      # - safety_datasheet (Dataset)
      # - website (Dataset)

@@ -1261,7 +1261,6 @@
             "Experiments": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_sample.ipynb' target='_blank' style='font-size: 13px;'>Create sample</a></li>",
                 "<li><a href='sample_preparation.ipynb' target='_blank' style='font-size: 13px;'>Sample preparation</a></li>",
                 "<li><a href='sample_measurement.ipynb' target='_blank' style='font-size: 13px;'>Sample measurement</a></li>",
                 "</div>",
@@ -1315,7 +1314,6 @@
             "Experiments": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_sample.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create sample</a></li>",
                 "<li><a href='sample_preparation.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample preparation</a></li>",
                 "<li><a href='sample_measurement.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample measurement</a></li>",
                 "</div>",
