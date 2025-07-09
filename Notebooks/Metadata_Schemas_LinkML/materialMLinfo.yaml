@@ -1229,7 +1229,6 @@ classes:
       openbis_label: Process
     slots:
      - description
-     - process_code
      - instrument
      - process_steps_settings
      - comments
@@ -1245,7 +1244,6 @@ classes:
       openbis_label: Process Step
     slots:
      - description
-     - process_code
      - actions
      - observables
      - instrument
@@ -4354,16 +4352,6 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Pressure
-
-  process_code:
-    title: Process code
-    description: Process code
-    range: string
-    slot_uri: 
-    multivalued: false
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Process code
   
   process_steps:
     title: Process steps

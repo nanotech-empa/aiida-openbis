@@ -201,6 +201,20 @@ class OpenBisDatabase:
             return None
     
     def setup_openbis_database(self, collections_config_filepath: str):
+        # Create property type and link it to ATTACHMENT dataset type
+        documentation_website_property = self.session.get_property_types("DOCUMENTATION_WEBSITE")
+        if documentation_website_property.df.empty:
+            ds_property_type = self.session.new_property_type(
+                code = "documentation_website",
+                label = "Documentation website",
+                description = "Documentation website",
+                dataType = "HYPERLINK"
+            )
+            ds_property_type.save()
+            attachment_ds_type = self.session.get_dataset_type("ATTACHMENT")
+            attachment_ds_type.assign_property(ds_property_type)
+            attachment_ds_type.save()
+        
         # Create object types in openBIS following the LinkML schema
         for _, object in self.objects_schema["classes"].items():
             object_property_types = []
