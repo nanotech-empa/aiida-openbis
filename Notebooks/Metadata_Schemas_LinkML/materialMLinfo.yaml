@@ -1893,17 +1893,6 @@ classes:
      - height
      - thickness
 
-  DurationQuantityValue:
-    title: Duration quantity value
-    class_uri: qudt:quantityValue
-    description: Value together with duration unit
-    annotations:
-      openbis_object: false
-    slots:
-     - has_value
-     - has_duration_unit
-     - type
-
   EvaporationTemperature:
     title: Evaporation temperature
     description: evaporation temperature details
@@ -1932,9 +1921,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_length_unit
-     - type
+     - value
+     - length_unit
   
   LevelTheory:
     title: Level of Theory
@@ -1953,9 +1941,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_mass_unit
-     - type
+     - value
+     - mass_unit
   
   MaterialCoating:
     title: Material coating
@@ -1999,8 +1986,7 @@ classes:
     slots:
      - value
      - pressure_unit
-     - type
-  
+
   RateQuantityValue:
     title: Rate quantity value
     class_uri: qudt:quantityValue
@@ -2008,9 +1994,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_rate_unit
-     - type
+     - value
+     - rate_unit
   
   ChannelTimeSeries:
     title: Quantity time series
@@ -2031,9 +2016,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_unit
-     - type
+     - value
+     - unit
   
   SubstratesDetails:
     title: Substrates details
@@ -2055,9 +2039,8 @@ classes:
     annotations:
       openbis_object: false
     slots:
-     - has_value
-     - has_temperature_unit
-     - type
+     - value
+     - temperature_unit
   
   ThicknessQuantityValue:
     title: Thickness quantity value
@@ -3100,35 +3083,6 @@ slots:
       openbis_type: REAL
       openbis_label: Density tolerance
 
-  deposition_time:
-    title: Deposition Time
-    description: Deposition Time
-    range: DurationQuantityValue
-    multivalued: false
-    annotations:
-      openbis_type: JSON
-      openbis_label: Deposition time
-  
-  deposition_time_value:
-    title: Deposition Time (value)
-    description: Deposition Time (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Deposition time (value)
-  
-  deposition_time_unit:
-    title: Deposition Time (unit)
-    description: Deposition Time (unit)
-    range: DurationUnitsEnum
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Deposition time (unit)
-
   description:
     title: Description
     description: Description
@@ -3674,86 +3628,6 @@ slots:
     annotations:
       openbis_type: ARRAY_REAL
       openbis_label: Geometry constraints increments
-
-  has_angle_unit:
-    title: Angle Unit
-    description: Unit
-    range: AngleUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_current_unit:
-    title: Current Unit
-    description: Unit
-    range: CurrentUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_duration_unit:
-    title: Duration Unit
-    description: Unit
-    range: DurationUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-  
-  has_length_unit:
-    title: Length Unit
-    description: Unit
-    range: LengthUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_mass_unit:
-    title: Mass Unit
-    description: Unit
-    range: MassUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_pressure_unit:
-    title: Pressure Unit
-    description: Unit
-    range: PressureUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_rate_unit:
-    title: Rate Unit
-    description: Unit
-    range: RateUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
-
-  has_temperature_unit:
-    title: Temperature Unit
-    description: Unit
-    range: TemperatureUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
   
   has_time_series:
     title: Time series
@@ -3764,36 +3638,6 @@ slots:
     annotations:
       openbis_type: REAL
       openbis_label: Time series
-
-  has_unit:
-    title: Unit
-    description: Unit
-    range: string
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Unit
-
-  has_value:
-    title: Value
-    description: Value
-    range: double
-    slot_uri: qudt:value
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Value
-
-  has_voltage_unit:
-    title: Voltage Unit
-    description: Unit
-    range: VoltageUnitsEnum
-    slot_uri: qudt:hasUnit
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Unit
 
   hazardous:
     title: Hazardous
@@ -3903,25 +3747,15 @@ slots:
       openbis_type: JSON
       openbis_label: Length
   
-  length_value:
-    title: Length (value)
-    description: Length (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Length (value)
-  
   length_unit:
-    title: Length (unit)
-    description: Length (unit)
+    title: Length Unit
+    description: Unit
     range: LengthUnitsEnum
-    slot_uri:
+    slot_uri: qudt:hasUnit
     multivalued: false
     annotations:
       openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Length (unit)
+      openbis_label: Unit
   
   level_theory_method:
     title: Level of Theory (method)
@@ -3959,6 +3793,16 @@ slots:
   #   annotations:
   #     openbis_type: JSON
   #     openbis_label: Level of theory
+
+  mass_unit:
+    title: Mass Unit
+    description: Unit
+    range: MassUnitsEnum
+    slot_uri: qudt:hasUnit
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
 
   material:
     title: Material
@@ -4270,7 +4114,7 @@ slots:
     title: Package opening date
     description: package opening date
     range: date
-    multivalued: true
+    multivalued: false
     annotations:
       openbis_type: DATE
       openbis_label: Package opening date
@@ -4442,6 +4286,16 @@ slots:
     annotations:
       openbis_type: JSON
       openbis_label: Rate
+  
+  rate_unit:
+    title: Rate Unit
+    description: Unit
+    range: RateUnitsEnum
+    slot_uri: qudt:hasUnit
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Unit
   
   reading_unit:
     title: Reading Unit
@@ -4660,35 +4514,6 @@ slots:
   #     openbis_type: VARCHAR
   #     openbis_label: Supplier name
 
-  stabilisation_time:
-    title: Stabilisation Time
-    description: Stabilisation Time
-    range: DurationQuantityValue
-    multivalued: false
-    annotations:
-      openbis_type: JSON
-      openbis_label: Stabilisation time
-  
-  stabilisation_time_value:
-    title: Stabilisation Time (value)
-    description: Stabilisation Time (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Stabilisation time (value)
-
-  stabilisation_time_unit:
-    title: Stabilisation Time (unit)
-    description: Stabilisation Time (unit)
-    range: DurationUnitsEnum
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: CONTROLLEDVOCABULARY
-      openbis_label: Stabilisation time (unit)
-
   start_date:
     title: Start Date
     description: start date
@@ -4805,16 +4630,6 @@ slots:
     annotations:
       openbis_type: OBJECT
       openbis_label: Temperature environment control
-
-  temperature_value:
-    title: Temperature (value)
-    description: Temperature (value)
-    range: double
-    slot_uri:
-    multivalued: false
-    annotations:
-      openbis_type: REAL
-      openbis_label: Temperature (value)
   
   temperature_unit:
     title: Temperature (unit)
@@ -4991,6 +4806,16 @@ slots:
     multivalued: false
     annotations:
       openbis_type: Not used
+  
+  unit:
+    title: Unit
+    description: Unit
+    range: string
+    slot_uri: qudt:hasUnit
+    multivalued: false
+    annotations:
+      openbis_type: VARCHAR
+      openbis_label: Unit
 
   up_densities:
     title: Up Densities

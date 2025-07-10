@@ -5,6 +5,8 @@ import pandas as pd
 import json
 import re
 from collections import Counter
+import subprocess
+import shutil
 
 OPENBIS_SAMPLES_CACHE = {}
 ACTIONS_CODES = {
@@ -23,6 +25,640 @@ ACTIONS_CODES = {
     "RINSE": "RINS"
 }
 
+ACTIONS_LABELS = [
+    ("Annealing", "ANNEALING"),
+    ("Coating", "COATING"),
+    ("Cooldown", "COOLDOWN"),
+    ("Delamination", "DELAMINATION"),
+    ("Deposition", "DEPOSITION"),
+    ("Dosing", "DOSING"),
+    ("Etching", "ETCHING"),
+    ("Field emission", "FIELD_EMISSION"),
+    ("Fishing", "FISHING"),
+    ("Light irradiation", "LIGHT_IRRADIATION"),
+    ("Mechanical Pressing", "MECHANICAL_PRESSING"),
+    ("Rinse", "RINSE"),
+    ("Sputtering", "SPUTTERING")
+]
+
+OBSERVABLES_LABELS = [
+    ("Current", "CURRENT_OBSERVABLE"),
+    ("Elemental Composition", "ELEMENTAL_COMPOSITION_OBSERVABLE"),
+    ("Flux", "FLUX_OBSERVABLE"),
+    ("Force", "FORCE_OBSERVABLE"),
+    ("Inductance", "INDUCTANCE_OBSERVABLE"),
+    ("Observable", "OBSERVABLE"),
+    ("pH", "PH_VALUE_OBSERVABLE"),
+    ("Pressure", "PRESSURE_OBSERVABLE"),
+    ("Resistance", "RESISTANCE_OBSERVABLE"),
+    ("Speed", "SPEED_OBSERVABLE"),
+    ("Temperature", "TEMPERATURE_OBSERVABLE"),
+    ("Voltage", "VOLTAGE_OBSERVABLE")
+]
+
+MATERIALS_LABELS = [
+    ("Crystal", "CRYSTAL"),
+    ("2D layer material", "2D_LAYER_MATERIAL"),
+    ("Wafer substrate", "WAFER_SUBSTRATE")
+]
+
+MATERIALS_CONCEPTS_LABELS = [
+    ("Crystal concept", "CRYSTAL_CONCEPT"),
+    ("2D layer material", "2D_LAYER_MATERIAL"),
+    ("Wafer substrate", "WAFER_SUBSTRATE")
+]
+
+SIMULATION_OBJECT_TYPES = [
+    "BAND_STRUCTURE",
+    "GEOMETRY_OPTIMISATION",
+    "PDOS",
+    "MEASUREMENT_SESSION",
+    "UNCLASSIFIED_SIMULATION",
+    "VIBRATIONAL_SPECTROSCOPY"
+]
+
+WORKCHAIN_VIEWERS = {
+    'QeAppWorkChain': "/apps/apps/quantum-espresso/qe.ipynb",
+    'Cp2kGeoOptWorkChain': "/apps/apps/surfaces/view_geometry_optimization.ipynb",
+    'Cp2kStmWorkChain': "/apps/apps/surfaces/view_stm.ipynb",
+}
+
+def get_cached_object(ob_session, obj_id):
+    if obj_id in OPENBIS_SAMPLES_CACHE:
+        sample_object = OPENBIS_SAMPLES_CACHE[obj_id]
+    else:
+        sample_object = utils.get_openbis_object(ob_session, sample_ident = obj_id)
+        # Save object information
+        OPENBIS_SAMPLES_CACHE[obj_id] = sample_object
+        
+    return sample_object
+
+def stringify_quantity_value(json_obj, unit_type):
+    if isinstance(json_obj, str):
+        json_obj = json.loads(json_obj)
+        
+    value = json_obj["value"]
+    unit = json_obj[unit_type]
+    quantity_value_str = ""
+    if value:
+        quantity_value_str = f"{value} {unit}"
+        
+    return quantity_value_str
+
+def find_openbis_simulations(ob_session, obj):
+    simulation_objects = set()
+    children = obj.children
+    if children is not None:
+        for child in children:
+            child_object = get_cached_object(ob_session, child)
+            if child_object.type in SIMULATION_OBJECT_TYPES:
+                simulation_objects.add(child_object)
+            simulation_objects.update(find_openbis_simulations(ob_session, child_object))
+    return simulation_objects
+
+# Import/export simulations widgets
+class ImportSimulationsWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_molecules_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select molecules</span>"
+        )
+        
+        self.select_reacprod_concepts_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select reaction product concepts</span>"
+        )
+        
+        self.select_slab_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select slab</span>"
+        )
+        
+        self.search_simulations_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Search simulations</span>"
+        )
+        
+        self.molecules_accordion = ipw.Accordion()
+        self.add_molecule_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add molecule', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.reacprod_concepts_accordion = ipw.Accordion()
+        self.add_reacprod_concept_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add reaction product concept', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.select_material_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select material</span>"
+        )
+        
+        material_type_options = MATERIALS_CONCEPTS_LABELS
+        material_type_options.insert(0, ("Select material type...", "-1"))
+        
+        self.material_type_dropdown = ipw.Dropdown(
+            options = material_type_options,
+            value = material_type_options[0][1]
+        )
+        
+        self.material_details_vbox = ipw.VBox()
+        
+        self.search_logical_operator_label = ipw.Label(value = "Search logical operator")
+        self.search_logical_operator_dropdown = ipw.Dropdown(
+            value = "AND", options = ["AND", "OR"],
+            layout = ipw.Layout(width = '150px')
+        )
+        self.search_logical_operator_hbox = ipw.HBox(
+            children = [self.search_logical_operator_label, self.search_logical_operator_dropdown]
+        )
+        
+        self.search_button = ipw.Button(
+            disabled = False, icon = 'search',
+            tooltip = 'Search simulations in openBIS', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        self.found_simulations_label = ipw.Label(value = "Found simulations")
+        self.found_simulations_select_multiple = ipw.SelectMultiple(
+            description = '', disabled = False, 
+            layout = ipw.Layout(width = '500px'), 
+            style = {'description_width': "110px"}
+        )
+        self.found_simulations_hbox = ipw.HBox(
+            children = [self.found_simulations_label, self.found_simulations_select_multiple]
+        )
+        
+        self.import_simulations_button = utils.Button(
+            tooltip = 'Import simulations', icon = 'download', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        self.import_simulations_message_html = ipw.HTML()
+        
+        # Increase search button icon size
+        increase_search_button = ipw.HTML(
+            """<style>
+            .fa-search {font-size: 2em !important;}
+            .fa-download {font-size: 2em !important;}
+            </style>
+            """
+        )
+        
+        # Add functionality to the widgets
+        self.material_type_dropdown.observe(self.load_material_type_widgets, names = "value")
+        self.add_molecule_button.on_click(self.add_molecule)
+        self.add_reacprod_concept_button.on_click(self.add_reacprod_concept)
+        self.search_button.on_click(self.search_simulations)
+        
+        self.children = [
+            self.select_molecules_title,
+            self.molecules_accordion,
+            self.add_molecule_button,
+            self.select_reacprod_concepts_title,
+            self.reacprod_concepts_accordion,
+            self.add_reacprod_concept_button,
+            self.select_slab_title,
+            self.material_type_dropdown,
+            self.material_details_vbox,
+            self.search_simulations_title,
+            self.search_logical_operator_hbox,
+            increase_search_button,
+            self.search_button,
+            self.found_simulations_hbox,
+            self.import_simulations_button,
+            self.import_simulations_message_html
+        ]
+    
+    def search_simulations(self, b):
+        parents_permid_list = []
+        for molecule_widget in self.molecules_accordion.children:
+            molecule_permid = molecule_widget.dropdown.value
+            if molecule_permid != "-1":
+                parents_permid_list.append(molecule_permid)
+        
+        if self.material_type_dropdown.value != "-1":
+            material_permid = self.material_details_vbox.children[0].children[0].value
+            if material_permid != "-1":
+                parents_permid_list.append(material_permid)
+        
+        for reacprod_concept_widget in self.reacprod_concepts_accordion.children:
+            reacprod_concept_permid = reacprod_concept_widget.dropdown.value
+            if reacprod_concept_permid != "-1":
+                parents_permid_list.append(reacprod_concept_permid)
+        
+        simulation_permid_set = set()
+        logical_operator = self.search_logical_operator_dropdown.value
+        
+        if logical_operator == "OR": # In OR, all the simulations found are added to the list
+            for parent in parents_permid_list:
+                parent_object = get_cached_object(self.openbis_session, parent)
+                simulation_objects_children = find_openbis_simulations(self.openbis_session, parent_object)
+                
+                for simulation_object in simulation_objects_children:
+                    simulation_permid = simulation_object.permId
+                    # Measurement Session is used for both simulation and experiments
+                    if simulation_object.type == "MEASUREMENT_SESSION":
+                        simulation_measurement = False
+                        for parent in simulation_object.parents:
+                            parent_object = get_cached_object(self.openbis_session, parent)
+                            if parent_object.type == "ATOMISTIC_MODEL":
+                                simulation_measurement = True
+                                break
+                            
+                        if simulation_measurement:
+                            simulation_permid_set.add(simulation_permid)
+                    else:
+                        simulation_permid_set.add(simulation_permid)
+                        
+        else:  # In AND, only the simulations that appear in all selected materials are added to the list
+            for idx, parent in enumerate(parents_permid_list):
+                parent_object = get_cached_object(self.openbis_session, parent)
+                simulation_objects_children = find_openbis_simulations(self.openbis_session, parent_object)
+                
+                parent_simulation_permid_list = []
+                for simulation_object in simulation_objects_children:
+                    simulation_permid = simulation_object.permId
+                    if simulation_object.type == "MEASUREMENT_SESSION": # 2D Measurement is used for both simulation and experiments
+                        simulation_measurement = False
+                        for parent in simulation_object.parents:
+                            parent_object = get_cached_object(self.openbis_session, parent)
+                            if parent_object.type == "ATOMISTIC_MODEL":
+                                simulation_measurement = True
+                                break
+                            
+                        if simulation_measurement:
+                            parent_simulation_permid_list.append(simulation_permid)
+                    else:
+                        parent_simulation_permid_list.append(simulation_permid)
+                
+                if idx == 0:   
+                    simulation_permid_set = set(parent_simulation_permid_list)
+                else:
+                    simulation_permid_set.intersection_update(parent_simulation_permid_list)
+
+        simulation_permid_list = list(simulation_permid_set)
+        aiida_node_permid_list = []
+        for simulation_permid in simulation_permid_list:
+            simulation_object = get_cached_object(self.openbis_session, simulation_permid)
+            aiida_node_found = False
+            for parent in simulation_object.parents:
+                parent_object = get_cached_object(self.openbis_session, parent)
+                if parent_object.type == "AIIDA_NODE":
+                    aiida_node_found = True
+                    aiida_node_permid_list.append(parent)
+                    break
+            
+            if aiida_node_found == False:
+                aiida_node_permid_list.append(None)
+        
+        simulation_aiida_node_list = []
+        for idx, simulation_permid in enumerate(simulation_permid_list):
+            simulation_object = get_cached_object(self.openbis_session, simulation_permid)
+            simulation_info = f"{simulation_object.props['name']}"
+            aiida_node_permid = aiida_node_permid_list[idx]
+            simulation_aiida_node_list.append([simulation_info, aiida_node_permid])
+        
+        self.found_simulations_select_multiple.options = simulation_aiida_node_list
+    
+    def import_aiida_nodes(self, b):
+        selected_simulations = self.found_simulations_select_multiple.value
+        selected_labels = [label for label, value in self.found_simulations_select_multiple.options if value in selected_simulations]
+        
+        selected_simulations_messages = ""
+        for idx, aiida_node_permid in enumerate(selected_simulations):
+            selected_label = selected_labels[idx]
+            
+            if aiida_node_permid:
+                aiida_node_object = get_cached_object(self.openbis_session, aiida_node_permid)
+                object_datasets = aiida_node_object.get_datasets()
+                
+                for dataset in object_datasets:
+                    dataset_filenames = dataset.file_list
+                    is_aiida_file = False
+                    if len(dataset_filenames) == 1:
+                        for filename in dataset_filenames:
+                            if ".aiida" in filename:
+                                is_aiida_file = True
+                    
+                    if is_aiida_file:
+                        dataset.download(destination = 'aiida_nodes')
+                        aiida_node_filename = dataset.file_list[0]
+                        aiida_node_filepath = f"aiida_nodes/{dataset.permId}/{aiida_node_filename}"
+                        command = ["verdi", "archive", "import", aiida_node_filepath]
+                        
+                        # Execute the command
+                        result = subprocess.run(command, capture_output=True, text=True)
+                        if result.returncode != 0:
+                            print(f"An error occurred: {result.stderr}")
+                        else:
+                            workchain = load_node(aiida_node_object.props["wfms_uuid"])
+                            workchain_viewer_link = WORKCHAIN_VIEWERS[workchain.process_label]
+                            notebook_link = f"{workchain_viewer_link}?pk={workchain.pk}"
+                            
+                            simulation_message = f'<a href="{notebook_link}">Workchain {selected_label} successfully imported.</a>\n'
+                            selected_simulations_messages += simulation_message
+                        
+                        shutil.rmtree(f"aiida_nodes/{dataset.permId}/")
+            else:
+                simulation_message = f"Workchain {selected_label} cannot be imported because it was done manually.\n"
+                selected_simulations_messages += simulation_message
+    
+    def load_material_type_widgets(self, change):
+        if self.material_type_dropdown.value == "-1":
+            self.material_details_vbox.children = []
+            return
+        else:
+            material_options = [
+                ("Select material...", "-1")
+            ]
+            
+            material_dropdown = ipw.Dropdown(
+                options = material_options,
+                value = material_options[0][1]
+            )
+            
+            sort_material_label = ipw.Label(
+                value = "Sort by:", 
+                layout=ipw.Layout(margin='0px', width='50px'),
+                style = {'description_width': 'initial'}
+            )
+            
+            name_checkbox = ipw.Checkbox(
+                indent = False,
+                layout=ipw.Layout(margin='2px', width='20px')
+            )
+            
+            name_label = ipw.Label(
+                value = "Name", 
+                layout=ipw.Layout(margin='0px', width='50px'),
+                style = {'description_width': 'initial'}
+            )
+            
+            registration_date_checkbox = ipw.Checkbox(
+                indent = False,
+                layout=ipw.Layout(margin='2px', width='20px')
+            )
+            
+            registration_date_label = ipw.Label(
+                value = "Registration date",
+                layout=ipw.Layout(margin='0px', width='110px'),
+                style = {'description_width': 'initial'}
+            )
+        
+            select_material_box = ipw.HBox(
+                children = [
+                    material_dropdown,
+                    sort_material_label,
+                    name_checkbox,
+                    name_label,
+                    registration_date_checkbox,
+                    registration_date_label
+                ]
+            )
+            
+            material_details_html = ipw.HTML()
+            
+            self.material_details_vbox.children = [
+                select_material_box,
+                material_details_html
+            ]
+            
+            material_type = self.material_type_dropdown.value
+            material_objects = utils.get_openbis_objects(
+                self.openbis_session,
+                type = material_type
+            )
+            materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+            material_options += materials_objects_names_permids
+            material_dropdown.options = material_options
+            
+            def sort_material_dropdown(change):
+                options = material_options[1:]
+                
+                df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                if name_checkbox.value and not registration_date_checkbox.value:
+                    df = df.sort_values(by="$name", ascending=True)
+                elif not name_checkbox.value and registration_date_checkbox.value:
+                    df = df.sort_values(by="registration_date", ascending=False)
+                elif name_checkbox.value and registration_date_checkbox.value:
+                    df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+                options = list(df.itertuples(index=False, name=None))
+                options.insert(0, material_options[0])
+                material_dropdown.options = options
+            
+            def load_material_details(change):
+                obj_permid = material_dropdown.value
+                if obj_permid == "-1":
+                    return
+                else:
+                    obj = self.openbis_session.get_object(obj_permid)
+                    obj_props = obj.props.all()
+                    obj_name = obj_props.get("$name", "")
+                    obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
+                    for key, value in obj_props.items():
+                        if value:
+                            prop_type = self.openbis_session.get_property_type(key)
+                            prop_label = prop_type.label
+                            obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+                    
+                    obj_details_string += "</div>"
+                    
+                    material_details_html.value = obj_details_string
+                    
+            name_checkbox.observe(sort_material_dropdown, names = "value")
+            registration_date_checkbox.observe(sort_material_dropdown, names = "value")
+            material_dropdown.observe(load_material_details, names = "value")
+    
+    def add_molecule(self, b):
+        molecules_accordion_children = list(self.molecules_accordion.children)
+        molecule_index = len(molecules_accordion_children)
+        molecule_widget = MoleculeWidget(self.openbis_session, self.molecules_accordion, molecule_index)
+        molecules_accordion_children.append(molecule_widget)
+        self.molecules_accordion.children = molecules_accordion_children
+    
+    def add_reacprod_concept(self, b):
+        reacprod_concepts_accordion_children = list(self.reacprod_concepts_accordion.children)
+        reacprod_concept_index = len(reacprod_concepts_accordion_children)
+        reacprod_concept_widget = ReacProdConceptWidget(self.openbis_session, self.reacprod_concepts_accordion, reacprod_concept_index)
+        reacprod_concepts_accordion_children.append(reacprod_concept_widget)
+        self.reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
+
+class ExportSimulationsWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_experiment_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select experiment</span>"
+        )
+        
+        self.simulation_details_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Simulation details</span>"
+        )
+        
+        self.used_aiida_checkbox = ipw.Checkbox(
+            value = False,
+            description = "Simulation developed using AiiDA",
+            indent = False
+        )
+        
+        self.select_molecules_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select molecules</span>"
+        )
+        
+        self.select_reacprod_concepts_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select reaction product concepts</span>"
+        )
+        
+        self.select_slab_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select slab</span>"
+        )
+        
+        self.simulation_details_vbox = ipw.VBox()
+        
+        self.children = [
+            self.select_experiment_title,
+            self.simulation_details_title,
+            self.used_aiida_checkbox,
+            self.select_molecules_title,
+            self.select_reacprod_concepts_title,
+            self.select_slab_title,
+            self.simulation_details_vbox
+        ]
+
+class MoleculeWidget(ipw.VBox):
+    def __init__(self, openbis_session, parent_accordion, object_index):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.parent_accordion = parent_accordion
+        self.object_index = object_index
+        self.title = ""
+        
+        molecules_objects = utils.get_openbis_objects(
+            self.openbis_session, 
+            collection = "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION",
+            type = "MOLECULE"
+        )
+        dropdown_list = [(obj.props["$name"], obj.permId) for obj in molecules_objects]
+        dropdown_list.insert(0, ("Select a molecule...", "-1"))
+        self.dropdown = ipw.Dropdown(value = "-1",options = dropdown_list)
+        self.details_vbox = ipw.VBox()
+        
+        self.remove_molecule_button = ipw.Button(
+            description = 'Remove', disabled = False, 
+            button_style = 'danger', tooltip = 'Remove molecule', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.dropdown.observe(self.load_details, names = "value")
+        self.remove_molecule_button.on_click(self.remove_molecule)
+        self.children = [self.dropdown, self.details_vbox, self.remove_molecule_button]
+    
+    def load_details(self, change):
+        obj_permid = self.dropdown.value
+        if obj_permid == "-1":
+            return
+        else:
+            obj = get_cached_object(self.openbis_session, obj_permid)
+            obj_props = obj.props.all()
+            obj_name = obj_props.get("$name", "")
+            self.parent_accordion.set_title(self.object_index, obj_name)
+            self.title = obj_name
+            
+            obj_details_html = ipw.HTML()
+            obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
+            for key, value in obj_props.items():
+                if value:
+                    prop_type = self.openbis_session.get_property_type(key)
+                    prop_label = prop_type.label
+                    obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+            
+            obj_details_string += "</div>"
+            obj_details_html.value = obj_details_string
+            self.details_vbox.children = [obj_details_html]
+    
+    def remove_molecule(self, b):
+        molecules_accordion_children = list(self.parent_accordion.children)
+        num_molecules = len(molecules_accordion_children)
+        molecules_accordion_children.pop(self.object_index)
+        
+        for index, molecule in enumerate(molecules_accordion_children):
+            if index >= self.object_index:
+                molecule.object_index -= 1
+                self.parent_accordion.set_title(molecule.object_index, molecule.title)
+
+        self.parent_accordion.set_title(num_molecules - 1, "")
+        self.parent_accordion.children = molecules_accordion_children
+
+class ReacProdConceptWidget(ipw.VBox):
+    def __init__(self, openbis_session, parent_accordion, object_index):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.parent_accordion = parent_accordion
+        self.object_index = object_index
+        self.title = ""
+        
+        molecules_objects = utils.get_openbis_objects(
+            self.openbis_session, 
+            collection = "/MATERIALS/MOLECULES/PRODUCT_COLLECTION",
+            type = "REACTION_PRODUCT_CONCEPT"
+        )
+        dropdown_list = [(obj.props["$name"], obj.permId) for obj in molecules_objects]
+        dropdown_list.insert(0, ("Select a reaction product concept...", "-1"))
+        self.dropdown = ipw.Dropdown(value = "-1",options = dropdown_list)
+        self.details_vbox = ipw.VBox()
+    
+        self.remove_reacprod_concept_button = ipw.Button(
+            description = 'Remove', disabled = False, 
+            button_style = 'danger', tooltip = 'Remove reaction product concept', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.dropdown.observe(self.load_details, names = "value")
+        self.remove_reacprod_concept_button.on_click(self.remove_reacprod_concept)
+        self.children = [self.dropdown, self.details_vbox, self.remove_reacprod_concept_button]
+    
+    def load_details(self, change):
+        obj_permid = self.dropdown.value
+        if obj_permid == "-1":
+            return
+        else:
+            obj = get_cached_object(self.openbis_session, obj_permid)
+            obj_props = obj.props.all()
+            obj_name = obj_props.get("$name", "")
+            self.parent_accordion.set_title(self.object_index, obj_name)
+            self.title = obj_name
+            
+            obj_details_html = ipw.HTML()
+            obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
+            for key, value in obj_props.items():
+                if value:
+                    prop_type = self.openbis_session.get_property_type(key)
+                    prop_label = prop_type.label
+                    obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+            
+            obj_details_string += "</div>"
+            obj_details_html.value = obj_details_string
+            self.details_vbox.children = [obj_details_html]
+    
+    def remove_reacprod_concept(self, b):
+        reacprod_concepts_accordion_children = list(self.parent_accordion.children)
+        num_reacprod_concepts = len(reacprod_concepts_accordion_children)
+        reacprod_concepts_accordion_children.pop(self.object_index)
+        
+        for index, reacprod_concept in enumerate(reacprod_concepts_accordion_children):
+            if index >= self.object_index:
+                reacprod_concept.object_index -= 1
+                self.parent_accordion.set_title(reacprod_concept.object_index, reacprod_concept.title)
+
+        self.parent_accordion.set_title(num_reacprod_concepts - 1, "")
+        self.parent_accordion.children = reacprod_concepts_accordion_children
+
+# Sample preparation widgets
 class CreateSampleWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
@@ -32,12 +668,8 @@ class CreateSampleWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Select material</span>"
         )
         
-        material_type_options = [
-            ("Select material type...", "-1"),
-            ("Crystal", "CRYSTAL"),
-            ("2D layer material", "2D_LAYER_MATERIAL"),
-            ("Wafer substrate", "WAFER_SUBSTRATE")
-        ]
+        material_type_options = MATERIALS_LABELS
+        material_type_options.insert(0, ("Select material type...", "-1"))
         
         self.material_type_dropdown = ipw.Dropdown(
             options = material_type_options,
@@ -140,10 +772,7 @@ class CreateSampleWidget(ipw.VBox):
             ]
             
             material_type = self.material_type_dropdown.value
-            material_objects = utils.get_openbis_objects(
-                self.openbis_session,
-                type = material_type
-            )
+            material_objects = utils.get_openbis_objects(self.openbis_session, type = material_type)
             materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
             material_options += materials_objects_names_permids
             material_dropdown.options = material_options
@@ -168,7 +797,7 @@ class CreateSampleWidget(ipw.VBox):
                 if obj_permid == "-1":
                     return
                 else:
-                    obj = self.openbis_session.get_object(obj_permid)
+                    obj = get_cached_object(self.openbis_session, obj_permid)
                     obj_props = obj.props.all()
                     obj_name = obj_props.get("$name", "")
                     obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
@@ -309,23 +938,13 @@ class RegisterProcessWidget(ipw.VBox):
             return
         
         sample_identifier = self.select_sample_dropdown.sample_dropdown.value
-        
-        if sample_identifier in OPENBIS_SAMPLES_CACHE:
-            sample_object = OPENBIS_SAMPLES_CACHE[sample_identifier]
-        else:
-            sample_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_identifier)
-            # Save object information
-            OPENBIS_SAMPLES_CACHE[sample_identifier] = sample_object
+        sample_object = get_cached_object(self.openbis_session, sample_identifier)
         
         sample_object_parents = sample_object.parents
         most_recent_parent = None
+        
         for parent_id in sample_object_parents:
-            if parent_id in OPENBIS_SAMPLES_CACHE:
-                parent_object = OPENBIS_SAMPLES_CACHE[parent_id]
-            else:
-                parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent_id)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[parent_id] = parent_object
+            parent_object = get_cached_object(self.openbis_session, parent_id)
             
             parent_type = parent_object.type
             if parent_type == "PROCESS_STEP":
@@ -341,21 +960,22 @@ class RegisterProcessWidget(ipw.VBox):
                 display(utils.Javascript(data = "alert('Experiment was changed!')"))
             
             for parent in most_recent_parent.parents:
-                if parent in OPENBIS_SAMPLES_CACHE:
-                    parent_object = OPENBIS_SAMPLES_CACHE[parent]
-                else:
-                    parent_object = utils.get_openbis_object(self.openbis_session, sample_ident = parent)
-                    # Save object information
-                    OPENBIS_SAMPLES_CACHE[parent] = parent_object
+                parent_object = get_cached_object(self.openbis_session, parent)
                 
                 if parent_object.type == "PREPARATION":
                     self.sample_preparation_object = parent_object
                     break
 
-            # Load sample history
-            self.sample_history_vbox.load_sample_history(sample_object)
-        else:
-            self.sample_history_vbox.sample_history.children = []
+        # If sample was used in a measurement session, a new preparation should start
+        sample_object_children = sample_object.children
+        for child_id in sample_object_children:
+            child_object = get_cached_object(self.openbis_session, child_id)
+            if child_object.type == "MEASUREMENT_SESSION":
+                self.sample_preparation_object = None
+                break
+        
+        # Load sample history
+        self.sample_history_vbox.load_sample_history(sample_object)
             
     def add_process_step(self, b):
         processes_accordion_children = list(self.new_processes_accordion.children)
@@ -377,11 +997,7 @@ class RegisterProcessWidget(ipw.VBox):
         if process_id == "-1":
             return
         else:
-            if process_id in OPENBIS_SAMPLES_CACHE:
-                process_object = OPENBIS_SAMPLES_CACHE[process_id]
-            else:
-                process_object = utils.get_openbis_object(self.openbis_session, sample_ident = process_id)
-                OPENBIS_SAMPLES_CACHE[process_id] = process_object
+            process_object = get_cached_object(self.openbis_session, process_id)
             
             instrument_id = process_object.props["instrument"]
             process_steps_settings = process_object.props["process_steps_settings"]
@@ -413,16 +1029,9 @@ class RegisterProcessWidget(ipw.VBox):
             experiment_project_code = experiment_object.project.identifier
             
             current_sample_id = self.select_sample_dropdown.sample_dropdown.value
-                
-            if current_sample_id in OPENBIS_SAMPLES_CACHE:
-                current_sample = OPENBIS_SAMPLES_CACHE[current_sample_id]
-            else:
-                current_sample = utils.get_openbis_object(self.openbis_session, sample_ident = current_sample_id)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[current_sample_id] = current_sample
+            current_sample = get_cached_object(self.openbis_session, current_sample_id)
             
             # Create preparation object when it does not exist
-            # TODO: Create another preparation object when there is a measurement in-between two preparations
             if self.sample_preparation_object is None:
                 self.sample_preparation_object = self.openbis_session.new_object(
                     type = "PREPARATION",
@@ -437,7 +1046,6 @@ class RegisterProcessWidget(ipw.VBox):
                 self.sample_preparation_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_preparation_id)
                 
                 process_code = ""
-                
                 current_sample.props["exists"] = False
                 current_sample_name = current_sample.props["$name"]
                 current_sample.save()
@@ -534,14 +1142,7 @@ class RegisterProcessWidget(ipw.VBox):
                         
                         component_permid = action_widget.component_dropdown.value
                         if component_permid != "-1":
-                            
-                            if component_permid in OPENBIS_SAMPLES_CACHE:
-                                component_object = OPENBIS_SAMPLES_CACHE[component_permid]
-                            else:
-                                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
-                                # Save object information
-                                OPENBIS_SAMPLES_CACHE[component_permid] = component_object
-                            
+                            component_object = get_cached_object(self.openbis_session, component_permid)
                             component_object_settings = component_object.props["actions_settings"]
                             
                             if component_object_settings:
@@ -599,7 +1200,6 @@ class RegisterProcessWidget(ipw.VBox):
                             action_properties["component"] = component_permid
                             action_properties["comments"] = action_widget.comments_textarea.value
                             
-                            #TODO: Create actions collection next to the sample preparation experiment
                             action_collection_code = "ACTIONS_COLLECTION"
                             openbis_experiments = self.openbis_session.get_experiments(code = action_collection_code, project = experiment_project_code)
                             
@@ -631,15 +1231,8 @@ class RegisterProcessWidget(ipw.VBox):
                         observable_type = observable_widget.observable_type_dropdown.value
                         
                         component_permid = observable_widget.component_dropdown.value
-                        #TODO: Remove this because all the actions and observables must have a component
                         if component_permid != "-1":
-                            if component_permid in OPENBIS_SAMPLES_CACHE:
-                                component_object = OPENBIS_SAMPLES_CACHE[component_permid]
-                            else:
-                                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
-                                # Save object information
-                                OPENBIS_SAMPLES_CACHE[component_permid] = component_object
-                            
+                            component_object = get_cached_object(self.openbis_session, component_permid)
                             component_object_settings = component_object.props["observables_settings"]
                             
                             if component_object_settings:
@@ -683,7 +1276,6 @@ class RegisterProcessWidget(ipw.VBox):
                             observable_properties["component"] = component_permid
                             observable_properties["comments"] = observable_widget.comments_textarea.value
                             
-                            #TODO: Create observables collection next to the sample preparation experiment
                             observable_collection_code = "OBSERVABLES_COLLECTION"
                             openbis_experiments = self.openbis_session.get_experiments(code = observable_collection_code, project = experiment_project_code)
                             
@@ -712,7 +1304,6 @@ class RegisterProcessWidget(ipw.VBox):
                 process_properties["observables"] = observables
                 
                 if actions_codes:
-                    
                     # Compute process code based on the selected actions
                     counts = Counter(actions_codes)
                     unique_codes = list(counts.keys())
@@ -725,15 +1316,14 @@ class RegisterProcessWidget(ipw.VBox):
                     else:
                         process_code = f"[{':'.join(actions_codes)}]"
                 
-                current_sample_prep_name = self.sample_preparation_object.props["$name"]
-                self.sample_preparation_object.props["$name"] = f"{current_sample_prep_name}:{process_code}"
+                new_sample_name = f"{current_sample_name}:{process_code}"
+                self.sample_preparation_object.props["$name"] = f"PREP_{new_sample_name}"
                 self.sample_preparation_object.save()
                 
                 new_process_object.props = process_properties
                 new_process_object.parents = [self.sample_preparation_object, current_sample]
                 new_process_object.save()
                 
-                new_sample_name = f"{current_sample_name}:{process_code}"
                 new_sample = self.openbis_session.new_sample(
                     type = "SAMPLE",
                     experiment = "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
@@ -1086,6 +1676,8 @@ class SelectSampleWidget(ipw.VBox):
         sample_options.insert(0, ("Select sample...", "-1"))
         self.sample_dropdown.options =  sample_options
         self.sample_dropdown.value = "-1"
+        
+        # TODO: Apply functions to the sort buttons
 
 class SampleHistoryWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -1107,15 +1699,9 @@ class SampleHistoryWidget(ipw.VBox):
             for parent in sample_parents:
                 parent_code = parent.split("/")[-1]
                 if "PRST" in parent_code or "SAMP" in parent_code:
-                    
-                    if parent in OPENBIS_SAMPLES_CACHE:
-                        parent_object = OPENBIS_SAMPLES_CACHE[parent]
-                    else:
-                        parent_object = utils.get_openbis_object(self.openbis_session, sample_ident=parent)
-                        # Save object information
-                        OPENBIS_SAMPLES_CACHE[parent] = parent_object
-                    
+                    parent_object = get_cached_object(self.openbis_session, parent)
                     next_parents.extend(parent_object.parents)
+                    
                     if "PRST" in parent_code:
                         process_steps.append(parent_object)
                         # Save object information
@@ -1189,14 +1775,7 @@ class ProcessStepHistoryWidget(ipw.VBox):
         instrument_id = openbis_object_props["instrument"]
         
         if instrument_id:
-            
-            if instrument_id in OPENBIS_SAMPLES_CACHE:
-                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_id]
-            else:
-                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_id)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[instrument_id] = instrument_object
-            
+            instrument_object = get_cached_object(self.openbis_session, instrument_id)
             self.instrument_html.value = instrument_object.props["$name"]
         
         self.load_actions()
@@ -1207,14 +1786,7 @@ class ProcessStepHistoryWidget(ipw.VBox):
         if actions_ids:
             actions_accordion_children = []
             for i, act_id in enumerate(actions_ids):
-                
-                if act_id in OPENBIS_SAMPLES_CACHE:
-                    act_object = OPENBIS_SAMPLES_CACHE[act_id]
-                else:
-                    act_object = utils.get_openbis_object(self.openbis_session, sample_ident = act_id)
-                    # Save object information
-                    OPENBIS_SAMPLES_CACHE[act_id] = act_object
-                
+                act_object = get_cached_object(self.openbis_session, act_id)
                 act_widget = ActionHistoryWidget(self.openbis_session, act_object)
                 actions_accordion_children.append(act_widget)
                 act_title = act_widget.name_html.value
@@ -1227,14 +1799,7 @@ class ProcessStepHistoryWidget(ipw.VBox):
         if observables_ids:
             observables_accordion_children = []
             for i, obs_id in enumerate(observables_ids):
-                
-                if obs_id in OPENBIS_SAMPLES_CACHE:
-                    obs_object = OPENBIS_SAMPLES_CACHE[obs_id]
-                else:
-                    obs_object = utils.get_openbis_object(self.openbis_session, sample_ident = obs_id)
-                    # Save object information
-                    OPENBIS_SAMPLES_CACHE[obs_id] = obs_object
-                
+                obs_object = get_cached_object(self.openbis_session, obs_id)
                 obs_widget = ObservableHistoryWidget(self.openbis_session, obs_object)
                 observables_accordion_children.append(obs_widget)
                 obs_title = obs_widget.name_html.value
@@ -1373,56 +1938,47 @@ class ActionHistoryWidget(ipw.VBox):
             self.comments_html.value = openbis_object_props["comments"]
         
         if "target_temperature" in openbis_object_props:
-            if openbis_object_props["target_temperature"]:
-                self.target_temperature_html.value = openbis_object_props["target_temperature"]
+            target_temperature = openbis_object_props["target_temperature"]
+            if target_temperature:
+                self.target_temperature_html.value = stringify_quantity_value(target_temperature, "temperature_unit")
         
         if "cryogen" in openbis_object_props:
             if openbis_object_props["cryogen"]:
                 self.cryogen_html.value = openbis_object_props["cryogen"]
         
         if "substrate_temperature" in openbis_object_props:
-            if openbis_object_props["substrate_temperature"]:
-                self.substrate_temperature_html.value = openbis_object_props["substrate_temperature"]
+            substrate_temperature = openbis_object_props["substrate_temperature"]
+            if substrate_temperature:
+                self.substrate_temperature_html.value = stringify_quantity_value(substrate_temperature, "temperature_unit")
         
         if "dosing_gas" in openbis_object_props:
             if openbis_object_props["dosing_gas"]:
                 self.dosing_gas_html.value = openbis_object_props["dosing_gas"]
         
         if "pressure" in openbis_object_props:
-            if openbis_object_props["pressure"]:
-                self.pressure_html.value = openbis_object_props["pressure"]
+            pressure = openbis_object_props["pressure"]
+            if pressure:
+                self.pressure_html.value = stringify_quantity_value(pressure, "pressure_unit")
         
         if "current" in openbis_object_props:
-            if openbis_object_props["current"]:
-                self.current_html.value = openbis_object_props["current"]
+            current = openbis_object_props["current"]
+            if current:
+                self.current_html.value = stringify_quantity_value(current, "current_unit")
         
         if "angle" in openbis_object_props:
-            if openbis_object_props["angle"]:
-                self.angle_html.value = openbis_object_props["angle"]
+            angle = openbis_object_props["angle"]
+            if angle:
+                self.angle_html.value = stringify_quantity_value(angle, "angle_unit")
 
         if "substance" in openbis_object_props:
             substance_id = openbis_object_props["substance"]
             if substance_id:
-                
-                if substance_id in OPENBIS_SAMPLES_CACHE:
-                    substance_object = OPENBIS_SAMPLES_CACHE[substance_id]
-                else:
-                    substance_object = utils.get_openbis_object(self.openbis_session, sample_ident = substance_id)
-                    # Save object information
-                    OPENBIS_SAMPLES_CACHE[substance_id] = substance_object
-                
+                substance_object = get_cached_object(self.openbis_session, substance_id)
                 self.substance_html.value = substance_object.props["$name"]
         
         component_id = openbis_object_props["component"]
         if component_id:
-            
-            if component_id in OPENBIS_SAMPLES_CACHE:
-                component_object = OPENBIS_SAMPLES_CACHE[component_id]
-            else:
-                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[component_id] = component_object
-            
+            component_object = get_cached_object(self.openbis_session, component_id)
             self.component_html.value = component_object.props["$name"]
             
         if openbis_object_props["component_settings"]:
@@ -1431,6 +1987,16 @@ class ActionHistoryWidget(ipw.VBox):
             for prop_key, prop_value in component_settings.items():
                 prop_type = self.openbis_session.get_property_type(prop_key)
                 prop_label = prop_type.label
+                
+                # Convert quantity values from json objects to strings
+                if prop_value and isinstance(prop_value, dict):
+                    unit_type = ""
+                    for key in prop_value.keys():
+                        if "_unit" in key:
+                            unit_type = key
+                            break
+                    prop_value = stringify_quantity_value(prop_value, unit_type)
+                    
                 component_settings_string += f"<p>&bull; {prop_label}: {prop_value}</p>"
             
             self.component_settings_html.value = component_settings_string
@@ -1493,13 +2059,7 @@ class ObservableHistoryWidget(ipw.VBox):
         component_id = openbis_object_props["component"]
             
         if component_id:
-            if component_id in OPENBIS_SAMPLES_CACHE:
-                component_object = OPENBIS_SAMPLES_CACHE[component_id]
-            else:
-                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[component_id] = component_object
-            
+            component_object = get_cached_object(self.openbis_session, component_id)
             self.component_html.value = component_object.props["$name"]
             
         if openbis_object_props["component_settings"]:
@@ -1508,6 +2068,16 @@ class ObservableHistoryWidget(ipw.VBox):
             for prop_key, prop_value in component_settings.items():
                 prop_type = self.openbis_session.get_property_type(prop_key)
                 prop_label = prop_type.label
+                
+                # Convert quantity values from json objects to strings
+                if prop_value and isinstance(prop_value, dict):
+                    unit_type = ""
+                    for key in prop_value.keys():
+                        if "_unit" in key:
+                            unit_type = key
+                            break
+                    prop_value = stringify_quantity_value(prop_value, unit_type)
+                
                 component_settings_string += f"<p>&bull; {prop_label}: {prop_value}</p>"
             
             self.component_settings_html.value = component_settings_string
@@ -1633,7 +2203,7 @@ class RegisterProcessStepWidget(ipw.VBox):
         for index, process_step in enumerate(processes_accordion_children):
             if index >= self.process_step_index:
                 process_step.process_step_index -= 1
-                self.processes_accordion.set_title(self.process_step_index, process_step.name_textbox.value)
+                self.processes_accordion.set_title(process_step.process_step_index, process_step.name_textbox.value)
 
         self.processes_accordion.set_title(num_process_steps - 1, "")
         self.processes_accordion.children = processes_accordion_children
@@ -1665,22 +2235,9 @@ class RegisterActionWidget(ipw.VBox):
         self.instrument_permid = instrument_permid
         
         self.action_type_label = ipw.Label(value = "Action type")
-        action_type_options = [
-            ("Select an action type...", "-1"),
-            ("Annealing", "ANNEALING"),
-            ("Coating", "COATING"),
-            ("Cooldown", "COOLDOWN"),
-            ("Delamination", "DELAMINATION"),
-            ("Deposition", "DEPOSITION"),
-            ("Dosing", "DOSING"),
-            ("Etching", "ETCHING"),
-            ("Field emission", "FIELD_EMISSION"),
-            ("Fishing", "FISHING"),
-            ("Light irradiation", "LIGHT_IRRADIATION"),
-            ("Mechanical Pressing", "MECHANICAL_PRESSING"),
-            ("Rinse", "RINSE"),
-            ("Sputtering", "SPUTTERING")
-        ]
+        action_type_options = ACTIONS_LABELS
+        action_type_options.insert(0, ("Select an action type...", "-1"))
+        
         self.action_type_dropdown = ipw.Dropdown(
             options = action_type_options,
             value = "-1"
@@ -2003,14 +2560,7 @@ class RegisterActionWidget(ipw.VBox):
     def get_instrument_components(self, instrument_permid, action_type):
         component_list = []
         if instrument_permid != "-1":
-            
-            if instrument_permid in OPENBIS_SAMPLES_CACHE:
-                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_permid]
-            else:
-                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[instrument_permid] = instrument_object
-            
+            instrument_object = get_cached_object(self.openbis_session, instrument_permid)
             instrument_type = str(instrument_object.type)
             instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
             all_instrument_components = []
@@ -2031,13 +2581,7 @@ class RegisterActionWidget(ipw.VBox):
                         if component_object.type == "EVAPORATOR":
                             evaporator_slots = component_object.props["evaporator_slots"]
                             for evaporator_slot_id in evaporator_slots:
-                                if evaporator_slot_id in OPENBIS_SAMPLES_CACHE:
-                                    evaporator_slot_object = OPENBIS_SAMPLES_CACHE[evaporator_slot_id]
-                                else:
-                                    evaporator_slot_object = utils.get_openbis_object(self.openbis_session, sample_ident = evaporator_slot_id)
-                                    # Save object information
-                                    OPENBIS_SAMPLES_CACHE[evaporator_slot_id] = evaporator_slot_object
-                                
+                                evaporator_slot_object = get_cached_object(self.openbis_session, evaporator_slot_id)
                                 all_instrument_components.append(evaporator_slot_object)
                 
             for component_object in all_instrument_components:
@@ -2119,7 +2663,7 @@ class RegisterActionWidget(ipw.VBox):
         for index, action in enumerate(actions_accordion_children):
             if index >= self.action_index:
                 action.action_index -= 1
-                self.actions_accordion.set_title(self.action_index, action.name_textbox.value)
+                self.actions_accordion.set_title(action.action_index, action.name_textbox.value)
 
         self.actions_accordion.set_title(num_actions - 1, "")
         self.actions_accordion.children = actions_accordion_children
@@ -2133,21 +2677,8 @@ class RegisterObservableWidget(ipw.VBox):
         self.instrument_permid = instrument_permid
         
         self.observable_type_label = ipw.Label(value = "Observable type")
-        observable_type_options = [
-            ("Select an observable type...", "-1"),
-            ("Current", "CURRENT_OBSERVABLE"),
-            ("Elemental Composition", "ELEMENTAL_COMPOSITION_OBSERVABLE"),
-            ("Flux", "FLUX_OBSERVABLE"),
-            ("Force", "FORCE_OBSERVABLE"),
-            ("Inductance", "INDUCTANCE_OBSERVABLE"),
-            ("Observable", "OBSERVABLE"),
-            ("pH", "PH_VALUE_OBSERVABLE"),
-            ("Pressure", "PRESSURE_OBSERVABLE"),
-            ("Resistance", "RESISTANCE_OBSERVABLE"),
-            ("Speed", "SPEED_OBSERVABLE"),
-            ("Temperature", "TEMPERATURE_OBSERVABLE"),
-            ("Voltage", "VOLTAGE_OBSERVABLE")
-        ]
+        observable_type_options = OBSERVABLES_LABELS
+        observable_type_options.insert(0, ("Select an observable type...", "-1"))
         self.observable_type_dropdown = ipw.Dropdown(
             options = observable_type_options,
             value = "-1"
@@ -2217,6 +2748,10 @@ class RegisterObservableWidget(ipw.VBox):
         self.comments_textarea = ipw.Textarea()
         self.comments_hbox = ipw.HBox(children = [self.comments_label, self.comments_textarea])
         
+        self.upload_readings_label = ipw.Label(value = "Upload readings")
+        self.upload_readings_widget = ipw.FileUpload(multiple = True)
+        self.upload_readings_hbox = ipw.HBox(children = [self.upload_readings_label, self.upload_readings_widget])
+        
         self.remove_observable_button = ipw.Button(
             description = 'Remove', 
             disabled = False, 
@@ -2236,6 +2771,7 @@ class RegisterObservableWidget(ipw.VBox):
         self.children = [
             self.observable_type_hbox,
             self.observable_properties_widgets,
+            self.upload_readings_hbox,
             self.remove_observable_button
         ]
     
@@ -2286,14 +2822,7 @@ class RegisterObservableWidget(ipw.VBox):
     def get_instrument_components(self, instrument_permid, observable_type):
         component_list = []
         if instrument_permid != "-1":
-            
-            if instrument_permid in OPENBIS_SAMPLES_CACHE:
-                instrument_object = OPENBIS_SAMPLES_CACHE[instrument_permid]
-            else:
-                instrument_object = utils.get_openbis_object(self.openbis_session, sample_ident = instrument_permid)
-                # Save object information
-                OPENBIS_SAMPLES_CACHE[instrument_permid] = instrument_object
-            
+            instrument_object = get_cached_object(self.openbis_session, instrument_permid)
             instrument_type = str(instrument_object.type)
             instrument_components_properties = self.instrument_type_components_dictionary[instrument_type]
             all_instrument_components = []
@@ -2301,26 +2830,14 @@ class RegisterObservableWidget(ipw.VBox):
                 prop_value = instrument_object.props[prop]
                 if prop_value:
                     for component_id in prop_value:
-                        if component_id in OPENBIS_SAMPLES_CACHE:
-                            component_object = OPENBIS_SAMPLES_CACHE[component_id]
-                        else:
-                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
-                            # Save object information
-                            OPENBIS_SAMPLES_CACHE[component_id] = component_object
-                        
+                        component_object = get_cached_object(self.openbis_session, component_id)
                         all_instrument_components.append(component_object)
                         
                         # Evaporators contain sub-components (evaporator slots)
                         if component_object.type == "EVAPORATOR":
                             evaporator_slots = component_object.props["evaporator_slots"]
                             for evaporator_slot_id in evaporator_slots:
-                                if evaporator_slot_id in OPENBIS_SAMPLES_CACHE:
-                                    evaporator_slot_object = OPENBIS_SAMPLES_CACHE[evaporator_slot_id]
-                                else:
-                                    evaporator_slot_object = utils.get_openbis_object(self.openbis_session, sample_ident = evaporator_slot_id)
-                                    # Save object information
-                                    OPENBIS_SAMPLES_CACHE[evaporator_slot_id] = evaporator_slot_object
-                                
+                                evaporator_slot_object = get_cached_object(self.openbis_session, evaporator_slot_id)
                                 all_instrument_components.append(evaporator_slot_object)
                 
             for component_object in all_instrument_components:
@@ -2336,13 +2853,7 @@ class RegisterObservableWidget(ipw.VBox):
                 prop_value = instrument_object.props[prop]
                 if prop_value:
                     for component_id in prop_value:
-                        if component_id in OPENBIS_SAMPLES_CACHE:
-                            component_object = OPENBIS_SAMPLES_CACHE[component_id]
-                        else:
-                            component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_id)
-                            # Save object information
-                            OPENBIS_SAMPLES_CACHE[component_id] = component_object
-                        
+                        component_object = get_cached_object(self.openbis_session, component_id)
                         component_observables_settings_prop = component_object.props["observables_settings"]
                         if component_observables_settings_prop:
                             component_observables_settings = json.loads(component_observables_settings_prop)
@@ -2355,13 +2866,7 @@ class RegisterObservableWidget(ipw.VBox):
         if observable_type != "-1":
             component_permid = self.component_dropdown.value
             if component_permid != "-1":
-                if component_permid in OPENBIS_SAMPLES_CACHE:
-                    component_object = OPENBIS_SAMPLES_CACHE[component_permid]
-                else:
-                    component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
-                    # Save object information
-                    OPENBIS_SAMPLES_CACHE[component_permid] = component_object
-                
+                component_object = get_cached_object(self.openbis_session, component_permid)
                 component_settings_property = component_object.props["observables_settings"]
                 component_settings_widgets = []
                 if component_settings_property:
@@ -2402,8 +2907,7 @@ class RegisterObservableWidget(ipw.VBox):
         for index, observable in enumerate(observables_accordion_children):
             if index >= self.observable_index:
                 observable.observable_index -= 1
-                self.observables_accordion.set_title(self.observable_index, observable.name_textbox.value)
+                self.observables_accordion.set_title(observable.observable_index, observable.name_textbox.value)
 
         self.observables_accordion.set_title(num_observables - 1, "")
         self.observables_accordion.children = observables_accordion_children
-
