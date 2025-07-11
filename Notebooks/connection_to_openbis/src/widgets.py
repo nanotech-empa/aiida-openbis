@@ -7,8 +7,10 @@ import re
 from collections import Counter
 import subprocess
 import shutil
+from aiida import orm
 
 OPENBIS_SAMPLES_CACHE = {}
+
 ACTIONS_CODES = {
     "ANNEALING": "HEAT",
     "COOLDOWN": "COOL",
@@ -156,7 +158,7 @@ class ImportSimulationsWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Select material</span>"
         )
         
-        material_type_options = MATERIALS_CONCEPTS_LABELS
+        material_type_options = MATERIALS_CONCEPTS_LABELS.copy()
         material_type_options.insert(0, ("Select material type...", "-1"))
         
         self.material_type_dropdown = ipw.Dropdown(
@@ -171,14 +173,13 @@ class ImportSimulationsWidget(ipw.VBox):
             value = "AND", options = ["AND", "OR"],
             layout = ipw.Layout(width = '150px')
         )
-        self.search_logical_operator_hbox = ipw.HBox(
-            children = [self.search_logical_operator_label, self.search_logical_operator_dropdown]
-        )
-        
         self.search_button = ipw.Button(
             disabled = False, icon = 'search',
             tooltip = 'Search simulations in openBIS', 
-            layout = ipw.Layout(width = '100px', height = '50px')
+            layout = ipw.Layout(width = '50px', height = '25px')
+        )
+        self.search_logical_operator_hbox = ipw.HBox(
+            children = [self.search_logical_operator_label, self.search_logical_operator_dropdown, self.search_button]
         )
         
         self.found_simulations_label = ipw.Label(value = "Found simulations")
@@ -201,7 +202,7 @@ class ImportSimulationsWidget(ipw.VBox):
         # Increase search button icon size
         increase_search_button = ipw.HTML(
             """<style>
-            .fa-search {font-size: 2em !important;}
+            .fa-search {font-size: 1.5em !important;}
             .fa-download {font-size: 2em !important;}
             </style>
             """
@@ -226,7 +227,6 @@ class ImportSimulationsWidget(ipw.VBox):
             self.search_simulations_title,
             self.search_logical_operator_hbox,
             increase_search_button,
-            self.search_button,
             self.found_simulations_hbox,
             self.import_simulations_button,
             self.import_simulations_message_html
@@ -500,12 +500,6 @@ class ExportSimulationsWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Simulation details</span>"
         )
         
-        self.used_aiida_checkbox = ipw.Checkbox(
-            value = False,
-            description = "Simulation developed using AiiDA",
-            indent = False
-        )
-        
         self.select_molecules_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 18px;'>Select molecules</span>"
         )
@@ -518,17 +512,330 @@ class ExportSimulationsWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 18px;'>Select slab</span>"
         )
         
+        self.select_experiment_widget = SelectExperimentWidget(self.openbis_session)
+        
+        self.used_aiida_checkbox = ipw.Checkbox(
+            value = False,
+            description = "Simulation developed using AiiDA",
+            indent = False
+        )
+        
+        self.molecules_accordion = ipw.Accordion()
+        self.add_molecule_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add molecule', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.reacprod_concepts_accordion = ipw.Accordion()
+        self.add_reacprod_concept_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add reaction product concept', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.select_material_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select material</span>"
+        )
+        
+        material_type_options = MATERIALS_CONCEPTS_LABELS.copy()
+        material_type_options.insert(0, ("Select material type...", "-1"))
+        
+        self.material_type_dropdown = ipw.Dropdown(
+            options = material_type_options,
+            value = material_type_options[0][1]
+        )
+        
+        self.material_details_vbox = ipw.VBox()
+        
         self.simulation_details_vbox = ipw.VBox()
+        
+        self.save_simulations_button = utils.Button(
+            tooltip = 'Import simulations', icon = 'save', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        # Increase search button icon size
+        increase_search_button = ipw.HTML(
+            """<style>
+            .fa-search {font-size: 1.5em !important;}
+            .fa-download {font-size: 2em !important;}
+            .fa-save {font-size: 2em !important;}
+            </style>
+            """
+        )
+        
+        # Add functionality to the widgets
+        self.material_type_dropdown.observe(self.load_material_type_widgets, names = "value")
+        self.add_molecule_button.on_click(self.add_molecule)
+        self.add_reacprod_concept_button.on_click(self.add_reacprod_concept)
+        self.used_aiida_checkbox.observe(self.load_simulations_details_widgets, names = "value")
         
         self.children = [
             self.select_experiment_title,
+            self.select_experiment_widget,
             self.simulation_details_title,
             self.used_aiida_checkbox,
             self.select_molecules_title,
+            self.molecules_accordion,
+            self.add_molecule_button,
             self.select_reacprod_concepts_title,
+            self.reacprod_concepts_accordion,
+            self.add_reacprod_concept_button,
             self.select_slab_title,
-            self.simulation_details_vbox
+            self.material_type_dropdown,
+            self.material_details_vbox,
+            self.simulation_details_vbox,
+            increase_search_button,
+            self.save_simulations_button
         ]
+    
+    def load_material_type_widgets(self, change):
+        if self.material_type_dropdown.value == "-1":
+            self.material_details_vbox.children = []
+            return
+        else:
+            material_options = [
+                ("Select material...", "-1")
+            ]
+            
+            material_dropdown = ipw.Dropdown(
+                options = material_options,
+                value = material_options[0][1]
+            )
+            
+            sort_material_label = ipw.Label(
+                value = "Sort by:", 
+                layout=ipw.Layout(margin='0px', width='50px'),
+                style = {'description_width': 'initial'}
+            )
+            
+            name_checkbox = ipw.Checkbox(
+                indent = False,
+                layout=ipw.Layout(margin='2px', width='20px')
+            )
+            
+            name_label = ipw.Label(
+                value = "Name", 
+                layout=ipw.Layout(margin='0px', width='50px'),
+                style = {'description_width': 'initial'}
+            )
+            
+            registration_date_checkbox = ipw.Checkbox(
+                indent = False,
+                layout=ipw.Layout(margin='2px', width='20px')
+            )
+            
+            registration_date_label = ipw.Label(
+                value = "Registration date",
+                layout=ipw.Layout(margin='0px', width='110px'),
+                style = {'description_width': 'initial'}
+            )
+        
+            select_material_box = ipw.HBox(
+                children = [
+                    material_dropdown,
+                    sort_material_label,
+                    name_checkbox,
+                    name_label,
+                    registration_date_checkbox,
+                    registration_date_label
+                ]
+            )
+            
+            material_details_html = ipw.HTML()
+            
+            self.material_details_vbox.children = [
+                select_material_box,
+                material_details_html
+            ]
+            
+            material_type = self.material_type_dropdown.value
+            material_objects = utils.get_openbis_objects(
+                self.openbis_session,
+                type = material_type
+            )
+            materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+            material_options += materials_objects_names_permids
+            material_dropdown.options = material_options
+            
+            def sort_material_dropdown(change):
+                options = material_options[1:]
+                
+                df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                if name_checkbox.value and not registration_date_checkbox.value:
+                    df = df.sort_values(by="$name", ascending=True)
+                elif not name_checkbox.value and registration_date_checkbox.value:
+                    df = df.sort_values(by="registration_date", ascending=False)
+                elif name_checkbox.value and registration_date_checkbox.value:
+                    df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+                options = list(df.itertuples(index=False, name=None))
+                options.insert(0, material_options[0])
+                material_dropdown.options = options
+            
+            def load_material_details(change):
+                obj_permid = material_dropdown.value
+                if obj_permid == "-1":
+                    return
+                else:
+                    obj = self.openbis_session.get_object(obj_permid)
+                    obj_props = obj.props.all()
+                    obj_name = obj_props.get("$name", "")
+                    obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
+                    for key, value in obj_props.items():
+                        if value:
+                            prop_type = self.openbis_session.get_property_type(key)
+                            prop_label = prop_type.label
+                            obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+                    
+                    obj_details_string += "</div>"
+                    
+                    material_details_html.value = obj_details_string
+                    
+            name_checkbox.observe(sort_material_dropdown, names = "value")
+            registration_date_checkbox.observe(sort_material_dropdown, names = "value")
+            material_dropdown.observe(load_material_details, names = "value")
+    
+    def add_molecule(self, b):
+        molecules_accordion_children = list(self.molecules_accordion.children)
+        molecule_index = len(molecules_accordion_children)
+        molecule_widget = MoleculeWidget(self.openbis_session, self.molecules_accordion, molecule_index)
+        molecules_accordion_children.append(molecule_widget)
+        self.molecules_accordion.children = molecules_accordion_children
+    
+    def add_reacprod_concept(self, b):
+        reacprod_concepts_accordion_children = list(self.reacprod_concepts_accordion.children)
+        reacprod_concept_index = len(reacprod_concepts_accordion_children)
+        reacprod_concept_widget = ReacProdConceptWidget(self.openbis_session, self.reacprod_concepts_accordion, reacprod_concept_index)
+        reacprod_concepts_accordion_children.append(reacprod_concept_widget)
+        self.reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
+
+    def load_simulations_details_widgets(self, change):
+        used_aiida = self.used_aiida_checkbox.value
+        self.simulation_details_vbox.children = SimulationDetailsWidget(self.openbis_session, used_aiida).children
+        # TODO: Work on the simulations details widgets
+
+class SimulationDetailsWidget(ipw.VBox):
+    def __init__(self, openbis_session, used_aiida):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.used_aiida = used_aiida
+        
+        self.select_simulation_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 15px;'>Select simulation</span>"
+        )
+        
+        self.simulations_label = ipw.Label(
+            value = "Simulation"
+        )
+        
+        self.simulations_dropdown = ipw.Dropdown()
+        self.load_aiida_simulations()
+        
+        self.sort_simulations_label = ipw.Label(
+            value = "Sort by:"
+        )
+        
+        self.sort_name_label = ipw.Label(
+            value = "Name", 
+            layout=ipw.Layout(margin='2px', width='50px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_name_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_pk_label = ipw.Label(
+            value = "PK", 
+            layout=ipw.Layout(margin='2px', width='110px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_pk_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_simulations_hbox = ipw.HBox(
+            children = [
+                self.sort_simulations_label,
+                self.sort_name_checkbox,
+                self.sort_name_label,
+                self.sort_pk_checkbox,
+                self.sort_pk_label
+            ]
+        )
+        
+        self.simulations_dropdown_hbox = ipw.HBox(
+            children = [
+                self.simulations_label,
+                self.simulations_dropdown,
+            ]
+        )
+        
+        if self.used_aiida:
+            self.children = [
+                self.select_simulation_title,
+                self.simulations_dropdown_hbox,
+                self.sort_simulations_hbox
+            ]
+        else:
+            self.children = [
+                self.select_simulation_title
+            ]
+    
+    def load_aiida_simulations(self):
+        qb = orm.QueryBuilder()
+        qb.append(orm.WorkChainNode)
+        results = qb.all()
+        
+        # List of calculations that can be exported
+        labels = list(WORKCHAIN_VIEWERS.keys())
+        
+        # Create the QueryBuilder
+        qb = orm.QueryBuilder()
+        qb.append(
+            orm.WorkChainNode,
+            filters={
+                'attributes.process_label': {'in': labels},  # Filter by process_label
+                'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
+                'attributes.process_state':{'in':['finished']},
+            },
+            project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
+        )
+        # Execute the query
+        results = qb.all()
+        options = []
+        for result in results:
+            if result[3]:
+                name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
+            else:
+                name_pk_string = f"{result[2]} (PK: {result[0]})"
+                
+            name_pk_tuple = (name_pk_string, result[0])
+            options.append(name_pk_tuple)
+        
+        options.insert(0, (f'Select a simulation...', "-1"))
+        self.simulations_dropdown.options = options
+        self.simulations_dropdown.value = "-1"
+
+    def sort_simulations_dropdown(self, change):
+        options = self.simulations_dropdown.options[1:]
+        
+        df = pd.DataFrame(options, columns=["$name", "PK"])
+        if self.sort_name_checkbox.value and not self.sort_pk_checkbox.value:
+            df = df.sort_values(by="$name", ascending=True)
+        elif not self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
+            df = df.sort_values(by="PK", ascending=False)
+        elif self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
+            df = df.sort_values(by=["$name", "PK"], ascending=[True, False])
+
+        options = list(df.itertuples(index=False, name=None))
+        options.insert(0, self.simulations_dropdown.options[0])
+        self.simulations_dropdown.options = options
 
 class MoleculeWidget(ipw.VBox):
     def __init__(self, openbis_session, parent_accordion, object_index):
@@ -668,7 +975,7 @@ class CreateSampleWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Select material</span>"
         )
         
-        material_type_options = MATERIALS_LABELS
+        material_type_options = MATERIALS_LABELS.copy()
         material_type_options.insert(0, ("Select material type...", "-1"))
         
         self.material_type_dropdown = ipw.Dropdown(
@@ -1361,12 +1668,10 @@ class SelectExperimentWidget(ipw.VBox):
             value = "Experiment"
         )
         
-        self.experiment_options = self.load_experiments()
         self.experiment_dropdown = ipw.Dropdown(
-            options = self.experiment_options,
-            layout=ipw.Layout(width='500px'),
-            value = "-1"
+            layout=ipw.Layout(width='500px')
         )
+        self.load_experiments()
         
         
         self.sort_experiment_label = ipw.Label(
@@ -1422,8 +1727,8 @@ class SelectExperimentWidget(ipw.VBox):
         ]
         
         self.create_experiment_button.on_click(self.create_new_experiment)
-        self.sort_name_checkbox.observe(self.sort_experiment_dropdown)
-        self.sort_registration_date_checkbox.observe(self.sort_experiment_dropdown)
+        self.sort_name_checkbox.observe(self.sort_experiment_dropdown, names = "value")
+        self.sort_registration_date_checkbox.observe(self.sort_experiment_dropdown, names = "value")
     
     def load_experiments(self):
         experiments = utils.get_openbis_collections(
@@ -1438,10 +1743,11 @@ class SelectExperimentWidget(ipw.VBox):
                 exp_option = (f"{exp.code} from Project {exp.project.code} and Space {exp.project.space}", exp.permId)
             experiment_options.append(exp_option)
         experiment_options.insert(0, ("Select experiment...", "-1"))
-        return experiment_options
+        self.experiment_dropdown.options = experiment_options
+        self.experiment_dropdown.value = "-1"
 
     def sort_experiment_dropdown(self, change):
-        options = self.experiment_options[1:]
+        options = self.experiment_dropdown.options[1:]
         
         df = pd.DataFrame(options, columns=["$name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
@@ -1452,7 +1758,7 @@ class SelectExperimentWidget(ipw.VBox):
             df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
-        options.insert(0, self.experiment_options[0])
+        options.insert(0, self.experiment_dropdown.options[0])
         self.experiment_dropdown.options = options
     
     def create_new_experiment(self, b):
@@ -1662,6 +1968,9 @@ class SelectSampleWidget(ipw.VBox):
             ]
         )
         
+        self.sort_name_checkbox.observe(self.sort_sample_dropdown, names = "value")
+        self.sort_registration_date_checkbox.observe(self.sort_sample_dropdown, names = "value")
+        
         self.children = [
             self.sample_dropdown_hbox,
             self.sort_sample_hbox
@@ -1674,10 +1983,23 @@ class SelectSampleWidget(ipw.VBox):
         )
         sample_options = [(f"{obj.props['$name']}", obj.permId) for obj in samples if obj.props["exists"] == "true"]
         sample_options.insert(0, ("Select sample...", "-1"))
-        self.sample_dropdown.options =  sample_options
+        self.sample_dropdown.options = sample_options
         self.sample_dropdown.value = "-1"
+    
+    def sort_sample_dropdown(self, change):
+        options = self.sample_dropdown.options[1:]
         
-        # TODO: Apply functions to the sort buttons
+        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="$name", ascending=True)
+        elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="registration_date", ascending=False)
+        elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+        options = list(df.itertuples(index=False, name=None))
+        options.insert(0, self.sample_dropdown.options[0])
+        self.sample_dropdown.options = options
 
 class SampleHistoryWidget(ipw.VBox):
     def __init__(self, openbis_session):
@@ -2235,7 +2557,7 @@ class RegisterActionWidget(ipw.VBox):
         self.instrument_permid = instrument_permid
         
         self.action_type_label = ipw.Label(value = "Action type")
-        action_type_options = ACTIONS_LABELS
+        action_type_options = ACTIONS_LABELS.copy()
         action_type_options.insert(0, ("Select an action type...", "-1"))
         
         self.action_type_dropdown = ipw.Dropdown(
@@ -2677,7 +2999,7 @@ class RegisterObservableWidget(ipw.VBox):
         self.instrument_permid = instrument_permid
         
         self.observable_type_label = ipw.Label(value = "Observable type")
-        observable_type_options = OBSERVABLES_LABELS
+        observable_type_options = OBSERVABLES_LABELS.copy()
         observable_type_options.insert(0, ("Select an observable type...", "-1"))
         self.observable_type_dropdown = ipw.Dropdown(
             options = observable_type_options,
