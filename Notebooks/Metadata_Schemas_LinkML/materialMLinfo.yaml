@@ -496,8 +496,7 @@ classes:
       openbis_code: BAND
       openbis_label: Band Structure
     slots:
-     - band_gap_value
-     - band_gap_unit
+     - band_gap
      - level_theory_method
      - level_theory_parameters
      - input_parameters
@@ -1892,6 +1891,17 @@ classes:
      - width
      - height
      - thickness
+  
+  EnergyQuantityValue:
+    title: Energy quantity value
+    class_uri: qudt:quantityValue
+    description: Value together with energy unit
+    annotations:
+      openbis_object: false
+    slots:
+     - value
+     - energy_unit
+     - type
 
   EvaporationTemperature:
     title: Evaporation temperature
@@ -2678,35 +2688,15 @@ slots:
       openbis_type: OBJECT
       openbis_label: Auxiliary
 
-  band_gap_value:
-    title: Band Gap (value)
-    description: Band gap (value)
-    range: double
-    slot_uri: 
+  band_gap:
+    title: Band Gap
+    description: Band Gap
+    range: EnergyQuantityValue
     multivalued: false
+    slot_uri:
     annotations:
-      openbis_type: REAL
-      openbis_label: Band gap (value)
-  
-  band_gap_unit:
-    title: Band Gap (unit)
-    description: Band gap (unit)
-    range: string
-    slot_uri: 
-    multivalued: false
-    annotations:
-      openbis_type: VARCHAR
-      openbis_label: Band gap (unit)
-
-  # band_gap:
-  #   title: Band Gap
-  #   description: Band Gap
-  #   range: QuantityValue
-  #   multivalued: false
-  #   slot_uri:
-  #   annotations:
-  #     openbis_type: JSON
-  #     openbis_label: Band gap
+      openbis_type: JSON
+      openbis_label: Band gap
 
   batch:
     title: Batch
@@ -3328,6 +3318,16 @@ slots:
     annotations:
       openbis_type: VARCHAR
       openbis_label: Email
+  
+  energy_unit:
+    title: Energy (unit)
+    description: Energy (unit)
+    range: EnergyUnitsEnum
+    slot_uri:
+    multivalued: false
+    annotations:
+      openbis_type: CONTROLLEDVOCABULARY
+      openbis_label: Energy (unit)
 
   empa_id:
     title: Empa ID
@@ -5916,6 +5916,22 @@ enums:
         description: hour
         annotations:
           openbis_label: Hour
+  
+  EnergyUnitsEnum:
+    description: energy units
+    annotations:
+      openbis_label: Energy units vocabulary
+    permissible_values:
+      eV:
+        meaning: unit:EV
+        description: electron-Volt
+        annotations:
+          openbis_label: Electron-Volt
+      J:
+        meaning: unit:J
+        description: Joule
+        annotations:
+          openbis_label: J
 
   ExperimentTypeEnum:
     description: experiment type values

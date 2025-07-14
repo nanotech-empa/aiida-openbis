@@ -490,10 +490,10 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     ase_geo = structure.get_ase()
     dimensionality = guess_dimensionality(ase_geo)
     dictionary={
-        'name': ase_geo.get_chemical_formula(),
-        'wfms_uuid': structure.uuid,
-        'volume': structure.get_cell_volume(),
-        'cell': json.dumps({"cell": structure.cell})
+        "$name": ase_geo.get_chemical_formula(),
+        "wfms_uuid": structure.uuid,
+        "volume": structure.get_cell_volume(),
+        "cell": json.dumps({"cell": structure.cell})
     }
     
     if dimensionality:
@@ -595,21 +595,17 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
 
     dft_object_parameters=get_dft_parameters_qe(workchain.inputs.base, output_parameters_dict)
     
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
-    
     force_conv_threshold_json = json.dumps(
         {
-            "has_value": pw_input_parameters['CONTROL']['forc_conv_thr'],
-            "has_unit": "eV/Bohr**3"
+            "value": pw_input_parameters['CONTROL']['forc_conv_thr'],
+            "unit": "eV/Bohr**3"
         }
     )
     
     geoopt_object_parameters = {
         'wfms_uuid': workchain_uuid,
-        'level_theory': json.dumps(level_theory), #link/incorporate DFT object
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
         'force_convergence_threshold': force_conv_threshold_json,
         'constrained': False,
         'output_parameters': json.dumps(get_qe_output_parameters(workchain.outputs.output_parameters.get_dict())),
@@ -622,7 +618,7 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        geoopt_object_parameters["name"] = f"GeoOpt - {workchain_name}"
+        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
     
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
@@ -659,16 +655,13 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
         root_out = workchain.outputs.bands_projwfc
     
     dft_object_parameters=get_dft_parameters_qe(root_in.bands,root_out.scf_parameters.get_dict())
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
     
     output_parameters= get_qe_output_parameters(root_out.scf_parameters.get_dict())
     input_parameters = get_qe_input_parameters(root_out.scf_parameters.get_dict())
     dictionary = {
         'wfms_uuid': workchain_uuid,
-        'level_theory': json.dumps(level_theory),
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
         'output_parameters' : json.dumps(output_parameters),
         'input_parameters' : json.dumps(input_parameters),
         'band_gap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
@@ -676,7 +669,7 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["name"] = f"BANDS - {workchain_name}"
+        dictionary["$name"] = f"BANDS - {workchain_name}"
     
     # Create BANDSTRUCURE object
     bands_obobject = utils.create_openbis_object(
@@ -724,21 +717,18 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
     root_out = workchain.outputs    
 
     dft_object_parameters=get_dft_parameters_qe(root_in.scf,root_out.nscf.output_parameters.get_dict())
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
     
     dictionary = {
         'wfms_uuid': workchain_uuid,
-        'level_theory': json.dumps(level_theory),
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
         'output_parameters' : json.dumps(get_qe_output_parameters(root_out.nscf.output_parameters.get_dict())),
         'input_parameters' : json.dumps(get_qe_input_parameters(root_out.nscf.output_parameters.get_dict()))      
     }
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["name"] = f"PDOS - {workchain_name}"
+        dictionary["$name"] = f"PDOS - {workchain_name}"
     
     # Create PDOS object
     pdos_obobject = utils.create_openbis_object(
@@ -784,19 +774,16 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
             break
     
     dft_object_parameters=get_dft_parameters_qe(root_in,root_out.output_parameters.get_dict())
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
         
     dictionary = {
         'wfms_uuid':workchain_uuid,
-        'level_theory': json.dumps(level_theory)  
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
     }
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
-        dictionary["name"] = f"VibroSpec - {workchain_name}"
+        dictionary["$name"] = f"VibroSpec - {workchain_name}"
     
     # Create VIBSPEC object
     vibro_spec_obobject = utils.create_openbis_object(
@@ -860,14 +847,10 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     if dft_object_parameters['vdw_corr']:
         dft_object_parameters['vdw_corr'] = "DFT-D3"
     
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
-    
     geoopt_object_parameters = {
         'wfms_uuid': workchain_uuid,
-        'level_theory': json.dumps(level_theory),
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
         'constrained': sys_params['constraints'] != "",
         'output_parameters': json.dumps(output_parameters),
         'input_parameters': json.dumps(input_parameters)
@@ -879,7 +862,7 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     
     if workchain.description:
         workchain_name = workchain.description[:30]
-        geoopt_object_parameters["name"] = f"GeoOpt - {workchain_name}"
+        geoopt_object_parameters["$name"] = f"GeoOpt - {workchain_name}"
         
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
@@ -931,11 +914,6 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     dft_object_parameters = get_dft_parameters_cp2k(spm_code, dft_params)
     if dft_object_parameters['vdw_corr']:
         dft_object_parameters['vdw_corr'] = "DFT-D3"
-        
-    level_theory = {
-        "method": "dft",
-        "method_properties": dft_object_parameters
-    }
     
     bias_voltages_json = [json.dumps({"has_value": float(i), "has_unit": "unit:V"}) for i in spm_params['--energy_range']]
     isovalues_json = [json.dumps({"has_value": float(i), "has_unit": "eV/Bohr**3"}) for i in spm_params['--isovalues']]
@@ -943,7 +921,8 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         
     dictionary = {
         'wfms_uuid': workchain.uuid,
-        'level_theory': json.dumps(level_theory), #link/incorporate DFT object
+        "level_theory_method" : "dft",
+        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
         'bias_voltages': bias_voltages_json,
         'isovalues': isovalues_json,
         'heights': heights_json,
@@ -954,7 +933,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     
     if workchain.description:
         workchain_name = workchain.description[:30]
-        dictionary["name"] = f"STM - {workchain_name}"
+        dictionary["$name"] = f"STM - {workchain_name}"
     
     dictionary["default_object_view"] = "IMAGING_GALLERY_VIEW"
     # create oBIS 2D_MEASUREMENT object (how to knwo if it is 2D or 1D???)
@@ -1003,7 +982,7 @@ def get_codes_info(workchain_uuid):
     codes = set([node.inputs.code for node in workchain.called_descendants if isinstance(node, orm.CalcJobNode)])
     for code in codes:
         codesinfo = {
-            "name": code.filepath_executable.name, 
+            "$name": code.filepath_executable.name, 
             "description": code.description,
             "filepath_executable": code.filepath_executable.as_posix()
         }
