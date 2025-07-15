@@ -4,6 +4,7 @@ from IPython.display import display
 import pandas as pd
 import json
 import re
+import os
 from collections import Counter
 import subprocess
 import shutil
@@ -513,6 +514,214 @@ class ExportSimulationsWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Simulation details</span>"
         )
         
+        self.select_experiment_widget = SelectExperimentWidget(self.openbis_session)
+        
+        self.used_aiida_checkbox = ipw.Checkbox(
+            value = False,
+            description = "Simulation developed using AiiDA",
+            indent = False
+        )
+        
+        self.simulation_details_vbox = SimulationDetailsWidget(self.openbis_session, True)
+        
+        self.save_simulations_button = utils.Button(
+            tooltip = 'Import simulations', icon = 'save', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        # Increase search button icon size
+        increase_search_button = ipw.HTML(
+            """<style>
+            .fa-search {font-size: 1.5em !important;}
+            .fa-download {font-size: 2em !important;}
+            .fa-save {font-size: 2em !important;}
+            </style>
+            """
+        )
+        
+        # Add functionality to the widgets
+        self.used_aiida_checkbox.observe(self.load_simulations_details_widgets, names = "value")
+        self.save_simulations_button.on_click(self.export_simulation_to_openbis)
+        self.used_aiida_checkbox.value = True
+        
+        self.children = [
+            self.select_experiment_title,
+            self.select_experiment_widget,
+            self.simulation_details_title,
+            self.used_aiida_checkbox,
+            self.simulation_details_vbox,
+            increase_search_button,
+            self.save_simulations_button
+        ]
+    
+    def load_simulations_details_widgets(self, change):
+        used_aiida = self.used_aiida_checkbox.value
+        self.simulation_details_vbox.load_widgets(used_aiida)
+        
+    def export_simulation_to_openbis(self, b):
+        selected_experiment_id = self.select_experiment_widget.experiment_dropdown.value
+        if selected_experiment_id == "-1":
+            display(utils.Javascript(data = "alert('Select an experiment.')"))
+        else:
+            selected_molecules_widgets = self.simulation_details_vbox.molecules_accordion.children
+            selected_reac_prods_widgets = self.simulation_details_vbox.reacprod_concepts_accordion.children
+            
+            # Get material
+            if self.simulation_details_vbox.material_type_dropdown.value == "-1":
+                selected_slab = []
+            else:
+                selected_material_id = self.simulation_details_vbox.material_details_vbox.children[0].children[0].value
+                if selected_material_id == "-1":
+                    selected_slab = []
+                else:
+                    selected_slab = [selected_material_id]
+            
+            # Get molecules
+            selected_molecules_ids = []
+            for mol_widget in selected_molecules_widgets:
+                mol_id = mol_widget.dropdown.value
+                if mol_id == "-1":
+                    continue
+                else:
+                    selected_molecules_ids.append(mol_id)
+            
+            # Get reaction products concepts
+            selected_reac_prods_ids = []
+            for reac_prod_widget in selected_reac_prods_widgets:
+                reac_prod_id = reac_prod_widget.dropdown.value
+                if reac_prod_id == "-1":
+                    continue
+                else:
+                    selected_reac_prods_ids.append(reac_prod_id)
+                    
+            if self.used_aiida_checkbox.value:
+                selected_simulation_id = self.simulation_details_vbox.simulations_dropdown.value
+                if selected_simulation_id == "-1":
+                    display(utils.Javascript(data = "alert('Select a simulation.')"))
+                else:
+                    atom_model_parents = selected_slab + selected_molecules_ids + selected_reac_prods_ids
+                    last_export = aiida_utils.export_workchain(
+                        self.openbis_session,
+                        selected_experiment_id,
+                        selected_simulation_id
+                    )
+                    
+                    if last_export:
+                        first_atom_model = utils.find_first_atomistic_model(
+                            self.openbis_session,
+                            last_export,
+                            "ATOMISTIC_MODEL"
+                        )
+                        
+                        if len(first_atom_model.parents) == 0:
+                            first_atom_model.parents = atom_model_parents
+                            first_atom_model.save()
+                        display(utils.Javascript(data = "alert('Upload successful!')"))
+                    else:
+                        display(utils.Javascript(data = "alert('Simulation is already in openBIS!')"))
+            
+            else:
+                simulation_type = self.simulation_details_vbox.simulation_type_dropdown.value
+                if simulation_type == "-1":
+                    return
+                else:
+                    # Get atomistic models
+                    atom_model_widget = self.simulation_details_vbox.atom_model_widget
+                    selected_atom_model_id = atom_model_widget.atom_model_dropdown.value
+                    if selected_atom_model_id == "-1":
+                        selected_atom_model_id = []
+                    else:
+                        selected_atom_model_id = [selected_atom_model_id]
+                    
+                    selected_codes_ids = self.simulation_details_vbox.codes_multi_selector.value
+                    selected_codes_ids = list(selected_codes_ids)
+                    
+                    simulation_props_widget = self.simulation_details_vbox.simulation_properties_widget
+                    
+                    level_theory_params = simulation_props_widget.level_theory_parameters_textbox.value
+                    if utils.is_valid_json(level_theory_params) == False:
+                        level_theory_params = ""
+                        
+                    input_parameters = simulation_props_widget.method_input_parameters_textbox.value
+                    if utils.is_valid_json(input_parameters) == False:
+                        input_parameters = ""
+                        
+                    output_parameters = simulation_props_widget.method_output_parameters_textbox.value
+                    if utils.is_valid_json(output_parameters) == False:
+                        output_parameters = ""
+                    
+                    simulation_props = {
+                        "$name": simulation_props_widget.name_textbox.value,
+                        "wfms_uuid": simulation_props_widget.wfms_uuid_textbox.value,
+                        "input_parameters": input_parameters,
+                        "output_parameters": output_parameters,
+                        "comments": simulation_props_widget.comments_textbox.value
+                    }
+                    
+                    if simulation_type in ["BAND_STRUCTURE", "GEOMETRY_OPTIMISATION", "PDOS", "VIBRATIONAL_SPECTROSCOPY"]:
+                        simulation_props["level_theory_method"] = simulation_props_widget.level_theory_method_textbox.value
+                        simulation_props["level_theory_parameters"] = level_theory_params
+                        
+                        if simulation_type == "BAND_STRUCTURE":
+                            band_gap = {
+                                "value": simulation_props_widget.band_gap_value_textbox.value,
+                                "energy_unit": simulation_props_widget.band_gap_unit_textbox.value,
+                            }
+                            simulation_props["band_gap"] = band_gap
+                    
+                        elif simulation_type == "GEOMETRY_OPTIMISATION":
+                            simulation_props["cell_opt_constraints"] = simulation_props_widget.cell_opt_constraints_textbox.value
+                            simulation_props["cell_optimised"] = simulation_props_widget.cell_optimised_checkbox.value
+                            simulation_props["driver_code"] = simulation_props_widget.driver_code_textbox.value
+                            simulation_props["constrained"] = simulation_props_widget.constrained_checkbox.value
+                            
+                            force_convergence_threshold = {
+                                "value": simulation_props_widget.force_convergence_threshold_value_textbox.value,
+                                "unit": simulation_props_widget.force_convergence_threshold_unit_textbox.value,
+                            }
+                            simulation_props["force_convergence_threshold"] = force_convergence_threshold
+                            
+                    elif simulation_type == "UNCLASSIFIED_SIMULATION":
+                        simulation_props["description"] = simulation_props_widget.description_textbox.value
+                    
+                    simulation_parents = selected_atom_model_id + selected_codes_ids
+                    
+                    simulation_obj = utils.create_openbis_object(
+                        self.openbis_session,
+                        type = simulation_type,
+                        collection = selected_experiment_id,
+                        parents = simulation_parents,
+                        props = simulation_props
+                    )
+                    
+                    # Simulation preview
+                    for filename in self.simulation_details_vbox.upload_image_preview_uploader.value:
+                        file_info = self.simulation_details_vbox.upload_image_preview_uploader.value[filename]
+                        utils.save_file(file_info['content'], filename)
+                        self.openbis_session.new_dataset(
+                            type = "ELN_PREVIEW", 
+                            sample = simulation_obj, 
+                            files = [filename]
+                        ).save()
+                        os.remove(filename)
+                    
+                    # Simulation datasets
+                    for filename in self.simulation_details_vbox.upload_datasets_uploader.value:
+                        file_info = self.simulation_details_vbox.upload_datasets_uploader.value[filename]
+                        utils.save_file(file_info['content'], filename)
+                        self.openbis_session.new_dataset(
+                            type = "ATTACHMENT", 
+                            sample = simulation_obj, 
+                            files = [filename]
+                        ).save()
+                        os.remove(filename)
+                
+class SimulationDetailsWidget(ipw.VBox):
+    def __init__(self, openbis_session, used_aiida):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.used_aiida = used_aiida
+        
         self.select_molecules_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 18px;'>Select molecules</span>"
         )
@@ -525,12 +734,8 @@ class ExportSimulationsWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 18px;'>Select slab</span>"
         )
         
-        self.select_experiment_widget = SelectExperimentWidget(self.openbis_session)
-        
-        self.used_aiida_checkbox = ipw.Checkbox(
-            value = False,
-            description = "Simulation developed using AiiDA",
-            indent = False
+        self.select_simulation_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select simulation</span>"
         )
         
         self.molecules_accordion = ipw.Accordion()
@@ -561,50 +766,194 @@ class ExportSimulationsWidget(ipw.VBox):
         
         self.material_details_vbox = ipw.VBox()
         
-        self.simulation_details_vbox = SimulationDetailsWidget(self.openbis_session, True)
+        self.simulations_label = ipw.Label(value = "Simulation")
+        self.simulations_dropdown = ipw.Dropdown()
+        self.load_aiida_simulations()
+        self.sort_simulations_label = ipw.Label(value = "Sort by:")
         
-        self.save_simulations_button = utils.Button(
-            tooltip = 'Import simulations', icon = 'save', 
-            layout = ipw.Layout(width = '100px', height = '50px')
+        self.sort_name_label = ipw.Label(
+            value = "Name", 
+            layout=ipw.Layout(margin='2px', width='50px'),
+            style = {'description_width': 'initial'}
         )
         
-        # Increase search button icon size
-        increase_search_button = ipw.HTML(
-            """<style>
-            .fa-search {font-size: 1.5em !important;}
-            .fa-download {font-size: 2em !important;}
-            .fa-save {font-size: 2em !important;}
-            </style>
-            """
+        self.sort_name_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
         )
         
-        # Add functionality to the widgets
+        self.sort_pk_label = ipw.Label(
+            value = "PK", 
+            layout=ipw.Layout(margin='2px', width='110px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_pk_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_simulations_hbox = ipw.HBox(
+            children = [
+                self.sort_simulations_label,
+                self.sort_name_checkbox,
+                self.sort_name_label,
+                self.sort_pk_checkbox,
+                self.sort_pk_label
+            ]
+        )
+        
+        self.simulations_dropdown_hbox = ipw.HBox(
+            children = [
+                self.simulations_label,
+                self.simulations_dropdown,
+            ]
+        )
+        
+        self.select_simulation_type_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select simulation type</span>"
+        )
+        
+        self.simulation_type_label = ipw.Label(value = "Simulation type")
+        simulation_types = SIMULATION_TYPES.copy()
+        simulation_types.insert(0, ("Select simulation type...", "-1"))
+        
+        self.simulation_type_dropdown = ipw.Dropdown(
+            options = simulation_types,
+            value = "-1"
+        )
+        
+        self.simulation_type_hbox = ipw.HBox(
+            children = [
+                self.simulation_type_label,
+                self.simulation_type_dropdown,
+            ]
+        )
+        
+        self.simulation_properties_widget = SimulationPropertiesWidget(self.openbis_session)
+        
+        self.select_atom_model_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select atomistic model</span>"
+        )
+        self.atom_model_widget = AtomModelWidget(self.openbis_session)
+        
+        self.select_codes_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select codes</span>"
+        )
+        
+        self.codes_label = ipw.Label(value = "Codes")
+        codes_objects = utils.get_openbis_objects(self.openbis_session, type = "CODE")
+        codes_options = [(obj.props["$name"], obj.permId) for obj in codes_objects]
+        self.codes_multi_selector = ipw.SelectMultiple(options = codes_options)
+        self.codes_hbox = ipw.HBox(children = [self.codes_label, self.codes_multi_selector])
+        
+        self.upload_image_preview_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Upload image preview</span>"
+        )
+        
+        self.upload_image_preview_uploader = ipw.FileUpload(
+            multiple = False,
+            accept = '.jpg, .jpeg, .png,'
+        )
+        
+        self.upload_datasets_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Upload datasets</span>"
+        )
+        
+        self.upload_datasets_uploader = ipw.FileUpload(multiple = True)
+        
+        self.simulation_type_dropdown.observe(self.load_simulation_type_properties, names = "value")
         self.material_type_dropdown.observe(self.load_material_type_widgets, names = "value")
         self.add_molecule_button.on_click(self.add_molecule)
         self.add_reacprod_concept_button.on_click(self.add_reacprod_concept)
-        self.used_aiida_checkbox.observe(self.load_simulations_details_widgets, names = "value")
-        self.save_simulations_button.on_click(self.export_simulation_to_openbis)
-        self.used_aiida_checkbox.value = True
         
-        self.children = [
-            self.select_experiment_title,
-            self.select_experiment_widget,
-            self.simulation_details_title,
-            self.used_aiida_checkbox,
-            self.select_molecules_title,
-            self.molecules_accordion,
-            self.add_molecule_button,
-            self.select_reacprod_concepts_title,
-            self.reacprod_concepts_accordion,
-            self.add_reacprod_concept_button,
-            self.select_slab_title,
-            self.material_type_dropdown,
-            self.material_details_vbox,
-            self.simulation_details_vbox,
-            increase_search_button,
-            self.save_simulations_button
-        ]
+    def load_simulation_type_properties(self, change):
+        simulation_type = self.simulation_type_dropdown.value
+        self.simulation_properties_widget.load_widgets(simulation_type)
     
+    def load_aiida_simulations(self):
+        qb = orm.QueryBuilder()
+        qb.append(orm.WorkChainNode)
+        results = qb.all()
+        
+        # List of calculations that can be exported
+        labels = list(WORKCHAIN_VIEWERS.keys())
+        
+        # Create the QueryBuilder
+        qb = orm.QueryBuilder()
+        qb.append(
+            orm.WorkChainNode,
+            filters={
+                'attributes.process_label': {'in': labels},  # Filter by process_label
+                'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
+                'attributes.process_state':{'in':['finished']},
+            },
+            project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
+        )
+        # Execute the query
+        results = qb.all()
+        options = []
+        for result in results:
+            if result[3]:
+                name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
+            else:
+                name_pk_string = f"{result[2]} (PK: {result[0]})"
+                
+            name_pk_tuple = (name_pk_string, result[0])
+            options.append(name_pk_tuple)
+        
+        options.insert(0, (f'Select a simulation...', "-1"))
+        self.simulations_dropdown.options = options
+        self.simulations_dropdown.value = "-1"
+
+    def sort_simulations_dropdown(self, change):
+        options = self.simulations_dropdown.options[1:]
+        
+        df = pd.DataFrame(options, columns=["$name", "PK"])
+        if self.sort_name_checkbox.value and not self.sort_pk_checkbox.value:
+            df = df.sort_values(by="$name", ascending=True)
+        elif not self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
+            df = df.sort_values(by="PK", ascending=False)
+        elif self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
+            df = df.sort_values(by=["$name", "PK"], ascending=[True, False])
+
+        options = list(df.itertuples(index=False, name=None))
+        options.insert(0, self.simulations_dropdown.options[0])
+        self.simulations_dropdown.options = options
+
+    def load_widgets(self, used_aiida):
+        self.used_aiida = used_aiida
+        if self.used_aiida:
+            self.children = [
+                self.select_molecules_title,
+                self.molecules_accordion,
+                self.add_molecule_button,
+                self.select_reacprod_concepts_title,
+                self.reacprod_concepts_accordion,
+                self.add_reacprod_concept_button,
+                self.select_material_title,
+                self.material_type_dropdown,
+                self.material_details_vbox,
+                self.select_simulation_title,
+                self.simulations_dropdown_hbox,
+                self.sort_simulations_hbox
+            ]
+            
+        else:
+            self.children = [
+                self.select_simulation_type_title,
+                self.simulation_type_hbox,
+                self.simulation_properties_widget,
+                self.select_atom_model_title,
+                self.atom_model_widget,
+                self.select_codes_title,
+                self.codes_hbox,
+                self.upload_image_preview_title,
+                self.upload_image_preview_uploader,
+                self.upload_datasets_title,
+                self.upload_datasets_uploader
+            ]
+
     def load_material_type_widgets(self, change):
         if self.material_type_dropdown.value == "-1":
             self.material_details_vbox.children = []
@@ -725,270 +1074,7 @@ class ExportSimulationsWidget(ipw.VBox):
         reacprod_concept_widget = ReacProdConceptWidget(self.openbis_session, self.reacprod_concepts_accordion, reacprod_concept_index)
         reacprod_concepts_accordion_children.append(reacprod_concept_widget)
         self.reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
-
-    def load_simulations_details_widgets(self, change):
-        used_aiida = self.used_aiida_checkbox.value
-        self.simulation_details_vbox.load_widgets(used_aiida)
-        
-    def export_simulation_to_openbis(self, b):
-        selected_experiment_id = self.select_experiment_widget.experiment_dropdown.value
-        if selected_experiment_id == "-1":
-            display(utils.Javascript(data = "alert('Select an experiment.')"))
-        else:
-            selected_molecules_widgets = self.molecules_accordion.children
-            selected_reac_prods_widgets = self.reacprod_concepts_accordion.children
-            
-            # Get material
-            if self.material_type_dropdown.value == "-1":
-                selected_slab = []
-            else:
-                selected_material_id = self.material_details_vbox.children[0].children[0].value
-                if selected_material_id == "-1":
-                    selected_slab = []
-                else:
-                    selected_slab = [selected_material_id]
-            
-            # Get molecules
-            selected_molecules_ids = []
-            for mol_widget in selected_molecules_widgets:
-                mol_id = mol_widget.dropdown.value
-                if mol_id == "-1":
-                    continue
-                else:
-                    selected_molecules_ids.append(mol_id)
-            
-            # Get reaction products concepts
-            selected_reac_prods_ids = []
-            for reac_prod_widget in selected_reac_prods_widgets:
-                reac_prod_id = reac_prod_widget.dropdown.value
-                if reac_prod_id == "-1":
-                    continue
-                else:
-                    selected_reac_prods_ids.append(reac_prod_id)
-                    
-            if self.used_aiida_checkbox.value:
-                selected_simulation_id = self.simulation_details_vbox.simulations_dropdown.value
-                if selected_simulation_id == "-1":
-                    display(utils.Javascript(data = "alert('Select a simulation.')"))
-                else:
-                    atom_model_parents = selected_slab + selected_molecules_ids + selected_reac_prods_ids
-                    last_export = aiida_utils.export_workchain(
-                        self.openbis_session,
-                        selected_experiment_id,
-                        selected_simulation_id
-                    )
-                    
-                    if last_export:
-                        first_atom_model = utils.find_first_atomistic_model(
-                            self.openbis_session,
-                            last_export,
-                            "ATOMISTIC_MODEL"
-                        )
-                        
-                        if len(first_atom_model.parents) == 0:
-                            first_atom_model.parents = atom_model_parents
-                            first_atom_model.save()
-                        display(utils.Javascript(data = "alert('Upload successful!')"))
-                    else:
-                        display(utils.Javascript(data = "alert('Simulation is already in openBIS!')"))
-            
-            else:
-                pass
-                # TODO: Save manual simulation
-                
-class SimulationDetailsWidget(ipw.VBox):
-    def __init__(self, openbis_session, used_aiida):
-        super().__init__()
-        self.openbis_session = openbis_session
-        self.used_aiida = used_aiida
-        
-        self.select_simulation_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Select simulation</span>"
-        )
-        
-        self.simulations_label = ipw.Label(value = "Simulation")
-        self.simulations_dropdown = ipw.Dropdown()
-        self.load_aiida_simulations()
-        self.sort_simulations_label = ipw.Label(value = "Sort by:")
-        
-        self.sort_name_label = ipw.Label(
-            value = "Name", 
-            layout=ipw.Layout(margin='2px', width='50px'),
-            style = {'description_width': 'initial'}
-        )
-        
-        self.sort_name_checkbox = ipw.Checkbox(
-            indent = False,
-            layout=ipw.Layout(margin='2px', width='20px')
-        )
-        
-        self.sort_pk_label = ipw.Label(
-            value = "PK", 
-            layout=ipw.Layout(margin='2px', width='110px'),
-            style = {'description_width': 'initial'}
-        )
-        
-        self.sort_pk_checkbox = ipw.Checkbox(
-            indent = False,
-            layout=ipw.Layout(margin='2px', width='20px')
-        )
-        
-        self.sort_simulations_hbox = ipw.HBox(
-            children = [
-                self.sort_simulations_label,
-                self.sort_name_checkbox,
-                self.sort_name_label,
-                self.sort_pk_checkbox,
-                self.sort_pk_label
-            ]
-        )
-        
-        self.simulations_dropdown_hbox = ipw.HBox(
-            children = [
-                self.simulations_label,
-                self.simulations_dropdown,
-            ]
-        )
-        
-        self.select_simulation_type_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Select simulation type</span>"
-        )
-        
-        self.simulation_type_label = ipw.Label(value = "Simulation type")
-        simulation_types = SIMULATION_TYPES.copy()
-        simulation_types.insert(0, ("Select simulation type...", "-1"))
-        
-        self.simulation_type_dropdown = ipw.Dropdown(
-            options = simulation_types,
-            value = "-1"
-        )
-        
-        self.simulation_type_hbox = ipw.HBox(
-            children = [
-                self.simulation_type_label,
-                self.simulation_type_dropdown,
-            ]
-        )
-        
-        self.simulation_properties_widget = SimulationPropertiesWidget(self.openbis_session)
-        
-        self.select_atom_model_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Select atomistic model</span>"
-        )
-        self.atom_model_widget = AtomModelWidget(self.openbis_session)
-        
-        self.upload_atom_model_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Upload atomistic model</span>"
-        )
-        self.atom_model_uploader = ipw.FileUpload(multiple = False)
-        
-        self.select_codes_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Select codes</span>"
-        )
-        
-        self.codes_label = ipw.Label(value = "Codes")
-        codes_objects = utils.get_openbis_objects(self.openbis_session, type = "CODE")
-        codes_options = [(obj.props["$name"], obj.permId) for obj in codes_objects]
-        self.codes_multi_selector = ipw.SelectMultiple(options = codes_options)
-        self.codes_hbox = ipw.HBox(children = [self.codes_label, self.codes_multi_selector])
-        
-        self.upload_image_preview_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Upload image preview</span>"
-        )
-        
-        self.upload_image_preview_uploader = ipw.FileUpload(
-            multiple = False,
-            accept = '.jpg, .jpeg, .png,'
-        )
-        
-        self.upload_datasets_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 18px;'>Upload datasets</span>"
-        )
-        
-        self.upload_datasets_uploader = ipw.FileUpload(multiple = True)
-        
-        self.simulation_type_dropdown.observe(self.load_simulation_type_properties, names = "value")
-        
-    def load_simulation_type_properties(self, change):
-        simulation_type = self.simulation_type_dropdown.value
-        self.simulation_properties_widget.load_widgets(simulation_type)
-    
-    def load_aiida_simulations(self):
-        qb = orm.QueryBuilder()
-        qb.append(orm.WorkChainNode)
-        results = qb.all()
-        
-        # List of calculations that can be exported
-        labels = list(WORKCHAIN_VIEWERS.keys())
-        
-        # Create the QueryBuilder
-        qb = orm.QueryBuilder()
-        qb.append(
-            orm.WorkChainNode,
-            filters={
-                'attributes.process_label': {'in': labels},  # Filter by process_label
-                'extras': {'!has_key': 'exported'}, # Exclude nodes with the 'exported' key in extras
-                'attributes.process_state':{'in':['finished']},
-            },
-            project=['id','uuid', 'attributes.process_label','attributes.metadata_inputs.metadata.description','attributes.metadata_inputs.metadata.label']  # Project the PK (id) and process_label
-        )
-        # Execute the query
-        results = qb.all()
-        options = []
-        for result in results:
-            if result[3]:
-                name_pk_string = f"{result[3][:20]} - {result[2]} (PK: {result[0]})"
-            else:
-                name_pk_string = f"{result[2]} (PK: {result[0]})"
-                
-            name_pk_tuple = (name_pk_string, result[0])
-            options.append(name_pk_tuple)
-        
-        options.insert(0, (f'Select a simulation...', "-1"))
-        self.simulations_dropdown.options = options
-        self.simulations_dropdown.value = "-1"
-
-    def sort_simulations_dropdown(self, change):
-        options = self.simulations_dropdown.options[1:]
-        
-        df = pd.DataFrame(options, columns=["$name", "PK"])
-        if self.sort_name_checkbox.value and not self.sort_pk_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
-        elif not self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
-            df = df.sort_values(by="PK", ascending=False)
-        elif self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
-            df = df.sort_values(by=["$name", "PK"], ascending=[True, False])
-
-        options = list(df.itertuples(index=False, name=None))
-        options.insert(0, self.simulations_dropdown.options[0])
-        self.simulations_dropdown.options = options
-
-    def load_widgets(self, used_aiida):
-        self.used_aiida = used_aiida
-        if self.used_aiida:
-            self.children = [
-                self.select_simulation_title,
-                self.simulations_dropdown_hbox,
-                self.sort_simulations_hbox
-            ]
-            
-        else:
-            self.children = [
-                self.select_simulation_type_title,
-                self.simulation_type_hbox,
-                self.simulation_properties_widget,
-                self.select_atom_model_title,
-                self.atom_model_widget,
-                self.upload_atom_model_title,
-                self.atom_model_uploader,
-                self.select_codes_title,
-                self.codes_hbox,
-                self.upload_image_preview_title,
-                self.upload_datasets_uploader,
-                self.upload_datasets_title,
-                self.upload_datasets_uploader
-            ]
-
+   
 class SimulationPropertiesWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
@@ -1061,7 +1147,9 @@ class SimulationPropertiesWidget(ipw.VBox):
         self.level_theory_method_hbox = ipw.HBox(children = [self.level_theory_method_label, self.level_theory_method_textbox])
         
         self.level_theory_parameters_label = ipw.Label(value = "Level of theory (parameters)")
-        self.level_theory_parameters_textbox = ipw.Text(value = "{}")
+        self.level_theory_parameters_textbox = ipw.Textarea(
+            placeholder = '{"uks": false, "charge": 0.0, "plus_u": false, "xc_functional": "PBESOL"}'
+        )
         self.level_theory_parameters_hbox = ipw.HBox(
             children = [
                 self.level_theory_parameters_label, 
@@ -1070,7 +1158,9 @@ class SimulationPropertiesWidget(ipw.VBox):
         )
         
         self.method_input_parameters_label = ipw.Label(value = "Method input parameters")
-        self.method_input_parameters_textbox = ipw.Textarea(value = "{}")
+        self.method_input_parameters_textbox = ipw.Textarea(
+            placeholder = '{"degauss": 0.0, "volume": 0.0}'
+        )
         self.method_input_parameters_hbox = ipw.HBox(
             children = [
                 self.method_input_parameters_label, 
@@ -1079,7 +1169,9 @@ class SimulationPropertiesWidget(ipw.VBox):
         )
         
         self.method_output_parameters_label = ipw.Label(value = "Method output parameters")
-        self.method_output_parameters_textbox = ipw.Textarea(value = "{}")
+        self.method_output_parameters_textbox = ipw.Textarea(
+            placeholder = '{"energy": 0.0, "has_electric_field": false}'
+        )
         self.method_output_parameters_hbox = ipw.HBox(
             children = [
                 self.method_output_parameters_label, 
@@ -1207,20 +1299,31 @@ class AtomModelWidget(ipw.VBox):
             ]
         )
         
+        self.create_atom_model_button = ipw.Button(
+            tooltip = 'Add', 
+            icon = 'plus', 
+            layout = ipw.Layout(width = '50px', height = '25px')
+        )
+        
         self.atom_model_hbox = ipw.HBox(
             children = [
                 self.atom_model_label,
                 self.atom_model_dropdown,
+                self.create_atom_model_button
             ]
         )
         
-        self.sort_name_checkbox.observe(self.sort_atom_model_dropdown, names = "value")
-        self.sort_registration_date_checkbox.observe(self.sort_atom_model_dropdown, names = "value")
+        self.create_new_atom_model_widgets = ipw.VBox()
         
         self.children = [
             self.atom_model_hbox,
-            self.sort_atom_model_hbox
+            self.sort_atom_model_hbox,
+            self.create_new_atom_model_widgets
         ]
+        
+        self.sort_name_checkbox.observe(self.sort_atom_model_dropdown, names = "value")
+        self.sort_registration_date_checkbox.observe(self.sort_atom_model_dropdown, names = "value")
+        self.create_atom_model_button.on_click(self.create_atom_model)
     
     def load_atom_models(self):
         atom_models = utils.get_openbis_objects(
@@ -1246,6 +1349,356 @@ class AtomModelWidget(ipw.VBox):
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.atom_model_dropdown.options[0])
         self.atom_model_dropdown.options = options
+    
+    def create_atom_model(self, b):
+        select_molecules_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select molecules</span>"
+        )
+        
+        select_reacprod_concepts_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select reaction product concepts</span>"
+        )
+        
+        select_slab_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Select slab</span>"
+        )
+        
+        molecules_accordion = ipw.Accordion()
+        add_molecule_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add molecule', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        reacprod_concepts_accordion = ipw.Accordion()
+        add_reacprod_concept_button = ipw.Button(
+            description = 'Add', disabled = False, 
+            button_style = 'success', tooltip = 'Add reaction product concept', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        material_type_options = MATERIALS_CONCEPTS_LABELS.copy()
+        material_type_options.insert(0, ("Select material type...", "-1"))
+        
+        material_type_dropdown = ipw.Dropdown(
+            options = material_type_options,
+            value = material_type_options[0][1]
+        )
+        
+        material_details_vbox = ipw.VBox()
+        
+        atom_model_props_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Atomistic model properties</span>"
+        )
+        
+        name_label = ipw.Label(value = "Name")
+        name_textbox = ipw.Text()
+        name_hbox = ipw.HBox([name_label, name_textbox])
+        
+        wfms_uuid_label = ipw.Label(value = "WFMS UUID")
+        wfms_uuid_textbox = ipw.Text()
+        wfms_uuid_hbox = ipw.HBox([wfms_uuid_label, wfms_uuid_textbox])
+        
+        cell_label = ipw.Label(value = "Cell")
+        cell_textbox = ipw.Textarea(placeholder = "{[[1,1,1], [2,2,2], [3,3,3]]}")
+        cell_hbox = ipw.HBox([cell_label, cell_textbox])
+        
+        dimensionality_label = ipw.Label(value = "Dimensionality")
+        dimensionality_intbox = ipw.IntText()
+        dimensionality_hbox = ipw.HBox([dimensionality_label, dimensionality_intbox])
+        
+        pbc_label = ipw.Label(value = "PBC")
+        pbc_x_checkbox = ipw.Checkbox(indent = False, layout = ipw.Layout(width = "20px"))
+        pbc_y_checkbox = ipw.Checkbox(indent = False, layout = ipw.Layout(width = "20px"))
+        pbc_z_checkbox = ipw.Checkbox(indent = False, layout = ipw.Layout(width = "20px"))
+        pbc_hbox = ipw.HBox([pbc_label, pbc_x_checkbox, pbc_y_checkbox, pbc_z_checkbox])
+        
+        volume_label = ipw.Label(value = "Volume")
+        volume_floatbox = ipw.FloatText()
+        volume_hbox = ipw.HBox([volume_label, volume_floatbox])
+        
+        comments_label = ipw.Label(value = "Comments")
+        comments_textbox = ipw.Textarea()
+        comments_hbox = ipw.HBox([comments_label, comments_textbox])
+        
+        atom_model_preview_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Upload image preview</span>"
+        )
+        
+        atom_model_preview_uploader = ipw.FileUpload(multiple = False)
+        
+        atom_model_datasets_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 18px;'>Upload datasets</span>"
+        )
+        
+        atom_model_datasets_uploader = ipw.FileUpload()
+        
+        atom_model_properties_widgets = ipw.VBox(
+            children = [
+                atom_model_props_title,
+                name_hbox,
+                wfms_uuid_hbox,
+                cell_hbox,
+                dimensionality_hbox,
+                pbc_hbox,
+                volume_hbox,
+                comments_hbox
+            ]
+        )
+        
+        atom_model_datasets_widgets = ipw.VBox(
+            children = [
+                atom_model_preview_title,
+                atom_model_preview_uploader,
+                atom_model_datasets_title,
+                atom_model_datasets_uploader
+            ]
+        )
+        
+        save_button = ipw.Button(
+            description = '', 
+            disabled = False, 
+            button_style = '', 
+            tooltip = 'Save', 
+            icon = 'save', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        cancel_button = ipw.Button(
+            description = '', 
+            disabled = False, 
+            button_style = '', 
+            tooltip = 'Cancel', 
+            icon = 'times', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        buttons_hbox = ipw.HBox(
+            children = [
+                save_button,
+                cancel_button
+            ]
+        )
+        
+        def load_material_type_widgets(change):
+            if material_type_dropdown.value == "-1":
+                material_details_vbox.children = []
+                return
+            else:
+                material_options = [("Select material...", "-1")]
+                material_dropdown = ipw.Dropdown(options = material_options, value = material_options[0][1])
+                
+                sort_material_label = ipw.Label(
+                    value = "Sort by:", 
+                    layout=ipw.Layout(margin='0px', width='50px'),
+                    style = {'description_width': 'initial'}
+                )
+                
+                name_checkbox = ipw.Checkbox(indent = False, layout=ipw.Layout(margin='2px', width='20px'))
+                
+                name_label = ipw.Label(
+                    value = "Name", 
+                    layout=ipw.Layout(margin='0px', width='50px'),
+                    style = {'description_width': 'initial'}
+                )
+                
+                registration_date_checkbox = ipw.Checkbox(indent = False,layout=ipw.Layout(margin='2px', width='20px'))
+                
+                registration_date_label = ipw.Label(
+                    value = "Registration date",
+                    layout=ipw.Layout(margin='0px', width='110px'),
+                    style = {'description_width': 'initial'}
+                )
+            
+                select_material_box = ipw.HBox(
+                    children = [
+                        material_dropdown,
+                        sort_material_label,
+                        name_checkbox,
+                        name_label,
+                        registration_date_checkbox,
+                        registration_date_label
+                    ]
+                )
+                
+                material_details_html = ipw.HTML()
+                
+                material_details_vbox.children = [
+                    select_material_box,
+                    material_details_html
+                ]
+                
+                material_type = material_type_dropdown.value
+                material_objects = utils.get_openbis_objects(
+                    self.openbis_session,
+                    type = material_type
+                )
+                materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+                material_options += materials_objects_names_permids
+                material_dropdown.options = material_options
+                
+                def sort_material_dropdown(change):
+                    options = material_options[1:]
+                    
+                    df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                    if name_checkbox.value and not registration_date_checkbox.value:
+                        df = df.sort_values(by="$name", ascending=True)
+                    elif not name_checkbox.value and registration_date_checkbox.value:
+                        df = df.sort_values(by="registration_date", ascending=False)
+                    elif name_checkbox.value and registration_date_checkbox.value:
+                        df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+                    options = list(df.itertuples(index=False, name=None))
+                    options.insert(0, material_options[0])
+                    material_dropdown.options = options
+                
+                def load_material_details(change):
+                    obj_permid = material_dropdown.value
+                    if obj_permid == "-1":
+                        return
+                    else:
+                        obj = self.openbis_session.get_object(obj_permid)
+                        obj_props = obj.props.all()
+                        obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
+                        for key, value in obj_props.items():
+                            if value:
+                                prop_type = self.openbis_session.get_property_type(key)
+                                prop_label = prop_type.label
+                                obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+                        
+                        obj_details_string += "</div>"
+                        material_details_html.value = obj_details_string
+                        
+                name_checkbox.observe(sort_material_dropdown, names = "value")
+                registration_date_checkbox.observe(sort_material_dropdown, names = "value")
+                material_dropdown.observe(load_material_details, names = "value")
+        
+        def add_molecule(b):
+            molecules_accordion_children = list(molecules_accordion.children)
+            molecule_index = len(molecules_accordion_children)
+            molecule_widget = MoleculeWidget(self.openbis_session, molecules_accordion, molecule_index)
+            molecules_accordion_children.append(molecule_widget)
+            molecules_accordion.children = molecules_accordion_children
+        
+        def add_reacprod_concept(b):
+            reacprod_concepts_accordion_children = list(reacprod_concepts_accordion.children)
+            reacprod_concept_index = len(reacprod_concepts_accordion_children)
+            reacprod_concept_widget = ReacProdConceptWidget(self.openbis_session, reacprod_concepts_accordion, reacprod_concept_index)
+            reacprod_concepts_accordion_children.append(reacprod_concept_widget)
+            reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
+        
+        def save_new_atom_model(b):
+            atom_models_objs = utils.get_openbis_objects(self.openbis_session, type = "ATOMISTIC_MODEL")
+            wfms_uuid = wfms_uuid_textbox.value
+            atom_models_uuids = [obj.props["wfms_uuid"] for obj in atom_models_objs]
+            if wfms_uuid in atom_models_uuids:
+                display(utils.Javascript(data = "alert('Atomistic model already in openBIS!')"))
+            else:
+                pbc = [pbc_x_checkbox.value, pbc_y_checkbox.value, pbc_z_checkbox.value]
+                cell_json = cell_textbox.value
+                if utils.is_valid_json(cell_json) == False:
+                    cell_json = ""
+                    
+                atom_model_props = {
+                    "$name": name_textbox.value,
+                    "wfms_uuid": wfms_uuid,
+                    "cell": cell_json,
+                    "dimensionality": dimensionality_intbox.value,
+                    "periodic_boundary_conditions": pbc,
+                    "volume": volume_floatbox.value,
+                    "comments": comments_textbox.value
+                }
+                
+                selected_molecules_widgets = molecules_accordion.children
+                selected_reac_prods_widgets = reacprod_concepts_accordion.children
+                
+                # Get material
+                if material_type_dropdown.value == "-1":
+                    selected_slab = []
+                else:
+                    selected_material_id = material_details_vbox.children[0].children[0].value
+                    if selected_material_id == "-1":
+                        selected_slab = []
+                    else:
+                        selected_slab = [selected_material_id]
+                
+                # Get molecules
+                selected_molecules_ids = []
+                for mol_widget in selected_molecules_widgets:
+                    mol_id = mol_widget.dropdown.value
+                    if mol_id == "-1":
+                        continue
+                    else:
+                        selected_molecules_ids.append(mol_id)
+                
+                # Get reaction products concepts
+                selected_reac_prods_ids = []
+                for reac_prod_widget in selected_reac_prods_widgets:
+                    reac_prod_id = reac_prod_widget.dropdown.value
+                    if reac_prod_id == "-1":
+                        continue
+                    else:
+                        selected_reac_prods_ids.append(reac_prod_id)
+                
+                atom_model_parents = selected_slab + selected_molecules_ids + selected_reac_prods_ids
+                
+                atom_model_obj = utils.create_openbis_object(
+                    self.openbis_session, 
+                    type = "ATOMISTIC_MODEL",
+                    collection = "/MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
+                    props = atom_model_props,
+                    parents = atom_model_parents
+                )
+                
+                # Atomistic model preview
+                for filename in atom_model_preview_uploader.value:
+                    file_info = atom_model_preview_uploader.value[filename]
+                    utils.save_file(file_info['content'], filename)
+                    self.openbis_session.new_dataset(
+                        type = "ELN_PREVIEW", 
+                        sample = atom_model_obj, 
+                        files = [filename]
+                    ).save()
+                    os.remove(filename)
+                
+                # Atomistic model datasets
+                for filename in atom_model_datasets_uploader.value:
+                    file_info = atom_model_datasets_uploader.value[filename]
+                    utils.save_file(file_info['content'], filename)
+                    self.openbis_session.new_dataset(
+                        type = "ATTACHMENT", 
+                        sample = atom_model_obj, 
+                        files = [filename]
+                    ).save()
+                    os.remove(filename)
+                
+                self.create_new_atom_model_widgets.children = []
+                self.atom_model_dropdown.options = self.load_atom_models()
+                display(utils.Javascript(data = "alert('Atomistic model successfully created!')"))
+        
+        def cancel_new_atom_model(b):
+            self.create_new_atom_model_widgets.children = []
+        
+        save_button.on_click(save_new_atom_model)
+        cancel_button.on_click(cancel_new_atom_model)
+        material_type_dropdown.observe(load_material_type_widgets, names = "value")
+        add_molecule_button.on_click(add_molecule)
+        add_reacprod_concept_button.on_click(add_reacprod_concept)
+
+        self.create_new_atom_model_widgets.children = [
+            select_molecules_title,
+            molecules_accordion,
+            add_molecule_button,
+            select_reacprod_concepts_title,
+            reacprod_concepts_accordion,
+            add_reacprod_concept_button,
+            select_slab_title,
+            material_type_dropdown,
+            material_details_vbox,
+            atom_model_properties_widgets,
+            atom_model_datasets_widgets,
+            buttons_hbox
+        ]    
 
 class MoleculeWidget(ipw.VBox):
     def __init__(self, openbis_session, parent_accordion, object_index):
@@ -1387,6 +1840,333 @@ class ReacProdConceptWidget(ipw.VBox):
 
         self.parent_accordion.set_title(num_reacprod_concepts - 1, "")
         self.parent_accordion.children = reacprod_concepts_accordion_children
+
+# Create analysis/results widgets
+class CreateAnalysisWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_project_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select project</span>"
+        )
+        
+        self.select_project_widget = SelectProjectWidget(self.openbis_session)
+        
+        self.select_simulations_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select simulations</span>"
+        )
+        
+        self.select_simulations_label = ipw.Label(value = "Simulations")
+        self.select_simulations_selector = ipw.SelectMultiple()
+        self.select_simulations_hbox = ipw.HBox([self.select_simulations_label, self.select_simulations_selector])
+        
+        self.select_measurements_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select measurements</span>"
+        )
+        
+        self.select_measurements_label = ipw.Label(value = "Measurements")
+        self.select_measurements_selector = ipw.SelectMultiple()
+        self.select_measurements_hbox = ipw.HBox([self.select_measurements_label, self.select_measurements_selector])
+        
+        self.select_software_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select software</span>"
+        )
+        
+        self.select_software_label = ipw.Label(value = "Software")
+        openbis_software = utils.get_openbis_objects(self.openbis_session, type = "SOFTWARE")
+        software_options = [(obj.props["$name"], obj.permId) for obj in openbis_software]
+        self.select_software_selector = ipw.SelectMultiple(options = software_options)
+        self.select_software_hbox = ipw.HBox([self.select_software_label, self.select_software_selector])
+        
+        self.select_code_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select code</span>"
+        )
+        
+        self.select_code_label = ipw.Label(value = "Code")
+        openbis_code = utils.get_openbis_objects(self.openbis_session, type = "CODE")
+        code_options = [(obj.props["$name"], obj.permId) for obj in openbis_code]
+        self.select_code_selector = ipw.SelectMultiple(options = code_options)
+        self.select_code_hbox = ipw.HBox([self.select_code_label, self.select_code_selector])
+        
+        self.analysis_properties_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Properties</span>"
+        )
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox([self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Textarea()
+        self.description_hbox = ipw.HBox([self.description_label, self.description_textbox])
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textbox = ipw.Textarea()
+        self.comments_hbox = ipw.HBox([self.comments_label, self.comments_textbox])
+        
+        self.support_files_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Support files</span>"
+        )
+        self.support_files_uploader = ipw.FileUpload()
+        
+        self.select_project_widget.project_dropdown.observe(self.load_measurements_and_simulations)
+        
+        self.children = [
+            self.select_project_title,
+            self.select_project_widget,
+            self.select_simulations_title,
+            self.select_simulations_hbox,
+            self.select_measurements_title,
+            self.select_measurements_hbox,
+            self.select_software_title,
+            self.select_software_hbox,
+            self.select_code_title,
+            self.select_code_hbox,
+            self.analysis_properties_title,
+            self.name_hbox,
+            self.description_hbox,
+            self.comments_hbox,
+            self.support_files_title,
+            self.support_files_uploader
+        ]
+    
+    def load_measurements_and_simulations(self, change):
+        project_id = self.select_project_widget.project_dropdown.value
+        simulations_objects = []
+        measurements_objects = []
+        
+        if project_id != "-1":
+            for _, simulation_type in SIMULATION_TYPES:
+                openbis_objs = utils.get_openbis_objects(
+                    self.openbis_session,
+                    type = simulation_type,
+                    project = project_id
+                )
+                objs = [(obj.props["$name"], obj.permId) for obj in openbis_objs]
+                simulations_objects += objs
+            
+            measurements = utils.get_openbis_objects(
+                self.openbis_session,
+                type = "MEASUREMENT_SESSION",
+                project = project_id
+            )
+            
+            for measurement in measurements:
+                measurement_details = (measurement.props["$name"], measurement.permId)
+                if measurement.props["wfms_uuid"]:
+                    simulations_objects.append(measurement_details)
+                else:
+                    measurements_objects.append(measurement_details)
+            
+        self.select_simulations_selector.options = simulations_objects
+        self.select_measurements_selector.options = measurements_objects     
+
+class CreateResultsWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_project_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select project</span>"
+        )
+        
+        self.select_project_widget = SelectProjectWidget(self.openbis_session)
+        
+        self.select_simulations_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select simulations</span>"
+        )
+        
+        self.select_simulations_label = ipw.Label(value = "Simulations")
+        self.select_simulations_selector = ipw.SelectMultiple()
+        self.select_simulations_hbox = ipw.HBox([self.select_simulations_label, self.select_simulations_selector])
+        
+        self.select_measurements_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select measurements</span>"
+        )
+        
+        self.select_measurements_label = ipw.Label(value = "Measurements")
+        self.select_measurements_selector = ipw.SelectMultiple()
+        self.select_measurements_hbox = ipw.HBox([self.select_measurements_label, self.select_measurements_selector])
+        
+        self.select_analysis_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select analysis</span>"
+        )
+        self.select_analysis_label = ipw.Label(value = "Analysis")
+        self.select_analysis_selector = ipw.SelectMultiple()
+        self.select_analysis_hbox = ipw.HBox([self.select_analysis_label, self.select_analysis_selector])
+        
+        self.results_properties_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Properties</span>"
+        )
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox([self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Textarea()
+        self.description_hbox = ipw.HBox([self.description_label, self.description_textbox])
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textbox = ipw.Textarea()
+        self.comments_hbox = ipw.HBox([self.comments_label, self.comments_textbox])
+        
+        self.support_files_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Support files</span>"
+        )
+        self.support_files_uploader = ipw.FileUpload()
+        
+        self.select_project_widget.project_dropdown.observe(self.load_analysis_measurements_and_simulations)
+        
+        self.children = [
+            self.select_project_title,
+            self.select_project_widget,
+            self.select_simulations_title,
+            self.select_simulations_hbox,
+            self.select_measurements_title,
+            self.select_measurements_hbox,
+            self.select_analysis_title,
+            self.select_analysis_hbox,
+            self.results_properties_title,
+            self.name_hbox,
+            self.description_hbox,
+            self.comments_hbox,
+            self.support_files_title,
+            self.support_files_uploader
+        ]
+    
+    def load_analysis_measurements_and_simulations(self, change):
+        project_id = self.select_project_widget.project_dropdown.value
+        analysis_objects = []
+        simulations_objects = []
+        measurements_objects = []
+        
+        if project_id != "-1":
+            for _, simulation_type in SIMULATION_TYPES:
+                openbis_objs = utils.get_openbis_objects(
+                    self.openbis_session,
+                    type = simulation_type,
+                    project = project_id
+                )
+                objs = [(obj.props["$name"], obj.permId) for obj in openbis_objs]
+                simulations_objects += objs
+            
+            measurements = utils.get_openbis_objects(
+                self.openbis_session,
+                type = "MEASUREMENT_SESSION",
+                project = project_id
+            )
+            
+            for measurement in measurements:
+                measurement_details = (measurement.props["$name"], measurement.permId)
+                if measurement.props["wfms_uuid"]:
+                    simulations_objects.append(measurement_details)
+                else:
+                    measurements_objects.append(measurement_details)
+            
+            analysis = utils.get_openbis_objects(
+                self.openbis_session,
+                type = "ANALYSIS",
+                project = project_id
+            )
+            
+            analysis_objects = [(obj.props["$name"], obj.permId) for obj in analysis]
+            
+        self.select_simulations_selector.options = simulations_objects
+        self.select_measurements_selector.options = measurements_objects
+        self.select_analysis_selector.options = analysis_objects  
+
+class SelectProjectWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.project_label = ipw.Label(
+            value = "Project"
+        )
+        
+        self.project_dropdown = ipw.Dropdown(
+            layout=ipw.Layout(width='500px')
+        )
+        self.load_projects()
+        
+        self.sort_project_label = ipw.Label(
+            value = "Sort by:"
+        )
+        
+        self.sort_name_label = ipw.Label(
+            value = "Name", 
+            layout=ipw.Layout(margin='2px', width='50px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_name_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_registration_date_label = ipw.Label(
+            value = "Registration date", 
+            layout=ipw.Layout(margin='2px', width='110px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_registration_date_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_project_widgets = ipw.HBox(
+            children = [
+                self.sort_project_label,
+                self.sort_name_checkbox,
+                self.sort_name_label,
+                self.sort_registration_date_checkbox,
+                self.sort_registration_date_label
+            ]
+        )
+        
+        self.project_dropdown_boxes = ipw.HBox(
+            children = [
+                self.project_label,
+                self.project_dropdown
+            ]
+        )
+        
+        self.children = [
+            self.project_dropdown_boxes,
+            self.sort_project_widgets
+        ]
+        
+        self.sort_name_checkbox.observe(self.sort_project_dropdown, names = "value")
+        self.sort_registration_date_checkbox.observe(self.sort_project_dropdown, names = "value")
+    
+    def load_projects(self):
+        projects = utils.get_openbis_projects(self.openbis_session)
+        project_options = []
+        for prj in projects:
+            prj_option = (f"{prj.code} from Space {prj.space.code}", prj.permId)
+            project_options.append(prj_option)
+            
+        project_options.insert(0, ("Select project...", "-1"))
+        self.project_dropdown.options = project_options
+        self.project_dropdown.value = "-1"
+
+    def sort_project_dropdown(self, change):
+        options = self.project_dropdown.options[1:]
+        
+        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="$name", ascending=True)
+        elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="registration_date", ascending=False)
+        elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+        options = list(df.itertuples(index=False, name=None))
+        options.insert(0, self.project_dropdown.options[0])
+        self.project_dropdown.options = options
 
 # Sample preparation widgets
 class CreateSampleWidget(ipw.VBox):

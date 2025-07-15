@@ -1269,8 +1269,7 @@
             "Simulations": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' target='_blank' style='font-size: 13px;'>Send simulations to openBIS</a></li>",
-                "<li><a href='find_simulations.ipynb' target='_blank' style='font-size: 13px;'>Import simulations from openBIS</a></li>",
+                "<li><a href='import_export_simulations.ipynb' target='_blank' style='font-size: 13px;'>Import/export simulations from/to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1279,8 +1278,6 @@
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='create_analysis.ipynb' target='_blank' style='font-size: 13px;'>Create analysis</a></li>",
                 "<li><a href='create_results.ipynb' target='_blank' style='font-size: 13px;'>Create results</a></li>",
-                "<li><a href='create_draft.ipynb' target='_blank' style='font-size: 13px;'>Create draft</a></li>",
-                "<li><a href='create_publication.ipynb' target='_blank' style='font-size: 13px;'>Create publication</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1293,12 +1290,6 @@
                 "<li><a href='create_product_concept.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product concept</a></li>",
                 "<li><a href='create_product.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product</a></li>",
                 "<li><a href='create_atomistic_model.ipynb' target='_blank' style='font-size: 13px;'>Create atomistic model</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Search": [
-                "<div style='display: flex;'>",
-                "<div style='flex: 1; padding: 10px;'>",
                 "</div>",
                 "</div>"
             ],
@@ -1322,8 +1313,7 @@
             "Simulations": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='send_simulation_to_openbis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Send simulations to openBIS</a></li>",
-                "<li><a href='find_simulations.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Import simulations from openBIS</a></li>",
+                "<li><a href='import_export_simulations.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Import/export simulations from/to openBIS</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1332,8 +1322,6 @@
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='create_analysis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create analysis</a></li>",
                 "<li><a href='create_results.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create results</a></li>",
-                "<li><a href='create_draft.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create draft</a></li>",
-                "<li><a href='create_publication.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create publication</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -1341,12 +1329,6 @@
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='create_edit_inventory.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Register/edit inventory</a></li>",
-                "</div>",
-                "</div>"
-            ],
-            "Search": [
-                "<div id='box' style='display: flex; pointer-events: none;'>",
-                "<div style='flex: 1; padding: 10px;'>",
                 "</div>",
                 "</div>"
             ],
