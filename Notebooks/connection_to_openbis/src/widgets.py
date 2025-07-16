@@ -95,6 +95,10 @@ SIMULATION_TYPES = [
     ("Unclassified simulation", "UNCLASSIFIED_SIMULATION")
 ]
 
+INSTRUMENTS_TYPES = [
+    "INSTRUMENT.STM"
+]
+
 def get_cached_object(ob_session, obj_id):
     if obj_id in OPENBIS_SAMPLES_CACHE:
         sample_object = OPENBIS_SAMPLES_CACHE[obj_id]
@@ -127,6 +131,38 @@ def find_openbis_simulations(ob_session, obj):
                 simulation_objects.add(child_object)
             simulation_objects.update(find_openbis_simulations(ob_session, child_object))
     return simulation_objects
+
+class SampleMeasurementWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_experiment_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select experiment</span>"
+        )
+        
+        self.select_experiment_widget = SelectExperimentWidget(self.openbis_session)
+        
+        self.select_sample_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select sample</span>"
+        )
+        
+        self.select_sample_widget = SelectSampleWidget(self.openbis_session)
+        
+        self.select_instrument_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select instrument</span>"
+        )
+        
+        self.select_instrument_widget = SelectInstrumentWidget(self.openbis_session)
+        
+        self.children = [
+            self.select_experiment_title,
+            self.select_experiment_widget,
+            self.select_sample_title,
+            self.select_sample_widget,
+            self.select_instrument_title,
+            self.select_instrument_widget
+        ]
 
 # Import/export simulations widgets
 class ImportSimulationsWidget(ipw.VBox):
@@ -1249,6 +1285,99 @@ class SimulationPropertiesWidget(ipw.VBox):
                 self.method_output_parameters_hbox,
                 self.comments_hbox
             ]
+
+class SelectInstrumentWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.instrument_label = ipw.Label(
+            value = "Instrument"
+        )
+
+        self.instrument_dropdown = ipw.Dropdown()
+        self.load_instruments()
+
+
+        self.sort_instrument_label = ipw.Label(
+            value = "Sort by:"
+        )
+        
+        self.sort_name_label = ipw.Label(
+            value = "Name", 
+            layout=ipw.Layout(margin='2px', width='50px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_name_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_registration_date_label = ipw.Label(
+            value = "Registration date", 
+            layout=ipw.Layout(margin='2px', width='110px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_registration_date_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
+        )
+        
+        self.sort_instrument_hbox = ipw.HBox(
+            children = [
+                self.sort_instrument_label,
+                self.sort_name_checkbox,
+                self.sort_name_label,
+                self.sort_registration_date_checkbox,
+                self.sort_registration_date_label
+            ]
+        )
+        
+        self.instrument_dropdown_hbox = ipw.HBox(
+            children = [
+                self.instrument_label,
+                self.instrument_dropdown,
+            ]
+        )
+        
+        self.sort_name_checkbox.observe(self.sort_instrument_dropdown, names = "value")
+        self.sort_registration_date_checkbox.observe(self.sort_instrument_dropdown, names = "value")
+        
+        self.children = [
+            self.instrument_dropdown_hbox,
+            self.sort_instrument_hbox
+        ]
+
+    def load_instruments(self):
+        instruments = []
+        for instrument_type in INSTRUMENTS_TYPES:
+            instruments_objects = utils.get_openbis_objects(
+                self.openbis_session,
+                type = instrument_type
+            )
+            instruments.extend(instruments_objects)
+            
+        instrument_options = [(f"{obj.props['$name']}", obj.permId) for obj in instruments]
+        instrument_options.insert(0, ("Select instrument...", "-1"))
+        self.instrument_dropdown.options = instrument_options
+        self.instrument_dropdown.value = "-1"
+
+    def sort_instrument_dropdown(self, change):
+        options = self.instrument_dropdown.options[1:]
+        
+        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="$name", ascending=True)
+        elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by="registration_date", ascending=False)
+        elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
+            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+
+        options = list(df.itertuples(index=False, name=None))
+        options.insert(0, self.instrument_dropdown.options[0])
+        self.instrument_dropdown.options = options
 
 class AtomModelWidget(ipw.VBox):
     def __init__(self, openbis_session):
