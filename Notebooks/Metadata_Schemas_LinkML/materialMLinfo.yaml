@@ -1296,8 +1296,7 @@ classes:
       openbis_code: RPRE
       openbis_label: Reaction Product
     slots:
-     - temperature_value
-     - temperature_unit
+     - temperature
      - yield
      - comments
      # ---- Object properties ----
@@ -5234,7 +5233,7 @@ slots:
     
   default_object_view:
     title: Default object view
-    range: DefaultObjectViewEnum
+    range: Any
     description: Default object view
     multivalued: false
     inlined_as_list: true
@@ -5813,16 +5812,6 @@ enums:
         description: gram per cubic centemetre
         annotations:
           openbis_label: Gram per Cubic Centemetre
-  
-  DefaultObjectViewEnum:
-    description: default object view vocabulary
-    annotations:
-      openbis_label: Default object view vocabulary
-    permissible_values:
-      imaging_gallery_view:
-        description: imaging gallery view
-        annotations:
-          openbis_label: Imaging Gallery View
 
   DewarEnum:
     description: dewar values

@@ -99,6 +99,45 @@ INSTRUMENTS_TYPES = [
     "INSTRUMENT.STM"
 ]
 
+OPENBIS_OBJECT_TYPES = {
+    "Process Step": "PROCESS_STEP",
+    "Measurement Session": "MEASUREMENT_SESSION",
+    "Atomistic Model": "ATOMISTIC_MODEL",
+    "Aiida Node": "AIIDA_NODE",
+    "Band Structure": "BAND_STRUCTURE",
+    "Geometry Optimisation": "GEOMETRY_OPTIMISATION",
+    "PDOS": "PDOS",
+    "Vibrational Spectroscopy": "VIBRATIONAL_SPECTROSCOPY",
+    "Unclassified Simulation": "UNCLASSIFIED_SIMULATION",
+    "Code": "CODE",
+    "Molecule": "MOLECULE",
+    "Reaction Product Concept": "REACTION_PRODUCT_CONCEPT",
+    "Analysis": "ANALYSIS",
+    "Sample": "SAMPLE",
+    "Preparation": "PREPARATION",
+    "Annealing": "ANNEALING",
+    "Cooldown": "COOLDOWN",
+    "Deposition": "DEPOSITION",
+    "Dosing": "DOSING",
+    "Sputtering": "SPUTTERING",
+    "Substance": "SUBSTANCE",
+    "Instrument STM": "INSTRUMENT.STM",
+    "Evaporator": "EVAPORATOR"
+}
+
+OPENBIS_OBJECT_CODES = {
+    "Process Step": "PRST",
+    "Sample": "SAMP",
+}
+
+OPENBIS_COLLECTIONS_PATHS = {
+    "Atomistic Model": "/MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
+    "Precursor Molecule": "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION",
+    "Precursor Substance": "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION",
+    "Reaction Product": "/MATERIALS/MOLECULES/PRODUCT_COLLECTION",
+    "Sample": "/MATERIALS/SAMPLES/SAMPLE_COLLECTION"
+}
+
 def get_cached_object(ob_session, obj_id):
     if obj_id in OPENBIS_SAMPLES_CACHE:
         sample_object = OPENBIS_SAMPLES_CACHE[obj_id]
@@ -155,6 +194,8 @@ class SampleMeasurementWidget(ipw.VBox):
         
         self.select_instrument_widget = SelectInstrumentWidget(self.openbis_session)
         
+        self.select_sample_widget.sample_dropdown.observe(self.load_sample_data, names = "value")
+        
         self.children = [
             self.select_experiment_title,
             self.select_experiment_widget,
@@ -163,6 +204,33 @@ class SampleMeasurementWidget(ipw.VBox):
             self.select_instrument_title,
             self.select_instrument_widget
         ]
+    
+    def load_sample_data(self, change):
+        sample_id = self.select_sample_widget.sample_dropdown.value
+        if sample_id == "-1":
+            return
+
+        sample_object = get_cached_object(self.openbis_session, sample_id)
+        
+        sample_object_parents = sample_object.parents
+        most_recent_parent = None
+        
+        for parent_id in sample_object_parents:
+            parent_object = get_cached_object(self.openbis_session, parent_id)
+            
+            parent_type = parent_object.type
+            if parent_type == OPENBIS_OBJECT_TYPES["Process Step"]:
+                if most_recent_parent:
+                    if parent_object.registrationDate > most_recent_parent.registrationDate:
+                        most_recent_parent = parent_object
+                else:
+                    most_recent_parent = parent_object
+        
+        if most_recent_parent:
+            experiment_id = self.select_experiment_widget.experiment_dropdown.value
+            if most_recent_parent.experiment.permId != experiment_id:
+                self.select_experiment_widget.experiment_dropdown.value = most_recent_parent.experiment.permId
+                display(utils.Javascript(data = "alert('Experiment was changed!')"))
 
 # Import/export simulations widgets
 class ImportSimulationsWidget(ipw.VBox):
@@ -307,11 +375,11 @@ class ImportSimulationsWidget(ipw.VBox):
                 for simulation_object in simulation_objects_children:
                     simulation_permid = simulation_object.permId
                     # Measurement Session is used for both simulation and experiments
-                    if simulation_object.type == "MEASUREMENT_SESSION":
+                    if simulation_object.type == OPENBIS_OBJECT_TYPES["Measurement Session"]:
                         simulation_measurement = False
                         for parent in simulation_object.parents:
                             parent_object = get_cached_object(self.openbis_session, parent)
-                            if parent_object.type == "ATOMISTIC_MODEL":
+                            if parent_object.type == OPENBIS_OBJECT_TYPES["Atomistic Model"]:
                                 simulation_measurement = True
                                 break
                             
@@ -328,11 +396,11 @@ class ImportSimulationsWidget(ipw.VBox):
                 parent_simulation_permid_list = []
                 for simulation_object in simulation_objects_children:
                     simulation_permid = simulation_object.permId
-                    if simulation_object.type == "MEASUREMENT_SESSION": # 2D Measurement is used for both simulation and experiments
+                    if simulation_object.type == OPENBIS_OBJECT_TYPES["Measurement Session"]: # 2D Measurement is used for both simulation and experiments
                         simulation_measurement = False
                         for parent in simulation_object.parents:
                             parent_object = get_cached_object(self.openbis_session, parent)
-                            if parent_object.type == "ATOMISTIC_MODEL":
+                            if parent_object.type == OPENBIS_OBJECT_TYPES["Atomistic Model"]:
                                 simulation_measurement = True
                                 break
                             
@@ -353,7 +421,7 @@ class ImportSimulationsWidget(ipw.VBox):
             aiida_node_found = False
             for parent in simulation_object.parents:
                 parent_object = get_cached_object(self.openbis_session, parent)
-                if parent_object.type == "AIIDA_NODE":
+                if parent_object.type == OPENBIS_OBJECT_TYPES["Aiida Node"]:
                     aiida_node_found = True
                     aiida_node_permid_list.append(parent)
                     break
@@ -364,7 +432,7 @@ class ImportSimulationsWidget(ipw.VBox):
         simulation_aiida_node_list = []
         for idx, simulation_permid in enumerate(simulation_permid_list):
             simulation_object = get_cached_object(self.openbis_session, simulation_permid)
-            simulation_info = f"{simulation_object.props['$name']}"
+            simulation_info = f"{simulation_object.props['name']}"
             aiida_node_permid = aiida_node_permid_list[idx]
             simulation_aiida_node_list.append([simulation_info, aiida_node_permid])
         
@@ -481,20 +549,20 @@ class ImportSimulationsWidget(ipw.VBox):
                 self.openbis_session,
                 type = material_type
             )
-            materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+            materials_objects_names_permids = [(obj.props["name"], obj.permId) for obj in material_objects]
             material_options += materials_objects_names_permids
             material_dropdown.options = material_options
             
             def sort_material_dropdown(change):
                 options = material_options[1:]
                 
-                df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                df = pd.DataFrame(options, columns=["name", "registration_date"])
                 if name_checkbox.value and not registration_date_checkbox.value:
-                    df = df.sort_values(by="$name", ascending=True)
+                    df = df.sort_values(by="name", ascending=True)
                 elif not name_checkbox.value and registration_date_checkbox.value:
                     df = df.sort_values(by="registration_date", ascending=False)
                 elif name_checkbox.value and registration_date_checkbox.value:
-                    df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+                    df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
                 options = list(df.itertuples(index=False, name=None))
                 options.insert(0, material_options[0])
@@ -507,7 +575,7 @@ class ImportSimulationsWidget(ipw.VBox):
                 else:
                     obj = self.openbis_session.get_object(obj_permid)
                     obj_props = obj.props.all()
-                    obj_name = obj_props.get("$name", "")
+                    obj_name = obj_props.get("name", "")
                     obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
                     for key, value in obj_props.items():
                         if value:
@@ -687,25 +755,31 @@ class ExportSimulationsWidget(ipw.VBox):
                         output_parameters = ""
                     
                     simulation_props = {
-                        "$name": simulation_props_widget.name_textbox.value,
+                        "name": simulation_props_widget.name_textbox.value,
                         "wfms_uuid": simulation_props_widget.wfms_uuid_textbox.value,
                         "input_parameters": input_parameters,
                         "output_parameters": output_parameters,
                         "comments": simulation_props_widget.comments_textbox.value
                     }
                     
-                    if simulation_type in ["BAND_STRUCTURE", "GEOMETRY_OPTIMISATION", "PDOS", "VIBRATIONAL_SPECTROSCOPY"]:
+                    simulation_types_with_level_theory = [
+                        OPENBIS_OBJECT_TYPES["Band Structure"],
+                        OPENBIS_OBJECT_TYPES["Geometry Optimisation"],
+                        OPENBIS_OBJECT_TYPES["PDOS"],
+                        OPENBIS_OBJECT_TYPES["Vibrational Spectroscopy"]
+                    ]
+                    if simulation_type in simulation_types_with_level_theory:
                         simulation_props["level_theory_method"] = simulation_props_widget.level_theory_method_textbox.value
                         simulation_props["level_theory_parameters"] = level_theory_params
                         
-                        if simulation_type == "BAND_STRUCTURE":
+                        if simulation_type == OPENBIS_OBJECT_TYPES["Band Structure"]:
                             band_gap = {
                                 "value": simulation_props_widget.band_gap_value_textbox.value,
                                 "energy_unit": simulation_props_widget.band_gap_unit_textbox.value,
                             }
                             simulation_props["band_gap"] = band_gap
                     
-                        elif simulation_type == "GEOMETRY_OPTIMISATION":
+                        elif simulation_type == OPENBIS_OBJECT_TYPES["Geometry Optimisation"]:
                             simulation_props["cell_opt_constraints"] = simulation_props_widget.cell_opt_constraints_textbox.value
                             simulation_props["cell_optimised"] = simulation_props_widget.cell_optimised_checkbox.value
                             simulation_props["driver_code"] = simulation_props_widget.driver_code_textbox.value
@@ -717,7 +791,7 @@ class ExportSimulationsWidget(ipw.VBox):
                             }
                             simulation_props["force_convergence_threshold"] = force_convergence_threshold
                             
-                    elif simulation_type == "UNCLASSIFIED_SIMULATION":
+                    elif simulation_type == OPENBIS_OBJECT_TYPES["Unclassified Simulation"]:
                         simulation_props["description"] = simulation_props_widget.description_textbox.value
                     
                     simulation_parents = selected_atom_model_id + selected_codes_ids
@@ -878,8 +952,8 @@ class SimulationDetailsWidget(ipw.VBox):
         )
         
         self.codes_label = ipw.Label(value = "Codes")
-        codes_objects = utils.get_openbis_objects(self.openbis_session, type = "CODE")
-        codes_options = [(obj.props["$name"], obj.permId) for obj in codes_objects]
+        codes_objects = utils.get_openbis_objects(self.openbis_session, type = OPENBIS_OBJECT_TYPES["Code"])
+        codes_options = [(obj.props["name"], obj.permId) for obj in codes_objects]
         self.codes_multi_selector = ipw.SelectMultiple(options = codes_options)
         self.codes_hbox = ipw.HBox(children = [self.codes_label, self.codes_multi_selector])
         
@@ -945,13 +1019,13 @@ class SimulationDetailsWidget(ipw.VBox):
     def sort_simulations_dropdown(self, change):
         options = self.simulations_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "PK"])
+        df = pd.DataFrame(options, columns=["name", "PK"])
         if self.sort_name_checkbox.value and not self.sort_pk_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
             df = df.sort_values(by="PK", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_pk_checkbox.value:
-            df = df.sort_values(by=["$name", "PK"], ascending=[True, False])
+            df = df.sort_values(by=["name", "PK"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.simulations_dropdown.options[0])
@@ -1055,20 +1129,20 @@ class SimulationDetailsWidget(ipw.VBox):
                 self.openbis_session,
                 type = material_type
             )
-            materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+            materials_objects_names_permids = [(obj.props["name"], obj.permId) for obj in material_objects]
             material_options += materials_objects_names_permids
             material_dropdown.options = material_options
             
             def sort_material_dropdown(change):
                 options = material_options[1:]
                 
-                df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                df = pd.DataFrame(options, columns=["name", "registration_date"])
                 if name_checkbox.value and not registration_date_checkbox.value:
-                    df = df.sort_values(by="$name", ascending=True)
+                    df = df.sort_values(by="name", ascending=True)
                 elif not name_checkbox.value and registration_date_checkbox.value:
                     df = df.sort_values(by="registration_date", ascending=False)
                 elif name_checkbox.value and registration_date_checkbox.value:
-                    df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+                    df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
                 options = list(df.itertuples(index=False, name=None))
                 options.insert(0, material_options[0])
@@ -1081,7 +1155,7 @@ class SimulationDetailsWidget(ipw.VBox):
                 else:
                     obj = self.openbis_session.get_object(obj_permid)
                     obj_props = obj.props.all()
-                    obj_name = obj_props.get("$name", "")
+                    obj_name = obj_props.get("name", "")
                     obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
                     for key, value in obj_props.items():
                         if value:
@@ -1222,7 +1296,7 @@ class SimulationPropertiesWidget(ipw.VBox):
     def load_widgets(self, simulation_type):
         self.simulation_type = simulation_type
         
-        if simulation_type == "BAND_STRUCTURE":
+        if simulation_type == OPENBIS_OBJECT_TYPES["Band Structure"]:
             self.children = [
                 self.simulation_properties_title,
                 self.name_hbox,
@@ -1234,8 +1308,8 @@ class SimulationPropertiesWidget(ipw.VBox):
                 self.method_output_parameters_hbox,
                 self.comments_hbox
             ]
-            
-        elif simulation_type == "GEOMETRY_OPTIMISATION":
+
+        elif simulation_type == OPENBIS_OBJECT_TYPES["Geometry Optimisation"]:
             self.children = [
                 self.simulation_properties_title,
                 self.name_hbox,
@@ -1251,8 +1325,8 @@ class SimulationPropertiesWidget(ipw.VBox):
                 self.method_output_parameters_hbox,
                 self.comments_hbox
             ]
-            
-        elif simulation_type == "PDOS":
+
+        elif simulation_type == OPENBIS_OBJECT_TYPES["PDOS"]:
             self.children = [
                 self.simulation_properties_title,
                 self.name_hbox,
@@ -1263,8 +1337,8 @@ class SimulationPropertiesWidget(ipw.VBox):
                 self.method_output_parameters_hbox,
                 self.comments_hbox
             ]
-        
-        elif simulation_type == "VIBRATIONAL_SPECTROSCOPY":
+
+        elif simulation_type == OPENBIS_OBJECT_TYPES["Vibrational Spectroscopy"]:
             self.children = [
                 self.simulation_properties_title,
                 self.name_hbox,
@@ -1275,8 +1349,8 @@ class SimulationPropertiesWidget(ipw.VBox):
                 self.method_output_parameters_hbox,
                 self.comments_hbox
             ]
-        
-        elif simulation_type == "UNCLASSIFIED_SIMULATION":
+
+        elif simulation_type == OPENBIS_OBJECT_TYPES["Unclassified Simulation"]:
             self.children = [
                 self.simulation_properties_title,
                 self.name_hbox,
@@ -1359,7 +1433,7 @@ class SelectInstrumentWidget(ipw.VBox):
             )
             instruments.extend(instruments_objects)
             
-        instrument_options = [(f"{obj.props['$name']}", obj.permId) for obj in instruments]
+        instrument_options = [(f"{obj.props['name']}", obj.permId) for obj in instruments]
         instrument_options.insert(0, ("Select instrument...", "-1"))
         self.instrument_dropdown.options = instrument_options
         self.instrument_dropdown.value = "-1"
@@ -1367,13 +1441,13 @@ class SelectInstrumentWidget(ipw.VBox):
     def sort_instrument_dropdown(self, change):
         options = self.instrument_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        df = pd.DataFrame(options, columns=["name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
             df = df.sort_values(by="registration_date", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+            df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.instrument_dropdown.options[0])
@@ -1457,9 +1531,9 @@ class AtomModelWidget(ipw.VBox):
     def load_atom_models(self):
         atom_models = utils.get_openbis_objects(
             self.openbis_session,
-            type = "ATOMISTIC_MODEL"
+            type = OPENBIS_OBJECT_TYPES["Atomistic Model"]
         )
-        atom_model_options = [(f"{obj.props['$name']}", obj.permId) for obj in atom_models]
+        atom_model_options = [(f"{obj.props['name']}", obj.permId) for obj in atom_models]
         atom_model_options.insert(0, ("Select atomistic model...", "-1"))
         self.atom_model_dropdown.options = atom_model_options
         self.atom_model_dropdown.value = "-1"
@@ -1467,13 +1541,13 @@ class AtomModelWidget(ipw.VBox):
     def sort_atom_model_dropdown(self, change):
         options = self.atom_model_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        df = pd.DataFrame(options, columns=["name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
             df = df.sort_values(by="registration_date", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+            df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.atom_model_dropdown.options[0])
@@ -1662,20 +1736,20 @@ class AtomModelWidget(ipw.VBox):
                     self.openbis_session,
                     type = material_type
                 )
-                materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+                materials_objects_names_permids = [(obj.props["name"], obj.permId) for obj in material_objects]
                 material_options += materials_objects_names_permids
                 material_dropdown.options = material_options
                 
                 def sort_material_dropdown(change):
                     options = material_options[1:]
                     
-                    df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                    df = pd.DataFrame(options, columns=["name", "registration_date"])
                     if name_checkbox.value and not registration_date_checkbox.value:
-                        df = df.sort_values(by="$name", ascending=True)
+                        df = df.sort_values(by="name", ascending=True)
                     elif not name_checkbox.value and registration_date_checkbox.value:
                         df = df.sort_values(by="registration_date", ascending=False)
                     elif name_checkbox.value and registration_date_checkbox.value:
-                        df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+                        df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
                     options = list(df.itertuples(index=False, name=None))
                     options.insert(0, material_options[0])
@@ -1717,7 +1791,7 @@ class AtomModelWidget(ipw.VBox):
             reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
         
         def save_new_atom_model(b):
-            atom_models_objs = utils.get_openbis_objects(self.openbis_session, type = "ATOMISTIC_MODEL")
+            atom_models_objs = utils.get_openbis_objects(self.openbis_session, type = OPENBIS_OBJECT_TYPES["Atomistic Model"])
             wfms_uuid = wfms_uuid_textbox.value
             atom_models_uuids = [obj.props["wfms_uuid"] for obj in atom_models_objs]
             if wfms_uuid in atom_models_uuids:
@@ -1729,7 +1803,7 @@ class AtomModelWidget(ipw.VBox):
                     cell_json = ""
                     
                 atom_model_props = {
-                    "$name": name_textbox.value,
+                    "name": name_textbox.value,
                     "wfms_uuid": wfms_uuid,
                     "cell": cell_json,
                     "dimensionality": dimensionality_intbox.value,
@@ -1773,8 +1847,8 @@ class AtomModelWidget(ipw.VBox):
                 
                 atom_model_obj = utils.create_openbis_object(
                     self.openbis_session, 
-                    type = "ATOMISTIC_MODEL",
-                    collection = "/MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
+                    type = OPENBIS_OBJECT_TYPES["Atomistic Model"],
+                    collection = OPENBIS_COLLECTIONS_PATHS["Atomistic Model"],
                     props = atom_model_props,
                     parents = atom_model_parents
                 )
@@ -1839,10 +1913,10 @@ class MoleculeWidget(ipw.VBox):
         
         molecules_objects = utils.get_openbis_objects(
             self.openbis_session, 
-            collection = "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION",
-            type = "MOLECULE"
+            collection = OPENBIS_COLLECTIONS_PATHS["Precursor Molecule"],
+            type = OPENBIS_OBJECT_TYPES["Molecule"]
         )
-        dropdown_list = [(obj.props["$name"], obj.permId) for obj in molecules_objects]
+        dropdown_list = [(obj.props["name"], obj.permId) for obj in molecules_objects]
         dropdown_list.insert(0, ("Select a molecule...", "-1"))
         self.dropdown = ipw.Dropdown(value = "-1",options = dropdown_list)
         self.details_vbox = ipw.VBox()
@@ -1867,7 +1941,7 @@ class MoleculeWidget(ipw.VBox):
             obj = get_cached_object(self.openbis_session, obj_permid)
             obj_datasets = obj.get_datasets(type = "ELN_PREVIEW")
             obj_props = obj.props.all()
-            obj_name = obj_props.get("$name", "")
+            obj_name = obj_props.get("name", "")
             self.parent_accordion.set_title(self.object_index, obj_name)
             self.title = obj_name
             
@@ -1916,10 +1990,10 @@ class ReacProdConceptWidget(ipw.VBox):
         
         molecules_objects = utils.get_openbis_objects(
             self.openbis_session, 
-            collection = "/MATERIALS/MOLECULES/PRODUCT_COLLECTION",
-            type = "REACTION_PRODUCT_CONCEPT"
+            collection = OPENBIS_COLLECTIONS_PATHS["Reaction Product"],
+            type = OPENBIS_OBJECT_TYPES["Reaction Product Concept"]
         )
-        dropdown_list = [(obj.props["$name"], obj.permId) for obj in molecules_objects]
+        dropdown_list = [(obj.props["name"], obj.permId) for obj in molecules_objects]
         dropdown_list.insert(0, ("Select a reaction product concept...", "-1"))
         self.dropdown = ipw.Dropdown(value = "-1",options = dropdown_list)
         self.details_vbox = ipw.VBox()
@@ -1941,7 +2015,7 @@ class ReacProdConceptWidget(ipw.VBox):
         else:
             obj = get_cached_object(self.openbis_session, obj_permid)
             obj_props = obj.props.all()
-            obj_name = obj_props.get("$name", "")
+            obj_name = obj_props.get("name", "")
             self.parent_accordion.set_title(self.object_index, obj_name)
             self.title = obj_name
             
@@ -2004,7 +2078,7 @@ class CreateAnalysisWidget(ipw.VBox):
         
         self.select_software_label = ipw.Label(value = "Software")
         openbis_software = utils.get_openbis_objects(self.openbis_session, type = "SOFTWARE")
-        software_options = [(obj.props["$name"], obj.permId) for obj in openbis_software]
+        software_options = [(obj.props["name"], obj.permId) for obj in openbis_software]
         self.select_software_selector = ipw.SelectMultiple(options = software_options)
         self.select_software_hbox = ipw.HBox([self.select_software_label, self.select_software_selector])
         
@@ -2014,7 +2088,7 @@ class CreateAnalysisWidget(ipw.VBox):
         
         self.select_code_label = ipw.Label(value = "Code")
         openbis_code = utils.get_openbis_objects(self.openbis_session, type = "CODE")
-        code_options = [(obj.props["$name"], obj.permId) for obj in openbis_code]
+        code_options = [(obj.props["name"], obj.permId) for obj in openbis_code]
         self.select_code_selector = ipw.SelectMultiple(options = code_options)
         self.select_code_hbox = ipw.HBox([self.select_code_label, self.select_code_selector])
         
@@ -2072,17 +2146,17 @@ class CreateAnalysisWidget(ipw.VBox):
                     type = simulation_type,
                     project = project_id
                 )
-                objs = [(obj.props["$name"], obj.permId) for obj in openbis_objs]
+                objs = [(obj.props["name"], obj.permId) for obj in openbis_objs]
                 simulations_objects += objs
             
             measurements = utils.get_openbis_objects(
                 self.openbis_session,
-                type = "MEASUREMENT_SESSION",
+                type = OPENBIS_OBJECT_TYPES["Measurement Session"],
                 project = project_id
             )
             
             for measurement in measurements:
-                measurement_details = (measurement.props["$name"], measurement.permId)
+                measurement_details = (measurement.props["name"], measurement.permId)
                 if measurement.props["wfms_uuid"]:
                     simulations_objects.append(measurement_details)
                 else:
@@ -2178,17 +2252,17 @@ class CreateResultsWidget(ipw.VBox):
                     type = simulation_type,
                     project = project_id
                 )
-                objs = [(obj.props["$name"], obj.permId) for obj in openbis_objs]
+                objs = [(obj.props["name"], obj.permId) for obj in openbis_objs]
                 simulations_objects += objs
             
             measurements = utils.get_openbis_objects(
                 self.openbis_session,
-                type = "MEASUREMENT_SESSION",
+                type = OPENBIS_OBJECT_TYPES["Measurement Session"],
                 project = project_id
             )
             
             for measurement in measurements:
-                measurement_details = (measurement.props["$name"], measurement.permId)
+                measurement_details = (measurement.props["name"], measurement.permId)
                 if measurement.props["wfms_uuid"]:
                     simulations_objects.append(measurement_details)
                 else:
@@ -2196,11 +2270,11 @@ class CreateResultsWidget(ipw.VBox):
             
             analysis = utils.get_openbis_objects(
                 self.openbis_session,
-                type = "ANALYSIS",
+                type = OPENBIS_OBJECT_TYPES["Analysis"],
                 project = project_id
             )
             
-            analysis_objects = [(obj.props["$name"], obj.permId) for obj in analysis]
+            analysis_objects = [(obj.props["name"], obj.permId) for obj in analysis]
             
         self.select_simulations_selector.options = simulations_objects
         self.select_measurements_selector.options = measurements_objects
@@ -2285,13 +2359,13 @@ class SelectProjectWidget(ipw.VBox):
     def sort_project_dropdown(self, change):
         options = self.project_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        df = pd.DataFrame(options, columns=["name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
             df = df.sort_values(by="registration_date", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+            df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.project_dropdown.options[0])
@@ -2412,20 +2486,20 @@ class CreateSampleWidget(ipw.VBox):
             
             material_type = self.material_type_dropdown.value
             material_objects = utils.get_openbis_objects(self.openbis_session, type = material_type)
-            materials_objects_names_permids = [(obj.props["$name"], obj.permId) for obj in material_objects]
+            materials_objects_names_permids = [(obj.props["name"], obj.permId) for obj in material_objects]
             material_options += materials_objects_names_permids
             material_dropdown.options = material_options
             
             def sort_material_dropdown(change):
                 options = material_options[1:]
                 
-                df = pd.DataFrame(options, columns=["$name", "registration_date"])
+                df = pd.DataFrame(options, columns=["name", "registration_date"])
                 if name_checkbox.value and not registration_date_checkbox.value:
-                    df = df.sort_values(by="$name", ascending=True)
+                    df = df.sort_values(by="name", ascending=True)
                 elif not name_checkbox.value and registration_date_checkbox.value:
                     df = df.sort_values(by="registration_date", ascending=False)
                 elif name_checkbox.value and registration_date_checkbox.value:
-                    df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+                    df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
                 options = list(df.itertuples(index=False, name=None))
                 options.insert(0, material_options[0])
@@ -2438,7 +2512,7 @@ class CreateSampleWidget(ipw.VBox):
                 else:
                     obj = get_cached_object(self.openbis_session, obj_permid)
                     obj_props = obj.props.all()
-                    obj_name = obj_props.get("$name", "")
+                    obj_name = obj_props.get("name", "")
                     obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
                     for key, value in obj_props.items():
                         if value:
@@ -2447,7 +2521,7 @@ class CreateSampleWidget(ipw.VBox):
                             prop_datatype = prop_type.dataType
                             if prop_datatype == "SAMPLE":
                                 obj = get_cached_object(self.openbis_session, value)
-                                value = obj.props["$name"]
+                                value = obj.props["name"]
                                 
                             obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
                     
@@ -2473,13 +2547,13 @@ class CreateSampleWidget(ipw.VBox):
                 material_object = self.material_details_vbox.children[0].children[0].value
                 sample_name = self.sample_name_textbox.value
                 sample_props = {
-                    "$name": sample_name,
+                    "name": sample_name,
                     "exists": True
                 }
                 utils.create_openbis_object(
                     self.openbis_session,
-                    type = "SAMPLE",
-                    collection = "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
+                    type = OPENBIS_OBJECT_TYPES["Sample"],
+                    collection = OPENBIS_COLLECTIONS_PATHS["Sample"],
                     props = sample_props,
                     parents = [material_object]
                 )
@@ -2591,7 +2665,7 @@ class RegisterProcessWidget(ipw.VBox):
             parent_object = get_cached_object(self.openbis_session, parent_id)
             
             parent_type = parent_object.type
-            if parent_type == "PROCESS_STEP":
+            if parent_type == OPENBIS_OBJECT_TYPES["Process Step"]:
                 if most_recent_parent:
                     if parent_object.registrationDate > most_recent_parent.registrationDate:
                         most_recent_parent = parent_object
@@ -2605,8 +2679,8 @@ class RegisterProcessWidget(ipw.VBox):
             
             for parent in most_recent_parent.parents:
                 parent_object = get_cached_object(self.openbis_session, parent)
-                
-                if parent_object.type == "PREPARATION":
+
+                if parent_object.type == OPENBIS_OBJECT_TYPES["Preparation"]:
                     self.sample_preparation_object = parent_object
                     break
 
@@ -2614,7 +2688,7 @@ class RegisterProcessWidget(ipw.VBox):
         sample_object_children = sample_object.children
         for child_id in sample_object_children:
             child_object = get_cached_object(self.openbis_session, child_id)
-            if child_object.type == "MEASUREMENT_SESSION":
+            if child_object.type == OPENBIS_OBJECT_TYPES["Measurement Session"]:
                 self.sample_preparation_object = None
                 break
         
@@ -2630,7 +2704,7 @@ class RegisterProcessWidget(ipw.VBox):
     
     def load_process(self, b):
         openbis_processes = utils.get_openbis_objects(self.openbis_session, type = "PROCESS")
-        processes_options = [(obj.props["$name"], obj.permId) for obj in openbis_processes]
+        processes_options = [(obj.props["name"], obj.permId) for obj in openbis_processes]
         processes_options.insert(0, ("Select a process...", "-1"))
         self.processes_dropdown.options = processes_options
         self.processes_dropdown.value = "-1"
@@ -2678,9 +2752,9 @@ class RegisterProcessWidget(ipw.VBox):
             # Create preparation object when it does not exist
             if self.sample_preparation_object is None:
                 self.sample_preparation_object = self.openbis_session.new_object(
-                    type = "PREPARATION",
+                    type = OPENBIS_OBJECT_TYPES["Preparation"],
                     experiment = experiment_object.identifier,
-                    props = {"$name": current_sample.props["$name"]}
+                    props = {"name": current_sample.props["name"]}
                 )
                 self.sample_preparation_object.save()
             
@@ -2691,16 +2765,16 @@ class RegisterProcessWidget(ipw.VBox):
                 
                 process_code = ""
                 current_sample.props["exists"] = False
-                current_sample_name = current_sample.props["$name"]
+                current_sample_name = current_sample.props["name"]
                 current_sample.save()
                 
                 new_process_object = self.openbis_session.new_sample(
-                    type = "PROCESS_STEP",
+                    type = OPENBIS_OBJECT_TYPES["Process Step"],
                     experiment = experiment_object.identifier
                 )
                 
                 process_properties = {
-                    "$name": process_widget.name_textbox.value,
+                    "name": process_widget.name_textbox.value,
                     "description": process_widget.description_textbox.value,
                     "instrument": process_widget.instrument_dropdown.value,
                     "comments": process_widget.comments_textarea.value,
@@ -2720,23 +2794,23 @@ class RegisterProcessWidget(ipw.VBox):
                         duration_hours = action_widget.duration_hours_intbox.value
                         duration_minutes = action_widget.duration_minutes_intbox.value
                         duration_seconds = action_widget.duration_seconds_intbox.value
-                        
-                        if action_type == "ANNEALING":
+
+                        if action_type == OPENBIS_OBJECT_TYPES["Annealing"]:
                             target_temperature = {
                                 "value": action_widget.target_temperature_value_textbox.value,
                                 "temperature_unit": action_widget.target_temperature_unit_dropdown.value,
                             }
                             action_properties["target_temperature"] = json.dumps(target_temperature)
-                            
-                        elif action_type == "COOLDOWN":
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
                             target_temperature = {
                                 "value": action_widget.target_temperature_value_textbox.value,
                                 "temperature_unit": action_widget.target_temperature_unit_dropdown.value,
                             }
                             action_properties["target_temperature"] = json.dumps(target_temperature)
                             action_properties["cryogen"] = action_widget.cryogen_textbox.value
-                            
-                        elif action_type == "DEPOSITION":
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Deposition"]:
                             substrate_temperature = {
                                 "value": action_widget.substrate_temperature_value_textbox.value,
                                 "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
@@ -2746,8 +2820,8 @@ class RegisterProcessWidget(ipw.VBox):
                                 action_properties["substance"] = substance
                                 
                             action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
-                            
-                        elif action_type == "DOSING":
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Dosing"]:
                             substrate_temperature = {
                                 "value": action_widget.substrate_temperature_value_textbox.value,
                                 "temperature_unit": action_widget.substrate_temperature_unit_dropdown.value,
@@ -2760,8 +2834,8 @@ class RegisterProcessWidget(ipw.VBox):
                             action_properties["dosing_gas"] = gas
                             action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
                             action_properties["pressure"] = json.dumps(pressure)
-                            
-                        elif action_type == "SPUTTERING":
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
                             pressure = {
                                 "value": action_widget.pressure_value_textbox.value,
                                 "pressure_unit": action_widget.pressure_unit_dropdown.value,
@@ -2838,7 +2912,7 @@ class RegisterProcessWidget(ipw.VBox):
                                 
                                 action_properties["component_settings"] = json.dumps(component_settings)
 
-                            action_properties["$name"] = action_widget.name_textbox.value
+                            action_properties["name"] = action_widget.name_textbox.value
                             action_properties["description"] = action_widget.description_textbox.value
                             action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
                             action_properties["component"] = component_permid
@@ -2852,7 +2926,7 @@ class RegisterProcessWidget(ipw.VBox):
                                     type = "COLLECTION",
                                     code = action_collection_code,
                                     project = experiment_project_code,
-                                    props = {"$name": "Actions"}
+                                    props = {"name": "Actions"}
                                 )
                                 actions_collection_object.save()
                             
@@ -2914,7 +2988,7 @@ class RegisterProcessWidget(ipw.VBox):
                                 
                                 observable_properties["component_settings"] = json.dumps(component_settings)
                         
-                            observable_properties["$name"] = observable_widget.name_textbox.value
+                            observable_properties["name"] = observable_widget.name_textbox.value
                             observable_properties["description"] = observable_widget.description_textbox.value
                             observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
                             observable_properties["component"] = component_permid
@@ -2928,7 +3002,7 @@ class RegisterProcessWidget(ipw.VBox):
                                     type = "COLLECTION",
                                     code = observable_collection_code,
                                     project = experiment_project_code,
-                                    props = {"$name": "Observables"}
+                                    props = {"name": "Observables"}
                                 )
                                 observables_collection_object.save()
                             
@@ -2961,7 +3035,7 @@ class RegisterProcessWidget(ipw.VBox):
                         process_code = f"[{':'.join(actions_codes)}]"
                 
                 new_sample_name = f"{current_sample_name}:{process_code}"
-                self.sample_preparation_object.props["$name"] = f"PREP_{new_sample_name}"
+                self.sample_preparation_object.props["name"] = f"PREP_{new_sample_name}"
                 self.sample_preparation_object.save()
                 
                 new_process_object.props = process_properties
@@ -2969,10 +3043,10 @@ class RegisterProcessWidget(ipw.VBox):
                 new_process_object.save()
                 
                 new_sample = self.openbis_session.new_sample(
-                    type = "SAMPLE",
-                    experiment = "/MATERIALS/SAMPLES/SAMPLE_COLLECTION",
+                    type = OPENBIS_OBJECT_TYPES["Sample"],
+                    experiment = OPENBIS_COLLECTIONS_PATHS["Sample"],
                     parents = [new_process_object],
-                    props = {"$name": new_sample_name, "exists": True}
+                    props = {"name": new_sample_name, "exists": True}
                 )
                 new_sample.save()
                 
@@ -3074,8 +3148,8 @@ class SelectExperimentWidget(ipw.VBox):
         )
         experiment_options = []
         for exp in experiments:
-            if "$name" in exp.props.all():
-                exp_option = (f"{exp.props['$name']} from Project {exp.project.code} and Space {exp.project.space}", exp.permId)
+            if "name" in exp.props.all():
+                exp_option = (f"{exp.props['name']} from Project {exp.project.code} and Space {exp.project.space}", exp.permId)
             else:
                 exp_option = (f"{exp.code} from Project {exp.project.code} and Space {exp.project.space}", exp.permId)
             experiment_options.append(exp_option)
@@ -3086,13 +3160,13 @@ class SelectExperimentWidget(ipw.VBox):
     def sort_experiment_dropdown(self, change):
         options = self.experiment_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        df = pd.DataFrame(options, columns=["name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
             df = df.sort_values(by="registration_date", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+            df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.experiment_dropdown.options[0])
@@ -3197,8 +3271,8 @@ class SelectExperimentWidget(ipw.VBox):
         
         def save_new_experiment(b):
             experiment_props = {
-                "$name": new_experiment_name_textbox.value,
-                "$default_collection_view": "LIST_VIEW"
+                "name": new_experiment_name_textbox.value,
+                "default_collection_view": "IMAGING_GALLERY_VIEW"
             }
             
             project_id = project_dropdown.value
@@ -3225,13 +3299,13 @@ class SelectExperimentWidget(ipw.VBox):
         def sort_project_dropdown(change):
             options = project_dropdown_options[1:]
             
-            df = pd.DataFrame(options, columns=["$name", "registration_date"])
+            df = pd.DataFrame(options, columns=["name", "registration_date"])
             if sort_project_name_checkbox.value and not sort_project_registration_date_checkbox.value:
-                df = df.sort_values(by="$name", ascending=True)
+                df = df.sort_values(by="name", ascending=True)
             elif not sort_project_name_checkbox.value and sort_project_registration_date_checkbox.value:
                 df = df.sort_values(by="registration_date", ascending=False)
             elif sort_project_name_checkbox.value and sort_project_registration_date_checkbox.value:
-                df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+                df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
             options = list(df.itertuples(index=False, name=None))
             options.insert(0, project_dropdown_options[0])
@@ -3316,9 +3390,9 @@ class SelectSampleWidget(ipw.VBox):
     def load_samples(self):
         samples = utils.get_openbis_objects(
             self.openbis_session,
-            type = "SAMPLE"
+            type = OPENBIS_OBJECT_TYPES["Sample"]
         )
-        sample_options = [(f"{obj.props['$name']}", obj.permId) for obj in samples if obj.props["exists"] == "true"]
+        sample_options = [(f"{obj.props['name']}", obj.permId) for obj in samples if obj.props["exists"] == "true"]
         sample_options.insert(0, ("Select sample...", "-1"))
         self.sample_dropdown.options = sample_options
         self.sample_dropdown.value = "-1"
@@ -3326,13 +3400,13 @@ class SelectSampleWidget(ipw.VBox):
     def sort_sample_dropdown(self, change):
         options = self.sample_dropdown.options[1:]
         
-        df = pd.DataFrame(options, columns=["$name", "registration_date"])
+        df = pd.DataFrame(options, columns=["name", "registration_date"])
         if self.sort_name_checkbox.value and not self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by="$name", ascending=True)
+            df = df.sort_values(by="name", ascending=True)
         elif not self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
             df = df.sort_values(by="registration_date", ascending=False)
         elif self.sort_name_checkbox.value and self.sort_registration_date_checkbox.value:
-            df = df.sort_values(by=["$name", "registration_date"], ascending=[True, False])
+            df = df.sort_values(by=["name", "registration_date"], ascending=[True, False])
 
         options = list(df.itertuples(index=False, name=None))
         options.insert(0, self.sample_dropdown.options[0])
@@ -3357,11 +3431,11 @@ class SampleHistoryWidget(ipw.VBox):
             next_parents = []
             for parent in sample_parents:
                 parent_code = parent.split("/")[-1]
-                if "PRST" in parent_code or "SAMP" in parent_code:
+                if OPENBIS_OBJECT_CODES["Process Step"] in parent_code or OPENBIS_OBJECT_CODES["Sample"] in parent_code:
                     parent_object = get_cached_object(self.openbis_session, parent)
                     next_parents.extend(parent_object.parents)
-                    
-                    if "PRST" in parent_code:
+
+                    if OPENBIS_OBJECT_CODES["Process Step"] in parent_code:
                         process_steps.append(parent_object)
                         # Save object information
                         OPENBIS_SAMPLES_CACHE[parent] = parent_object
@@ -3420,8 +3494,8 @@ class ProcessStepHistoryWidget(ipw.VBox):
     
     def load_process_step_data(self):
         openbis_object_props = self.openbis_object.props.all()
-        if openbis_object_props["$name"]:
-            self.name_html.value = openbis_object_props["$name"]
+        if openbis_object_props["name"]:
+            self.name_html.value = openbis_object_props["name"]
         
         if openbis_object_props["description"]:
             self.description_html.value = openbis_object_props["description"]
@@ -3435,7 +3509,7 @@ class ProcessStepHistoryWidget(ipw.VBox):
         
         if instrument_id:
             instrument_object = get_cached_object(self.openbis_session, instrument_id)
-            self.instrument_html.value = instrument_object.props["$name"]
+            self.instrument_html.value = instrument_object.props["name"]
         
         self.load_actions()
         self.load_observables()
@@ -3503,13 +3577,13 @@ class ActionHistoryWidget(ipw.VBox):
             self.duration_hbox
         ]
         
-        if self.object_type == "ANNEALING":
+        if self.object_type == OPENBIS_OBJECT_TYPES["Annealing"]:
             self.target_temperature_label = ipw.Label(value = "Name:")
             self.target_temperature_html = ipw.HTML()
             self.target_temperature_hbox = ipw.HBox(children = [self.target_temperature_label, self.target_temperature_html])
             widget_children.append(self.target_temperature_hbox)
-            
-        elif self.object_type == "COOLDOWN":
+
+        elif self.object_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
             self.target_temperature_label = ipw.Label(value = "Target temperature:")
             self.target_temperature_html = ipw.HTML()
             self.target_temperature_hbox = ipw.HBox(children = [self.target_temperature_label, self.target_temperature_html])
@@ -3520,8 +3594,8 @@ class ActionHistoryWidget(ipw.VBox):
             
             widget_children.append(self.cryogen_hbox)
             widget_children.append(self.target_temperature_hbox)
-        
-        elif self.object_type == "DEPOSITION":
+
+        elif self.object_type == OPENBIS_OBJECT_TYPES["Deposition"]:
             self.substrate_temperature_label = ipw.Label(value = "Substrate temperature:")
             self.substrate_temperature_html = ipw.HTML()
             self.substrate_temperature_hbox = ipw.HBox(children = [self.substrate_temperature_label, self.substrate_temperature_html])
@@ -3532,8 +3606,8 @@ class ActionHistoryWidget(ipw.VBox):
             
             widget_children.append(self.substance_hbox)
             widget_children.append(self.substrate_temperature_hbox)
-        
-        elif self.object_type == "DOSING":
+
+        elif self.object_type == OPENBIS_OBJECT_TYPES["Dosing"]:
             self.substrate_temperature_label = ipw.Label(value = "Substrate temperature:")
             self.substrate_temperature_html = ipw.HTML()
             self.substrate_temperature_hbox = ipw.HBox(children = [self.substrate_temperature_label, self.substrate_temperature_html])
@@ -3550,7 +3624,7 @@ class ActionHistoryWidget(ipw.VBox):
             widget_children.append(self.pressure_hbox)
             widget_children.append(self.substrate_temperature_hbox)
 
-        elif self.object_type == "SPUTTERING":
+        elif self.object_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
             self.sputter_ion_label = ipw.Label(value = "Sputter ion:")
             self.sputter_ion_html = ipw.HTML()
             self.sputter_ion_hbox = ipw.HBox(children = [self.sputter_ion_label, self.sputter_ion_html])
@@ -3584,8 +3658,8 @@ class ActionHistoryWidget(ipw.VBox):
     
     def load_action_data(self):
         openbis_object_props = self.openbis_object.props.all()
-        if openbis_object_props["$name"]:
-            self.name_html.value = openbis_object_props["$name"]
+        if openbis_object_props["name"]:
+            self.name_html.value = openbis_object_props["name"]
         
         if openbis_object_props["description"]:
             self.description_html.value = openbis_object_props["description"]
@@ -3633,12 +3707,12 @@ class ActionHistoryWidget(ipw.VBox):
             substance_id = openbis_object_props["substance"]
             if substance_id:
                 substance_object = get_cached_object(self.openbis_session, substance_id)
-                self.substance_html.value = substance_object.props["$name"]
+                self.substance_html.value = substance_object.props["name"]
         
         component_id = openbis_object_props["component"]
         if component_id:
             component_object = get_cached_object(self.openbis_session, component_id)
-            self.component_html.value = component_object.props["$name"]
+            self.component_html.value = component_object.props["name"]
             
         if openbis_object_props["component_settings"]:
             component_settings = json.loads(openbis_object_props["component_settings"])
@@ -3703,8 +3777,8 @@ class ObservableHistoryWidget(ipw.VBox):
     
     def load_observable_data(self):
         openbis_object_props = self.openbis_object.props.all()
-        if openbis_object_props["$name"]:
-            self.name_html.value = openbis_object_props["$name"]
+        if openbis_object_props["name"]:
+            self.name_html.value = openbis_object_props["name"]
         
         if openbis_object_props["description"]:
             self.description_html.value = openbis_object_props["description"]
@@ -3719,7 +3793,7 @@ class ObservableHistoryWidget(ipw.VBox):
             
         if component_id:
             component_object = get_cached_object(self.openbis_session, component_id)
-            self.component_html.value = component_object.props["$name"]
+            self.component_html.value = component_object.props["name"]
             
         if openbis_object_props["component_settings"]:
             component_settings = json.loads(openbis_object_props["component_settings"])
@@ -3758,7 +3832,7 @@ class RegisterProcessStepWidget(ipw.VBox):
         
         self.instrument_label = ipw.Label(value = "Instrument")
         instrument_objects = utils.get_openbis_objects(self.openbis_session, collection = "/EQUIPMENT/ILOG/INSTRUMENT_COLLECTION")
-        instrument_options = [(obj.props["$name"], obj.permId) for obj in instrument_objects]
+        instrument_options = [(obj.props["name"], obj.permId) for obj in instrument_objects]
         instrument_options.insert(0, ("Select an instrument...", "-1"))
         self.instrument_dropdown = ipw.Dropdown(options = instrument_options, value = "-1")
         self.instrument_hbox = ipw.HBox(children = [self.instrument_label, self.instrument_dropdown])
@@ -3933,8 +4007,8 @@ class RegisterActionWidget(ipw.VBox):
         self.substance_label = ipw.Label(value = "Substance")
         substances_list = utils.get_openbis_objects(
             self.openbis_session, 
-            collection = "/MATERIALS/MOLECULES/PRECURSOR_COLLECTION",
-            type = "SUBSTANCE"
+            collection = OPENBIS_COLLECTIONS_PATHS["Precursor Substance"],
+            type = OPENBIS_OBJECT_CODES["Substance"]
         )
         substances_names_ids = []
         for obj in substances_list:
@@ -3955,7 +4029,7 @@ class RegisterActionWidget(ipw.VBox):
         
         self.gas_label = ipw.Label(value = "Dosing gas")
         gas_list = utils.get_openbis_objects(self.openbis_session, collection = "/MATERIALS/RAW_MATERIALS/CHEMICAL_COLLECTION")
-        gas_options = [(obj.props["$name"], obj.permId) for obj in gas_list]
+        gas_options = [(obj.props["name"], obj.permId) for obj in gas_list]
         gas_options.insert(0, ("Select a dosing gas...", "-1"))
         self.gas_dropdown = ipw.Dropdown(
             options = gas_options,
@@ -4007,7 +4081,7 @@ class RegisterActionWidget(ipw.VBox):
         )
         
         self.instrument_type_components_dictionary = {
-            "INSTRUMENT.STM": [
+            OPENBIS_OBJECT_TYPES["Instrument STM"]: [
                 "pumps", "gauges", "vacuum_chambers", "ports_valves",
                 "preparation_tools", "analysers", "mechanical_components",
                 "stm_components", "control_data_acquisition", "temperature_environment_control",
@@ -4181,24 +4255,24 @@ class RegisterActionWidget(ipw.VBox):
                 self.description_hbox,
                 self.duration_hbox
             ]
-            
-            if action_type == "ANNEALING":
+
+            if action_type == OPENBIS_OBJECT_TYPES["Annealing"]:
                 action_properties.append(self.target_temperature_hbox)
-                
-            elif action_type == "COOLDOWN":
+
+            elif action_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
                 action_properties.append(self.target_temperature_hbox)
                 action_properties.append(self.cryogen_hbox)
-                
-            elif action_type == "DEPOSITION":
+
+            elif action_type == OPENBIS_OBJECT_TYPES["Deposition"]:
                 action_properties.append(self.substance_hbox)
                 action_properties.append(self.substrate_temperature_hbox)
-                
-            elif action_type == "DOSING":
+
+            elif action_type == OPENBIS_OBJECT_TYPES["Dosing"]:
                 action_properties.append(self.substrate_temperature_hbox)
                 action_properties.append(self.pressure_hbox)
                 action_properties.append(self.gas_hbox)
-                
-            elif action_type == "SPUTTERING":
+
+            elif action_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
                 action_properties.append(self.pressure_hbox)
                 action_properties.append(self.current_hbox)
                 action_properties.append(self.angle_hbox)
@@ -4237,7 +4311,7 @@ class RegisterActionWidget(ipw.VBox):
                         all_instrument_components.append(component_object)
                         
                         # Evaporators contain sub-components (evaporator slots)
-                        if component_object.type == "EVAPORATOR":
+                        if component_object.type == OPENBIS_OBJECT_TYPES["Evaporator"]:
                             evaporator_slots = component_object.props["evaporator_slots"]
                             for evaporator_slot_id in evaporator_slots:
                                 evaporator_slot_object = get_cached_object(self.openbis_session, evaporator_slot_id)
@@ -4250,7 +4324,7 @@ class RegisterActionWidget(ipw.VBox):
                     for component_action_settings in component_actions_settings:
                         component_action_type = component_action_settings["action_type"]
                         if action_type == component_action_type:
-                            component_list.append((component_object.props["$name"], component_object.permId))
+                            component_list.append((component_object.props["name"], component_object.permId))
 
         return component_list
     
@@ -4359,7 +4433,7 @@ class RegisterObservableWidget(ipw.VBox):
         self.ch_name_hbox = ipw.HBox(children = [self.ch_name_label, self.ch_name_textbox])
         
         self.instrument_type_components_dictionary = {
-            "INSTRUMENT.STM": [
+            OPENBIS_OBJECT_TYPES["Instrument STM"]: [
                 "pumps", "gauges", "vacuum_chambers", "ports_valves",
                 "preparation_tools", "analysers", "mechanical_components",
                 "stm_components", "control_data_acquisition", "temperature_environment_control",
@@ -4493,7 +4567,7 @@ class RegisterObservableWidget(ipw.VBox):
                         all_instrument_components.append(component_object)
                         
                         # Evaporators contain sub-components (evaporator slots)
-                        if component_object.type == "EVAPORATOR":
+                        if component_object.type == OPENBIS_OBJECT_TYPES["Evaporator"]:
                             evaporator_slots = component_object.props["evaporator_slots"]
                             for evaporator_slot_id in evaporator_slots:
                                 evaporator_slot_object = get_cached_object(self.openbis_session, evaporator_slot_id)
@@ -4506,7 +4580,7 @@ class RegisterObservableWidget(ipw.VBox):
                     for component_observable_settings in component_observables_settings:
                         component_observable_type = component_observable_settings["observable_type"]
                         if observable_type == component_observable_type:
-                            component_list.append((component_object.props["$name"], component_object.permId))
+                            component_list.append((component_object.props["name"], component_object.permId))
                             
             for prop in instrument_components_properties:
                 prop_value = instrument_object.props[prop]
@@ -4517,7 +4591,7 @@ class RegisterObservableWidget(ipw.VBox):
                         if component_observables_settings_prop:
                             component_observables_settings = json.loads(component_observables_settings_prop)
                             if observable_type in component_observables_settings:
-                                component_list.append((component_object.props["$name"], component_id))
+                                component_list.append((component_object.props["name"], component_id))
         return component_list
     
     def load_component_settings_list(self, change):

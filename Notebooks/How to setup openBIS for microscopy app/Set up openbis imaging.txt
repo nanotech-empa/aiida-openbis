@@ -28,6 +28,7 @@ imaging.nanonis.dat-script-path=${core-plugins-folder}/imaging-nanonis/1/dss/ser
         - apt-get update
         - apt install software-properties-common -y
         - apt install python3-pip -y
+        - Change numpy version to one after 1.26, otherwise it gives an error
         - pip3 install -r /etc/openbis/core-plugins/imaging-nanonis/1/scripts/python_requirements.txt
 
     Second option: make use of python environment outside docker

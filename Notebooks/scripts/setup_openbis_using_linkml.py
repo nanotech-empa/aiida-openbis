@@ -71,7 +71,7 @@ def create_project_in_openbis(session, space_code: str, project_code: str, proje
 def create_experiment_in_openbis(session, space_code: str, project_code: str, experiment_code: str, experiment_info: dict):
     try:
         experiment = session.new_experiment(code = experiment_code, type = "COLLECTION", project = f"/{space_code}/{project_code}/")
-        experiment.set_props({"$name": experiment_info["$name"]})
+        experiment.set_props({"name": experiment_info["name"]})
         experiment.save()
     except ValueError:
         print(f"Experiment {experiment_code} exists already.")
@@ -184,11 +184,6 @@ class OpenBisDatabase:
     
     def create_property_type(self, property_type: str) -> str:
         if self.objects_schema["slots"][property_type]["annotations"]["openbis_type"] not in ["Not used", "OBJECT (PARENT)", "OBJECT (CHILDREN)"]:
-            # TODO: REMOVE THIS ON VERSION 6.7+
-            if property_type == "name":
-                property_type = "$name"
-            # ---------------------------------
-            
             property_type_openbis = self.session.get_property_types(code = property_type)
             if property_type_openbis:
                 print(f"{property_type} already exists.")
