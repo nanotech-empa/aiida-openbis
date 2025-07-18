@@ -13,7 +13,7 @@ import json
 from ase.io.jsonio import encode
 from aiida.common.exceptions import NotExistentAttributeError
 import random
-import utils
+import src.utils as utils
 
 def original_structure(workchain_uuid):
     wc=orm.load_node(workchain_uuid)

@@ -1,5 +1,5 @@
 import ipywidgets as ipw
-import utils
+import src.utils as utils
 from IPython.display import display
 import pandas as pd
 import json
