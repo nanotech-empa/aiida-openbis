@@ -1669,6 +1669,8 @@ classes:
      - input_parameters
      - output_parameters
      - comments
+     - atomistic_models
+     - codes
      
   VibrationalSpectroscopy:
     title: Vibrational Spectroscopy

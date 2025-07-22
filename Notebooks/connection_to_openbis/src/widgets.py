@@ -794,7 +794,9 @@ class ExportSimulationsWidget(ipw.VBox):
                     elif simulation_type == OPENBIS_OBJECT_TYPES["Unclassified Simulation"]:
                         simulation_props["description"] = simulation_props_widget.description_textbox.value
                     
-                    simulation_parents = selected_atom_model_id + selected_codes_ids
+                    simulation_props["codes"] = selected_codes_ids
+                    
+                    simulation_parents = selected_atom_model_id
                     
                     simulation_obj = utils.create_openbis_object(
                         self.openbis_session,
