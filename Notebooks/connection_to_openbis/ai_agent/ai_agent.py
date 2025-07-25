@@ -35,7 +35,7 @@ class OpenBISAgent():
     """
     def __init__(self, google_api_key):
         self.google_api_key = google_api_key
-        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.google_api_key)
+        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.0-flash-lite", google_api_key = self.google_api_key)
         
         self.system_prompt = f"""
             You are a helpful assistant that can answer questions about experiments, simulations, 
@@ -91,9 +91,6 @@ class OpenBISAgent():
             inventory_tools.get_openbis_objects_by_date,
             
             # Substances tools
-            # inventory_tools.get_substances_by_empa_id,
-            # inventory_tools.get_substances_by_smiles,
-            # inventory_tools.get_substances_by_formula,
             inventory_tools.get_substances_by_attributes
         ]
         

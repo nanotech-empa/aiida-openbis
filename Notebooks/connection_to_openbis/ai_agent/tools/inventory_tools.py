@@ -20,7 +20,7 @@ def get_openbis_objects(type: str, collection_identifier: str = None):
         obj_data = openbis_utils.get_openbis_object_data(obj)
         objects_data.append(obj_data)
     
-    return objects_data
+    return objects_data[0:50] # TODO: Remove this restriction or adapt the function to ask the user if one really wants that
 
 @tool("get_openbis_object_by_permId")
 def get_openbis_object_by_permId(permId: str) -> Dict:
@@ -121,99 +121,6 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
     
     return objects_data
 
-class SubstanceEmpaIdentifier(BaseModel):
-    empa_number: int = Field(
-        ..., 
-        description = "Integer value given to new substances inside Empa"
-    )
-    batch: str = Field(
-        ..., 
-        description = "Letter given to the batch of substances, e.g., a for the first, b for the second."
-    )
-
-@tool("get_substance_by_empa_id")
-def get_substances_by_empa_id(empa_identifier: SubstanceEmpaIdentifier) -> List[Dict]:
-    """
-    Return a list of substances available in openBIS by empa number and batch.
-    Example:
-        - User: Is substance 704a available? empa_number is 704 and batch is a.
-    
-    Args:
-        empa_identifier: An object containing:
-            - empa_number (int): Empa identifier given to substances in the labs
-            - batch (str): Letter given to the different batches of a substance in the labs
-    
-    Returns:
-        A list of dictionaries with openBIS objects matching the Empa identifier.
-    """
-    obj_type = "SUBSTANCE"
-    objects = openbis_utils.get_openbis_objects(obj_type)
-    objects_data = []
-    for obj in objects:
-        obj_empa_number = obj.props["empa_number"]
-        if obj_empa_number:
-            obj_empa_number = int(obj_empa_number)
-            
-        if obj_empa_number == empa_identifier.empa_number and obj.props["batch"] == empa_identifier.batch:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
-    
-    return objects_data
-
-@tool("get_substance_by_smiles")
-def get_substances_by_smiles(smiles: str) -> List[Dict]:
-    """
-    Return a list of substances, molecules, or chemicals available in openBIS by SMILES string.
-    
-    Args:
-        smiles (str): SMILES string of the molecule
-    
-    Returns:
-        A list of dictionaries with openBIS objects matching the SMILES string, e.g. CCO.
-    """
-    obj_type = "SUBSTANCE"
-    objects = openbis_utils.get_openbis_objects(obj_type)
-    objects_data = []
-    for obj in objects:
-        obj_molecules = obj.props["molecules"]
-        if obj_molecules:
-            for molecule_permId in obj_molecules:
-                molecule_obj = openbis_utils.get_openbis_object(molecule_permId)
-                molecule_smiles = molecule_obj.props["smiles"]
-                if molecule_smiles:
-                    if molecule_smiles.lower() == smiles.lower():
-                        obj_data = openbis_utils.get_openbis_object_data(obj)
-                        objects_data.append(obj_data)
-    
-    return objects_data
-
-@tool("get_substance_by_formula")
-def get_substances_by_formula(chemical_formula: str) -> List[Dict]:
-    """
-    Return a list of substances, molecules, or chemicals available in openBIS by chemical formula.
-    
-    Args:
-        chemical_formula (str): Chemical formula of the molecule, e.g. CH4
-    
-    Returns:
-        A list of dictionaries with openBIS objects matching the chemical formula.
-    """
-    obj_type = "SUBSTANCE"
-    objects = openbis_utils.get_openbis_objects(obj_type)
-    objects_data = []
-    for obj in objects:
-        obj_molecules = obj.props["molecules"]
-        if obj_molecules:
-            for molecule_permId in obj_molecules:
-                molecule_obj = openbis_utils.get_openbis_object(molecule_permId)
-                molecule_formula = molecule_obj.props["sum_formula"]
-                if molecule_formula:
-                    if molecule_formula.lower() == chemical_formula.lower():
-                        obj_data = openbis_utils.get_openbis_object_data(obj)
-                        objects_data.append(obj_data)
-    
-    return objects_data
-
 class MoleculeObject(BaseModel):
     smiles: Optional[str] = Field(default="", description = "SMILES string for the substance, e.g. CCO")
     sum_formula: Optional[str] = Field(default="", description = "Molecular sum formula, e.g. CH4")
@@ -245,7 +152,7 @@ class SubstanceObject(BaseModel):
             }
         }
 
-# @tool("get_substances_by_attributes")
+@tool("get_substances_by_attributes")
 def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
     """
     Search for substances in openBIS using one or more identifying attributes.
@@ -297,17 +204,12 @@ def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
             
         obj_molecules = obj_props["molecules"]
         
+        load_obj_data = True
         if substance.empa_number:
-            if substance.batch:
-                if obj_empa_number == substance.empa_number and obj_batch == substance.batch:
-                    obj_data = openbis_utils.get_openbis_object_data(obj)
-                    if obj_data not in objects_data:
-                        objects_data.append(obj_data)
-            else:
-                if obj_empa_number == substance.empa_number:
-                    obj_data = openbis_utils.get_openbis_object_data(obj)
-                    if obj_data not in objects_data:
-                        objects_data.append(obj_data)
+            load_obj_data = obj_empa_number == substance.empa_number
+        
+        if substance.batch:
+            load_obj_data = (obj_batch == substance.batch and load_obj_data)
         
         if substance.molecules:
             if obj_molecules:
@@ -319,23 +221,20 @@ def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
                     molecule_iupac = molecule_obj_props["iupac_name"]
                     
                     for prompt_molecule in substance.molecules:
-                        prompt_molecule_smiles = prompt_molecule.smiles
                         prompt_molecule_formula = prompt_molecule.sum_formula
                         prompt_molecule_iupac = prompt_molecule.iupac_name
                         
-                        if prompt_molecule_smiles == molecule_smiles:
-                            obj_data = openbis_utils.get_openbis_object_data(obj)
-                            if obj_data not in objects_data:
-                                objects_data.append(obj_data)
+                        if prompt_molecule.smiles:
+                            load_obj_data = (prompt_molecule.smiles == molecule_smiles and load_obj_data)
                         
                         if prompt_molecule_formula == molecule_formula:
-                            obj_data = openbis_utils.get_openbis_object_data(obj)
-                            if obj_data not in objects_data:
-                                objects_data.append(obj_data)
+                            load_obj_data = (prompt_molecule.sum_formula == molecule_formula and load_obj_data)
                         
                         if prompt_molecule_iupac == molecule_iupac:
-                            obj_data = openbis_utils.get_openbis_object_data(obj)
-                            if obj_data not in objects_data:
-                                objects_data.append(obj_data)
+                            load_obj_data = (prompt_molecule.iupac_name == molecule_iupac and load_obj_data)
+        
+        if load_obj_data:
+            obj_data = openbis_utils.get_openbis_object_data(obj)
+            objects_data.append(obj_data)
                                 
     return objects_data
