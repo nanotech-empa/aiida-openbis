@@ -11,6 +11,7 @@ from typing import List, Dict, Literal, Annotated
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+from langchain_core.messages import SystemMessage
 from uuid import uuid4
 
 # OpenBIS configuration and session setup
@@ -23,10 +24,10 @@ def get_current_time() -> str:
     """
     # Get current datetime
     now = datetime.now(ZoneInfo("Europe/Zurich"))
-    # Format as a human-readable sentence
     formatted = now.strftime("%A, %B %d, %Y at %H:%M")
     return f"It is currently {formatted}."
 
+# Format as a human-readable sentence
 @lru_cache(maxsize=5000)
 def _get_openbis_object(permId):
     try:
@@ -45,7 +46,9 @@ def _get_openbis_property_type(key):
 
 @lru_cache(maxsize=100)
 def _get_openbis_objects_by_type(type):
-    openbis_objs = OPENBIS_SESSION.get_objects(type = type)
+    openbis_objs = OPENBIS_SESSION.get_objects(
+        type = type
+    )
     objs = {}
     for openbis_obj in openbis_objs:
         objs[openbis_obj.permId] = openbis_obj
@@ -293,7 +296,7 @@ def _get_simulation_data(permId):
 # Converts a Python function into a LangChain-compatible tool 
 # that the agent can call automatically
 @tool("query_openbis_objects")
-def _query_openbis_objects(permId: str = None, type: str = None, filters: dict = None) -> List[Dict]:
+def query_openbis_objects(permId: str = None, type: str = None, filters: dict = None) -> List[Dict]:
     """
     Returns list of objects obtained from openBIS. 
     
@@ -308,22 +311,64 @@ def _query_openbis_objects(permId: str = None, type: str = None, filters: dict =
         - User: Give me a small summary of object 20250717114928650-3593 -> permId = 20250717114928650-3593 and type = None
         - User: Get me molecule 704 -> type = MOLECULE and filters = {'name': 704}
         - User: Get me substance 704a -> type = SUBSTANCE and filters = {'empa_number': 704, 'batch': 'a'}
+        - User: Get me substance with empa number 704 and batch a -> type = SUBSTANCE and filters = {'empa_number': 704, 'batch': 'a'}
         - User: Get me all samples inside openBIS -> type = SAMPLE
     
-    - type should be selected among the types found in the get_openbis_schema tool
-    
-    - filters should be considered according to the type. It means that if a certain type is selected, the filters can only 
-    be properties that belong to that type. Example: MOLECULE contains name, smiles, sum_formula, cas_number, iupac_name, and comments.
-    It means that description cannot be used. 
+    Args:
+        type (str): Should be selected among the types found in the openBIS objects schema. It is optional.
+
+        filters (dict): Should be considered according to the type. It means that if a certain type is selected, 
+        the filters can only be properties that belong to that type. Example: MOLECULE contains name, smiles, 
+        sum_formula, cas_number, iupac_name, and comments. It means that description cannot be used. It is optional.
         
-    - permId allways follows this structure: YYYYMMDDHHMMSSmmm-####
+        permId (str): Always follows this pattern: YYYYMMDDHHMMSSmmm-####. It is optional
+    
+    Returns:
+        list[dict]: A list of dictionaries that contains objects' data. Each dictionary contains the identifier, the 
+        type of the object, the registration date, the properties, the parent objects identifiers and the children objects 
+        identifiers.
+        Example:
+        [
+            {
+                "permId": "20250717115421455-9999"
+                "type": "PROCESS_STEP", 
+                "registration_date": "2025-07-22 09:58:40", 
+                "properties": {
+                    "name": "Deposition",
+                    "actions": ["20250717115421436-23241", "20250717115421436-984"],
+                    "observables": ["20250717115421436-2222", "20250717115421436-3333"],
+                    "instrument": []
+                },
+                "parents_objects": ["20240517115421436-5432", "20230217115421436-3113"],
+                "children_objects": ["20250517115421445-5432", "20250317115421438-231"]
+            }
+            ...
+        ]
+    
     """
     
     if permId:
         openbis_object = _get_openbis_object(permId)
         if openbis_object:
-            openbis_object_data = openbis_object.props.all()
-            return [openbis_object_data]
+            obj_parents = openbis_object.get_parents()
+            if obj_parents:
+                obj_parents = list(obj_parents.df.permId)
+            
+            obj_children = openbis_object.get_children()
+            if obj_children:
+                obj_children = list(obj_children.df.permId)
+            
+            obj_props = openbis_object.props.all()
+            
+            obj_dict = {
+                "type": type,
+                "permId": permId,
+                "registration_date": openbis_object.registrationDate,
+                "properties": obj_props,
+                "parent_objects": obj_parents,
+                "children_objects": obj_children
+            }
+            return [obj_dict]
         else:
             return f"Cannot find the object with permId {permId}."
     else:
@@ -331,34 +376,69 @@ def _query_openbis_objects(permId: str = None, type: str = None, filters: dict =
         list_objects = []
         for obj_permId, obj in objects.items():
             obj_props = obj.props.all()
+            obj_dict = {
+                "permId": obj.permId,
+                "type": type,
+                "registration_date": obj.registrationDate,
+                "properties": obj_props
+            }
+            
             if filters:
-                match = all(k in obj_props and obj_props[k] == v for k, v in filters.items())
+                match = True
+                for k, v in filters.items():
+                    if isinstance(v, int) or isinstance(v, float):
+                        int_v = int(v)
+                        if v == int_v:
+                            v = str(int_v)
+                        else:
+                            v = str(v)
+                        
+                    if k not in obj_props or obj_props[k] != v:
+                        match = False
+                        break
+                    
                 if match:
-                    list_objects.append(obj_props)
+                    list_objects.append(obj_dict)
             else:
-                list_objects.append(obj_props)
+                list_objects.append(obj_dict)
+            
+            if len(list_objects) == 10:
+                return list_objects
         
         if list_objects:
             return list_objects
         else:
             return f"Cannot find objects with type {type} and filters {filters}."
 
-@tool("get_experiments")
-def _get_experiments() -> List[Dict]:
-    """Returns a list of experiments, each with all the preparations, process steps, actions, observables and materials used.
-    The materials include crystals, 2D materials, substances (molecules), among others. The types are returned in capital letters and
-    with underscore instead of space, e.g. LIGHT_IRRADIATION. When ingesting the data convert them to normal words, e.g. from LIGHT_IRRADIATION to Light Irradiation."""
+@tool("query_openbis_experiments")
+def query_openbis_experiments() -> List[Dict]:
+    """
+    Returns a list of experiments, each with the list of permanent identifiers of the objects
+    that are saved within it. Inside the experiments, there could be sample preparations, simulations,
+    measurements, substances, etc.
+
+    Use this tool whenever you are asked about experiments, or when you need to find experiments
+    related to a specific object (like a substance, sample, or measurement).
+    
+    Example:
+        - Get me all the experiments that uses substance 704a.
+        - Find me all the experiments in openBIS.
+    """
     
     experiments = _get_openbis_experiments()
     experiments_data = []
     for exp_permId, exp in experiments.items():
-        experiment_data = _get_experiment_data(exp_permId)
-        experiments_data.append(experiment_data)
+        exp_name = exp.props["name"]
+        exp_objects = exp.get_objects()
+        objects_ids = []
+        for obj in exp_objects:
+            objects_ids.append(obj.permId)
+        experiments_data.append({exp_name:objects_ids})
     
-    return experiments_data
+    return experiments_data 
 
 @tool("get_simulations")
-def _get_simulations() -> List[Dict]:
+def get_simulations() -> List[Dict]:
     """Returns a list of simulations, each with all the atomistic models, aiida nodes, codes, used materials (molecules, crystal concepts, 2D materials, among others).
     There are different simulations types such as band structure, geometry optimisation, vibrational spectroscopy, among others. The types are returned in capital letters and
     with underscore instead of space, e.g. BAND_STRUCTURE. When ingesting the data convert them to normal words, e.g. from BAND_STRUCTURE to Band Structure."""
@@ -371,16 +451,37 @@ def _get_simulations() -> List[Dict]:
     
     return simulations_data
 
-@tool("get_openbis_schema")
-def _get_openbis_schema() -> dict:
+def get_openbis_schema() -> Dict:
     """
-    Returns a dictionary where keys are OpenBIS object types and values are lists of property codes (filters/attributes).
-    This schema should always be fetched before filtering, so the model knows which filters are valid for each object type.
+    Returns a dictionary that contains openBIS object types as keys and list of dictionaries as values. Every dictionary
+    from this list contains two elements, the code of the property and the datatype of the property.
+    This schema should be used, so the model knows which filters are valid for each object type and the datatypes of those
+    filters.
     
     Example output:
     {
-        "MOLECULE": ["name", "smiles", "sum_formula"],
-        "SUBSTANCE": ["empa_number", "batch"],
+        "MOLECULE": 
+            [
+                {
+                    "code": "name",
+                    "datatype": "varchar"
+                },
+                {
+                    "code": "smiles",
+                    "datatype": "varchar"
+                },
+            ],
+        "SUBSTANCE": 
+            [
+                {
+                    "code": "name",
+                    "datatype": "varchar"
+                },
+                {
+                    "code": "empa_number",
+                    "datatype": "integer"
+                },
+            ]
         ...
     }
     """
@@ -390,104 +491,26 @@ def _get_openbis_schema() -> dict:
         object_types = {obj_type.code: obj_type for obj_type in OPENBIS_SESSION.get_object_types()}
         for type_code, obj_type in object_types.items():
             try:
-                property_df = obj_type.get_property_assignments().df
-                property_codes = [code.lower() for code in property_df["code"].tolist()]
-                schema[type_code] = property_codes
+                properties_df = obj_type.get_property_assignments().df
+                properties_codes = properties_df["code"]
+                properties_datatypes = properties_df["dataType"]
+                properties_info = []
+                for code, datatype in zip(properties_codes, properties_datatypes):
+                    property_info = {
+                        "code": code.lower(),
+                        "datatype": datatype.lower()
+                    }
+                    properties_info.append(property_info)
+                schema[type_code] = properties_info
             except Exception as e:
                 schema[type_code] = f"Error fetching properties: {str(e)}"
     except Exception as e:
         return {"error": f"Failed to retrieve OpenBIS schema: {str(e)}"}
 
     return schema
-
-# @tool("get_openbis_objects")
-# def _get_openbis_objects(filters: dict = None, permId: str = None, type: str = None) -> list:
-#     """Return openBIS object data following this logic:
-#     If a permId is provided, retrieve the object directly by permId and ignore all filters and type.
-#     A permId typically has the format YYYYMMDDHHMMSSmmm-#### (e.g., 20250717103412473-3103).
-#     If a property value matches the permId format, try to resolve and return the linked object instead of the raw ID.
-#     If no permId is provided:
-#     Use the specified object type, which must be valid according to the openBIS schema.
-#     Apply the given filters based on the properties defined for that type.
-#     Only use properties that are assigned to the selected object type.
-#     If a filter references a property in permId format, resolve and return the referenced object, not just the ID."""
-    
-#     if permId:
-#         openbis_object = OPENBIS_SESSION.get_object(permId)
-#         obj_properties = openbis_object.props.all()
-#         obj_properties["type"] = openbis_object.type.code
-#         obj_parents = openbis_object.get_parents()
-#         if obj_parents:
-#             obj_parents = list(obj_parents.df.permId)
-#         obj_properties["parents"] = obj_parents
-        
-#         obj_children = openbis_object.get_children()
-#         if obj_children:
-#             obj_children = list(obj_children.df.permId)
-#         obj_properties["children"] = obj_children    
-#         list_objects = [obj_properties]
-#     else:
-#         if type:
-#             openbis_objects = OPENBIS_SESSION.get_objects(type = type)
-#         else:
-#             openbis_objects = OPENBIS_SESSION.get_objects()
-        
-#         list_objects = []
-#         for obj in openbis_objects:
-#             obj_properties = obj.props.all()
-#             obj_properties["type"] = obj.type.code
-            
-#             obj_parents = obj.get_parents()
-#             if obj_parents:
-#                 obj_parents = list(obj_parents.df.permId)
-#             obj_properties["parents"] = obj_parents
-            
-#             obj_children = obj.get_children()
-#             if obj_children:
-#                 obj_children = list(obj_children.df.permId)
-#             obj_properties["children"] = obj_children
-            
-#             if filters:
-#                 match = all(k in obj_properties and obj_properties[k] == v for k, v in filters.items())
-#                 if match and obj_properties not in list_objects:
-#                     list_objects.append(obj_properties)
-#             else:
-#                 list_objects.append(obj_properties)
-    
-#     return list_objects
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]
-
-@tool("get_openbis_schema")
-def _get_openbis_schema() -> dict:
-    """
-    Returns a dictionary where keys are OpenBIS object types and values are lists of property codes (filters/attributes).
-    This schema should always be fetched before calling the tool for accessing object data and filter object data (query_openbis_objects tool), 
-    so the model knows which filters are valid for each object type.
-    
-    Example output:
-    {
-        "MOLECULE": ["name", "smiles", "sum_formula"],
-        "SUBSTANCE": ["empa_number", "batch"],
-        ...
-    }
-    """
-    schema = {}
-    try:
-        # Get all object types
-        object_types = {obj_type.code: obj_type for obj_type in OPENBIS_SESSION.get_object_types()}
-        for type_code, obj_type in object_types.items():
-            try:
-                property_df = obj_type.get_property_assignments().df
-                property_codes = [code.lower() for code in property_df["code"].tolist()]
-                schema[type_code] = property_codes
-            except Exception as e:
-                schema[type_code] = f"Error fetching properties: {str(e)}"
-    except Exception as e:
-        return {"error": f"Failed to retrieve OpenBIS schema: {str(e)}"}
-
-    return schema
 
 class OpenBISAgent():
     """
@@ -500,22 +523,51 @@ class OpenBISAgent():
         
         self.system_prompt = f"""
             You are a helpful assistant that can answer questions about experiments, simulations, 
-            and all the inventories inside openBIS. 
+            and all the inventories inside openBIS.
+            This is the schema containing the current openBIS object types and their properties/attributes:
+            {get_openbis_schema()}. Use this schema whenever you are asked about objects in openBIS in order to understand
+            their structure and types.
+            
             In the case you are asked for an object that contains links to other objects, get all the information
-            about those objects instead of giving the identifier. 
+            about those objects instead of giving the identifier. Example: You get a substance that contains a property named
+            molecule which has the permID 20250717114928650-3593. Then, search for the object by permId and get its data.
+            
+            In case you are asked about an experiment that contains a certain object, first find the object details using
+            query_openbis_objects tool and then query_openbis_experiments tool. This way you first get data about the object
+            and then you get data about the experiment and you are able to combine both information to give an answer.
+            Example:
+                User: Is there substance with empa number 704 and batch a? If yes, find the experiments that use that and summarize them.
+                Agent plan:
+                1. Use query_openbis_objects using type = "SUBSTANCE" and filters = {{"empa_number": 704, "batch": 'a'}}
+                2. Use query_openbis_experiments to list all experiments.
+                3. Use query_openbis_objects to get all the data of the objects connected to the experiments
+                4. Keep using query_openbis_objects for finding data about objects connected to other objects
+                5. Filter for experiments containing that substance (like by the name or permId)
+                6. Summarize relevant experiments.
+
+            Tools used:
+            - query_openbis_objects
+            - query_openbis_experiments
+            
             Today is {get_current_time()}.
         """
         
         self._tools = [
-            _get_experiments,
-            _get_simulations,
-            _query_openbis_objects,
-            _get_openbis_schema
+            query_openbis_experiments,
+            # get_simulations,
+            query_openbis_objects
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
         def chatbot(state: State):
-            return {"messages": [llm_with_tools.invoke(state["messages"])]}
+            # Inject the system prompt at the start (only once)
+            messages = state["messages"]
+            
+            # Check if the system prompt is already there to avoid duplication
+            if not any(isinstance(msg, SystemMessage) and msg.content == self.system_prompt for msg in messages):
+                messages = [SystemMessage(content=self.system_prompt)] + messages
+
+            return {"messages": [llm_with_tools.invoke(messages)]}
         
         # Define the state machine
         # Add the nodes
@@ -532,6 +584,7 @@ class OpenBISAgent():
         memory = InMemorySaver()
         self.graph = graph_builder.compile(checkpointer=memory)
         self.agent_config = {"configurable": {"thread_id": uuid4()}}
+        
 
     def ask_question(self, user_prompt: str):
         """
@@ -566,57 +619,3 @@ class OpenBISAgent():
                 to_replay = state
         
         return to_replay
-
-# class OpenBISAgent():
-#     """
-#     An agent that can answer questions about openBIS inventories.
-#     It uses a LangChain model and tools to interact with the openBIS session.
-#     """
-#     def __init__(self, google_api_key):
-#         self.google_api_key = google_api_key
-#         self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.google_api_key)
-#         self.system_prompt = """
-#             You are an helpful assistant that can answer questions about experiments, simulations, and all the inventories inside 
-#             openBIS. In the case you are asked for an object that contains links to other objects, get all the information
-#             about those objects instead of giving the identifier. {get_current_time()}
-#         """
-        
-#         self._tools = [
-#             _get_experiments,
-#             _get_simulations,
-#             _query_openbis_objects,
-#             _get_openbis_schema
-#         ]
-        
-#         self.ai_agent = create_react_agent(
-#             model = self.llm_model,
-#             tools = self._tools,
-#             checkpointer = InMemorySaver(),
-#             prompt = self.system_prompt
-#         )
-        
-#         self.agent_config = {"configurable": {"thread_id": uuid4()}}
-
-#     def ask_question(self, user_prompt: str):
-#         """
-#         Ask a question to the agent and get a response.
-        
-#         Args:
-#             user_prompt (str): The question to ask the agent.
-        
-#         Returns:
-#             str: The response from the agent.
-#         """
-#         # Builds a LangGraph agent that interleaves reasoning and tool execution (ReAct pattern)
-#         # Runs the full workflow, returning a state object 
-#         # where the last message contains the model’s response after any tool invocations
-#         response = self.ai_agent.invoke(
-#             {
-#                 "messages": [
-#                     {"role": "user", "content": user_prompt}
-#                 ]
-#             },
-#             self.agent_config
-#         )
-
-#         return response["messages"]
