@@ -3,6 +3,33 @@ from ai_agent import openbis_utils
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import List, Dict, Literal, Annotated, Optional
 from datetime import datetime
+from pydantic_schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial
+
+# Pydantic models for input validation
+class TimestampInterval(BaseModel):
+    begin_date_str: str = Field(
+        ..., 
+        description="Datetime in format YYYY-MM-DD HH:MM:SS, e.g., '2025-07-25 08:30:00'"
+    )
+    end_date_str: str = Field(
+        ..., 
+        description="Datetime in format YYYY-MM-DD HH:MM:SS, e.g., '2025-07-25 18:30:00'"
+    )
+    
+    @model_validator(mode="after")
+    def validate_datetime_order(self) -> "TimestampInterval":
+        try:
+            begin = datetime.strptime(self.begin_date_str, "%Y-%m-%d %H:%M:%S")
+            end = datetime.strptime(self.end_date_str, "%Y-%m-%d %H:%M:%S")
+        except ValueError as e:
+            raise ValueError(f"Invalid datetime format: {e}")
+
+        if begin >= end:
+            raise ValueError("begin_date_str must be earlier than end_date_str")
+
+        return self
+
+# Generic openBIS tools
 
 @tool("get_openbis_objects")
 def get_openbis_objects(type: str, collection_identifier: str = None):
@@ -55,29 +82,6 @@ def get_openbis_objects_by_name(name: str) -> List[Dict]:
     
     return objects_data
 
-class TimestampInterval(BaseModel):
-    begin_date_str: str = Field(
-        ..., 
-        description="Datetime in format YYYY-MM-DD HH:MM:SS, e.g., '2025-07-25 08:30:00'"
-    )
-    end_date_str: str = Field(
-        ..., 
-        description="Datetime in format YYYY-MM-DD HH:MM:SS, e.g., '2025-07-25 18:30:00'"
-    )
-    
-    @model_validator(mode="after")
-    def validate_datetime_order(self) -> "TimestampInterval":
-        try:
-            begin = datetime.strptime(self.begin_date_str, "%Y-%m-%d %H:%M:%S")
-            end = datetime.strptime(self.end_date_str, "%Y-%m-%d %H:%M:%S")
-        except ValueError as e:
-            raise ValueError(f"Invalid datetime format: {e}")
-
-        if begin >= end:
-            raise ValueError("begin_date_str must be earlier than end_date_str")
-
-        return self
-
 @tool("get_openbis_object_by_date")
 def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
     """
@@ -121,51 +125,22 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
     
     return objects_data
 
-class MoleculeObject(BaseModel):
-    smiles: Optional[str] = Field(default="", description = "SMILES string for the substance, e.g. CCO")
-    sum_formula: Optional[str] = Field(default="", description = "Molecular sum formula, e.g. CH4")
-    iupac_name: Optional[str] = Field(default="", description="IUPAC standardised chemical name")
-
-class SubstanceObject(BaseModel):
-    empa_number: Optional[int] = Field(default=0, description = "Integer value given to new substances inside Empa")
-    batch: Optional[str] = Field(default="", description = "Letter given to the batch of substances, e.g., a for the first, b for the second.")
-    molecules: Optional[List[MoleculeObject]] = Field(
-        default_factory=list, 
-        description = "List of molecules that substance contains",
-    )
-    
-    class Config:
-        # This ensures proper JSON schema generation
-        json_schema_extra = {
-            "properties": {
-                "molecules": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "smiles": {"type": "string", "description": "SMILES string for the substance, e.g. CCO"},
-                            "sum_formula": {"type": "string", "description": "Molecular sum formula, e.g. CH4"},
-                            "iupac_name": {"type": "string", "description": "IUPAC standardised chemical name"}
-                        }
-                    }
-                }
-            }
-        }
+# Specific tools
 
 @tool("get_substances_by_attributes")
-def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
+def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     Search for substances in openBIS using one or more identifying attributes.
 
-    This tool retrieves substances by matching the given Empa identifier or any molecular descriptor 
-    (SMILES, sum formula, IUPAC name). You can specify any subset of these fields—unprovided fields 
-    will be ignored in the search.
+    This tool retrieves substances by matching the given Empa identifier (empa number and batch together), e.g. 
+    704a (empa number is 704 and batch is a), or any molecular descriptor (SMILES, sum formula, IUPAC name). 
+    You can specify any subset of these fields. Unprovided fields will be ignored in the search.
 
     Args:
-        substance (SubstanceObject): A data object describing the substance to search for. It may include:
+        substance (Substance): A data object describing the substance to search for. It may include:
             - empa_number (int, optional): Empa identifier number, e.g. 704.
             - batch (str, optional): Batch letter of the substance, e.g. 'a'.
-            - molecules (List[MoleculeObject], optional): A list of one or more molecules that describe the substance. 
+            - molecules (List[Molecule], optional): A list of one or more molecules that describe the substance. 
               Each molecule may include:
                 - smiles (str, optional): SMILES string, e.g. "CCO"
                 - sum_formula (str, optional): Molecular sum formula, e.g. "CH4"
@@ -177,15 +152,15 @@ def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
 
     Example:
         >>> get_substances_by_attributes(
-        ...     SubstanceObject(
+        ...     Substance(
         ...         empa_number=704,
         ...         batch="a",
-        ...         molecules=[MoleculeObject(smiles="CCO")]
+        ...         molecules=[Molecule(smiles="CCO")]
         ...     )
         ... )
         # Returns all matching substance objects with Empa ID 704a and containing a molecule with SMILES "CCO".
     """
-    # return []
+    
     obj_type = "SUBSTANCE"
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
@@ -232,6 +207,124 @@ def get_substances_by_attributes(substance: SubstanceObject) -> List[Dict]:
                         
                         if prompt_molecule_iupac == molecule_iupac:
                             load_obj_data = (prompt_molecule.iupac_name == molecule_iupac and load_obj_data)
+        
+        if load_obj_data:
+            obj_data = openbis_utils.get_openbis_object_data(obj)
+            objects_data.append(obj_data)
+                                
+    return objects_data
+
+@tool("get_crystals_by_attributes")
+def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
+    """
+    Search for crystals in openBIS using one or more identifying attributes.
+
+    This tool retrieves crystals by matching the given crystal concept descriptor (face, material). 
+    You can specify any subset of these fields. Unprovided fields will be ignored in the search.
+
+    Args:
+        crystal (Crystal): A data object describing the crystal to search for. It may include:
+            - crystal_concept (CrystalConcept, optional): crystal concept that contains properties of the crystal
+              Each crystal_concept may include:
+                - face (str, optional): Material face, e.g. 111 or 10000
+                - material (str, optional): Crystal material, e.g. Au, Pt, Ag, Pd
+
+    Returns:
+        List[Dict]: A list of dictionaries, where each dictionary represents a crystal object from openBIS 
+        matching the provided criteria.
+
+    Example:
+        >>> get_crystals_by_attributes(
+        ...     Crystal(
+        ...         crystal_concepts=[CrystalConcept(face="111", material="Au")]
+        ...     )
+        ... )
+        # Returns all matching crystal objects containing a crystal concept with face 111 and material Au.
+        
+        If the user asks for crystals Au111 or Gold-111, its means that one wants crystals with a crystal 
+        concept with material Au and face 111
+    """
+    obj_type = "CRYSTAL"
+    objects = openbis_utils.get_openbis_objects(obj_type)
+    objects_data = []
+    
+    for obj in objects:
+        obj_props = obj.props.all()
+        crystal_concept_permId = obj_props["crystal_concept"]
+        load_obj_data = True
+        if crystal.crystal_concept:
+            if crystal_concept_permId:
+                crystal_concept_obj = openbis_utils.get_openbis_object(crystal_concept_permId)
+                crystal_concept_obj_props = crystal_concept_obj.props.all()
+                crystal_concept_face = crystal_concept_obj_props["face"]
+                crystal_concept_material = crystal_concept_obj_props["material"]
+                
+                if crystal.crystal_concept.face:
+                    load_obj_data = (crystal.crystal_concept.face == crystal_concept_face and load_obj_data)
+                
+                if crystal.crystal_concept.material:
+                    load_obj_data = (crystal.crystal_concept.material == crystal_concept_material and load_obj_data)
+        
+        if load_obj_data:
+            obj_data = openbis_utils.get_openbis_object_data(obj)
+            objects_data.append(obj_data)
+                                
+    return objects_data
+
+@tool("get_2d_materials_by_attributes")
+def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Dict]:
+    """
+    Search for 2D layer materials in openBIS using one or more identifying attributes.
+
+    This tool retrieves 2D layer materials by matching the given top layer material, layer count,
+    substrate, growth/fabrication method.
+    
+    You can specify any subset of these fields. Unprovided fields will be ignored in the search.
+
+    Args:
+        two_d_material (TwoDLayerMaterial): A data object describing the 2d layer material 
+        to search for. It may include:
+            - top_layer_material (str, optional): Top layer material
+            - layer_count (str, optional): Number of layers in string
+            - substrate (str, optional): Substrate material
+            - growth_method (str, optional): Growth/Fabrication method
+
+    Returns:
+        List[Dict]: A list of dictionaries, where each dictionary represents a 2d layer material object 
+        from openBIS matching the provided criteria.
+
+    Example:
+        >>> get_2d_materials_by_attributes(
+        ...     TwoDLayerMaterial(
+        ...         top_layer_material='MoS2'
+        ...     )
+        ... )
+        # Returns all matching 2d later material objects
+    """
+    
+    obj_type = "2D_LAYER_MATERIAL"
+    objects = openbis_utils.get_openbis_objects(obj_type)
+    objects_data = []
+    
+    for obj in objects:
+        obj_props = obj.props.all()
+        obj_top_layer_material = obj_props["two_d_layer_top_layer_material"]
+        obj_layer_count = obj_props["two_d_layer_layer_count"]
+        obj_substrate = obj_props["two_d_layer_substrate"]
+        obj_growth_method = obj_props["two_d_layer_growth_method"]
+        
+        load_obj_data = True
+        if two_d_material.top_layer_material:
+            load_obj_data = obj_top_layer_material == two_d_material.top_layer_material
+        
+        if two_d_material.layer_count:
+            load_obj_data = (obj_layer_count == two_d_material.layer_count and load_obj_data)
+            
+        if two_d_material.substrate:
+            load_obj_data = (obj_substrate == two_d_material.substrate and load_obj_data)
+        
+        if two_d_material.growth_method:
+            load_obj_data = (obj_growth_method == two_d_material.growth_method and load_obj_data)
         
         if load_obj_data:
             obj_data = openbis_utils.get_openbis_object_data(obj)
