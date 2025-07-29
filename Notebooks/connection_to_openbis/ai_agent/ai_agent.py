@@ -2,6 +2,7 @@ from ai_agent import openbis_utils
 from ai_agent.tools import inventory_tools
 
 import asyncio
+import ipywidgets as ipw
 from IPython.display import display
 from zoneinfo import ZoneInfo
 from datetime import datetime
@@ -25,6 +26,11 @@ def get_current_time() -> str:
     now = datetime.now(ZoneInfo("Europe/Zurich"))
     formatted = now.strftime("%A, %B %d, %Y at %H:%M")
     return f"It is currently {formatted}."
+
+@tool
+def display_button():
+    """Use this function to display a button"""
+    display(ipw.Button())
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]

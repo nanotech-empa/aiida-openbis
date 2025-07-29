@@ -127,7 +127,7 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
 
 # Specific tools
 
-@tool("get_substances_by_attributes")
+# @tool("get_substances_by_attributes")
 def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     Search for substances in openBIS using one or more identifying attributes.
@@ -180,7 +180,7 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
         obj_molecules = obj_props["molecules"]
         
         load_obj_data = True
-        if substance.empa_number:
+        if substance.empa_number > 0:
             load_obj_data = obj_empa_number == substance.empa_number
         
         if substance.batch:
@@ -196,16 +196,13 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
                     molecule_iupac = molecule_obj_props["iupac_name"]
                     
                     for prompt_molecule in substance.molecules:
-                        prompt_molecule_formula = prompt_molecule.sum_formula
-                        prompt_molecule_iupac = prompt_molecule.iupac_name
-                        
                         if prompt_molecule.smiles:
                             load_obj_data = (prompt_molecule.smiles == molecule_smiles and load_obj_data)
                         
-                        if prompt_molecule_formula == molecule_formula:
+                        if prompt_molecule.sum_formula:
                             load_obj_data = (prompt_molecule.sum_formula == molecule_formula and load_obj_data)
                         
-                        if prompt_molecule_iupac == molecule_iupac:
+                        if prompt_molecule.iupac_name:
                             load_obj_data = (prompt_molecule.iupac_name == molecule_iupac and load_obj_data)
         
         if load_obj_data:
