@@ -27,11 +27,6 @@ def get_current_time() -> str:
     formatted = now.strftime("%A, %B %d, %Y at %H:%M")
     return f"It is currently {formatted}."
 
-@tool
-def display_button():
-    """Use this function to display a button"""
-    display(ipw.Button())
-
 class State(TypedDict):
     messages: Annotated[list, add_messages]
 
@@ -101,8 +96,6 @@ class OpenBISAgent():
             inventory_tools.get_substances_by_attributes,
             inventory_tools.get_crystals_by_attributes,
             inventory_tools.get_2d_materials_by_attributes,
-            
-            display_button
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
