@@ -1,0 +1,100 @@
+{
+    "home_page": {
+        "enable_links": {
+            "Experiments": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='sample_preparation.ipynb' target='_blank' style='font-size: 13px;'>Sample preparation</a></li>",
+                "<li><a href='sample_measurement.ipynb' target='_blank' style='font-size: 13px;'>Sample measurement</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Simulations": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='import_export_simulations.ipynb' target='_blank' style='font-size: 13px;'>Import/export simulations from/to openBIS</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Results": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_analysis.ipynb' target='_blank' style='font-size: 13px;'>Create analysis</a></li>",
+                "<li><a href='create_results.ipynb' target='_blank' style='font-size: 13px;'>Create results</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Inventory": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_edit_inventory.ipynb' target='_blank' style='font-size: 13px;'>Register/edit inventory</a></li>",
+                "<li><a href='create_molecule_concept.ipynb' target='_blank' style='font-size: 13px;'>Create molecule concept</a></li>",
+                "<li><a href='create_molecule.ipynb' target='_blank' style='font-size: 13px;'>Create molecule</a></li>",
+                "<li><a href='create_product_concept.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product concept</a></li>",
+                "<li><a href='create_product.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product</a></li>",
+                "<li><a href='create_atomistic_model.ipynb' target='_blank' style='font-size: 13px;'>Create atomistic model</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "AI Agent": [
+                "<div style='display: flex;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
+                "</div>",
+                "</div>"
+            ]
+        },
+        "disable_links": {
+            "Experiments": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='sample_preparation.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample preparation</a></li>",
+                "<li><a href='sample_measurement.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Sample measurement</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Simulations": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='import_export_simulations.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Import/export simulations from/to openBIS</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Results": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_analysis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create analysis</a></li>",
+                "<li><a href='create_results.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create results</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "Inventory": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='create_edit_inventory.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Register/edit inventory</a></li>",
+                "</div>",
+                "</div>"
+            ],
+            "AI Agent": [
+                "<div id='box' style='display: flex; pointer-events: none;'>",
+                "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
+                "</div>",
+                "</div>"
+            ]
+        },
+        "enable_status": "<span style='color: green; font-weight: bold;'>Connected to openBIS!</span>",
+        "disable_status": "<span style='color: red; font-weight: bold;'>Please connect to openBIS using the Configure ELN in AiiDAlab starting page!</span>"
+    },
+    "save_home_buttons_settings": [
+        "<style>",
+        ".fa-save {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-home {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-times {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-download {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-arrow-right {font-size: 2em !important; /* Increase icon size */}",
+        ".fa-arrow-down {font-size: 2em !important; /* Increase icon size */}",
+        "</style>"
+    ],
+    "default_image_filepath": "images/white_screen.jpg"
+}
