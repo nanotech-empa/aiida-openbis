@@ -706,7 +706,7 @@ class ExportSimulationsWidget(ipw.VBox):
                         first_atom_model = utils.find_first_atomistic_model(
                             self.openbis_session,
                             last_export,
-                            "ATOMISTIC_MODEL"
+                            OPENBIS_OBJECT_TYPES["Atomistic Model"]
                         )
                         
                         if len(first_atom_model.parents) == 0:
@@ -746,11 +746,13 @@ class ExportSimulationsWidget(ipw.VBox):
                     if utils.is_valid_json(output_parameters) == False:
                         output_parameters = ""
                     
+                    simulation_type_lower = simulation_type.lower()
+                    
                     simulation_props = {
                         "name": simulation_props_widget.name_textbox.value,
-                        "wfms_uuid": simulation_props_widget.wfms_uuid_textbox.value,
-                        "input_parameters": input_parameters,
-                        "output_parameters": output_parameters,
+                        f"{simulation_type_lower}.wfms_uuid": simulation_props_widget.wfms_uuid_textbox.value,
+                        f"{simulation_type_lower}.input_parameters": input_parameters,
+                        f"{simulation_type_lower}.output_parameters": output_parameters,
                         "comments": simulation_props_widget.comments_textbox.value
                     }
                     
@@ -761,27 +763,27 @@ class ExportSimulationsWidget(ipw.VBox):
                         OPENBIS_OBJECT_TYPES["Vibrational Spectroscopy"]
                     ]
                     if simulation_type in simulation_types_with_level_theory:
-                        simulation_props["level_theory_method"] = simulation_props_widget.level_theory_method_textbox.value
-                        simulation_props["level_theory_parameters"] = level_theory_params
+                        simulation_props[f"{simulation_type_lower}.level_theory_method"] = simulation_props_widget.level_theory_method_textbox.value
+                        simulation_props[f"{simulation_type_lower}.level_theory_parameters"] = level_theory_params
                         
                         if simulation_type == OPENBIS_OBJECT_TYPES["Band Structure"]:
                             band_gap = {
                                 "value": simulation_props_widget.band_gap_value_textbox.value,
                                 "unit": simulation_props_widget.band_gap_unit_textbox.value,
                             }
-                            simulation_props["band_gap"] = band_gap
+                            simulation_props[f"{simulation_type_lower}.band_gap"] = band_gap
                     
                         elif simulation_type == OPENBIS_OBJECT_TYPES["Geometry Optimisation"]:
-                            simulation_props["cell_opt_constraints"] = simulation_props_widget.cell_opt_constraints_textbox.value
-                            simulation_props["cell_optimised"] = simulation_props_widget.cell_optimised_checkbox.value
-                            simulation_props["driver_code"] = simulation_props_widget.driver_code_textbox.value
-                            simulation_props["constrained"] = simulation_props_widget.constrained_checkbox.value
+                            simulation_props[f"{simulation_type_lower}.cell_opt_constraints"] = simulation_props_widget.cell_opt_constraints_textbox.value
+                            simulation_props[f"{simulation_type_lower}.cell_optimised"] = simulation_props_widget.cell_optimised_checkbox.value
+                            simulation_props[f"{simulation_type_lower}.driver_code"] = simulation_props_widget.driver_code_textbox.value
+                            simulation_props[f"{simulation_type_lower}.constrained"] = simulation_props_widget.constrained_checkbox.value
                             
                             force_convergence_threshold = {
                                 "value": simulation_props_widget.force_convergence_threshold_value_textbox.value,
                                 "unit": simulation_props_widget.force_convergence_threshold_unit_textbox.value,
                             }
-                            simulation_props["force_convergence_threshold"] = force_convergence_threshold
+                            simulation_props[f"{simulation_type_lower}.force_convergence_threshold"] = force_convergence_threshold
                             
                     elif simulation_type == OPENBIS_OBJECT_TYPES["Unclassified Simulation"]:
                         simulation_props["description"] = simulation_props_widget.description_textbox.value
@@ -1787,9 +1789,11 @@ class AtomModelWidget(ipw.VBox):
             reacprod_concepts_accordion.children = reacprod_concepts_accordion_children
         
         def save_new_atom_model(b):
-            atom_models_objs = utils.get_openbis_objects(self.openbis_session, type = OPENBIS_OBJECT_TYPES["Atomistic Model"])
+            atom_model_type = OPENBIS_OBJECT_TYPES["Atomistic Model"]
+            atom_model_type_lower = atom_model_type.lower()
+            atom_models_objs = utils.get_openbis_objects(self.openbis_session, type = atom_model_type)
             wfms_uuid = wfms_uuid_textbox.value
-            atom_models_uuids = [obj.props["wfms_uuid"] for obj in atom_models_objs]
+            atom_models_uuids = [obj.props[f"{atom_model_type_lower}.wfms_uuid"] for obj in atom_models_objs]
             if wfms_uuid in atom_models_uuids:
                 display(Javascript(data = "alert('Atomistic model already in openBIS!')"))
             else:
@@ -1800,11 +1804,11 @@ class AtomModelWidget(ipw.VBox):
                     
                 atom_model_props = {
                     "name": name_textbox.value,
-                    "wfms_uuid": wfms_uuid,
-                    "cell": cell_json,
-                    "dimensionality": dimensionality_intbox.value,
-                    "periodic_boundary_conditions": pbc,
-                    "volume": volume_floatbox.value,
+                    f"{atom_model_type_lower}.wfms_uuid": wfms_uuid,
+                    f"{atom_model_type_lower}.cell": cell_json,
+                    f"{atom_model_type_lower}.dimensionality": dimensionality_intbox.value,
+                    f"{atom_model_type_lower}.periodic_boundary_conditions": pbc,
+                    f"{atom_model_type_lower}.volume": volume_floatbox.value,
                     "comments": comments_textbox.value
                 }
                 
@@ -1843,7 +1847,7 @@ class AtomModelWidget(ipw.VBox):
                 
                 atom_model_obj = utils.create_openbis_object(
                     self.openbis_session, 
-                    type = OPENBIS_OBJECT_TYPES["Atomistic Model"],
+                    type = atom_model_type,
                     collection = OPENBIS_COLLECTIONS_PATHS["Atomistic Model"],
                     props = atom_model_props,
                     parents = atom_model_parents
@@ -2517,7 +2521,7 @@ class CreateSampleWidget(ipw.VBox):
                             prop_type = utils.get_openbis_property_type(self.openbis_session, code = key)
                             prop_label = prop_type.label
                             prop_datatype = prop_type.dataType
-                            if prop_datatype == "SAMPLE":
+                            if prop_datatype == OPENBIS_OBJECT_TYPES["Sample"]:
                                 obj = get_cached_object(self.openbis_session, value)
                                 value = obj.props["name"]
                                 
@@ -2544,13 +2548,15 @@ class CreateSampleWidget(ipw.VBox):
             else:
                 material_object = self.material_details_vbox.children[0].children[0].value
                 sample_name = self.sample_name_textbox.value
+                sample_type = OPENBIS_OBJECT_TYPES["Sample"]
+                sample_type_lower = sample_type.lower()
                 sample_props = {
                     "name": sample_name,
-                    "exists": True
+                    f"{sample_type_lower}.exists": True
                 }
                 utils.create_openbis_object(
                     self.openbis_session,
-                    type = OPENBIS_OBJECT_TYPES["Sample"],
+                    type = sample_type,
                     collection = OPENBIS_COLLECTIONS_PATHS["Sample"],
                     props = sample_props,
                     parents = [material_object]
@@ -2714,7 +2720,6 @@ class RegisterProcessWidget(ipw.VBox):
             return
         else:
             process_object = get_cached_object(self.openbis_session, process_id)
-            
             instrument_id = process_object.props["instrument"]
             process_steps_settings = process_object.props["process_steps_settings"]
             if process_steps_settings:
@@ -2761,22 +2766,25 @@ class RegisterProcessWidget(ipw.VBox):
             for process_widget in processes_widgets:
                 # Reload sample preparation object to load children that was added in the cycle (e.g. process steps)
                 self.sample_preparation_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_preparation_id)
-                
+                sample_type = OPENBIS_OBJECT_TYPES["Sample"]
+                sample_type_lower = sample_type.lower()
                 process_code = ""
-                current_sample.props["exists"] = False
+                current_sample.props[f"{sample_type_lower}.exists"] = False
                 current_sample_name = current_sample.props["name"]
                 current_sample.save()
                 
+                process_step_type = OPENBIS_OBJECT_TYPES["Process Step"]
+                process_step_type_lower = process_step_type.lower()
                 new_process_object = utils.create_openbis_object(
                     self.openbis_session,
-                    type = OPENBIS_OBJECT_TYPES["Process Step"],
+                    type = process_step_type,
                     experiment = experiment_object.identifier
                 )
                 
                 process_properties = {
                     "name": process_widget.name_textbox.value,
                     "description": process_widget.description_textbox.value,
-                    "instrument": process_widget.instrument_dropdown.value,
+                    f"{process_step_type_lower}.instrument": process_widget.instrument_dropdown.value,
                     "comments": process_widget.comments_textarea.value,
                 }
                 
@@ -2790,6 +2798,7 @@ class RegisterProcessWidget(ipw.VBox):
                     for action_widget in actions_widgets:
                         action_properties = {}
                         action_type = action_widget.action_type_dropdown.value
+                        action_type_lower = action_type.lower()
                         duration_days = action_widget.duration_days_intbox.value
                         duration_hours = action_widget.duration_hours_intbox.value
                         duration_minutes = action_widget.duration_minutes_intbox.value
@@ -2800,15 +2809,15 @@ class RegisterProcessWidget(ipw.VBox):
                                 "value": action_widget.target_temperature_value_textbox.value,
                                 "unit": action_widget.target_temperature_unit_dropdown.value,
                             }
-                            action_properties["target_temperature"] = json.dumps(target_temperature)
+                            action_properties[f"{action_type_lower}.target_temperature"] = json.dumps(target_temperature)
 
                         elif action_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
                             target_temperature = {
                                 "value": action_widget.target_temperature_value_textbox.value,
                                 "unit": action_widget.target_temperature_unit_dropdown.value,
                             }
-                            action_properties["target_temperature"] = json.dumps(target_temperature)
-                            action_properties["cryogen"] = action_widget.cryogen_textbox.value
+                            action_properties[f"{action_type_lower}.target_temperature"] = json.dumps(target_temperature)
+                            action_properties[f"{action_type_lower}.cryogen"] = action_widget.cryogen_textbox.value
 
                         elif action_type == OPENBIS_OBJECT_TYPES["Deposition"]:
                             substrate_temperature = {
@@ -2817,9 +2826,9 @@ class RegisterProcessWidget(ipw.VBox):
                             }
                             substance = action_widget.substance_dropdown.value
                             if substance != "-1":
-                                action_properties["substance"] = substance
+                                action_properties[f"{action_type_lower}.substance"] = substance
                                 
-                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties[f"{action_type_lower}.substrate_temperature"] = json.dumps(substrate_temperature)
 
                         elif action_type == OPENBIS_OBJECT_TYPES["Dosing"]:
                             substrate_temperature = {
@@ -2831,9 +2840,9 @@ class RegisterProcessWidget(ipw.VBox):
                                 "unit": action_widget.pressure_unit_dropdown.value,
                             }
                             gas = action_widget.gas_dropdown.value
-                            action_properties["dosing_gas"] = gas
-                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
-                            action_properties["pressure"] = json.dumps(pressure)
+                            action_properties[f"{action_type_lower}.dosing_gas"] = gas
+                            action_properties[f"{action_type_lower}.substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties[f"{action_type_lower}.pressure"] = json.dumps(pressure)
 
                         elif action_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
                             pressure = {
@@ -2852,16 +2861,18 @@ class RegisterProcessWidget(ipw.VBox):
                                 "value": action_widget.substrate_temperature_value_textbox.value,
                                 "unit": action_widget.substrate_temperature_unit_dropdown.value,
                             }
-                            action_properties["pressure"] = json.dumps(pressure)
-                            action_properties["current"] = json.dumps(current)
-                            action_properties["angle"] = json.dumps(angle)
-                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
-                            action_properties["sputter_ion"] = action_widget.sputter_ion_textbox.value
+                            action_properties[f"{action_type_lower}.pressure"] = json.dumps(pressure)
+                            action_properties[f"{action_type_lower}.current"] = json.dumps(current)
+                            action_properties[f"{action_type_lower}.angle"] = json.dumps(angle)
+                            action_properties[f"{action_type_lower}.substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties[f"{action_type_lower}.ion"] = action_widget.sputter_ion_textbox.value
                         
                         component_permid = action_widget.component_dropdown.value
                         if component_permid != "-1":
                             component_object = get_cached_object(self.openbis_session, component_permid)
-                            component_object_settings = component_object.props["actions_settings"]
+                            component_type = component_object.type.code
+                            component_type_lower = component_type.lower()
+                            component_object_settings = component_object.props[f"{component_type_lower}.actions_settings"]
                             
                             if component_object_settings:
                                 component_settings = {}
@@ -2869,37 +2880,37 @@ class RegisterProcessWidget(ipw.VBox):
                                 action_component_settings = []
                                 for action_settings in component_object_settings:
                                     if action_settings["action_type"] == action_type:
-                                        action_component_settings = action_settings["component_properties"]
+                                        action_component_settings = action_settings[f"{action_type_lower}.component_properties"]
                                         break
                                     
                                 for setting in action_component_settings:
-                                    if setting == "target_temperature":
-                                        component_settings["target_temperature"] = {
+                                    if setting == f"{component_type_lower}.target_temperature":
+                                        component_settings[f"{component_type_lower}.target_temperature"] = {
                                             "value": action_widget.target_temperature_value_comp_textbox.value,
                                             "unit": action_widget.target_temperature_unit_comp_dropdown.value,
                                         }
-                                    elif setting == "bias_voltage":
-                                        component_settings["bias_voltage"] = {
+                                    elif setting == f"{component_type_lower}.bias_voltage":
+                                        component_settings[f"{component_type_lower}.bias_voltage"] = {
                                             "value": action_widget.bias_voltage_value_textbox.value,
                                             "unit": action_widget.bias_voltage_unit_dropdown.value,
                                         }
-                                    elif setting == "discharge_voltage":
-                                        component_settings["discharge_voltage"] = {
+                                    elif setting == f"{component_type_lower}.discharge_voltage":
+                                        component_settings[f"{component_type_lower}.discharge_voltage"] = {
                                             "value": action_widget.discharge_voltage_value_textbox.value,
                                             "unit": action_widget.discharge_voltage_unit_dropdown.value,
                                         }
-                                    elif setting == "discharge_current":
-                                        component_settings["discharge_current"] = {
+                                    elif setting == f"{component_type_lower}.discharge_current":
+                                        component_settings[f"{component_type_lower}.discharge_current"] = {
                                             "value": action_widget.discharge_current_value_textbox.value,
                                             "unit": action_widget.discharge_current_unit_dropdown.value,
                                         }
-                                    elif setting == "p_value":
-                                        component_settings["p_value"] = float(action_widget.evaporator_p_value_textbox.value)
+                                    elif setting == f"{component_type_lower}.p_value":
+                                        component_settings[f"{component_type_lower}.p_value"] = float(action_widget.evaporator_p_value_textbox.value)
                                         
-                                    elif setting == "i_value":
-                                        component_settings["i_value"] = float(action_widget.evaporator_i_value_textbox.value)
+                                    elif setting == f"{component_type_lower}.i_value":
+                                        component_settings[f"{component_type_lower}.i_value"] = float(action_widget.evaporator_i_value_textbox.value)
                                         
-                                    elif setting == "ep_percentage":
+                                    elif setting == f"{component_type_lower}.ep_percentage":
                                         component_settings["ep_percentage"] = float(action_widget.ep_percentage_textbox.value)
                                 
                                 # Update current component settings
@@ -2910,12 +2921,12 @@ class RegisterProcessWidget(ipw.VBox):
                                         component_object.props[setting_key] = setting_value
                                 component_object.save()
                                 
-                                action_properties["component_settings"] = json.dumps(component_settings)
+                                action_properties[f"{action_type_lower}.component_settings"] = json.dumps(component_settings)
 
                             action_properties["name"] = action_widget.name_textbox.value
                             action_properties["description"] = action_widget.description_textbox.value
-                            action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
-                            action_properties["component"] = component_permid
+                            action_properties[f"{action_type_lower}.duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
+                            action_properties[f"{action_type_lower}.component"] = component_permid
                             action_properties["comments"] = action_widget.comments_textarea.value
                             
                             action_collection_code = "ACTIONS_COLLECTION"
@@ -2951,11 +2962,14 @@ class RegisterProcessWidget(ipw.VBox):
                     for observable_widget in observables_widgets:
                         observable_properties = {}
                         observable_type = observable_widget.observable_type_dropdown.value
+                        observable_type_lower = observable_type.lower()
                         
                         component_permid = observable_widget.component_dropdown.value
                         if component_permid != "-1":
                             component_object = get_cached_object(self.openbis_session, component_permid)
-                            component_object_settings = component_object.props["observables_settings"]
+                            component_type = component_object.type.code
+                            component_type_lower = component_type.lower()
+                            component_object_settings = component_object.props[f"{component_type_lower}.observables_settings"]
                             
                             if component_object_settings:
                                 component_settings = {}
@@ -2963,23 +2977,23 @@ class RegisterProcessWidget(ipw.VBox):
                                 observable_component_settings = []
                                 for observable_settings in component_object_settings:
                                     if observable_settings["observable_type"] == observable_type:
-                                        observable_component_settings = observable_settings["component_properties"]
+                                        observable_component_settings = observable_settings[f"{observable_type_lower}.component_properties"]
                                         break
                                     
                                 for setting in observable_component_settings:
-                                    if setting == "density":
-                                        component_settings["density"] = {
+                                    if setting == f"{component_type_lower}.density":
+                                        component_settings[f"{component_type_lower}.density"] = {
                                             "value": observable_widget.density_value_textbox.value,
-                                            "density_unit": observable_widget.density_unit_dropdown.value,
+                                            "unit": observable_widget.density_unit_dropdown.value,
                                         }
                                         
-                                    elif setting == "filament":
-                                        component_settings["filament"] = observable_widget.filament_textbox.value
+                                    elif setting == f"{component_type_lower}.filament":
+                                        component_settings[f"{component_type_lower}.filament"] = observable_widget.filament_textbox.value
                                         
-                                    elif setting == "filament_current":
-                                        component_settings["filament_current"] = {
+                                    elif setting == f"{component_type_lower}.filament_current":
+                                        component_settings[f"{component_type_lower}.filament_current"] = {
                                             "value": observable_widget.filament_current_value_textbox.value,
-                                            "current_unit": observable_widget.filament_current_unit_dropdown.value,
+                                            "unit": observable_widget.filament_current_unit_dropdown.value,
                                         }
                                 
                                 # Update current component settings
@@ -2994,8 +3008,8 @@ class RegisterProcessWidget(ipw.VBox):
                         
                             observable_properties["name"] = observable_widget.name_textbox.value
                             observable_properties["description"] = observable_widget.description_textbox.value
-                            observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
-                            observable_properties["component"] = component_permid
+                            observable_properties[f"{action_type_lower}.channel_name"] = observable_widget.ch_name_textbox.value
+                            observable_properties[f"{action_type_lower}.component"] = component_permid
                             observable_properties["comments"] = observable_widget.comments_textarea.value
                             
                             observable_collection_code = "OBSERVABLES_COLLECTION"
@@ -3026,8 +3040,8 @@ class RegisterProcessWidget(ipw.VBox):
                             # Append observable to list of observables
                             observables.append(new_observable_object.permId)
                         
-                process_properties["actions"] = actions
-                process_properties["observables"] = observables
+                process_properties[f"{process_step_type_lower}.actions"] = actions
+                process_properties[f"{process_step_type_lower}.observables"] = observables
                 
                 if actions_codes:
                     # Compute process code based on the selected actions
@@ -3052,10 +3066,10 @@ class RegisterProcessWidget(ipw.VBox):
                 
                 new_sample = utils.create_openbis_object(
                     self.openbis_session,
-                    type = OPENBIS_OBJECT_TYPES["Sample"],
+                    type = sample_type,
                     experiment = OPENBIS_COLLECTIONS_PATHS["Sample"],
                     parents = [new_process_object],
-                    props = {"name": new_sample_name, "exists": True}
+                    props = {"name": new_sample_name, f"{sample_type_lower}.exists": True}
                 )
                 
                 # After a process step, the current sample is now the new one
