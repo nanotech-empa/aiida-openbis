@@ -1259,6 +1259,8 @@ class Draft(OpenBISObject):
         return "Draft"
 
 class AiidaNode(OpenBISObject):
+    wfms_uuid: str = Field(default=None, title="WFMS UUID", description="Workflow management system UUID", metadata={"type": "VARCHAR"})
+    
     @classmethod
     def get_code(cls) -> str:
         return "ADND"

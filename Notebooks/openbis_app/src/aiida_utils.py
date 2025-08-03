@@ -435,8 +435,12 @@ def is_structure_optimized(structure_uuid):
         return geo_opt,cell_opt,cell_free
 
 def get_uuids_from_oBIS(openbis_session):
-    aiida_nodes_oBIS = utils.get_openbis_objects(openbis_session, type = "AIIDA_NODE")
-    atom_mods_oBIS = utils.get_openbis_objects(openbis_session, type = "ATOMISTIC_MODEL")
+    aiida_node_type = "AIIDA_NODE"
+    aiida_node_type_lower = aiida_node_type.lower()
+    atom_model_type = "ATOMISTIC_MODEL"
+    atom_model_type_lower = atom_model_type.lower()
+    aiida_nodes_oBIS = utils.get_openbis_objects(openbis_session, type = aiida_node_type)
+    atom_mods_oBIS = utils.get_openbis_objects(openbis_session, type = atom_model_type)
     
     simulation_uuids_oBIS = {
         'wc_uuids': [],
@@ -444,10 +448,10 @@ def get_uuids_from_oBIS(openbis_session):
     }
     
     if aiida_nodes_oBIS:
-        simulation_uuids_oBIS['wc_uuids'] = [obj.props["wfms_uuid"] for obj in aiida_nodes_oBIS]
+        simulation_uuids_oBIS['wc_uuids'] = [obj.props[f"{aiida_node_type_lower}.wfms_uuid"] for obj in aiida_nodes_oBIS]
     
     if atom_mods_oBIS:
-        simulation_uuids_oBIS['structure_uuids'] = [obj.props["wfms_uuid"] for obj in atom_mods_oBIS]
+        simulation_uuids_oBIS['structure_uuids'] = [obj.props[f"{atom_model_type_lower}.wfms_uuid"] for obj in atom_mods_oBIS]
         
     return simulation_uuids_oBIS
 
@@ -479,11 +483,14 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     uuid = structure_uuid
     structure = orm.load_node(uuid)
     
+    atom_model_type = "ATOMISTIC_MODEL"
+    atom_model_type_lower = atom_model_type.lower()
+    
     #check if the atomistic model is already in oBIS
     if uuid in uuids:
-        atom_models_obis = utils.get_openbis_objects(openbis_session, type = "ATOMISTIC_MODEL")
+        atom_models_obis = utils.get_openbis_objects(openbis_session, type = atom_model_type)
         for atom_model in atom_models_obis:
-            if atom_model.props["wfms_uuid"] == uuid:
+            if atom_model.props[f"{atom_model_type_lower}.wfms_uuid"] == uuid:
                 return atom_model
     
     #check if the geometry is optimized
@@ -491,20 +498,20 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     dimensionality = guess_dimensionality(ase_geo)
     dictionary={
         "name": ase_geo.get_chemical_formula(),
-        "wfms_uuid": structure.uuid,
-        "volume": structure.get_cell_volume(),
-        "cell": json.dumps({"cell": structure.cell})
+        f"{atom_model_type_lower}.wfms_uuid": structure.uuid,
+        f"{atom_model_type_lower}.volume": structure.get_cell_volume(),
+        f"{atom_model_type_lower}.cell": json.dumps({"cell": structure.cell})
     }
     
     if dimensionality:
-        dictionary["dimensionality"] = int(dimensionality[0])
-        dictionary["periodic_boundary_conditions"] = [bool(i) for i in dimensionality[1]]
+        dictionary[f"{atom_model_type_lower}.dimensionality"] = int(dimensionality[0])
+        dictionary[f"{atom_model_type_lower}.periodic_boundary_conditions"] = [bool(i) for i in dimensionality[1]]
         
     
     
     obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "ATOMISTIC_MODEL",
+        type = atom_model_type,
         props = dictionary,
         collection = "/MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION"
     )
@@ -548,6 +555,9 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
         "--no-create-backward", "-N", uuid
     ]
 
+    aiida_node_type = "AIIDA_NODE"
+    aiida_node_type_lower = aiida_node_type.lower()
+    
     try:
         # Execute the command
         result = subprocess.run(command, capture_output=True, text=True)
@@ -561,12 +571,12 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
             
             # Create the AiiDA_nodes object in openBIS
             object_props = {
-                'wfms_uuid': uuid,
+                f'{aiida_node_type_lower}.wfms_uuid': uuid,
                 'comments':''
             }
             obobject = utils.create_openbis_object(
                 openbis_session, 
-                type = "AIIDA_NODE",
+                type = aiida_node_type,
                 props = object_props,
                 collection = "/MATERIALS/AIIDA_NODES/AIIDA_NODE_COLLECTION"
             )
@@ -602,19 +612,22 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         }
     )
     
+    geo_opt_type = "GEOMETRY_OPTIMISATION"
+    geo_opt_type_lower = geo_opt_type.lower()
+    
     geoopt_object_parameters = {
-        'wfms_uuid': workchain_uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
-        'force_convergence_threshold': force_conv_threshold_json,
-        'constrained': False,
-        'output_parameters': json.dumps(get_qe_output_parameters(workchain.outputs.output_parameters.get_dict())),
-        'input_parameters': json.dumps(get_qe_input_parameters(workchain.outputs.output_parameters.get_dict()))
+        f'{geo_opt_type_lower}.wfms_uuid': workchain_uuid,
+        f'{geo_opt_type_lower}.level_theory_method' : "dft",
+        f'{geo_opt_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{geo_opt_type_lower}.force_convergence_threshold': force_conv_threshold_json,
+        f'{geo_opt_type_lower}.constrained': False,
+        f'{geo_opt_type_lower}.output_parameters': json.dumps(get_qe_output_parameters(workchain.outputs.output_parameters.get_dict())),
+        f'{geo_opt_type_lower}.input_parameters': json.dumps(get_qe_input_parameters(workchain.outputs.output_parameters.get_dict()))
     }
     
-    geoopt_object_parameters['cell_opt_constraints'] = pw_input_parameters.get('CELL', {}).get('cell_dofree', '')
-    if geoopt_object_parameters['cell_opt_constraints'] != '':
-        geoopt_object_parameters['cell_optimised'] = geoopt_object_parameters['cell_opt_constraints'] != ''
+    geoopt_object_parameters[f'{geo_opt_type_lower}.cell_opt_constraints'] = pw_input_parameters.get('CELL', {}).get('cell_dofree', '')
+    if geoopt_object_parameters[f'{geo_opt_type_lower}.cell_opt_constraints'] != '':
+        geoopt_object_parameters[f'{geo_opt_type_lower}.cell_optimised'] = geoopt_object_parameters[f'{geo_opt_type_lower}.cell_opt_constraints'] != ''
     
     if workchain.caller.description:
         workchain_name = workchain.caller.description[:30]
@@ -623,7 +636,7 @@ def PwRelaxWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "GEOMETRY_OPTIMISATION",
+        type = geo_opt_type,
         props = geoopt_object_parameters,
         collection = experiment_id
     )
@@ -656,15 +669,18 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     
     dft_object_parameters=get_dft_parameters_qe(root_in.bands,root_out.scf_parameters.get_dict())
     
+    bands_type = "BAND_STRUCTURE"
+    bands_type_lower = bands_type.lower()
+    
     output_parameters= get_qe_output_parameters(root_out.scf_parameters.get_dict())
     input_parameters = get_qe_input_parameters(root_out.scf_parameters.get_dict())
     dictionary = {
-        'wfms_uuid': workchain_uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
-        'output_parameters' : json.dumps(output_parameters),
-        'input_parameters' : json.dumps(input_parameters),
-        'band_gap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
+        f'{bands_type_lower}.wfms_uuid': workchain_uuid,
+        f'{bands_type_lower}.level_theory_method' : "dft",
+        f'{bands_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{bands_type_lower}.output_parameters' : json.dumps(output_parameters),
+        f'{bands_type_lower}.input_parameters' : json.dumps(input_parameters),
+        f'{bands_type_lower}.band_gap':find_bandgap(root_out.band_structure.uuid, number_electrons=output_parameters['number_of_electrons'])[1]
     }
     
     if workchain.caller.description:
@@ -674,7 +690,7 @@ def BandsWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     # Create BANDSTRUCURE object
     bands_obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "BAND_STRUCTURE",
+        type = bands_type,
         props = dictionary,
         collection = experiment_id
     )
@@ -718,12 +734,15 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
 
     dft_object_parameters=get_dft_parameters_qe(root_in.scf,root_out.nscf.output_parameters.get_dict())
     
+    pdos_type = "PDOS"
+    pdos_type_lower = pdos_type.lower()
+    
     dictionary = {
-        'wfms_uuid': workchain_uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
-        'output_parameters' : json.dumps(get_qe_output_parameters(root_out.nscf.output_parameters.get_dict())),
-        'input_parameters' : json.dumps(get_qe_input_parameters(root_out.nscf.output_parameters.get_dict()))      
+        f'{pdos_type_lower}.wfms_uuid': workchain_uuid,
+        f'{pdos_type_lower}.level_theory_method' : "dft",
+        f'{pdos_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{pdos_type_lower}.output_parameters' : json.dumps(get_qe_output_parameters(root_out.nscf.output_parameters.get_dict())),
+        f'{pdos_type_lower}.input_parameters' : json.dumps(get_qe_input_parameters(root_out.nscf.output_parameters.get_dict()))      
     }
     
     if workchain.caller.description:
@@ -733,7 +752,7 @@ def PdosWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids):
     # Create PDOS object
     pdos_obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "PDOS",
+        type = pdos_type,
         props = dictionary,
         collection = experiment_id
     )
@@ -774,11 +793,14 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
             break
     
     dft_object_parameters=get_dft_parameters_qe(root_in,root_out.output_parameters.get_dict())
-        
+    
+    vibro_spec_type = "VIBRATIONAL_SPECTROSCOPY"
+    vibro_spec_type_lower = vibro_spec_type.lower()    
+    
     dictionary = {
-        'wfms_uuid':workchain_uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{vibro_spec_type_lower}.wfms_uuid':workchain_uuid,
+        f'{vibro_spec_type_lower}.level_theory_method' : "dft",
+        f'{vibro_spec_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
     }
     
     if workchain.caller.description:
@@ -788,7 +810,7 @@ def VibroWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuids)
     # Create VIBSPEC object
     vibro_spec_obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "VIBRATIONAL_SPECTROSCOPY",
+        type = vibro_spec_type,
         props = dictionary,
         collection = experiment_id
     )
@@ -847,18 +869,21 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     if dft_object_parameters['vdw_corr']:
         dft_object_parameters['vdw_corr'] = "DFT-D3"
     
+    geo_opt_type = "GEOMETRY_OPTIMISATION"
+    geo_opt_type_lower = geo_opt_type.lower()
+    
     geoopt_object_parameters = {
-        'wfms_uuid': workchain_uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
-        'constrained': sys_params['constraints'] != "",
-        'output_parameters': json.dumps(output_parameters),
-        'input_parameters': json.dumps(input_parameters)
+        f'{geo_opt_type_lower}.wfms_uuid': workchain_uuid,
+        f'{geo_opt_type_lower}.level_theory_method' : "dft",
+        f'{geo_opt_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{geo_opt_type_lower}.constrained': sys_params['constraints'] != "",
+        f'{geo_opt_type_lower}.output_parameters': json.dumps(output_parameters),
+        f'{geo_opt_type_lower}.input_parameters': json.dumps(input_parameters)
     }
     
-    geoopt_object_parameters['cell_optimised'] = workchain.label == 'CP2K_CellOpt'
-    if geoopt_object_parameters['cell_optimised']:
-        geoopt_object_parameters['cell_opt_constraints'] = sys_params['cell_opt_constraint']
+    geoopt_object_parameters[f'{geo_opt_type_lower}.cell_optimised'] = workchain.label == 'CP2K_CellOpt'
+    if geoopt_object_parameters[f'{geo_opt_type_lower}.cell_optimised']:
+        geoopt_object_parameters[f'{geo_opt_type_lower}.cell_opt_constraints'] = sys_params['cell_opt_constraint']
     
     if workchain.description:
         workchain_name = workchain.description[:30]
@@ -867,7 +892,7 @@ def Cp2kGeoOptWorkChain_export(openbis_session, experiment_id, workchain_uuid, u
     # create oBIS GEO_OPT object
     geoopt_obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "GEOMETRY_OPTIMISATION",
+        type = geo_opt_type,
         props = geoopt_object_parameters,
         collection = experiment_id
     )
@@ -915,20 +940,23 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     if dft_object_parameters['vdw_corr']:
         dft_object_parameters['vdw_corr'] = "DFT-D3"
     
-    bias_voltages_json = [json.dumps({"has_value": float(i), "has_unit": "unit:V"}) for i in spm_params['--energy_range']]
-    isovalues_json = [json.dumps({"has_value": float(i), "has_unit": "eV/Bohr**3"}) for i in spm_params['--isovalues']]
-    heights_json = [json.dumps({"has_value": float(i), "has_unit": "unit:ANGSTROM"}) for i in spm_params['--heights']]
+    bias_voltages_json = [json.dumps({"value": float(i), "unit": "unit:V"}) for i in spm_params['--energy_range']]
+    isovalues_json = [json.dumps({"value": float(i), "unit": "eV/Bohr**3"}) for i in spm_params['--isovalues']]
+    heights_json = [json.dumps({"value": float(i), "unit": "unit:ANGSTROM"}) for i in spm_params['--heights']]
         
+    measurement_type = "MEASUREMENT_SESSION"
+    measurement_type_lower = measurement_type.lower()
+    
     dictionary = {
-        'wfms_uuid': workchain.uuid,
-        "level_theory_method" : "dft",
-        'level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
-        'bias_voltages': bias_voltages_json,
-        'isovalues': isovalues_json,
-        'heights': heights_json,
-        'p_tip': spm_params['--p_tip_ratios'],
-        'output_parameters': json.dumps(output_parameters),
-        'input_parameters': json.dumps(input_parameters),
+        f'{measurement_type_lower}.wfms_uuid': workchain.uuid,
+        f'{measurement_type_lower}.level_theory_method' : "dft",
+        f'{measurement_type_lower}.level_theory_parameters': json.dumps(dft_object_parameters), #link/incorporate DFT object
+        f'{measurement_type_lower}.bias_voltages': bias_voltages_json,
+        f'{measurement_type_lower}.isovalues': isovalues_json,
+        f'{measurement_type_lower}.heights': heights_json,
+        f'{measurement_type_lower}.p_tip': spm_params['--p_tip_ratios'],
+        f'{measurement_type_lower}.output_parameters': json.dumps(output_parameters),
+        f'{measurement_type_lower}.input_parameters': json.dumps(input_parameters),
     }
     
     if workchain.description:
@@ -939,7 +967,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     # create oBIS 2D_MEASUREMENT object (how to knwo if it is 2D or 1D???)
     obobject = utils.create_openbis_object(
         openbis_session, 
-        type = "MEASUREMENT_SESSION",
+        type = measurement_type,
         props = dictionary,
         collection = experiment_id
     )
@@ -957,17 +985,19 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     return obobject
 
 def set_parent_codes(openbis_session, obis_object, workchain_uuid):
-    openbis_codes_filepaths = {code_object.props['filepath_executable']: code_object for code_object in utils.get_openbis_objects(openbis_session, type = "CODE")}
+    code_type = "CODE"
+    code_type_lower = code_type.lower()
+    openbis_codes_filepaths = {code_object.props[f'{code_type_lower}.filepath_executable']: code_object for code_object in utils.get_openbis_objects(openbis_session, type = code_type)}
     workchain_codes = get_codes_info(workchain_uuid)
     
     for code_info in workchain_codes:
-        code_filepath = code_info["filepath_executable"]
+        code_filepath = code_info[f"{code_type_lower}.filepath_executable"]
         if code_filepath in openbis_codes_filepaths.keys():
             code_object = openbis_codes_filepaths[code_filepath]
         else:
             code_object = utils.create_openbis_object(
                 openbis_session, 
-                type = "CODE",
+                type = code_type,
                 props = code_info,
                 collection = "/SOFTWARE/COMPUTATIONAL_SIMULATIONS/OPEN_SOURCE_SOFTWARE_COLLECTION"
             )
@@ -977,6 +1007,8 @@ def set_parent_codes(openbis_session, obis_object, workchain_uuid):
     return obis_object
 
 def get_codes_info(workchain_uuid):
+    code_type = "CODE"
+    code_type_lower = code_type.lower()
     codesinfo_list = []
     workchain = orm.load_node(workchain_uuid)
     codes = set([node.inputs.code for node in workchain.called_descendants if isinstance(node, orm.CalcJobNode)])
@@ -984,7 +1016,7 @@ def get_codes_info(workchain_uuid):
         codesinfo = {
             "name": code.filepath_executable.name, 
             "description": code.description,
-            "filepath_executable": code.filepath_executable.as_posix()
+            f"{code_type_lower}.filepath_executable": code.filepath_executable.as_posix()
         }
         codesinfo_list.append(codesinfo)
     return codesinfo_list
