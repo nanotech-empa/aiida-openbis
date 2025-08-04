@@ -33,7 +33,32 @@ imports:
 default_prefix: materialsML
   
 classes:
-  # ---- New object types ----
+
+  Any:
+    title: Any
+    class_uri: linkml:Any
+    annotations:
+      openbis_object: false
+      openbis_CODE: Not used
+      openbis_label: Not used
+  
+  Thing:
+    title: Thing
+    class_uri: schema:Thing
+    slots:
+      - name
+      - perm_id
+      - type
+      - description
+      - comments
+    slot_usage:
+      name:
+        required: true
+      perm_id:
+        required: true
+    annotations:
+      openbis_object: false
+  
   Analyser:
     title: Analyser
     is_a: Component
@@ -45,7 +70,99 @@ classes:
       openbis_label: Analyser
     slots:
       - density
+  
+  Action:
+    title: Action
+    is_a: Thing
+    class_uri: 
+    description: Action
+    annotations:
+      openbis_object: true
+      openbis_code: ACTN
+      openbis_label: Action
+      is_action: true
+    slots:
+    - duration
+    - component
+    - component_settings
 
+  AiidaNode:
+    title: AiiDA Node
+    is_a: Thing
+    class_uri: 
+    description: AiiDA Node
+    annotations:
+      openbis_object: true
+      openbis_code: ADND
+      openbis_label: AiiDA Node
+    slots:
+     - wfms_uuid
+
+  Analysis:
+    title: Analysis
+    is_a: Thing
+    class_uri: 
+    description: Analysis
+    annotations:
+      openbis_object: true
+      openbis_code: ANLS
+      openbis_label: Analysis
+    slots:
+     - codes
+     - measurements
+     - software
+
+  Annealing:
+    title: Annealing
+    is_a: Action
+    class_uri: chmo:CHMO_0001465
+    description: Annealing
+    annotations:
+      openbis_object: true
+      openbis_code: HEAT
+      openbis_label: Annealing
+    slots:
+     - target_temperature
+
+  AtomisticModel:
+    title: Atomistic Model
+    is_a: Simulation
+    class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
+    description: Atomistic Model
+    annotations:
+      openbis_object: true
+      openbis_code: ATMO
+      openbis_label: Atomistic Model
+    slots:
+    #  - atoms_positions (Dataset)
+    #  - atomistic_model_structure
+     - cell
+     - dimensionality
+     - periodic_boundary_conditions
+     - volume
+     - crystal_concepts
+     - geometry_optimisation
+     - molecules
+     - reaction_product_concepts
+
+  BandStructure:
+    title: Band Structure
+    is_a: Simulation
+    class_uri: 
+    description: Band Structure
+    annotations:
+      openbis_object: true
+      openbis_code: BAND
+      openbis_label: Band Structure
+    slots:
+     - band_gap
+     - level_theory_method
+     - level_theory_parameters
+     - input_parameters
+     - output_parameters
+     - atomistic_models
+     - codes
+    
   Chamber:
     title: Chamber
     is_a: Component
@@ -56,7 +173,80 @@ classes:
       openbis_code: CHBR
       openbis_label: Chamber
     slots:
+
+  Code:
+    title: Code
+    is_a: Thing
+    class_uri: 
+    description: Code
+    annotations:
+      openbis_object: true
+      openbis_code: CODE
+      openbis_label: Code
+    slots:
+     - version
+     - filepath_executable
+     - repository_url
   
+  Coating:
+    title: Coating
+    is_a: Action
+    class_uri: 
+    description: Coating
+    annotations:
+      openbis_object: true
+      openbis_code: COAT
+      openbis_label: Coating
+    slots:
+  
+  Component:
+    title: Component
+    is_a: Thing
+    class_uri:
+    description: Component
+    annotations:
+      openbis_object: true
+      openbis_code: COMP
+      openbis_label: Component
+    slots:
+     # General info
+    #  - thumbnail (Dataset)
+     - component_main_category
+     - component_sub_category
+     - manufacturer
+     - model
+     - serial_number
+     - empa_id
+     - location
+     - object_status
+     - receive_date
+     # Documentation
+    #  - photos
+    #  - manuals
+    #  - technical_specifications
+    #  - procurement_information
+    #  - other_attachments
+     # Properties
+     - actions_settings
+     - observables_settings
+     # Components
+     # Materials
+     # Accessories
+     # Logbook
+
+  Cooldown:
+    title: Cooldown
+    is_a: Thing
+    class_uri: 
+    description: Cooldown
+    annotations:
+      openbis_object: true
+      openbis_code: COOL
+      openbis_label: Cooldown
+    slots:
+     - target_temperature
+     - cryogen
+
   Cryostat:
     title: Cryostat
     is_a: Component
@@ -67,7 +257,56 @@ classes:
       openbis_code: CRYO
       openbis_label: Cryostat
     slots:
+  
+  CrystalConcept:
+    title: Crystal Concept
+    is_a: Thing
+    class_uri:
+    description: Crystal Concept
+    annotations:
+      openbis_object: true
+      openbis_code: CRCO
+      openbis_label: Crystal Concept
+    slots:
+     # General info
+     - face
+     - material
+     - crystal_lattice_parameters
+     - crystal_space_group
+     # Documentation
+     # - xyz_files
 
+  Crystal:
+    title: Crystal
+    is_a: Thing
+    class_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
+    description: Crystal
+    annotations:
+      openbis_object: true
+      openbis_code: CRRE
+      openbis_label: Crystal
+    slots:
+     # General info
+    #  - thumbnail (Dataset)
+     - crystal_concept
+     - dimensions
+     - reference_number
+     # Documentation
+    #  - supplier_specifications
+    #  - measurement_reports
+     # Storage location/conditions
+     - location
+     - special_storage_conditions
+     - package_opening_date
+     - sample_plate
+     - object_status
+     # Supplier Info
+     - supplier
+     - synthesised_by
+     - supplier_own_name
+    #  - procurement_information (Dataset)
+     - receive_date
+  
   CurrentObservable:
     title: Current Observable
     is_a: Observable
@@ -78,6 +317,102 @@ classes:
       openbis_code: CURR
       openbis_label: Current Observable
     slots:
+
+  Delamination:
+    title: Delamination
+    is_a: Action
+    class_uri: 
+    description: Delamination
+    annotations:
+      openbis_object: true
+      openbis_code: DELA
+      openbis_label: Delamination
+      is_action: true
+    slots:
+
+  Deposition:
+    title: Deposition
+    is_a: Action
+    class_uri: chmo:CHMO_0001310
+    description: Deposition
+    annotations:
+      openbis_object: true
+      openbis_code: DEPO
+      openbis_label: Deposition
+    slots:
+     - substrate_temperature
+     - substance
+  
+  DeviceSubstrate:
+    title: Device Substrate
+    is_a: Thing
+    class_uri: 
+    description: Device Substrate
+    annotations:
+      openbis_object: true
+      openbis_code: DVSB
+      openbis_label: Device Substrate
+    slots:
+      # General info
+      # - thumbnail (Dataset)
+      # Documentation
+      # - supplier_specifications (Dataset)
+      # - measurement_reports (Dataset)
+      # Storage location/conditions
+      - location
+      - special_storage_conditions
+      # - package_opening_date
+      - sample_plate
+      - object_status
+      # Supplier Info
+      - supplier
+      - synthesised_by
+      - supplier_own_name
+      #  - procurement_information (Dataset)
+      - receive_date
+
+  Dosing:
+    title: Dosing
+    is_a: Action
+    class_uri: chmo:CHMO_0001383
+    description: Dosing
+    annotations:
+      openbis_object: true
+      openbis_code: GASD
+      openbis_label: Dosing
+      is_action: true
+    slots:
+     - dosing_gas
+     - pressure
+     - substrate_temperature
+
+  Draft:
+    title: Draft
+    is_a: Thing
+    class_uri: ncit:NCIT_C85255
+    description: Publication draft/Manuscript
+    annotations:
+      openbis_object: true
+      openbis_code: DRFT
+      openbis_label: Draft
+    slots:
+     - draft_type
+     - results
+
+  # Errors:
+  #   title: Errors
+  #   is_a: Thing
+  #   class_uri: ncit:NCIT_C43369
+  #   description: Errors and problems
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: ERR
+  #     openbis_label: Errors
+  #   slots:
+  #    - description
+  #    # ---- Object properties ----
+  #    - component
+  #    - instrument
 
   Electronics:
     title: Electronics
@@ -100,7 +435,18 @@ classes:
       openbis_code: ELEM
       openbis_label: Elemental Composition Observable
     slots:
-
+  
+  Etching:
+    title: Etching
+    is_a: Action
+    class_uri: 
+    description: Etching
+    annotations:
+      openbis_object: true
+      openbis_code: ETCH
+      openbis_label: Etching
+    slots:
+  
   Evaporator:
     title: Evaporator
     is_a: Component
@@ -128,7 +474,48 @@ classes:
       - evaporator_p_value
       - evaporator_i_value
       - ep_percentage
-  
+
+  FieldEmission:
+    title: Field Emission
+    is_a: Action
+    class_uri: 
+    description: Field emission
+    annotations:
+      openbis_object: true
+      openbis_code: FIEM
+      openbis_label: Field emission
+    slots:
+
+  # FillCryostat:
+  #   title: Fill Cryostat
+  #   is_a: Thing
+  #   class_uri: 
+  #   description: Fill the cryostat
+  #   annotations:
+  #     openbis_object: true
+  #     openbis_code: FILLCRYS
+  #     openbis_label: Fill Cryostat
+  #   slots:
+  #    - dewar
+  #    - weight_after
+  #    - weight_before
+  #    - comments
+  #    # ---- Object properties ----
+  #    - chemical
+  #    - component
+  #    - instrument
+
+  Fishing:
+    title: Fishing
+    is_a: Action
+    class_uri: 
+    description: Fishing
+    annotations:
+      openbis_object: true
+      openbis_code: FISH
+      openbis_label: Fishing
+    slots:
+
   FluxObservable:
     title: Flux Observable
     is_a: Observable
@@ -150,6 +537,45 @@ classes:
       openbis_code: FORC
       openbis_label: Force Observable
     slots:
+
+  GeometryOptimisation:
+    title: Geometry Optimisation
+    is_a: Simulation
+    class_uri: 
+    description: Geometry optimisation
+    annotations:
+      openbis_object: true
+      openbis_code: GEOP
+      openbis_label: Geometry Optimisation
+    slots:
+     - cell_opt_constraints
+     - cell_optimised
+     - driver_code
+     - constrained
+     - force_convergence_threshold
+     - level_theory_method
+     - level_theory_parameters
+     - input_parameters
+     - output_parameters
+     - atomistic_models
+     - codes
+
+  Grant:
+    title: Grant
+    is_a: Thing
+    class_uri: schema:Grant
+    description: Grant
+    annotations:
+      openbis_object: true
+      openbis_code: GRNT
+      openbis_label: Grant
+    slots:
+     - project_id
+     - acknowledgement_sentence
+     - budget
+     - start_date
+     - end_date
+     - funder_name
   
   InductanceObservable:
     title: Inductance Observable
@@ -162,29 +588,24 @@ classes:
       openbis_label: Inductance Observable
     slots:
 
-  IonGauge:
-    title: Ion Gauge
-    is_a: Component
-    class_uri:
-    description: Ion Gauge
+  Instrument:
+    title: Instrument
+    is_a: Thing
+    class_uri: ncit:NCIT_C16742
+    description: Instrument
     annotations:
       openbis_object: true
-      openbis_code: IONG
-      openbis_label: Ion Gauge
+      openbis_code: ISTR
+      openbis_label: Instrument
     slots:
-      - filament
-      - filament_current
-
-  IonPump:
-    title: Ion Pump
-    is_a: Component
-    class_uri:
-    description: Ion Pump
-    annotations:
-      openbis_object: true
-      openbis_code: IONP
-      openbis_label: Ion Pump
-    slots:
+     - manufacturer
+     - model
+     - serial_number
+     - empa_id
+     - receive_date
+     - location
+     - object_status
+     - responsibles
   
   InstrumentSTM:
     title: Instrument-STM
@@ -215,7 +636,7 @@ classes:
       # Consumables
       - consumables
       # Materials
-      - molecules
+      - substances
       - single_crystals
       - wafer_samples
       # Accessories
@@ -223,700 +644,30 @@ classes:
       - accessories
       # Logbook
       - logbook_entries
-  
-  PBNStage:
-    title: PBN Stage
+
+  IonGauge:
+    title: Ion Gauge
     is_a: Component
     class_uri:
-    description: PBN Stage
+    description: Ion Gauge
     annotations:
       openbis_object: true
-      openbis_code: PBNS
-      openbis_label: PBN Stage
+      openbis_code: IONG
+      openbis_label: Ion Gauge
     slots:
-      - target_temperature
+      - filament
+      - filament_current
   
-  PHValueObservable:
-    title: pH Value Observable
-    is_a: Observable
-    class_uri:
-    description: pH Value Observable
-    annotations:
-      openbis_object: true
-      openbis_code: PHVA
-      openbis_label: pH Value Observable
-    slots:
-  
-  PressureObservable:
-    title: Pressure Observable
-    is_a: Observable
-    class_uri:
-    description: Pressure Observable
-    annotations:
-      openbis_object: true
-      openbis_code: PRES
-      openbis_label: Pressure Observable
-    slots:
-  
-  ResistanceObservable:
-    title: Resistance Observable
-    is_a: Observable
-    class_uri:
-    description: Resistance Observable
-    annotations:
-      openbis_object: true
-      openbis_code: RESI
-      openbis_label: Resistance Observable
-    slots:
-  
-  ScrollPump:
-    title: Scroll Pump
+  IonPump:
+    title: Ion Pump
     is_a: Component
     class_uri:
-    description: Scroll Pump
+    description: Ion Pump
     annotations:
       openbis_object: true
-      openbis_code: SCLP
-      openbis_label: Scroll Pump
+      openbis_code: IONP
+      openbis_label: Ion Pump
     slots:
-  
-  SpeedObservable:
-    title: Speed Observable
-    is_a: Observable
-    class_uri:
-    description: Speed Observable
-    annotations:
-      openbis_object: true
-      openbis_code: SPED
-      openbis_label: Speed Observable
-    slots:
-
-  SputterGun:
-    title: Sputter Gun
-    is_a: Component
-    class_uri:
-    description: Sputter Gun
-    annotations:
-      openbis_object: true
-      openbis_code: SPTG
-      openbis_label: Sputter Gun
-    slots:
-      - bias_voltage
-      - discharge_voltage
-      - discharge_current
-  
-  STM_AFMTip:
-    title: STM AFM Tip
-    is_a: Component
-    class_uri:
-    description: STM AFM Tip
-    annotations:
-      openbis_object: true
-      openbis_code: SATP
-      openbis_label: STM AFM Tip
-    slots:
-
-  TemperatureObservable:
-    title: Temperature Observable
-    is_a: Observable
-    class_uri:
-    description: Temperature Observable
-    annotations:
-      openbis_object: true
-      openbis_code: TEMP
-      openbis_label: Temperature Observable
-    slots:
-  
-  Thyracont:
-    title: Thyracont
-    is_a: Component
-    class_uri:
-    description: Thyracont
-    annotations:
-      openbis_object: true
-      openbis_code: THYR
-      openbis_label: Thyracont
-    slots:
-  
-  TurboPump:
-    title: Turbo Pump
-    is_a: Component
-    class_uri:
-    description: Turbo Pump
-    annotations:
-      openbis_object: true
-      openbis_code: TRBP
-      openbis_label: Turbo Pump
-    slots:
-  
-  Valve:
-    title: Valve
-    is_a: Component
-    class_uri:
-    description: Valve
-    annotations:
-      openbis_object: true
-      openbis_code: VALV
-      openbis_label: Valve
-    slots:
-  
-  VoltageObservable:
-    title: Voltage Observable
-    is_a: Observable
-    class_uri:
-    description: Voltage Observable
-    annotations:
-      openbis_object: true
-      openbis_code: VOLT
-      openbis_label: Voltage Observable
-    slots:
-  
-  # -------------------
-
-  Any:
-    title: Any
-    class_uri: linkml:Any
-    annotations:
-      openbis_object: false
-      openbis_CODE: Not used
-      openbis_label: Not used
-
-  Thing:
-    title: Thing
-    class_uri: schema:Thing
-    slots:
-      - name
-      - perm_id
-      - type
-    slot_usage:
-      name:
-        required: true
-      perm_id:
-        required: true
-    annotations:
-      openbis_object: false
-  
-  Action:
-    title: Action
-    is_a: Thing
-    class_uri: 
-    description: Action
-    annotations:
-      openbis_object: true
-      openbis_code: ACTN
-      openbis_label: Action
-      is_action: true
-    slots:
-    - description
-    - duration
-    - component
-    - component_settings
-    - comments
-    - sample
-
-  AiidaNode:
-    title: AiiDA Node
-    is_a: Simulation
-    class_uri: 
-    description: AiiDA Node
-    annotations:
-      openbis_object: true
-      openbis_code: ADND
-      openbis_label: AiiDA Node
-    slots:
-     - description
-     - comments
-
-  Analysis:
-    title: Analysis
-    is_a: Thing
-    class_uri: 
-    description: Analysis
-    annotations:
-      openbis_object: true
-      openbis_code: ANLS
-      openbis_label: Analysis
-    slots:
-     - description
-     - comments
-     # ---- Object properties ----
-     - codes
-     - measurements
-     - softwares
-
-  Annealing:
-    title: Annealing
-    is_a: Thing
-    class_uri: chmo:CHMO_0001465
-    description: Annealing
-    annotations:
-      openbis_object: true
-      openbis_code: HEAT
-      openbis_label: Annealing
-      is_action: true
-    slots:
-     - description
-     - duration
-     - target_temperature
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  AtomisticModel:
-    title: Atomistic Model
-    is_a: Simulation
-    class_uri: emmo:EMMO_84cadc45_6758_46f2_ba2a_5ead65c70213
-    description: Atomistic Model
-    annotations:
-      openbis_object: true
-      openbis_code: ATMO
-      openbis_label: Atomistic Model
-    slots:
-    #  - atoms_positions (Dataset)
-    #  - atomistic_model_structure
-     - cell
-     - dimensionality
-     - periodic_boundary_conditions
-     - volume
-     - comments
-     # ---- Object properties ----
-     - crystal_concept_parent
-     - geoopts
-     - molecules_parent
-     - reaction_product_concepts_parent
-
-  BandStructure:
-    title: Band Structure
-    is_a: Simulation
-    class_uri: 
-    description: Band Structure
-    annotations:
-      openbis_object: true
-      openbis_code: BAND
-      openbis_label: Band Structure
-    slots:
-     - band_gap
-     - level_theory_method
-     - level_theory_parameters
-     - input_parameters
-     - output_parameters
-     - comments
-     # ---- Object properties ----
-     - atomistic_models
-     - codes
-
-  Code:
-    title: Code
-    is_a: Thing
-    class_uri: 
-    description: Code
-    annotations:
-      openbis_object: true
-      openbis_code: CODE
-      openbis_label: Code
-    slots:
-     - description
-     - version
-     - filepath_executable
-     - repository_url
-     - comments
-  
-  Coating:
-    title: Coating
-    is_a: Thing
-    class_uri: 
-    description: Coating
-    annotations:
-      openbis_object: true
-      openbis_code: COAT
-      openbis_label: Coating
-      is_action: true
-    slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-  
-  Component:
-    title: Component
-    is_a: Thing
-    class_uri:
-    description: Component
-    annotations:
-      openbis_object: true
-      openbis_code: COMP
-      openbis_label: Component
-    slots:
-     # General info
-    #  - thumbnail (Dataset)
-     - description
-     - component_main_category
-     - component_sub_category
-     - manufacturer
-     - model
-     - serial_number
-     - empa_id
-     - receive_date
-     - location
-     - object_status
-     - comments
-     # Documentation
-    #  - photos
-    #  - manuals
-    #  - technical_specifications
-    #  - procurement_information
-    #  - other_attachments
-     # Properties
-     - actions_settings
-     - observables_settings
-     # Components
-     # Materials
-     # Accessories
-     # Logbook
-
-  Cooldown:
-    title: Cooldown
-    is_a: Thing
-    class_uri: 
-    description: Cooldown
-    annotations:
-      openbis_object: true
-      openbis_code: COOL
-      openbis_label: Cooldown
-      is_action: true
-    slots:
-     - description
-     - duration
-     - target_temperature
-     - cryogen
-     - component
-     - component_settings
-     - comments
-     - sample
-  
-  CrystalConcept:
-    title: Crystal Concept
-    is_a: Thing
-    class_uri:
-    description: Crystal Concept
-    annotations:
-      openbis_object: true
-      openbis_code: CRCO
-      openbis_label: Crystal Concept
-    slots:
-     # General info
-     - face
-     - material
-     - crystal_lattice_parameters
-     - crystal_space_group
-     - comments
-     # Documentation
-     # - xyz_files
-
-  Crystal:
-    title: Crystal
-    is_a: Thing
-    class_uri: emmo:EMMO_0bb3b434_73aa_428f_b4e8_2a2468648e19
-    description: Crystal
-    annotations:
-      openbis_object: true
-      openbis_code: CRRE
-      openbis_label: Crystal
-    slots:
-     # General info
-    #  - thumbnail (Dataset)
-     - crystal_concept
-     - dimensions
-     - reference_number
-     - comments
-     # Documentation
-    #  - supplier_specifications
-    #  - measurement_reports
-     # Storage location/conditions
-     - location
-     - special_storage_conditions
-     - package_opening_date
-     - sample_plate
-     - object_status
-     # Supplier Info
-     - supplier
-     - synthesised_by
-     - supplier_own_name
-    #  - procurement_information (Dataset)
-     - receive_date
-
-  Delamination:
-    title: Delamination
-    is_a: Thing
-    class_uri: 
-    description: Delamination
-    annotations:
-      openbis_object: true
-      openbis_code: DELA
-      openbis_label: Delamination
-      is_action: true
-    slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  Deposition:
-    title: Deposition
-    is_a: Thing
-    class_uri: chmo:CHMO_0001310
-    description: Deposition
-    annotations:
-      openbis_object: true
-      openbis_code: DEPO
-      openbis_label: Deposition
-      is_action: true
-    slots:
-     - description
-     - duration
-     - substrate_temperature
-     - component
-     - component_settings
-     - comments
-     - substance
-     - sample
-  
-  DeviceSubstrate:
-    title: Device Substrate
-    is_a: Thing
-    class_uri: 
-    description: Device Substrate
-    annotations:
-      openbis_object: true
-      openbis_code: DVSB
-      openbis_label: Device Substrate
-    slots:
-      # General info
-      # - thumbnail (Dataset)
-      - comments
-      # Documentation
-      # - supplier_specifications (Dataset)
-      # - measurement_reports (Dataset)
-      # Storage location/conditions
-      - location
-      - special_storage_conditions
-      # - package_opening_date
-      - sample_plate
-      - object_status
-      # Supplier Info
-      - supplier
-      - synthesised_by
-      - supplier_own_name
-      #  - procurement_information (Dataset)
-      - receive_date
-
-
-  Dosing:
-    title: Dosing
-    is_a: Thing
-    class_uri: chmo:CHMO_0001383
-    description: Dosing
-    annotations:
-      openbis_object: true
-      openbis_code: GASD
-      openbis_label: Dosing
-      is_action: true
-    slots:
-     - description
-     - duration
-     - dosing_gas
-     - pressure
-     - substrate_temperature
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  Draft:
-    title: Draft
-    is_a: Thing
-    class_uri: ncit:NCIT_C85255
-    description: Publication draft/Manuscript
-    annotations:
-      openbis_object: true
-      openbis_code: DRFT
-      openbis_label: Draft
-    slots:
-     - draft_type
-     - comments
-     # ---- Object properties ----
-     - results
-
-  # Errors:
-  #   title: Errors
-  #   is_a: Thing
-  #   class_uri: ncit:NCIT_C43369
-  #   description: Errors and problems
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: ERR
-  #     openbis_label: Errors
-  #   slots:
-  #    - description
-  #    # ---- Object properties ----
-  #    - component
-  #    - instrument
-  
-  Etching:
-    title: Etching
-    is_a: Thing
-    class_uri: 
-    description: Etching
-    annotations:
-      openbis_object: true
-      openbis_code: ETCH
-      openbis_label: Etching
-      is_action: true
-    slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  FieldEmission:
-    title: Field Emission
-    is_a: Thing
-    class_uri: 
-    description: Field emission
-    annotations:
-      openbis_object: true
-      openbis_code: FIEM
-      openbis_label: Field emission
-      is_action: true
-    slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  # FillCryostat:
-  #   title: Fill Cryostat
-  #   is_a: Thing
-  #   class_uri: 
-  #   description: Fill the cryostat
-  #   annotations:
-  #     openbis_object: true
-  #     openbis_code: FILLCRYS
-  #     openbis_label: Fill Cryostat
-  #   slots:
-  #    - dewar
-  #    - weight_after
-  #    - weight_before
-  #    - comments
-  #    # ---- Object properties ----
-  #    - chemical
-  #    - component
-  #    - instrument
-
-  Fishing:
-    title: Fishing
-    is_a: Thing
-    class_uri: 
-    description: Fishing
-    annotations:
-      openbis_object: true
-      openbis_code: FISH
-      openbis_label: Fishing
-      is_action: true
-    slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  GeometryOptimisation:
-    title: Geometry Optimisation
-    is_a: Simulation
-    class_uri: 
-    description: Geometry optimisation
-    annotations:
-      openbis_object: true
-      openbis_code: GEOP
-      openbis_label: Geometry Optimisation
-    slots:
-     - cell_opt_constraints
-     - cell_optimised
-     - driver_code
-     - constrained
-     - force_convergence_threshold
-     - level_theory_method
-     - level_theory_parameters
-     - input_parameters
-     - output_parameters
-     - comments
-     # ---- Object properties ----
-     - atomistic_models
-     - codes
-
-  Grant:
-    title: Grant
-    is_a: Thing
-    class_uri: schema:Grant
-    description: Grant
-    annotations:
-      openbis_object: true
-      openbis_code: GRNT
-      openbis_label: Grant
-    slots:
-     - project_id
-     - acknowledgement_sentence
-     - budget
-     - start_date
-     - end_date
-     - funder_name
-     - comments
-
-  Institution:
-    title: Institution
-    is_a: Thing
-    class_uri: schema:Organization
-    description: Institution
-    annotations:
-      openbis_object: true
-      openbis_code: INST
-      openbis_label: Institution
-    slots:
-     - address
-     - description
-     - email
-     - work_phone
-
-  Instrument:
-    title: Instrument
-    is_a: Thing
-    class_uri: ncit:NCIT_C16742
-    description: Instrument
-    annotations:
-      openbis_object: true
-      openbis_code: ISTR
-      openbis_label: Instrument
-    slots:
-     - description
-     - manufacturer
-     - model
-     - serial_number
-     - empa_id
-     - receive_date
-     - location
-     - object_status
-     - responsibles
-     - comments
 
   LightIrradiation:
     title: Light Irradiation
@@ -927,14 +678,7 @@ classes:
       openbis_object: true
       openbis_code: LITE
       openbis_label: Light Irradiation
-      is_action: true
     slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
   
   Location:
     title: Location
@@ -946,7 +690,7 @@ classes:
       openbis_code: LOCT
       openbis_label: Location
     slots:
-     - comments
+     - organisation
 
   # Maintenance:
   #   title: Maintenance
@@ -963,17 +707,6 @@ classes:
   #    # ---- Object properties ----
   #    - components
   #    - instrument
-  
-  Manufacturer:
-    title: Manufacturer
-    is_a: Institution
-    class_uri: 
-    description: Manufacturer
-    annotations:
-      openbis_object: true
-      openbis_code: MANF
-      openbis_label: Manufacturer
-    slots:
   
   MeanFieldHubbard:
     title: Mean Field Hubbard
@@ -992,11 +725,8 @@ classes:
      - down_electrons
      - number_k_points
      - on_site_hubbard_repulsion_u_value
-     - on_site_hubbard_repulsion_u_unit
      - up_densities
      - up_electrons
-     - comments
-     # ---- Object properties ----
      - atomistic_models
   
   MeasurementSession:
@@ -1011,8 +741,6 @@ classes:
     slots:
      - measurements_folder_path
      - default_object_view
-     - comments
-     # ---- Object properties ----
      - measurement_session
 
   MechanicalPressing:
@@ -1024,14 +752,7 @@ classes:
       openbis_object: true
       openbis_code: MACH
       openbis_label: Mechanical Pressing
-      is_action: true
     slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
 
   MinimumEnergyPotential:
     title: Minimum Energy Potential
@@ -1043,16 +764,12 @@ classes:
       openbis_code: MEPO
       openbis_label: Minimum Energy Potential
     slots:
-     - energies_value
-     - energies_unit
-     - energy_barrier_value
-     - energy_barrier_unit
+     - energies
+     - energy_barrier
      - geometry_constraints
      - geometry_constraints_increments
      - method_type
      - number_geometries
-     - comments
-     # ---- Object properties ----
      - atomistic_models
 
   Molecule:
@@ -1069,7 +786,6 @@ classes:
      - sum_formula
      - cas_number
      - iupac_name
-     - comments
 
   # Notes:
   #   title: Notes
@@ -1096,11 +812,9 @@ classes:
       openbis_code: OBSV
       openbis_label: Observable
     slots:
-     - description
      - channel_name
      - component
      - component_settings
-     - comments
   
   Organisation:
     title: Organisation
@@ -1113,7 +827,6 @@ classes:
       openbis_label: Organisation
     slots:
      - address
-     - description
      - email
      - work_phone
      - organisation
@@ -1149,6 +862,28 @@ classes:
   #    - measurement_session
   #    - sample
 
+  PBNStage:
+    title: PBN Stage
+    is_a: Component
+    class_uri:
+    description: PBN Stage
+    annotations:
+      openbis_object: true
+      openbis_code: PBNS
+      openbis_label: PBN Stage
+    slots:
+      - target_temperature
+  
+  PHValueObservable:
+    title: pH Value Observable
+    is_a: Observable
+    class_uri:
+    description: pH Value Observable
+    annotations:
+      openbis_object: true
+      openbis_code: PHVA
+      openbis_label: pH Value Observable
+    slots:
 
   PDOS:
     title: PDOS
@@ -1164,8 +899,6 @@ classes:
      - level_theory_parameters
      - input_parameters
      - output_parameters
-     - comments
-     # ---- Object properties ----
      - atomistic_models
      - codes
   
@@ -1184,7 +917,6 @@ classes:
      - mobile_phone
      - work_phone
      - work_status
-     # ---- Object properties ----
      - organisations
 
   PotentialEnergyCalculation:
@@ -1197,11 +929,13 @@ classes:
       openbis_code: PECA
       openbis_label: Potential Energy Calculation
     slots:
-     - energy_value
-     - energy_unit
+     - energy
      - level_theory_method
      - level_theory_parameters
-     - comments
+     - input_parameters
+     - output_parameters
+     - atomistic_models
+     - codes
 
   Preparation:
     title: Preparation
@@ -1213,9 +947,18 @@ classes:
       openbis_code: PREP
       openbis_label: Preparation
     slots:
-     - description
      - process_steps
-     - comments
+  
+  PressureObservable:
+    title: Pressure Observable
+    is_a: Observable
+    class_uri:
+    description: Pressure Observable
+    annotations:
+      openbis_object: true
+      openbis_code: PRES
+      openbis_label: Pressure Observable
+    slots:
   
   Process:
     title: Process
@@ -1242,28 +985,11 @@ classes:
       openbis_code: PRST
       openbis_label: Process Step
     slots:
-     - description
+     - short_name
      - actions
      - observables
      - instrument
-     - comments
-
-  Protocol:
-    title: Protocol
-    is_a: Thing
-    class_uri: obi:OBI_0000272
-    description: Protocol
-    annotations:
-      openbis_object: true
-      openbis_code: PROT
-      openbis_label: Protocol
-    slots:
-     - short_name
-     - description
-     - protocol_template
-     - comments
-     # ---- Object properties ----
-     - instrument
+     - process_steps_settings
 
   Publication:
     title: Publication
@@ -1280,8 +1006,6 @@ classes:
      - url
      - dataset_url
      - year
-     - comments
-     # ---- Object properties ----
      - authors
      - drafts
      - grants
@@ -1296,10 +1020,8 @@ classes:
       openbis_code: RPRE
       openbis_label: Reaction Product
     slots:
-     - temperature
-     - yield
-     - comments
-     # ---- Object properties ----
+     - reaction_temperature
+     - reaction_yield
      - reaction_product_concept
      - sample
   
@@ -1314,30 +1036,33 @@ classes:
       openbis_label: Reaction Product Concept
     slots:
      - sum_formula
-     - comments
-     # ---- Object properties ----
      - molecules
-     - crystal_concept
+     - crystal_concepts
+  
+  ResistanceObservable:
+    title: Resistance Observable
+    is_a: Observable
+    class_uri:
+    description: Resistance Observable
+    annotations:
+      openbis_object: true
+      openbis_code: RESI
+      openbis_label: Resistance Observable
+    slots:
 
-  Results:
-    title: Results
+  Result:
+    title: Result
     is_a: Thing
     class_uri: emmo:EMMO_0f6f0120_c079_4d95_bb11_4ddee05e530e
-    description: Results
+    description: Result
     annotations:
       openbis_object: true
       openbis_code: RESL
-      openbis_label: Results
+      openbis_label: Result
     slots:
-     - description
-     - comments
-     # ---- Object properties ----
      - analysis
-     - band_structures
-     - geoopts
+     - simulations
      - measurements
-     - pdoss
-     - vibrational_spectroscopies
   
   Rinse:
     title: Rinse
@@ -1348,27 +1073,7 @@ classes:
       openbis_object: true
       openbis_code: RINS
       openbis_label: Rinse
-      is_action: true
     slots:
-     - description
-     - duration
-     - component
-     - component_settings
-     - comments
-     - sample
-
-  Room:
-    title: Room
-    is_a: Thing
-    class_uri: schema:Room
-    description: Room
-    annotations:
-      openbis_object: true
-      openbis_code: ROOM
-      openbis_label: Room
-    slots:
-     - comments
-     - organisation
 
   Sample:
     title: Sample
@@ -1385,6 +1090,17 @@ classes:
      - two_d_layer_material
      - wafer_substrate
      - process_step
+  
+  ScrollPump:
+    title: Scroll Pump
+    is_a: Component
+    class_uri:
+    description: Scroll Pump
+    annotations:
+      openbis_object: true
+      openbis_code: SCLP
+      openbis_label: Scroll Pump
+    slots:
   
   Simulation:
     title: Simulation
@@ -1408,32 +1124,59 @@ classes:
       openbis_code: SOFT
       openbis_label: Software
     slots:
-     - description
      - version
-     - comments
+  
+  SpeedObservable:
+    title: Speed Observable
+    is_a: Observable
+    class_uri:
+    description: Speed Observable
+    annotations:
+      openbis_object: true
+      openbis_code: SPED
+      openbis_label: Speed Observable
+    slots:
+  
+  SputterGun:
+    title: Sputter Gun
+    is_a: Component
+    class_uri:
+    description: Sputter Gun
+    annotations:
+      openbis_object: true
+      openbis_code: SPTG
+      openbis_label: Sputter Gun
+    slots:
+      - bias_voltage
+      - discharge_voltage
+      - discharge_current
 
   Sputtering:
     title: Sputtering
-    is_a: Thing
+    is_a: Action
     class_uri: chmo:CHMO_0001569
     description: Sputtering
     annotations:
       openbis_object: true
       openbis_code: IONB
       openbis_label: Sputtering
-      is_action: true
     slots:
-     - description
-     - duration
      - sputter_ion
      - pressure
      - current
      - angle
      - substrate_temperature
-     - component
-     - component_settings
-     - comments
-     - sample
+  
+  STM_AFM_TipSensor:
+    title: STM AFM Tip Sensor
+    is_a: Component
+    class_uri:
+    description: STM AFM Tip Sensor
+    annotations:
+      openbis_object: true
+      openbis_code: SATP
+      openbis_label: STM AFM Tip Sensor
+    slots:
   
   # SRD:
   #   title: SRD
@@ -1505,7 +1248,6 @@ classes:
      - substance_type
      - amount
      - chemist_own_name
-     - comments
      # Documentation
      # - safety_datasheet (Dataset)
      # - website (Dataset)
@@ -1524,7 +1266,7 @@ classes:
   
   Supplier:
     title: Supplier
-    is_a: Institution
+    is_a: Organisation
     class_uri:
     description: Supplier
     annotations:
@@ -1587,6 +1329,39 @@ classes:
   #    - comments
   #    # ---- Object properties ----
   #    - manufacturer
+
+  TemperatureObservable:
+    title: Temperature Observable
+    is_a: Observable
+    class_uri:
+    description: Temperature Observable
+    annotations:
+      openbis_object: true
+      openbis_code: TEMP
+      openbis_label: Temperature Observable
+    slots:
+  
+  Thyracont:
+    title: Thyracont
+    is_a: Component
+    class_uri:
+    description: Thyracont
+    annotations:
+      openbis_object: true
+      openbis_code: THYR
+      openbis_label: Thyracont
+    slots:
+  
+  TurboPump:
+    title: Turbo Pump
+    is_a: Component
+    class_uri:
+    description: Turbo Pump
+    annotations:
+      openbis_object: true
+      openbis_code: TRBP
+      openbis_label: Turbo Pump
+    slots:
   
   TwoDLayerMaterial:
     title: 2D Layer Material
@@ -1607,7 +1382,6 @@ classes:
      - two_d_layer_substrate
      - two_d_layer_growth_method
      - dimensions
-     - comments
      # Documentation
      # - supplier_specifications (Dataset)
      # - measurement_reports (Dataset)
@@ -1657,7 +1431,7 @@ classes:
 
   UnclassifiedSimulation:
     title: Unclassified simulation
-    is_a: Thing
+    is_a: Simulation
     class_uri: 
     description: Unclassified simulation
     annotations:
@@ -1665,12 +1439,21 @@ classes:
       openbis_code: UNSM
       openbis_label: Unclassified simulation
     slots:
-     - description
      - input_parameters
      - output_parameters
-     - comments
      - atomistic_models
      - codes
+  
+  Valve:
+    title: Valve
+    is_a: Component
+    class_uri:
+    description: Valve
+    annotations:
+      openbis_object: true
+      openbis_code: VALV
+      openbis_label: Valve
+    slots:
      
   VibrationalSpectroscopy:
     title: Vibrational Spectroscopy
@@ -1686,10 +1469,19 @@ classes:
      - level_theory_parameters
      - input_parameters
      - output_parameters
-     - comments
-     # ---- Object properties ----
      - atomistic_models
      - codes
+  
+  VoltageObservable:
+    title: Voltage Observable
+    is_a: Observable
+    class_uri:
+    description: Voltage Observable
+    annotations:
+      openbis_object: true
+      openbis_code: VOLT
+      openbis_label: Voltage Observable
+    slots:
 
   Wafer:
     title: Wafer
@@ -1707,7 +1499,6 @@ classes:
      - doping
      - material_coating
      - dimensions
-     - comments
      # Documentation
      # - website (Dataset)
      # - supplier_specifications (Dataset)
@@ -1738,7 +1529,6 @@ classes:
      - face
      - material_coating
      - dimensions
-     - comments
      # Documentation
      # - supplier_specifications (Dataset)
      # - measurement_reports (Dataset)

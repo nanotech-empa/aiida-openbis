@@ -3,7 +3,7 @@ from ai_agent import openbis_utils
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import List, Dict, Literal, Annotated, Optional
 from datetime import datetime
-from pydantic_schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial
+from schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial
 
 # Pydantic models for input validation
 class TimestampInterval(BaseModel):
@@ -32,13 +32,12 @@ class TimestampInterval(BaseModel):
 # Generic openBIS tools
 
 @tool("get_openbis_objects")
-def get_openbis_objects(type: str, collection_identifier: str = None):
+def get_openbis_objects(type: str, collection_identifier: str = None) -> List[Dict]:
     """
     Return list of openBIS objects based on the type.
     
     Args:
         type (str): openBIS object type
-        
         collection_identifier (str): openBIS collection identifier
     """
     objects = openbis_utils.get_openbis_objects(type, collection_identifier)
@@ -162,22 +161,23 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     
     obj_type = "SUBSTANCE"
+    obj_type_lower = obj_type.lower()
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
     
     for obj in objects:
         obj_props = obj.props.all()
-        obj_empa_number = obj_props["empa_number"]
+        obj_empa_number = obj_props[f"{obj_type_lower}.empa_number"]
         if obj_empa_number:
             obj_empa_number = int(obj_empa_number)
         else:
             obj_empa_number = 0
             
-        obj_batch = obj_props["batch"]
+        obj_batch = obj_props[f"{obj_type_lower}.batch"]
         if obj_batch is None:
             obj_batch = ""
             
-        obj_molecules = obj_props["molecules"]
+        obj_molecules = obj_props[f"{obj_type_lower}.molecules"]
         
         load_obj_data = True
         if substance.empa_number > 0:
@@ -191,9 +191,9 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
                 for molecule_permId in obj_molecules:
                     molecule_obj = openbis_utils.get_openbis_object(molecule_permId)
                     molecule_obj_props = molecule_obj.props.all()
-                    molecule_smiles = molecule_obj_props["smiles"]
-                    molecule_formula = molecule_obj_props["sum_formula"]
-                    molecule_iupac = molecule_obj_props["iupac_name"]
+                    molecule_smiles = molecule_obj_props[f"{obj_type_lower}.smiles"]
+                    molecule_formula = molecule_obj_props[f"{obj_type_lower}.sum_formula"]
+                    molecule_iupac = molecule_obj_props[f"{obj_type_lower}.iupac_name"]
                     
                     for prompt_molecule in substance.molecules:
                         if prompt_molecule.smiles:
@@ -242,19 +242,20 @@ def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
         concept with material Au and face 111
     """
     obj_type = "CRYSTAL"
+    obj_type_lower = obj_type.lower()
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
     
     for obj in objects:
         obj_props = obj.props.all()
-        crystal_concept_permId = obj_props["crystal_concept"]
+        crystal_concept_permId = obj_props[f"{obj_type_lower}.concept"]
         load_obj_data = True
         if crystal.crystal_concept:
             if crystal_concept_permId:
                 crystal_concept_obj = openbis_utils.get_openbis_object(crystal_concept_permId)
                 crystal_concept_obj_props = crystal_concept_obj.props.all()
-                crystal_concept_face = crystal_concept_obj_props["face"]
-                crystal_concept_material = crystal_concept_obj_props["material"]
+                crystal_concept_face = crystal_concept_obj_props[f"{obj_type_lower}.face"]
+                crystal_concept_material = crystal_concept_obj_props[f"{obj_type_lower}.material"]
                 
                 if crystal.crystal_concept.face:
                     load_obj_data = (crystal.crystal_concept.face == crystal_concept_face and load_obj_data)
@@ -300,15 +301,16 @@ def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Di
     """
     
     obj_type = "2D_LAYER_MATERIAL"
+    obj_type_lower = obj_type.lower()
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
     
     for obj in objects:
         obj_props = obj.props.all()
-        obj_top_layer_material = obj_props["two_d_layer_top_layer_material"]
-        obj_layer_count = obj_props["two_d_layer_layer_count"]
-        obj_substrate = obj_props["two_d_layer_substrate"]
-        obj_growth_method = obj_props["two_d_layer_growth_method"]
+        obj_top_layer_material = obj_props[f"{obj_type_lower}.top_layer_material"]
+        obj_layer_count = obj_props[f"{obj_type_lower}.layer_count"]
+        obj_substrate = obj_props[f"{obj_type_lower}.substrate"]
+        obj_growth_method = obj_props[f"{obj_type_lower}.growth_method"]
         
         load_obj_data = True
         if two_d_material.top_layer_material:

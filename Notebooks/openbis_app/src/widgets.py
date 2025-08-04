@@ -129,7 +129,8 @@ OPENBIS_OBJECT_TYPES = {
     "PBN Stage": "PBN_STAGE",
     "Sputter Gun": "SPUTTER_GUN",
     "Ion Gauge": "ION_GAUGE",
-    "QCM": "QCM"
+    "Analyser": "ANALYSER",
+    "Result": "RESULT"
     
 }
 
@@ -449,6 +450,7 @@ class ImportSimulationsWidget(ipw.VBox):
             if aiida_node_permid:
                 aiida_node_object = get_cached_object(self.openbis_session, aiida_node_permid)
                 aiida_node_object_type = aiida_node_object.type.code
+                aiida_node_object_type_lower = aiida_node_object_type.lower()
                 object_datasets = aiida_node_object.get_datasets()
                 
                 for dataset in object_datasets:
@@ -470,7 +472,7 @@ class ImportSimulationsWidget(ipw.VBox):
                         if result.returncode != 0:
                             print(f"An error occurred: {result.stderr}")
                         else:
-                            workchain = orm.load_node(aiida_node_object.props[f"{aiida_node_object_type}.wfms_uuid"])
+                            workchain = orm.load_node(aiida_node_object.props[f"{aiida_node_object_type_lower}.wfms_uuid"])
                             workchain_viewer_link = WORKCHAIN_VIEWERS[workchain.process_label]
                             notebook_link = f"{workchain_viewer_link}?pk={workchain.pk}"
                             
@@ -2054,7 +2056,82 @@ class ReacProdConceptWidget(ipw.VBox):
         self.parent_accordion.set_title(num_reacprod_concepts - 1, "")
         self.parent_accordion.children = reacprod_concepts_accordion_children
 
-# Create analysis/results widgets
+# Create analysis/results/drafts widgets
+class CreateDraftsWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.select_project_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select project</span>"
+        )
+        
+        self.select_project_widget = SelectProjectWidget(self.openbis_session)
+        
+        self.select_results_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select results</span>"
+        )
+        
+        self.select_results_label = ipw.Label(value = "Results")
+        self.select_results_selector = ipw.SelectMultiple()
+        self.select_results_hbox = ipw.HBox([self.select_results_label, self.select_results_selector])
+        
+        self.drafts_properties_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Properties</span>"
+        )
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox([self.name_label, self.name_textbox])
+        
+        self.draft_type_label = ipw.Label(value = "Draft type")
+        self.draft_type_dropdown = ipw.Dropdown(value = "Preprint", options = ["Preprint", "Postprint"])
+        self.draft_type_hbox = ipw.HBox([self.draft_type_label, self.draft_type_dropdown])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Textarea()
+        self.description_hbox = ipw.HBox([self.description_label, self.description_textbox])
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textbox = ipw.Textarea()
+        self.comments_hbox = ipw.HBox([self.comments_label, self.comments_textbox])
+        
+        self.support_files_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Support files</span>"
+        )
+        self.support_files_uploader = ipw.FileUpload()
+        
+        self.select_project_widget.project_dropdown.observe(self.load_results)
+        
+        self.children = [
+            self.select_project_title,
+            self.select_project_widget,
+            self.select_results_title,
+            self.select_results_hbox,
+            self.drafts_properties_title,
+            self.name_hbox,
+            self.draft_type_hbox,
+            self.description_hbox,
+            self.comments_hbox,
+            self.support_files_title,
+            self.support_files_uploader
+        ]
+    
+    def load_results(self, change):
+        project_id = self.select_project_widget.project_dropdown.value
+        results_objects = []
+        
+        if project_id != "-1":
+            results = utils.get_openbis_objects(
+                self.openbis_session,
+                type = OPENBIS_OBJECT_TYPES["Result"],
+                project = project_id
+            )
+            
+            results_objects = [(obj.props["name"], obj.permId) for obj in results]
+            
+        self.select_results_selector.options = results_objects
+
 class CreateAnalysisWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
@@ -2753,12 +2830,17 @@ class RegisterProcessWidget(ipw.VBox):
             
 
     def save_processes(self, b):
+        experiment_id = self.select_experiment_dropdown.experiment_dropdown.value
+        if experiment_id == "-1":
+            display(Javascript(data = "alert('Select an experiment.')"))
+            return
+        
         processes_widgets = self.new_processes_accordion.children
         if processes_widgets:
             openbis_transaction_objects = []
             experiment_object = utils.get_openbis_collection(
                 self.openbis_session,
-                code = self.select_experiment_dropdown.experiment_dropdown.value
+                code = experiment_id
             )
             experiment_project_code = experiment_object.project.identifier
             
@@ -2892,7 +2974,7 @@ class RegisterProcessWidget(ipw.VBox):
                                 action_component_settings = []
                                 for action_settings in component_object_settings:
                                     if action_settings["action_type"] == action_type:
-                                        action_component_settings = action_settings[f"{action_type_lower}.component_properties"]
+                                        action_component_settings = action_settings["component_properties"]
                                         break
                                     
                                 for setting in action_component_settings:
@@ -2923,7 +3005,7 @@ class RegisterProcessWidget(ipw.VBox):
                                         component_settings[f"{component_type_lower}.i_value"] = float(action_widget.evaporator_i_value_textbox.value)
                                         
                                     elif setting == f"{component_type_lower}.ep_percentage":
-                                        component_settings["ep_percentage"] = float(action_widget.ep_percentage_textbox.value)
+                                        component_settings[f"{component_type_lower}.ep_percentage"] = float(action_widget.ep_percentage_textbox.value)
                                 
                                 # Update current component settings
                                 for setting_key, setting_value in component_settings.items():
@@ -2989,7 +3071,7 @@ class RegisterProcessWidget(ipw.VBox):
                                 observable_component_settings = []
                                 for observable_settings in component_object_settings:
                                     if observable_settings["observable_type"] == observable_type:
-                                        observable_component_settings = observable_settings[f"{observable_type_lower}.component_properties"]
+                                        observable_component_settings = observable_settings["component_properties"]
                                         break
                                     
                                 for setting in observable_component_settings:
@@ -3016,12 +3098,12 @@ class RegisterProcessWidget(ipw.VBox):
                                         component_object.props[setting_key] = setting_value
                                 component_object.save()
                                 
-                                observable_properties["component_settings"] = json.dumps(component_settings)
+                                observable_properties[f"{observable_type_lower}.component_settings"] = json.dumps(component_settings)
                         
                             observable_properties["name"] = observable_widget.name_textbox.value
                             observable_properties["description"] = observable_widget.description_textbox.value
-                            observable_properties[f"{action_type_lower}.channel_name"] = observable_widget.ch_name_textbox.value
-                            observable_properties[f"{action_type_lower}.component"] = component_permid
+                            observable_properties[f"{observable_type_lower}.channel_name"] = observable_widget.ch_name_textbox.value
+                            observable_properties[f"{observable_type_lower}.component"] = component_permid
                             observable_properties["comments"] = observable_widget.comments_textarea.value
                             
                             observable_collection_code = "OBSERVABLES_COLLECTION"
@@ -3584,7 +3666,7 @@ class ActionHistoryWidget(ipw.VBox):
         super().__init__()
         self.openbis_session = openbis_session
         self.openbis_object = openbis_object
-        self.object_type = self.openbis_object.type
+        self.object_type = self.openbis_object.type.code
         self.object_type_lower = self.object_type.lower()
         
         self.name_label = ipw.Label(value = "Name:")
@@ -3705,7 +3787,7 @@ class ActionHistoryWidget(ipw.VBox):
             self.description_html.value = openbis_object_props["description"]
         
         if openbis_object_props[f"{self.object_type_lower}.duration"]:
-            self.duration_html.value = openbis_object_props["duration"]
+            self.duration_html.value = openbis_object_props[f"{self.object_type_lower}.duration"]
         
         if openbis_object_props["comments"]:
             self.comments_html.value = openbis_object_props["comments"]
@@ -3716,7 +3798,7 @@ class ActionHistoryWidget(ipw.VBox):
                 self.target_temperature_html.value = utils.stringify_quantity_value(target_temperature, "unit")
         
         if f"{self.object_type_lower}.cryogen" in openbis_object_props:
-            if openbis_object_props["cryogen"]:
+            if openbis_object_props[f"{self.object_type_lower}.cryogen"]:
                 self.cryogen_html.value = openbis_object_props[f"{self.object_type_lower}.cryogen"]
         
         if f"{self.object_type_lower}.substrate_temperature" in openbis_object_props:
@@ -3838,7 +3920,7 @@ class ObservableHistoryWidget(ipw.VBox):
             self.component_html.value = component_object.props["name"]
             
         if openbis_object_props[f"{self.observable_type_lower}.component_settings"]:
-            component_settings = json.loads(openbis_object_props["component_settings"])
+            component_settings = json.loads(openbis_object_props[f"{self.observable_type_lower}.component_settings"])
             component_settings_string = ""
             for prop_key, prop_value in component_settings.items():
                 prop_type = utils.get_openbis_property_type(self.openbis_session, code = prop_key)
@@ -4199,8 +4281,8 @@ class RegisterActionWidget(ipw.VBox):
             f"{evaporator_slot_type_lower}.target_temperature": self.target_temperature_comp_hbox,
             f"{pbn_stage_type_lower}.target_temperature": self.target_temperature_comp_hbox,
             f"{sputter_gun_type_lower}.bias_voltage": self.bias_voltage_hbox,
-            f"{sputter_gun_type_lower}discharge_voltage": self.discharge_voltage_hbox,
-            f"{sputter_gun_type_lower}discharge_current": self.discharge_current_hbox,
+            f"{sputter_gun_type_lower}.discharge_voltage": self.discharge_voltage_hbox,
+            f"{sputter_gun_type_lower}.discharge_current": self.discharge_current_hbox,
             f"{evaporator_slot_type_lower}.p_value": self.evaporator_p_value_hbox,
             f"{evaporator_slot_type_lower}.i_value": self.evaporator_i_value_hbox,
             f"{evaporator_slot_type_lower}.ep_percentage": self.ep_percentage_hbox
@@ -4303,8 +4385,8 @@ class RegisterActionWidget(ipw.VBox):
                 self.ep_percentage_textbox.value = str(component_settings.get(f"{component_type_lower}.ep_percentage", ""))
         except:
             pass
-
-        action_substrate_temperature = settings.get(f"{action_type_lower}.substrate_temperature", "")
+        
+        action_substrate_temperature = action_props.get(f"{action_type_lower}.substrate_temperature", "")
         if action_substrate_temperature:
             action_substrate_temperature = json.loads(action_substrate_temperature)
             self.substrate_temperature_value_textbox.value = str(action_substrate_temperature["value"])
@@ -4537,11 +4619,11 @@ class RegisterObservableWidget(ipw.VBox):
         # END
         
         ion_gauge_type_lower = OPENBIS_OBJECT_TYPES["Ion Gauge"].lower()
-        qcm_type_lower = OPENBIS_OBJECT_TYPES["QCM"].lower()
+        analyser_type_lower = OPENBIS_OBJECT_TYPES["Analyser"].lower()
         self.components_properties_widgets = {
             f"{ion_gauge_type_lower}.filament": self.filament_hbox,
             f"{ion_gauge_type_lower}.filament_current": self.filament_current_hbox,
-            f"{qcm_type_lower}.density": self.density_hbox
+            f"{analyser_type_lower}.density": self.density_hbox
         }
         
         self.comments_label = ipw.Label(value = "Comments")
@@ -4590,7 +4672,7 @@ class RegisterObservableWidget(ipw.VBox):
         try:
             component_settings = observable_props.get(f"{observable_type_lower}.component_settings", {})
             component_settings = json.loads(component_settings)
-            component_permid = settings.get(f"{observable_type_lower}.component", {})
+            component_permid = observable_props.get(f"{observable_type_lower}.component", {})
             if component_settings:
                 component_object = get_cached_object(self.openbis_session, component_permid)
                 component_type = component_object.type.code
@@ -4599,7 +4681,6 @@ class RegisterObservableWidget(ipw.VBox):
                 if f"{component_type_lower}.density" in component_settings:
                     self.density_value_textbox.value = str(component_settings[f"{component_type_lower}.density"]["value"])
                     self.density_unit_dropdown.value = component_settings[f"{component_type_lower}.density"]["unit"]
-                
                 if f"{component_type_lower}.filament_current" in component_settings:
                     self.filament_current_value_textbox.value = str(component_settings[f"{component_type_lower}.filament_current"]["value"])
                     self.filament_current_unit_dropdown.value = component_settings[f"{component_type_lower}.filament_current"]["unit"]
@@ -4662,17 +4743,7 @@ class RegisterObservableWidget(ipw.VBox):
                         component_observable_type = component_observable_settings["observable_type"]
                         if observable_type == component_observable_type:
                             component_list.append((component_object.props["name"], component_object.permId))
-                            
-            # for prop in instrument_components_properties:
-            #     prop_value = instrument_object.props[prop]
-            #     if prop_value:
-            #         for component_id in prop_value:
-            #             component_object = get_cached_object(self.openbis_session, component_id)
-            #             component_observables_settings_prop = component_object.props[f"{component_type_lower}.observables_settings"]
-            #             if component_observables_settings_prop:
-            #                 component_observables_settings = json.loads(component_observables_settings_prop)
-            #                 if observable_type in component_observables_settings:
-            #                     component_list.append((component_object.props["name"], component_id))
+
         return component_list
     
     def load_component_settings_list(self, change):
@@ -4689,7 +4760,7 @@ class RegisterObservableWidget(ipw.VBox):
                     component_settings = json.loads(component_settings_property)
                     for settings in component_settings:
                         if observable_type == settings["observable_type"]:
-                            settings_properties = settings.get("observable_properties", {})
+                            settings_properties = settings.get("component_properties", {})
                             for prop in settings_properties:
                                 setting_widget = self.components_properties_widgets.get(prop, None)
                                 if setting_widget:

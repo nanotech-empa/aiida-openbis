@@ -37,7 +37,7 @@ class OpenBISAgent():
     """
     def __init__(self, google_api_key):
         self.google_api_key = google_api_key
-        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash-lite", google_api_key = self.google_api_key)
+        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.google_api_key)
         
         self.system_prompt = f"""
             You are a helpful assistant that can answer questions about experiments, simulations, 
@@ -81,6 +81,33 @@ class OpenBISAgent():
             CRYSTAL_CONCEPT: theorical concept of the crystals used in the labs
             SOFTWARE: software used in the analysis of measurements
             CODE: scripts/codes used in the analysis of measurements or for performing simulations
+            
+            The tools that you use return either lists of openBIS objects of the openBIS object directly.
+            Every object is a dict type. An example of openBIS object is the following:
+            
+            {{
+                'permId': '20250804112119202-7435',
+                'type': 'ATOMISTIC_MODEL',
+                'properties': {{
+                    'name': 'Atomistic model'
+                }},
+                'parents': [
+                    {{
+                        'permId': 20250804112117232-74312,
+                        'type': 'GEOMETRY_OPTIMISATION',
+                        'properties': {{
+                            'name': 'Geo-Opt'
+                        }},
+                        'parents': ...,
+                        'registration_date': '2024-08-04 11:21:17'
+                    }}
+                ],
+                'registration_date': '2024-08-04 11:21:19'
+            }}
+            
+            The parents on the objects are other objects that are used to create this one. Example, in this case, 
+            atomistic model was created using geometry optimisation (because geometry optimisation is an action/simulation). 
+            If a molecule was parent, it would mean that the molecule is part of the atomistic model.
             
             Today is {get_current_time()}.
         """

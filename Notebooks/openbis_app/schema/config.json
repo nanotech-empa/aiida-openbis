@@ -21,18 +21,13 @@
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='create_analysis.ipynb' target='_blank' style='font-size: 13px;'>Create analysis</a></li>",
                 "<li><a href='create_results.ipynb' target='_blank' style='font-size: 13px;'>Create results</a></li>",
+                "<li><a href='create_drafts.ipynb' target='_blank' style='font-size: 13px;'>Create drafts</a></li>",
                 "</div>",
                 "</div>"
             ],
             "Inventory": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_edit_inventory.ipynb' target='_blank' style='font-size: 13px;'>Register/edit inventory</a></li>",
-                "<li><a href='create_molecule_concept.ipynb' target='_blank' style='font-size: 13px;'>Create molecule concept</a></li>",
-                "<li><a href='create_molecule.ipynb' target='_blank' style='font-size: 13px;'>Create molecule</a></li>",
-                "<li><a href='create_product_concept.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product concept</a></li>",
-                "<li><a href='create_product.ipynb' target='_blank' style='font-size: 13px;'>Create reaction product</a></li>",
-                "<li><a href='create_atomistic_model.ipynb' target='_blank' style='font-size: 13px;'>Create atomistic model</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -65,13 +60,13 @@
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='create_analysis.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create analysis</a></li>",
                 "<li><a href='create_results.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create results</a></li>",
+                "<li><a href='create_drafts.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Create drafts</a></li>",
                 "</div>",
                 "</div>"
             ],
             "Inventory": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
-                "<li><a href='create_edit_inventory.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Register/edit inventory</a></li>",
                 "</div>",
                 "</div>"
             ],
