@@ -9,6 +9,8 @@ from collections import Counter
 import subprocess
 import shutil
 from aiida import orm
+import atexit
+import ipyfilechooser
 import src.aiida_utils as aiida_utils
 
 OPENBIS_SAMPLES_CACHE = {}
@@ -171,10 +173,11 @@ def find_openbis_simulations(ob_session, obj):
             simulation_objects.update(find_openbis_simulations(ob_session, child_object))
     return simulation_objects
 
-class SampleMeasurementWidget(ipw.VBox):
-    def __init__(self, openbis_session):
+class GenerateMeasurementsWatchdogWidget(ipw.VBox):
+    def __init__(self, openbis_session, session_data):
         super().__init__()
         self.openbis_session = openbis_session
+        self.session_data = session_data
         
         self.select_experiment_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 20px;'>Select experiment</span>"
@@ -194,7 +197,25 @@ class SampleMeasurementWidget(ipw.VBox):
         
         self.select_instrument_widget = SelectInstrumentWidget(self.openbis_session)
         
+        self.select_measurements_folder_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select measurements directory</span>"
+        )
+        
+        self.select_measurements_folder_widget = ipyfilechooser.FileChooser(
+            path = '.', select_default=True, use_dir_icons=True, show_only_dirs = True)
+        
+        self.generate_watchdog_button = ipw.Button(
+            description = '', disabled = False, button_style = '', tooltip = 'Save', 
+            icon = 'save', layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
         self.select_sample_widget.sample_dropdown.observe(self.load_sample_data, names = "value")
+        self.generate_watchdog_button.on_click(self.generate_watchdog)
+        
+        self.watchdog_processes = []
+        
+        # Ensure process is killed on notebook shutdown / kernel restart
+        atexit.register(self.cleanup_watchdog)
         
         self.children = [
             self.select_experiment_title,
@@ -202,7 +223,10 @@ class SampleMeasurementWidget(ipw.VBox):
             self.select_sample_title,
             self.select_sample_widget,
             self.select_instrument_title,
-            self.select_instrument_widget
+            self.select_instrument_widget,
+            self.select_measurements_folder_title,
+            self.select_measurements_folder_widget,
+            self.generate_watchdog_button
         ]
     
     def load_sample_data(self, change):
@@ -231,6 +255,55 @@ class SampleMeasurementWidget(ipw.VBox):
             if most_recent_parent.experiment.permId != experiment_id:
                 self.select_experiment_widget.experiment_dropdown.value = most_recent_parent.experiment.permId
                 display(Javascript(data = "alert('Experiment was changed!')"))
+    
+    def generate_watchdog(self, b):
+        experiment_id = self.select_experiment_widget.experiment_dropdown.value
+        if experiment_id == "-1":
+            return
+        
+        sample_id = self.select_sample_widget.sample_dropdown.value
+        if sample_id == "-1":
+            return
+        
+        sample_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_id)
+        sample_name = sample_object.props["name"]
+
+        instrument_id = self.select_instrument_widget.instrument_dropdown.value
+        if instrument_id == "-1":
+            return
+
+        measurement_session_object = utils.create_openbis_object(
+            self.openbis_session,
+            type = OPENBIS_OBJECT_TYPES["Measurement Session"],
+            collection = experiment_id,
+            parents = [sample_id, instrument_id],
+            props = {"name": f"Measurement Session on Sample {sample_name}", "default_object_view": "IMAGING_GALLERY_VIEW"}
+        )
+        measurement_session_id = measurement_session_object.permId
+        measurements_directory = self.select_measurements_folder_widget.selected_path
+        watchdog_file = f"/home/jovyan/aiida-openbis/Notebooks/openbis_app/src/measurements_uploader.py"
+        shutil.copy(watchdog_file, measurements_directory)
+        
+        watchdog_process = subprocess.Popen(
+            [
+                "python", 
+                f"{measurements_directory}/measurements_uploader.py", 
+                "--openbis_url", self.session_data["url"],
+                "--openbis_token", self.session_data["token"],
+                "--measurement_session_id", measurement_session_id,
+                "--data_folder", measurements_directory
+            ]
+        )
+        print("Watchdog process started with PID:", watchdog_process.pid)
+        
+        self.watchdog_processes.append(watchdog_process)
+    
+    def cleanup_watchdog(self):
+        if self.watchdog_processes:
+            for process in self.watchdog_processes:
+                print(f"Terminating watchdog process with PID: {process.pid}")
+                process.terminate()
+                self.watchdog_processes = []
 
 # Import/export simulations widgets
 class ImportSimulationsWidget(ipw.VBox):
