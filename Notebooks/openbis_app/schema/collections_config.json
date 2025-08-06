@@ -104,6 +104,14 @@
                         }
                     }
                 },
+                "CONSUMABLES": {
+                    "description": "Consumables",
+                    "experiments": {
+                        "GAS_BOTTLE_COLLECTION": {
+                            "name": "Gas bottles"
+                        }
+                    }
+                },
                 "SAMPLES": {
                     "description": "Samples",
                     "experiments": {

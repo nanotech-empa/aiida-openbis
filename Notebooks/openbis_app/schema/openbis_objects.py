@@ -102,6 +102,10 @@ class LengthUnitEnum(str, Enum):
 class EnergyDensityUnitEnum(str, Enum):
     ElectronVolt_by_CubicBohr = "eV/Bohr^3"
 
+class FrequencyUnitEnum(str, Enum):
+    Hertz = "Hz"
+    Kilohertz = "kHz"
+
 class ShapeEnum(str, Enum):
     round = "round"
     reactangular = "reactangular"
@@ -139,6 +143,10 @@ class EnergyValue(BaseModel):
 class EnergyDensityValue(BaseModel):
     value: float
     unit: EnergyDensityUnitEnum
+
+class FrequencyValue(BaseModel):
+    value: float
+    unit: FrequencyUnitEnum
 
 class LengthValue(BaseModel):
     value: float
@@ -307,6 +315,35 @@ class Molecule(OpenBISObject):
     @classmethod
     def get_label(cls) -> str:
         return "Molecule"
+
+class GasBottle(OpenBISObject):
+    molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description = "List of molecules that gas bottle contains", metadata={"type": "SAMPLE", "multivalue": True})
+    amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of gas", metadata={"type": "JSON"})
+    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
+    object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
+    supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
+    receive_date: str = Field(default=None, title="Receive date", description="Date when the gas bottle was received", metadata={"type": "DATE"})
+
+    @classmethod
+    def get_code(cls) -> str:
+        return "GASB"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "Gas Bottle"
+
+    @field_validator("receive_date")
+    @classmethod
+    def validate_receive_date(cls, v: str) -> str:
+        if v is None:
+            return v
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("receive_date must be in 'YYYY-MM-DD' format.")
+        return v
     
 class Substance(OpenBISObject):
     molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description = "List of molecules that substance contains", metadata={"type": "SAMPLE", "multivalue": True})
@@ -420,6 +457,33 @@ class TwoDLayerMaterial(OpenBISObject):
         return "2D Layer Material"
 
     @field_validator("receive_date")
+    @classmethod
+    def validate_receive_date(cls, v: str) -> str:
+        if v is None:
+            return v
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("receive_date must be in 'YYYY-MM-DD' format.")
+        return v
+
+class Stamp(OpenBISObject):
+    material: str = Field(default=None, title="Material", description="Material of the stamp", metadata={"type": "VARCHAR"})
+    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
+    object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the stamp", metadata={"type": "CONTROLLEDVOCABULARY"})
+    assembled_by: List[Person] = Field(default_factory=list, title="Synthesised by", description="List of people who assembled the stamp", metadata={"type": "SAMPLE", "multivalue": True})
+    assembled_date: str = Field(default="", title="Assembled date", description="Date when stamp was assembled", metadata={"type": "DATE"})
+
+    @classmethod
+    def get_code(cls) -> str:
+        return "STMP"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "Stamp"
+
+    @field_validator("receive_date", "assembled_date")
     @classmethod
     def validate_receive_date(cls, v: str) -> str:
         if v is None:
@@ -614,7 +678,7 @@ class WaferSample(OpenBISObject):
 class Component(OpenBISObject):
     main_category: ComponentMainCategoryEnum = Field(default="", title="Main category", description="Main category of the component", metadata={"type": "CONTROLLEDVOCABULARY"})
     sub_category: ComponentSubCategoryEnum = Field(default="", title="Sub category", description="Sub category of the component", metadata={"type": "CONTROLLEDVOCABULARY"})
-    manufacturer: Organisation = Field(default=None, title="Manufacturer", description="Manufacturer of the component", metadata={"type": "SAMPLE"})
+    manufacturer: Union[Organisation, Person] = Field(default=None, title="Manufacturer", description="Manufacturer of the component", metadata={"type": "SAMPLE"})
     model: str = Field(default="", title="Model", description="Model of the component", metadata={"type": "VARCHAR"})
     serial_number: str = Field(default="", title="Serial number", description="Serial number of the component", metadata={"type": "VARCHAR"})
     empa_id: str = Field(default="", title="Empa ID", description="ID given to expensive tools at Empa.", metadata={"type": "VARCHAR"})
@@ -761,14 +825,54 @@ class ScrollPump(Component):
     def get_label(cls) -> str:
         return "Scroll Pump"
 
-class STM_AFM_TipSensor(Component):
+class AFMSensor(Component):
+    material: Wire = Field(default="", title="Material", description="Wire used in the AFM sensor", metadata={"type": "SAMPLE"})
+    fabrication_date: str = Field(default=None, title="Fabrication date", description="Date when the STM tip was received", metadata={"type": "DATE"})
+    fabrication_method: str = Field(default="", title="Fabrication method", description="Method used to produce the AFM sensor", metadata={"type": "VARCHAR"})
+    resonance_frequency: FrequencyValue = Field(default = None, title="Resonance frequency", description = "Resonance frequency of the AFM sensor.", metadata={"type": "JSON"})
+    
     @classmethod
     def get_code(cls) -> str:
-        return "SATS"
+        return "AFMS"
     
     @classmethod
     def get_label(cls) -> str:
-        return "STM AFM Tip Sensor"
+        return "AFM Sensor"
+
+    @field_validator("fabrication_date")
+    @classmethod
+    def validate_receive_date(cls, v: str) -> str:
+        if v is None:
+            return v
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("receive_date must be in 'YYYY-MM-DD' format.")
+        return v
+
+class STMTip(Component):
+    material: Wire = Field(default="", title="Material", description="Wire used in the STM sensor", metadata={"type": "SAMPLE"})
+    fabrication_date: str = Field(default=None, title="Fabrication date", description="Date when the STM tip was received", metadata={"type": "DATE"})
+    fabrication_method: str = Field(default="", title="Fabrication method", description="Method used to produce the STM tip", metadata={"type": "VARCHAR"})
+    
+    @classmethod
+    def get_code(cls) -> str:
+        return "STMT"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "STM Tip"
+
+    @field_validator("fabrication_date")
+    @classmethod
+    def validate_receive_date(cls, v: str) -> str:
+        if v is None:
+            return v
+        try:
+            datetime.strptime(v, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError("receive_date must be in 'YYYY-MM-DD' format.")
+        return v
 
 class Thyracont(Component):
     @classmethod
@@ -837,7 +941,7 @@ class InstrumentSTM(Instrument):
     analysers: List[Analyser] = Field(default_factory = list, title="Analysers", description = "Analysers attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     mechanical_components: List[Component] = Field(default_factory = list, title="Mechanical components", description = "Mechanical components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Microscope Core Components
-    stm_components: List[Union[Component, Electronics, STM_AFM_TipSensor]] = Field(default_factory = list, title="STM components", description = "STM components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    stm_components: List[Union[Component, Electronics, STMTip, AFMSensor]] = Field(default_factory = list, title="STM components", description = "STM components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     control_data_acquisition: List[Electronics] = Field(default_factory = list, title="Control and data acquisition", description = "Control and data acquisition components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     temperature_environment_control: List[Union[Component, Cryostat]] = Field(default_factory = list, title="Temperature and environment control", description = "Temperature and environment control components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Auxiliary

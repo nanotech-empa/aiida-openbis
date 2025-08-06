@@ -1,8 +1,7 @@
 import src.utils as utils
 from functools import lru_cache
 
-CONFIG_ELN = utils.get_aiidalab_eln_config()
-OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis(CONFIG_ELN["url"], CONFIG_ELN["token"])
+OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida()
 
 @lru_cache(maxsize=5000)
 def get_openbis_property_type(key):
