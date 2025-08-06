@@ -160,7 +160,7 @@ if __name__ == "__main__":
                 object_type = create_object_type_in_openbis(session, object_type_dict)
                 
                 for name, field in cls.model_fields.items():
-                    if name not in ["name", "description", "comments"]:
+                    if name not in ["name", "description", "comments", "default_object_view"]:
                         prop_code = f"{object_code}.{name}"
                     else:
                         prop_code = name

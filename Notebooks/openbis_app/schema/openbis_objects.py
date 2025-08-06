@@ -233,6 +233,7 @@ class OpenBISObject(BaseModel):
     permId: str = Field(default="", title="PermID", description="Permanent identifier for the OpenBIS object", metadata={"type": "No type"})
     name: str = Field(default="", title="Name", description="Name of the OpenBIS object", metadata={"type": "VARCHAR"})
     description: str = Field(default="", title="Description", description="Description of the OpenBIS object", metadata={"type": "VARCHAR"})
+    default_object_view: str = Field(default=None, title="Default object view", description="Default object view", metadata={"type": "No type"})
     registration_date: str = Field(default="", title="Registration date", description="Date when the object was registered", metadata={"type": "No type"})
     comments: str = Field(default="", title="Comments", description="Additional comments about the object", metadata={"type": "MULTILINE_VARCHAR"})
 
@@ -1488,7 +1489,6 @@ class VoltageObservable(Observable):
 
 class MeasurementSession(OpenBISObject):
     measurement_folder_path: str = Field(default=None, title="Measurement folder path", description="Path to the measurement folder", metadata={"type": "VARCHAR"})
-    default_object_view: str = Field(default=None, title="Default object view", description="Default object view", metadata={"type": "No type"})
     measurement_session: "MeasurementSession" = Field(default=None, title="Measurement session", description="Reference to another measurement session", metadata={"type": "PARENT"})
 
     @classmethod
