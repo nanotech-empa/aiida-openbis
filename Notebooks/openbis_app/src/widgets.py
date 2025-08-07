@@ -2731,8 +2731,16 @@ class CreateSampleWidget(ipw.VBox):
                             prop_label = prop_type.label
                             prop_datatype = prop_type.dataType
                             if prop_datatype == OPENBIS_OBJECT_TYPES["Sample"]:
-                                obj = get_cached_object(self.openbis_session, value)
-                                value = obj.props["name"]
+                                if isinstance(value, list):
+                                    obj_names = []
+                                    for id in value:
+                                        obj = get_cached_object(self.openbis_session, id)
+                                        obj_name = obj.props["name"]
+                                        obj_names.append(obj_name)
+                                    value = ", ".join(obj_names)
+                                else:
+                                    obj = get_cached_object(self.openbis_session, value)
+                                    value = obj.props["name"]
                                 
                             obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
                     
