@@ -1,0 +1,3 @@
+OpenBIS URL: https://local.openbis.ch
+Sample ID: 20250807082554307-7497
+Data Folder: /home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements

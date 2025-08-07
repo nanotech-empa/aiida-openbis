@@ -6,21 +6,12 @@ The problem will be fixed in the next alpha release (the release date is still t
 
 Here is a full description how to set up the imaging plugin (in the future version I will try to make it to work out of the box, this tutorial is for current version):
 1. Enable imaging plugin
-    - go to /home/openbis/servers/code-plugins
+    - go to /home/openbis/servers/core-plugins
     - modify core-plugins.properties -> in enabled-modules add "imaging" and "imaging-nanonis"
 2. Enable imaging UI
     - go to /home/openbis/servers/core-plugins/eln-lims/11/as/webapps/eln-lims/html/etc/config.js
     - modify extraPlugins list (by the end of the file), include "imaging" in the list
     - replace ServerFacade.js in the /home/openbis/servers/core-plugins/eln-lims/11/as/webapps/eln-lims/html/js/server/
-3. Configure nanonis script plugins
-    - go to /home/openbis/servers/datastore_server/etc/service.properties
-    - include following lines at the end:
-#
-# Imaging - plugins
-#
-core-plugins-folder=/home/openbis/servers/core-plugins
-imaging.nanonis.sxm-script-path=${core-plugins-folder}/imaging-nanonis/1/dss/services/imaging-nanonis/nanonis_sxm.py
-imaging.nanonis.dat-script-path=${core-plugins-folder}/imaging-nanonis/1/dss/services/imaging-nanonis/nanonis_dat.py
         
 3. Configure python path
     Nanonis adapter makes use of python scripts so it is required to have python and adequate libraries installed in you environment. There are 2 ways of achieving that:

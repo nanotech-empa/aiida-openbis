@@ -12,6 +12,7 @@ from aiida import orm
 import atexit
 import ipyfilechooser
 import src.aiida_utils as aiida_utils
+import signal
 
 OPENBIS_SAMPLES_CACHE = {}
 
@@ -173,11 +174,56 @@ def find_openbis_simulations(ob_session, obj):
             simulation_objects.update(find_openbis_simulations(ob_session, child_object))
     return simulation_objects
 
-class GenerateMeasurementsWatchdogWidget(ipw.VBox):
+class RunningMeasurementWatchdogsWidget(ipw.VBox):
     def __init__(self, openbis_session, session_data):
         super().__init__()
         self.openbis_session = openbis_session
         self.session_data = session_data
+        
+        self.running_watchdogs_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Running watchdogs</span>"
+        )
+        
+        self.running_watchdogs_widget = ipw.SelectMultiple(
+            layout = ipw.Layout(width = "500px")
+        )
+        
+        self.stop_watchdog_button = ipw.Button(
+            icon = "ban",
+            tooltip = "Stop watchdog",
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        self.stop_watchdog_button.on_click(self.stop_watchdog)
+        
+        self.children = [
+            self.running_watchdogs_title,
+            self.running_watchdogs_widget,
+            self.stop_watchdog_button
+        ]
+    
+    def stop_watchdog(self, b):
+        selected_pids = self.running_watchdogs_widget.value
+
+        if selected_pids:
+            for pid in selected_pids:
+                os.kill(pid, signal.SIGTERM)
+                print("Watchdog stopped.")
+
+            self.running_watchdogs_widget.options = [
+                (directory, pid) for directory, pid in self.running_watchdogs_widget.options
+                if pid not in selected_pids
+            ]
+            
+        else:
+            display(Javascript(data="alert('Select at least one directory.')"))
+
+class GenerateMeasurementsWatchdogWidget(ipw.VBox):
+    def __init__(self, openbis_session, session_data, running_watchdogs_widget):
+        super().__init__()
+        self.openbis_session = openbis_session
+        self.session_data = session_data
+        self.running_watchdogs_widget = running_watchdogs_widget
         
         self.select_experiment_title = ipw.HTML(
             value = "<span style='font-weight: bold; font-size: 20px;'>Select experiment</span>"
@@ -297,6 +343,11 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
         print("Watchdog process started with PID:", watchdog_process.pid)
         
         self.watchdog_processes.append(watchdog_process)
+        
+        running_watchdogs = self.running_watchdogs_widget.running_watchdogs_widget.options
+        running_watchdogs = list(running_watchdogs)
+        running_watchdogs.append((measurements_directory, watchdog_process.pid))
+        self.running_watchdogs_widget.running_watchdogs_widget.options = running_watchdogs
     
     def cleanup_watchdog(self):
         if self.watchdog_processes:

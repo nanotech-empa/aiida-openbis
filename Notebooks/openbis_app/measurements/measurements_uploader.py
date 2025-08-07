@@ -3,6 +3,7 @@ from watchdog.events import FileSystemEventHandler
 import time
 import os
 import argparse
+from pathlib import Path
 from pybis import Openbis
 
 class NewFileHandler(FileSystemEventHandler):
@@ -31,7 +32,23 @@ def monitor_folder(path_to_watch, custom_function):
 def process_new_file(file_path, openbis_session, measurement_session_id, logging_filepath):
     with open(logging_filepath, "a") as log_file:
         log_file.write(f"Processing new file: {file_path}\n")
+    
+    file_path = Path(file_path)
+    
+    if file_path.suffix in [".dat", ".sxm"]:
+        pass
+    
+        # TODO: Upload file by file but check which ones were already 
+        # saved (put in text file). Put the logic of dat/sxm order in a function
         
+        # nanonis_importer.process_measurement_files(
+        #     SESSION_DATA['url'], 
+        #     "", 
+        #     SESSION_DATA['token'], 
+        #     folderpath, 
+        #     object.permId
+        # )
+    
     # your code here
     ds = openbis_session.new_dataset(
         type = "ATTACHMENT",
