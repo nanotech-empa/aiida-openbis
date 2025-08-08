@@ -23,6 +23,9 @@ from datetime import datetime
 import shutil
 from collections import defaultdict
 
+sys.path.append("/home/jovyan/aiida-openbis/Notebooks/openbis_app/")
+from src import utils
+
 SXM_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisSxmAdaptor"
 DAT_ADAPTOR = "ch.ethz.sis.openbis.generic.server.dss.plugins.imaging.adaptor.NanonisDatAdaptor"
 VERBOSE = False
@@ -433,9 +436,10 @@ def create_dat_dataset(session, experiment, sample, folder_path, dataset_type = 
         experiment = experiment,
         files=[d.path for d in data])
 
-def process_measurement_files(openbis_url, user, token, data_folder, sample):
-    session = get_instance(url = openbis_url, user = user, token = token)
+def process_measurement_files(openbis_url, token, data_folder, measurements_id, logging_filepath):
+    session, _ = utils.connect_openbis(openbis_url, token)
     measurement_files = [f for f in os.listdir(data_folder)]
+    logging_file = utils.read_json(logging_filepath)
     
     readable_measurement_files = []
     measurement_datetimes = []
@@ -452,7 +456,7 @@ def process_measurement_files(openbis_url, user, token, data_folder, sample):
     # Sort files by datetime first, then filename
     paired = list(zip(measurement_datetimes, readable_measurement_files))
     paired.sort(key=lambda x: (x[0], x[1]))
-
+    
     # Extract filenames in sorted order
     sorted_measurement_files = [filename for _, filename in paired]
 
@@ -492,15 +496,19 @@ def process_measurement_files(openbis_url, user, token, data_folder, sample):
         if group[0].endswith(".sxm"):
             print(f"SXM file: {group[0]}")
             file_path = os.path.join(data_folder, group[0])
-            sample_object = session.get_sample(sample)
-            experiment = sample_object.experiment
-            try:
-                sample_object = session.get_sample(sample)
-                experiment = sample_object.experiment
-                demo_sxm_flow(session, file_path, sample = sample, experiment = experiment)
-            except (ValueError, KeyError) as e :
-                print(f"Cannot upload {file_path}. Reason: {e}")
-                # Report it in a logging file
+            
+            if file_path not in logging_file["processed_files"]:
+                try:
+                    measurements_object = session.get_sample(measurements_id)
+                    experiment = measurements_object.experiment
+                    demo_sxm_flow(session, file_path, sample = measurements_id, experiment = experiment)
+                    logging_file["processed_files"].append(file_path)
+                    
+                except (ValueError, KeyError) as e :
+                    print(f"Cannot upload {file_path}. Reason: {e}")
+                    # Report it in a logging file
+            else:
+                print(f"{file_path} already in openBIS.")
         else:
             # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
             dat_files_types = []
@@ -521,21 +529,153 @@ def process_measurement_files(openbis_url, user, token, data_folder, sample):
                 shutil.rmtree(dat_files_directory, ignore_errors=True)
                 os.mkdir(dat_files_directory)
                 
+                delete_original_openBIS_dataset = False
+                group_in_openbis = False
                 for dat_file in dat_files_group:
-                    shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
-                sample_object = session.get_sample(sample)
-                experiment = sample_object.experiment
+                    original_dat_path = os.path.join(data_folder, dat_file)
+                    temporary_dat_path = os.path.join(dat_files_directory, dat_file)
+                    shutil.copy(original_dat_path, temporary_dat_path)
+                    
+                    if original_dat_path in logging_file["processed_files"]:
+                        group_in_openbis = True
+                    else:
+                        delete_original_openBIS_dataset = True
+                        logging_file["processed_files"].append(original_dat_path)
                 
-                try:
-                    sample_object = session.get_sample(sample)
-                    experiment = sample_object.experiment
-                    demo_dat_flow(session, dat_files_directory, sample = sample, experiment = experiment)
-                except ValueError as e:
-                    print(f"Cannot upload {dat_files_directory}. Reason: {e}")
-                    # Report it in a logging file
+                if group_in_openbis:
+                    if delete_original_openBIS_dataset:
+                        try:
+                            measurements_object = session.get_sample(measurements_id)
+                            experiment = measurements_object.experiment
+                            
+                            # Delete old dataset in order to update it
+                            measurements_datasets = measurements_object.get_datasets().df.sort_values("registrationDate", ascending = False)
+                            dataset_to_remove = measurements_datasets.iloc[0]["permId"]
+                            session.get_dataset(dataset_to_remove).delete("update dataset group")
+                            
+                            # Upload dat files
+                            demo_dat_flow(session, dat_files_directory, sample = measurements_id, experiment = experiment)
+                        except ValueError as e:
+                            print(f"Cannot upload {dat_files_directory}. Reason: {e}")
+                            # Report it in a logging file
+                else:
+                    try:
+                        measurements_object = session.get_sample(measurements_id)
+                        experiment = measurements_object.experiment
+                        # Upload dat files
+                        demo_dat_flow(session, dat_files_directory, sample = measurements_id, experiment = experiment)
+                    except ValueError as e:
+                        print(f"Cannot upload {dat_files_directory}. Reason: {e}")
+                        # Report it in a logging file
                 shutil.rmtree(dat_files_directory)
-
+    
+    utils.write_json(logging_file, logging_filepath)
+        
     session.logout()
+
+# def process_measurement_files(openbis_url, user, token, data_folder, sample):
+#     session = get_instance(url = openbis_url, user = user, token = token)
+#     measurement_files = [f for f in os.listdir(data_folder)]
+    
+#     readable_measurement_files = []
+#     measurement_datetimes = []
+    
+#     # Check measurement files and measurement datetimes
+#     for f in measurement_files:
+#         # sxm and dat files
+#         if f.endswith((".sxm", ".dat")):
+#             img = spm(f"{data_folder}/{f}")
+#             img_datetime = img.record_datetime
+#             readable_measurement_files.append(f)
+#             measurement_datetimes.append(img_datetime)
+
+#     # Sort files by datetime first, then filename
+#     paired = list(zip(measurement_datetimes, readable_measurement_files))
+#     paired.sort(key=lambda x: (x[0], x[1]))
+
+#     # Extract filenames in sorted order
+#     sorted_measurement_files = [filename for _, filename in paired]
+
+#     # Dat files belonging to the same measurement session, i.e., that are consecutive, should be grouped into just one list of files, except when they do not have the same channels.
+#     grouped_measurement_files = []
+#     group = []
+#     for i,f in enumerate(sorted_measurement_files):
+#         # SXM files are saved alone
+#         if f.endswith(".sxm"):
+#             if len(group) > 0:
+#                 grouped_measurement_files.append(group)
+#                 group = []
+#             grouped_measurement_files.append([f])
+        
+#         # DAT files, in case they share the same signals and are consecutively acquired, are saved together
+#         elif f.endswith(".dat"):
+#             f_img = spm(f"{data_folder}/{f}")
+#             files_with_different_channels = False
+
+#             for file in group:
+#                 img = spm(f"{data_folder}/{file}")
+#                 if img.signals != f_img.signals:
+#                     files_with_different_channels = True
+#                     break
+
+#             if files_with_different_channels:
+#                 grouped_measurement_files.append(group)
+#                 group = [f]
+#             else:
+#                 group.append(f)
+
+#     if len(group) > 0:
+#         grouped_measurement_files.append(group)
+
+#     for group in grouped_measurement_files:
+#         # Save sxm files
+#         if group[0].endswith(".sxm"):
+#             print(f"SXM file: {group[0]}")
+#             file_path = os.path.join(data_folder, group[0])
+#             sample_object = session.get_sample(sample)
+#             experiment = sample_object.experiment
+#             try:
+#                 sample_object = session.get_sample(sample)
+#                 experiment = sample_object.experiment
+#                 demo_sxm_flow(session, file_path, sample = sample, experiment = experiment)
+#             except (ValueError, KeyError) as e :
+#                 print(f"Cannot upload {file_path}. Reason: {e}")
+#                 # Report it in a logging file
+#         else:
+#             # Split the dat files by measurement type (e.g.: bias spec dI vs V in one list, bias spec z vs V in another list, etc.)
+#             dat_files_types = []
+#             for dat_file in group:
+#                 dat_filename = f"{data_folder}/{dat_file}"
+#                 dat_data = spm(dat_filename)
+#                 dat_files_types.append(dat_data.measurement_type)
+
+#             grouped = defaultdict(list)
+#             for item1, item2 in zip(group, dat_files_types):
+#                 grouped[item2].append(item1)
+
+#             dat_files_grouped_by_type = list(grouped.values())
+            
+#             # Save dat files
+#             for dat_files_group in dat_files_grouped_by_type:
+#                 dat_files_directory = os.path.join(data_folder, "dat_files")
+#                 shutil.rmtree(dat_files_directory, ignore_errors=True)
+#                 os.mkdir(dat_files_directory)
+                
+#                 for dat_file in dat_files_group:
+#                     shutil.copy(os.path.join(data_folder, dat_file), os.path.join(dat_files_directory, dat_file))
+#                 sample_object = session.get_sample(sample)
+#                 experiment = sample_object.experiment
+                
+#                 try:
+#                     sample_object = session.get_sample(sample)
+#                     experiment = sample_object.experiment
+#                     demo_dat_flow(session, dat_files_directory, sample = sample, experiment = experiment)
+#                 except ValueError as e:
+#                     print(f"Cannot upload {dat_files_directory}. Reason: {e}")
+#                     # Report it in a logging file
+#                 shutil.rmtree(dat_files_directory)
+
+#     session.logout()
 
 if __name__ == "__main__":
     correct_arguments = False
@@ -543,15 +683,15 @@ if __name__ == "__main__":
     # Retrieve arguments
     if len(sys.argv) == 6:
         openbis_url = sys.argv[1]
-        user = sys.argv[2]
-        token = sys.argv[3]
-        data_folder = sys.argv[4]
-        sample = sys.argv[5] # PermID
+        token = sys.argv[2]
+        data_folder = sys.argv[3]
+        sample = sys.argv[4] # PermID
+        logging_filepath = sys.argv[5]
         correct_arguments = True
     else:
         print("A required argument is missing.")
-        print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <OPENBIS_USER> <OPENBIS_TOKEN> <PATH_TO_DATA_FOLDER> <SAMPLE_PERMID>')
+        print(f'Usage: python3 nanonis_importer.py <OPENBIS_URL> <OPENBIS_TOKEN> <PATH_TO_DATA_FOLDER> <MEASUREMENTS_PERMID> <LOGGING_FILEPATH>')
 
     if correct_arguments:
-        process_measurement_files(openbis_url, user, token, data_folder, sample)
+        process_measurement_files(openbis_url, token, data_folder, sample, logging_filepath)
         print("OK")

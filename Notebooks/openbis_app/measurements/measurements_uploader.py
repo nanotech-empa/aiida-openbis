@@ -3,8 +3,13 @@ from watchdog.events import FileSystemEventHandler
 import time
 import os
 import argparse
-from pathlib import Path
 from pybis import Openbis
+import sys
+
+sys.path.append("/home/jovyan/aiida-openbis/Notebooks/openbis_app/")
+sys.path.append("/home/jovyan/aiida-openbis/Notebooks/nanonis_importer")
+from src import utils
+from nanonis_importer import process_measurement_files
 
 class NewFileHandler(FileSystemEventHandler):
     def __init__(self, custom_function):
@@ -29,33 +34,9 @@ def monitor_folder(path_to_watch, custom_function):
     observer.join()
 
 # Example of a custom function
-def process_new_file(file_path, openbis_session, measurement_session_id, logging_filepath):
-    with open(logging_filepath, "a") as log_file:
-        log_file.write(f"Processing new file: {file_path}\n")
-    
-    file_path = Path(file_path)
-    
-    if file_path.suffix in [".dat", ".sxm"]:
-        pass
-    
-        # TODO: Upload file by file but check which ones were already 
-        # saved (put in text file). Put the logic of dat/sxm order in a function
-        
-        # nanonis_importer.process_measurement_files(
-        #     SESSION_DATA['url'], 
-        #     "", 
-        #     SESSION_DATA['token'], 
-        #     folderpath, 
-        #     object.permId
-        # )
-    
-    # your code here
-    ds = openbis_session.new_dataset(
-        type = "ATTACHMENT",
-        sample = measurement_session_id,
-        files = [file_path]
-    )
-    ds.save()
+def process_new_file(file_path, openbis_url, openbis_token, measurement_session_id, logging_filepath):
+    data_folder = os.path.dirname(file_path)
+    process_measurement_files(openbis_url, openbis_token, data_folder, measurement_session_id, logging_filepath)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description = 'Setup the openBIS database (create objects types, collections, etc.).')
@@ -73,11 +54,17 @@ if __name__ == "__main__":
     measurement_session_id = args.measurement_session_id
     data_folder = args.data_folder
     
-    logging_filepath = f"{data_folder}/logging.txt"
-    with open(logging_filepath, "w") as log_file:
-        log_file.write(f"OpenBIS URL: {openbis_url}\n")
-        log_file.write(f"Sample ID: {measurement_session_id}\n")
-        log_file.write(f"Data Folder: {data_folder}\n")
+    logging_filepath = f"{data_folder}/logging.json"
+    if os.path.exists(logging_filepath):
+        logging_data = utils.read_json(logging_filepath)
+    else:
+        logging_data = {
+            "eln_url": openbis_url,
+            "eln_token": openbis_token,
+            "measurement_session_id": measurement_session_id,
+            "processed_files": []
+        }
+        utils.write_json(logging_data, logging_filepath)
 
     try:
         openbis_session = Openbis(openbis_url, verify_certificates = False)
@@ -90,7 +77,8 @@ if __name__ == "__main__":
     if openbis_session:
         custom_function = lambda file_path: process_new_file(
             file_path,
-            openbis_session = openbis_session,
+            openbis_url = openbis_url,
+            openbis_token = openbis_token,
             measurement_session_id = measurement_session_id,
             logging_filepath = logging_filepath
         )

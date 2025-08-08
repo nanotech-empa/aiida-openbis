@@ -1,0 +1,12 @@
+{
+    "eln_url": "https://local.openbis.ch",
+    "eln_token": "$pat-admin-250731124326911xD6B6FB8A855F97B9003A63626810D9CA",
+    "measurement_session_id": "20250808101636880-7530",
+    "processed_files": [
+        "/home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements/img_0027.sxm",
+        "/home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements/img_0068.sxm",
+        "/home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements/didv_00003.dat",
+        "/home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements/didv_00004.dat",
+        "/home/jovyan/aiida-openbis/Notebooks/openbis_app/measurements/didv_00005.dat"
+    ]
+}
