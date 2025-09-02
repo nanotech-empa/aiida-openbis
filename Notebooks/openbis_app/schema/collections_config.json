@@ -191,8 +191,11 @@
                 "LOCATIONS": {
                     "description": "Locations",
                     "experiments": {
-                        "EMPA_DUBENDORF_LOCATION_COLLECTION": {
-                            "name": "Empa Dubendorf"
+                        "LABS_COLLECTION": {
+                            "name": "Labs"
+                        },
+                        "OFFICES_COLLECTION": {
+                            "name": "Offices"
                         }
                     }
                 }

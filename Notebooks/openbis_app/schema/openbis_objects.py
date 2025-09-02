@@ -399,12 +399,12 @@ class CrystalConcept(OpenBISObject):
         return "Crystal Concept"
 
 class Crystal(OpenBISObject):
-    concept: CrystalConcept = Field(default=None, title="Crystal concept", description="Crystal concept information", metadata={"type": "SAMPLE"})
+    crystal_concept: CrystalConcept = Field(default=None, title="Crystal concept", description="Crystal concept information", metadata={"type": "SAMPLE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Identifier for the sample plate", metadata={"type": "VARCHAR"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Crystal dimensions", metadata={"type": "JSON"})
     reference_number: str = Field(default="", title="Reference number", description="Reference number for the crystal", metadata={"type": "VARCHAR"})
     location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -438,10 +438,10 @@ class TwoDLayerMaterial(OpenBISObject):
     heterostructure_stack: List[HeterostructureStack] = Field(default_factory=list, title="Heterostructure stack", description="Heterostructure stack", metadata={"type": "XML", "custom_widget": "Spreadsheet"})
     substrate: str = Field(default="", title="Substrate", description="Substrate material", metadata={"type": "VARCHAR"})
     growth_method: str = Field(default="", title="Growth/Fabrication method", description="Method used for growth", metadata={"type": "VARCHAR"})
-    dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the 2d layer materiale", metadata={"type": "JSON"})
+    dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the 2d layer material", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
-    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "VARCHAR"})
+    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the 2d layer material", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -503,7 +503,7 @@ class Wafer(OpenBISObject):
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer substrate", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
-    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "VARCHAR"})
+    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer substrate", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -537,7 +537,7 @@ class WaferSubstrate(OpenBISObject):
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
-    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "VARCHAR"})
+    package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -566,7 +566,7 @@ class WaferSubstrate(OpenBISObject):
 
 class Wire(OpenBISObject):
     material: str = Field(default=None, title="Material", description="Material of the wire", metadata={"type": "VARCHAR"})
-    purity: float = Field(default=None, title="Purity", description="Purity level of the wire", metadata={"type": "REAL"})
+    purity: float = Field(default=0.0, title="Purity", description="Purity level of the wire", metadata={"type": "REAL"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
@@ -627,7 +627,7 @@ class ReactionProductConcept(OpenBISObject):
 class ReactionProduct(OpenBISObject):
     reaction_temperature: TemperatureValue = Field(default=None, title="Reaction temperature", description="Temperature at which the product was obtained", metadata={"type": "JSON"})
     reaction_yield: float = Field(default=None, title="Reaction yield", description="Yield of the reaction product", metadata={"type": "REAL"})
-    concept: ReactionProductConcept = Field(default=None, title="Reaction product concept", description="Concept associated with the reaction product", metadata={"type": "SAMPLE"})
+    reaction_product_concept: ReactionProductConcept = Field(default=None, title="Reaction product concept", description="Concept associated with the reaction product", metadata={"type": "SAMPLE"})
     sample: Sample = Field(default=None, title="Sample", description="Sample associated with the reaction product", metadata={"type": "PARENT"})
 
     @classmethod
@@ -675,6 +675,17 @@ class WaferSample(OpenBISObject):
     @classmethod
     def get_label(cls) -> str:
         return "Wafer Substrate"
+
+class SampleHolder(OpenBISObject):
+    location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the sample holder", metadata={"type": "SAMPLE"})
+    receive_date: str = Field(default=None, title="Receive date", description="Date when the sample holder was received", metadata={"type": "DATE"})
+    @classmethod
+    def get_code(cls) -> str:
+        return "SPHD"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "Sample Holder"
 
 class Component(OpenBISObject):
     main_category: ComponentMainCategoryEnum = Field(default="", title="Main category", description="Main category of the component", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -827,7 +838,7 @@ class ScrollPump(Component):
         return "Scroll Pump"
 
 class AFMSensor(Component):
-    material: Wire = Field(default="", title="Material", description="Wire used in the AFM sensor", metadata={"type": "SAMPLE"})
+    wire: Wire = Field(default="", title="Wire", description="Wire used in the AFM sensor", metadata={"type": "SAMPLE"})
     fabrication_date: str = Field(default=None, title="Fabrication date", description="Date when the STM tip was received", metadata={"type": "DATE"})
     fabrication_method: str = Field(default="", title="Fabrication method", description="Method used to produce the AFM sensor", metadata={"type": "VARCHAR"})
     resonance_frequency: FrequencyValue = Field(default = None, title="Resonance frequency", description = "Resonance frequency of the AFM sensor.", metadata={"type": "JSON"})
@@ -852,7 +863,7 @@ class AFMSensor(Component):
         return v
 
 class STMTip(Component):
-    material: Wire = Field(default="", title="Material", description="Wire used in the STM sensor", metadata={"type": "SAMPLE"})
+    wire: Wire = Field(default="", title="Wire", description="Wire used in the STM sensor", metadata={"type": "SAMPLE"})
     fabrication_date: str = Field(default=None, title="Fabrication date", description="Date when the STM tip was received", metadata={"type": "DATE"})
     fabrication_method: str = Field(default="", title="Fabrication method", description="Method used to produce the STM tip", metadata={"type": "VARCHAR"})
     
@@ -1068,7 +1079,7 @@ class MeanFieldHubbard(OpenBISObject):
     on_site_hubbard_repulsion_value: EnergyValue = Field(default=None, title="On-site Hubbard repulsion U value", description="Hubbard U value", metadata={"type": "JSON"})
     up_densities: List[int] = Field(default_factory=list, title="Up densities", description="Up densities", metadata={"type": "INTEGER", "multivalue": True})
     up_electrons: List[int] = Field(default_factory=list, title="Up electrons", description="Up electrons", metadata={"type": "INTEGER", "multivalue": True})
-    atomsitic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic models", description="Atomistic models", metadata={"type": "PARENT"})
+    atomistic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic models", description="Atomistic models", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1316,7 +1327,7 @@ class Sputtering(Action):
         return "Sputtering"
 
 class Location(OpenBISObject):
-    organisation: Organisation = Field(default=None, title="Location", description="Organisation associated with the location", metadata={"type": "SAMPLE"})
+    organisation: Organisation = Field(default=None, title="Organisation", description="Organisation associated with the location", metadata={"type": "SAMPLE"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1490,7 +1501,7 @@ class VoltageObservable(Observable):
 class MeasurementSession(OpenBISObject):
     measurement_folder_path: str = Field(default=None, title="Measurement folder path", description="Path to the measurement folder", metadata={"type": "VARCHAR"})
     measurement_session: "MeasurementSession" = Field(default=None, title="Measurement session", description="Reference to another measurement session", metadata={"type": "PARENT"})
-
+    
     @classmethod
     def get_code(cls) -> str:
         return "MSSE"

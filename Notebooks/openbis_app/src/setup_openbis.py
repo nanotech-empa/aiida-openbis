@@ -159,16 +159,18 @@ if __name__ == "__main__":
                 # Create object type
                 object_type = create_object_type_in_openbis(session, object_type_dict)
                 
+                if object_code.upper() == "MEASUREMENT_SESSION":
+                    try:
+                        property_type = session.get_property_type("default_object_view")
+                        assign_property_to_object_type_in_openbis(session, object_type, property_type)
+                    except ValueError:
+                        print(f"Property type default_object_view does not exist.")
+                
                 for name, field in cls.model_fields.items():
-                    if name not in ["name", "description", "comments", "default_object_view"]:
-                        prop_code = f"{object_code}.{name}"
-                    else:
-                        prop_code = name
-                        
                     property_type_dict = {
-                        "code": prop_code,
+                        "code": name,
                         "label": field.title,
-                        "description": field.description
+                        "description": " "
                     }
                     field_metadata = field.json_schema_extra.get("metadata", {})
                     create_property_type = True
