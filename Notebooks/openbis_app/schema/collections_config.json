@@ -141,14 +141,6 @@
         "ADMINISTRATIVE":{
             "description": "Administrative",
             "projects": {
-                "PUBLICATIONS": {
-                    "description": "Publications",
-                    "experiments": {
-                        "LAB_205_PUBLICATION_COLLECTION": {
-                            "name": "Lab 205"
-                        }
-                    }
-                },
                 "FUNDING": {
                     "description": "Funding",
                     "experiments": {
@@ -157,23 +149,26 @@
                         }
                     }
                 },
-                "INSTITUTIONS": {
-                    "description": "Institutions/Manufacturers/Suppliers",
+                "ORGANISATIONS": {
+                    "description": "Organisations",
                     "experiments": {
-                        "ACADEMIC_INSTITUTION_COLLECTION": {
+                        "INSTITUTION_COLLECTION": {
                             "name": "Institutions"
                         },
-                        "CHEMISTRY_INSTITUTION_COLLECTION": {
-                            "name": "Chemistry"
+                        "GROUP_COLLECTION": {
+                            "name": "Research groups"
                         },
-                        "SPM_INSTITUTION_COLLECTION": {
-                            "name": "SPM"
+                        "CHEMISTRY_COLLECTION": {
+                            "name": "Chemistry companies"
                         },
-                        "OPTICS_INSTITUTION_COLLECTION": {
-                            "name": "Optics"
+                        "SPM_COLLECTION": {
+                            "name": "SPM companies"
                         },
-                        "VARIOUS_INSTITUTION_COLLECTION": {
-                            "name": "Various"
+                        "OPTICS_COLLECTION": {
+                            "name": "Optics companies"
+                        },
+                        "VARIOUS_COLLECTION": {
+                            "name": "Various companies"
                         }
                     }
                 },
@@ -226,6 +221,19 @@
                         },
                         "CHEMISTRY_LAB_PROCESS_COLLECTION": {
                             "name": "Chemistry Lab"
+                        }
+                    }
+                }
+            }
+        },
+        "PUBLICATIONS":{
+            "description": "Publications",
+            "projects": {
+                "PUBLIC_REPOSITORIES": {
+                    "description": "Public Repositories",
+                    "experiments": {
+                        "AUTHOR_COLLECTION": {
+                            "name": "Authors"
                         }
                     }
                 }

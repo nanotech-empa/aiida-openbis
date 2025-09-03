@@ -118,6 +118,15 @@ class PathFindingMethodEnum(str, Enum):
     NEB = "Nudged Elastic Band"
     STRING = "String Method"
 
+class NanotechSurfacesSubgroupEnum(str, Enum):
+    Research_Management = "Research Management"
+    Research_Infrastructure = "Research Infrastructure"
+    Carbon_Nanomaterials = "Carbon Nanomaterials"
+    Materials_to_Devices = "Materials to Devices"
+    Two_D_Quantum_Materials = "2D Quantum Materials"
+    Quantum_Magnetism = "Quantum Magnetism"
+    Atomistic_Simulations = "Atomistic Simulations"
+
 # Complex properties
 
 class AngleValue(BaseModel):
@@ -277,7 +286,6 @@ class Organisation(OpenBISObject):
     address: str = Field(default="", title="Address", description="Address of the organisation", metadata={"type": "VARCHAR"})
     email: str = Field(default="", title="Email", description="Email address of the organisation", metadata={"type": "VARCHAR"})
     work_phone: str = Field(default="", title="Work phone", description="Work phone number of the organisation", metadata={"type": "VARCHAR"})
-    organisation: "Organisation" = Field(default=None, title="Organisation", description="Parent organisation (if applicable)", metadata={"type": "SAMPLE"})
     
     @classmethod
     def get_code(cls) -> str:
@@ -287,14 +295,29 @@ class Organisation(OpenBISObject):
     def get_label(cls) -> str:
         return "Organisation"
 
+class Group(OpenBISObject):
+    group: "Group" = Field(default = None, title = "Group", description = "Parent group (if applicable)", metadata={"type": "SAMPLE"})
+    organisation: Organisation = Field(default = None, title = "Organisation", description = "Organisation to which the group belongs to", metadata={"type": "SAMPLE"})
+    
+    @classmethod
+    def get_code(cls) -> str:
+        return "GROP"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "Group"
+
 class Person(OpenBISObject):
     username: str = Field(default="", title="Username", description="Username of the person", metadata={"type": "VARCHAR"})
     email: str = Field(default="", title="Email", description="Email address of the person", metadata={"type": "VARCHAR"})
     mobile_phone: str = Field(default="", title="Mobile phone", description="Mobile phone number", metadata={"type": "VARCHAR"})
     work_phone: str = Field(default="", title="Work phone", description="Work phone number", metadata={"type": "VARCHAR"})
     work_status: WorkStatusEnum = Field(default="Active", title="Work status", description="Current work status", metadata={"type": "CONTROLLEDVOCABULARY"})
-    organisations: List[Organisation] = Field(default_factory=list, title="Organisations", description="List of organisations the person belongs to", metadata={"type": "SAMPLE", "multivalue": True})
-
+    office: "Location" = Field(default = None, title="Office", description = "Working office", metadata={"type": "VARCHAR"})
+    organisations: List[Organisation] = Field(default_factory=list, title="Organisation(s)", description="Organisation(s) to which the person belongs. Only used if the person does not belong to any group.", metadata={"type": "SAMPLE", "multivalue": True})
+    groups: List[Group] = Field(default_factory=list, title="Group(s)", description="Group(s) to which the person belongs", metadata={"type": "SAMPLE", "multivalue": True})
+    nanotech_surfaces_subgroup: NanotechSurfacesSubgroupEnum = Field(default = None, title="nanotech@surfaces subgroup", description="Subgroup of nanotech@surfaces at Empa. Only used for sorting people inside a collection. Not used in people that do not belong to nanotech@surfaces.", metadata={"type": "CONTROLLEDVOCABULARY"})
+    
     @classmethod
     def get_code(cls) -> str:
         return "PERS"
@@ -302,8 +325,22 @@ class Person(OpenBISObject):
     @classmethod
     def get_label(cls) -> str:
         return "Person"
+
+class Author(OpenBISObject):
+    person: Person = Field(default=None, title="Person", description="Person", metadata={"type": "SAMPLE", "multivalue": True})
+    groups: List[Group] = Field(default=None, title="Group(s)", description="Group(s) to which the person belonged when the publication was done", metadata={"type": "SAMPLE", "multivalue": True})
+
+    @classmethod
+    def get_code(cls) -> str:
+        return "AUTH"
+    
+    @classmethod
+    def get_label(cls) -> str:
+        return "Author"
+
     
 class Molecule(OpenBISObject):
+    empa_number: int = Field(default=0, title="Empa number", ge = 1, description = "Integer value given to new substances inside Empa (0 = unassigned)", metadata={"type": "INTEGER"})
     smiles: str = Field(default="", title="SMILES", description = "SMILES string for the substance, e.g. CCO", metadata={"type": "VARCHAR"})
     sum_formula: str = Field(default="", title="Sum formula", description = "Molecular sum formula, e.g. CH4", metadata={"type": "VARCHAR"})
     cas_number: str = Field(default="", title="CAS number", description="Unique numerical identifier assigned to a specific chemical substance by the Chemical Abstracts Service (CAS), e.g. 58-08-2", metadata={"type": "VARCHAR"})
@@ -321,7 +358,7 @@ class GasBottle(OpenBISObject):
     molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description = "List of molecules that gas bottle contains", metadata={"type": "SAMPLE", "multivalue": True})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of gas", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -347,17 +384,17 @@ class GasBottle(OpenBISObject):
         return v
     
 class Substance(OpenBISObject):
-    molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description = "List of molecules that substance contains", metadata={"type": "SAMPLE", "multivalue": True})
+    molecules: List[Molecule] = Field(default_factory=list, title="Molecule(s)", description = "List of molecules that substance contains", metadata={"type": "SAMPLE", "multivalue": True})
     empa_number: int = Field(default=0, title="Empa number", ge = 1, description = "Integer value given to new substances inside Empa (0 = unassigned)", metadata={"type": "INTEGER"})
     batch: str = Field(default="", title="Batch", description = "Letter given to the batch of substances, e.g., a for the first, b for the second.", metadata={"type": "VARCHAR"})
     vial: str = Field(default="", title="Vial", description = "Letter given to the vial of the batch of substances, e.g. i, ii, iii.", metadata={"type": "VARCHAR"})
-    evaporation_temperatures: Dict = Field(default_factory=dict, title="Evaporation temperatures", description="Evaporation temperatures", metadata={"type": "XML", "custom_widget": "Spreadsheet"})
+    evaporation_temperatures: Dict = Field(default_factory=dict, title="Evaporation temperature(s)", description="Evaporation temperatures", metadata={"type": "XML", "custom_widget": "Spreadsheet"})
     purity: float = Field(default=0.0, title="Purity", description="Purity of the substance", metadata={"type": "REAL"})
     substance_type: str = Field(default="", title="Substance type", description="Type of the substance, e.g. Solvent", metadata={"type": "VARCHAR"})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of substance", metadata={"type": "JSON"})
     chemist_own_name: str = Field(default="", title="Chemist own name", description="Chemist's own name for the substance", metadata={"type": "VARCHAR"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -400,11 +437,13 @@ class CrystalConcept(OpenBISObject):
 
 class Crystal(OpenBISObject):
     crystal_concept: CrystalConcept = Field(default=None, title="Crystal concept", description="Crystal concept information", metadata={"type": "SAMPLE"})
+    face: str = Field(default="", title="Face", description="Crystal face information", metadata={"type": "VARCHAR"})
+    material: str = Field(default="", title="Material", description="Material of the crystal", metadata={"type": "VARCHAR"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Identifier for the sample plate", metadata={"type": "VARCHAR"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Crystal dimensions", metadata={"type": "JSON"})
     reference_number: str = Field(default="", title="Reference number", description="Reference number for the crystal", metadata={"type": "VARCHAR"})
     location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -440,7 +479,7 @@ class TwoDLayerMaterial(OpenBISObject):
     growth_method: str = Field(default="", title="Growth/Fabrication method", description="Method used for growth", metadata={"type": "VARCHAR"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the 2d layer material", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the 2d layer material", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -502,7 +541,7 @@ class Wafer(OpenBISObject):
     material_coating: List[MaterialCoating] = Field(default_factory=list, title="Material coating", description="Material coating details", metadata={"type": "JSON"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer substrate", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer substrate", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -536,7 +575,7 @@ class WaferSubstrate(OpenBISObject):
     material_coating: List[MaterialCoating] = Field(default_factory=list, title="Material coating", description="Material coating details", metadata={"type": "JSON"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -569,7 +608,7 @@ class Wire(OpenBISObject):
     purity: float = Field(default=0.0, title="Purity", description="Purity level of the wire", metadata={"type": "REAL"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
     location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -613,8 +652,8 @@ class Sample(OpenBISObject):
 
 class ReactionProductConcept(OpenBISObject):
     sum_formula: str = Field(default=None, title="Sum formula", description="Sum formula of the reaction product concept", metadata={"type": "VARCHAR"})
-    molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description="List of molecules involved", metadata={"type": "SAMPLE", "multivalue": True})
-    crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concepts", description="Associated crystal concepts", metadata={"type": "SAMPLE", "multivalue": True})
+    molecules: List[Molecule] = Field(default_factory=list, title="Molecule(s)", description="List of molecules involved", metadata={"type": "SAMPLE", "multivalue": True})
+    crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concept(s)", description="Associated crystal concepts", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -640,7 +679,7 @@ class ReactionProduct(OpenBISObject):
 
 class DeviceSubstrate(OpenBISObject):
     location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the substrate", metadata={"type": "SAMPLE"})
-    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage conditions", description="List of special storage requirements", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
+    special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="List of special storage requirements", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     sample_plate: str = Field(default=None, title="Sample plate", description="Identifier for the sample plate", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default="Active", title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
     supplier: Organisation = Field(default=None, title="Supplier", description="Supplier information", metadata={"type": "SAMPLE"})
@@ -679,6 +718,7 @@ class WaferSample(OpenBISObject):
 class SampleHolder(OpenBISObject):
     location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the sample holder", metadata={"type": "SAMPLE"})
     receive_date: str = Field(default=None, title="Receive date", description="Date when the sample holder was received", metadata={"type": "DATE"})
+    
     @classmethod
     def get_code(cls) -> str:
         return "SPHD"
@@ -773,7 +813,7 @@ class EvaporatorSlot(Component):
         return "Evaporator Slot"
 
 class Evaporator(Component):
-    evaporator_slots: List[EvaporatorSlot] = Field(default_factory = list, title="Evaporator slots", description = "List of evaporator slots attached to the evaporator.", metadata={"type": "SAMPLE", "multivalue": True})
+    evaporator_slots: List[EvaporatorSlot] = Field(default_factory = list, title="Evaporator slot(s)", description = "List of evaporator slots attached to the evaporator.", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -920,7 +960,7 @@ class Instrument(OpenBISObject):
     empa_id: str = Field(default="", title="Empa ID", description="ID given to expensive tools at Empa.", metadata={"type": "VARCHAR"})
     location: "Location" = Field(default=None, title="Location", description="Physical location", metadata={"type": "SAMPLE"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the instrument", metadata={"type": "CONTROLLEDVOCABULARY"})
-    responsibles: List[Person] = Field(default_factory=list, title="Responsibles", description="List of responsible persons", metadata={"type": "SAMPLE", "multivalue": True})
+    responsibles: List[Person] = Field(default_factory=list, title="Responsible(s)", description="List of responsible persons", metadata={"type": "SAMPLE", "multivalue": True})
     receive_date: str = Field(default=None, title="Receive date", description="Date when the instrument was received", metadata={"type": "DATE"})
 
     @classmethod
@@ -944,28 +984,28 @@ class Instrument(OpenBISObject):
 
 class InstrumentSTM(Instrument):
     # Vacuum system
-    pumps: List[Union[IonPump, ScrollPump, TurboPump]] = Field(default_factory = list, title="Pumps", description = "Pumps attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    gauges: List[Union[IonGauge]] = Field(default_factory = list, title="Gauges", description = "Gauges attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    vacuum_chambers: List[Chamber] = Field(default_factory = list, title="Vacuum chambers", description = "Vacuum chambers attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    ports_valves: List[Union[Component, Valve]] = Field(default_factory = list, title="Ports/valves", description = "Ports and valves attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    pumps: List[Union[IonPump, ScrollPump, TurboPump]] = Field(default_factory = list, title="Pump(s)", description = "Pumps attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    gauges: List[Union[IonGauge]] = Field(default_factory = list, title="Gauge(s)", description = "Gauges attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    vacuum_chambers: List[Chamber] = Field(default_factory = list, title="Vacuum chamber(s)", description = "Vacuum chambers attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    ports_valves: List[Union[Component, Valve]] = Field(default_factory = list, title="Port(s)/valve(s)", description = "Ports and valves attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Sample Preparation & Handling
-    preparation_tools: List[Union[Component, PBNStage, SputterGun, Valve, Evaporator, Cryostat]]  = Field(default_factory = list, title="Preparation tools", description = "Preparation tools attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    analysers: List[Analyser] = Field(default_factory = list, title="Analysers", description = "Analysers attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    mechanical_components: List[Component] = Field(default_factory = list, title="Mechanical components", description = "Mechanical components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    preparation_tools: List[Union[Component, PBNStage, SputterGun, Valve, Evaporator, Cryostat]]  = Field(default_factory = list, title="Preparation tool(s)", description = "Preparation tools attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    analysers: List[Analyser] = Field(default_factory = list, title="Analyser(s)", description = "Analysers attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    mechanical_components: List[Component] = Field(default_factory = list, title="Mechanical component(s)", description = "Mechanical components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Microscope Core Components
-    stm_components: List[Union[Component, Electronics, STMTip, AFMSensor]] = Field(default_factory = list, title="STM components", description = "STM components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    control_data_acquisition: List[Electronics] = Field(default_factory = list, title="Control and data acquisition", description = "Control and data acquisition components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    temperature_environment_control: List[Union[Component, Cryostat]] = Field(default_factory = list, title="Temperature and environment control", description = "Temperature and environment control components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    stm_components: List[Union[Component, Electronics, STMTip, AFMSensor]] = Field(default_factory = list, title="STM component(s)", description = "STM components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    control_data_acquisition: List[Electronics] = Field(default_factory = list, title="Control and data acquisition component(s)", description = "Control and data acquisition components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    temperature_environment_control: List[Union[Component, Cryostat]] = Field(default_factory = list, title="Temperature and environment control component(s)", description = "Temperature and environment control components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Auxiliary
-    auxiliary_components: List[Component] = Field(default_factory = list, title="Auxiliary components", description = "Auxiliary components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    auxiliary_components: List[Component] = Field(default_factory = list, title="Auxiliary component(s)", description = "Auxiliary components attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Consumables
-    consumables: List = Field(default_factory = list, title="Consumables", description = "Consumables inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    consumables: List = Field(default_factory = list, title="Consumable(s)", description = "Consumables inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Materials
-    substances: List[Substance] = Field(default_factory = list, title="Substances", description = "Substances inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    single_crystals: List[Crystal] = Field(default_factory = list, title="Crystals", description = "Crystals inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
-    wafer_samples: List[WaferSample] = Field(default_factory = list, title="Wafer samples", description = "Wafer samples inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    substances: List[Substance] = Field(default_factory = list, title="Substance(s)", description = "Substances inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    single_crystals: List[Crystal] = Field(default_factory = list, title="Crystal(s)", description = "Crystals inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    wafer_samples: List[WaferSample] = Field(default_factory = list, title="Wafer sample(s)", description = "Wafer samples inside the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Accessories
-    tip_sensors: List[Component] = Field(default_factory = list, title="Tip sensors", description = "Tip sensors attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
+    tip_sensors: List[Component] = Field(default_factory = list, title="Tip sensor(s)", description = "Tip sensors attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     accessories: List[Component] = Field(default_factory = list, title="Accessories", description = "Other accessories attached to the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
     # Logbook
     logbook_entries: List[Component] = Field(default_factory = list, title="Logbook entries", description = "Logbook entries of the instrument.", metadata={"type": "SAMPLE", "multivalue": True})
@@ -1018,10 +1058,10 @@ class AtomisticModel(Simulation):
     dimensionality: int = Field(default=0, title="Dimensionality", description="Dimensionality of the model (e.g., 1D, 2D, 3D)", metadata={"type": "INTEGER"})
     periodic_boundary_conditions: List[bool] = Field(default_factory=lambda: [False, False, False], title="PBC", min_length=3, max_length=3, description="Periodic boundary conditions for x, y, z directions", metadata={"type": "BOOLEAN", "multivalue": True})
     volume: float = Field(default=0.0, title="Volume", description="Volume of the simulation cell", metadata={"type": "REAL"})
-    crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concepts", description="List of crystal concepts in the model", metadata={"type": "PARENT"})
+    crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concept(s)", description="List of crystal concepts in the model", metadata={"type": "PARENT"})
     geometry_optimisation: "GeometryOptimisation" = Field(default=None, title="Geometry optimisation", description="Geometry optimization settings", metadata={"type": "PARENT"})
-    molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description="List of molecules in the model", metadata={"type": "PARENT"})
-    reaction_product_concepts: List[ReactionProductConcept] = Field(default_factory=list, title="Reaction product concepts", description="List of reaction product concepts", metadata={"type": "PARENT"})
+    molecules: List[Molecule] = Field(default_factory=list, title="Molecule(s)", description="List of molecules in the model", metadata={"type": "PARENT"})
+    reaction_product_concepts: List[ReactionProductConcept] = Field(default_factory=list, title="Reaction product concept(s)", description="List of reaction product concepts", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1037,8 +1077,8 @@ class BandStructure(Simulation):
     level_theory_parameters: Dict = Field(default_factory=dict, title="Level of theory (parameters)", description="Parameters for the level of theory method", metadata={"type": "JSON"})
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the band structure calculation", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the band structure calculation", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1058,8 +1098,8 @@ class GeometryOptimisation(Simulation):
     level_theory_parameters: Dict = Field(default_factory=dict, title="Level of theory (parameters)", description="Parameters for the level of theory method", metadata={"type": "JSON"})
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1079,7 +1119,7 @@ class MeanFieldHubbard(OpenBISObject):
     on_site_hubbard_repulsion_value: EnergyValue = Field(default=None, title="On-site Hubbard repulsion U value", description="Hubbard U value", metadata={"type": "JSON"})
     up_densities: List[int] = Field(default_factory=list, title="Up densities", description="Up densities", metadata={"type": "INTEGER", "multivalue": True})
     up_electrons: List[int] = Field(default_factory=list, title="Up electrons", description="Up electrons", metadata={"type": "INTEGER", "multivalue": True})
-    atomistic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic models", description="Atomistic models", metadata={"type": "PARENT"})
+    atomistic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic model(s)", description="Atomistic models", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1096,7 +1136,7 @@ class MinimumEnergyPotential(OpenBISObject):
     geometry_constraints_increments: List[float] = Field(default_factory=list, title="Geometry constraints increments", description="Geometry constraints increments", metadata={"type": "REAL", "multivalue": True})
     method_type: PathFindingMethodEnum = Field(default=None, title="Method type", description="Method type", metadata={"type": "CONTROLLEDVOCABULARY"})
     number_geometries: int = Field(default=None, title="Number of geometries", description="Number of geometries", metadata={"type": "INTEGER"})
-    atomistic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
+    atomistic_models: List[AtomisticModel] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1111,8 +1151,8 @@ class PDOS(Simulation):
     level_theory_parameters: Dict = Field(default_factory=dict, title="Level of theory (parameters)", description="Parameters for the level of theory method", metadata={"type": "JSON"})
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the PDOS calculation", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the PDOS calculation", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1125,8 +1165,8 @@ class PDOS(Simulation):
 class UnclassifiedSimulation(Simulation):
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the simulation", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the simulation", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1141,8 +1181,8 @@ class VibrationalSpectroscopy(Simulation):
     level_theory_parameters: Dict = Field(default_factory=dict, title="Level of theory (parameters)", description="Parameters for the level of theory method", metadata={"type": "JSON"})
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the vibrational spectroscopy calculation", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the vibrational spectroscopy calculation", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1158,8 +1198,8 @@ class PotentialEnergyCalculation(Simulation):
     level_theory_parameters: Dict = Field(default_factory=dict, title="Level of theory (parameters)", description="Parameters for the level of theory method", metadata={"type": "JSON"})
     input_parameters: Dict = Field(default_factory=dict, title="Input parameters", description="Input parameters for the simulation", metadata={"type": "JSON"})
     output_parameters: Dict = Field(default_factory=dict, title="Output parameters", description="Output parameters from the simulation", metadata={"type": "JSON"})
-    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic models", description="List of atomistic models", metadata={"type": "PARENT"})
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the potential energy calculation", metadata={"type": "SAMPLE", "multivalue": True})
+    atomistic_models: List["AtomisticModel"] = Field(default_factory=list, title="Atomistic model(s)", description="List of atomistic models", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the potential energy calculation", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1338,8 +1378,8 @@ class Location(OpenBISObject):
         return "Location"
 
 class Analysis(OpenBISObject):
-    codes: List[Code] = Field(default_factory=list, title="Codes", description="List of codes used in the analysis", metadata={"type": "SAMPLE", "multivalue": True})
-    measurements: List["MeasurementSession"] = Field(default_factory=list, title="Measurements", description="List of measurement sessions used in the analysis", metadata={"type": "PARENT"})
+    codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the analysis", metadata={"type": "SAMPLE", "multivalue": True})
+    measurements: List["MeasurementSession"] = Field(default_factory=list, title="Measurement(s)", description="List of measurement sessions used in the analysis", metadata={"type": "PARENT"})
     software: List[Software] = Field(default_factory=list, title="Software", description="List of software used in the analysis", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
@@ -1352,8 +1392,8 @@ class Analysis(OpenBISObject):
 
 class Result(OpenBISObject):
     analysis: List[Analysis] = Field(default_factory=list, title="Analysis", description="List of analysis", metadata={"type": "PARENT"})
-    simulations: List[Union[BandStructure, GeometryOptimisation, PDOS, VibrationalSpectroscopy]] = Field(default_factory=list, title="Simulations", description="List of simulations", metadata={"type": "PARENT"})
-    measurements: List["MeasurementSession"] = Field(default_factory=list, title="Measurements", description="List of associated measurement sessions", metadata={"type": "PARENT"})
+    simulations: List[Union[BandStructure, GeometryOptimisation, PDOS, VibrationalSpectroscopy]] = Field(default_factory=list, title="Simulation(s)", description="List of simulations", metadata={"type": "PARENT"})
+    measurements: List["MeasurementSession"] = Field(default_factory=list, title="Measurement(s)", description="List of associated measurement sessions", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1365,7 +1405,7 @@ class Result(OpenBISObject):
 
 class Draft(OpenBISObject):
     draft_type: DraftTypeEnum = Field(default=None, title="Draft type", description="Type of the draft", metadata={"type": "CONTROLLEDVOCABULARY"})
-    results: List[Result] = Field(default_factory=list, title="Results", description="List of associated results", metadata={"type": "PARENT"})
+    results: List[Result] = Field(default_factory=list, title="Result(s)", description="List of associated results", metadata={"type": "PARENT"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1524,8 +1564,8 @@ class Process(OpenBISObject):
         return "Process"
 
 class ProcessStep(OpenBISObject):
-    actions: List[Action] = Field(default_factory=list, title="Actions", description="List of actions performed in this step", metadata={"type": "SAMPLE", "multivalue": True})
-    observables: List[Observable] = Field(default_factory=list, title="Observables", description="List of observables recorded in this step", metadata={"type": "SAMPLE", "multivalue": True})
+    actions: List[Action] = Field(default_factory=list, title="Action(s)", description="List of actions performed in this step", metadata={"type": "SAMPLE", "multivalue": True})
+    observables: List[Observable] = Field(default_factory=list, title="Observable(s)", description="List of observables recorded in this step", metadata={"type": "SAMPLE", "multivalue": True})
     instrument: Union[Instrument, InstrumentSTM] = Field(default=None, title="Instrument", description="Instrument used for this step", metadata={"type": "SAMPLE"})
 
     @classmethod
@@ -1537,7 +1577,7 @@ class ProcessStep(OpenBISObject):
         return "Process Step"
 
 class Preparation(OpenBISObject):
-    process_steps: List[ProcessStep] = Field(default_factory=list, title="Process steps", description="List of process steps", metadata={"type": "CHILDREN"})
+    process_steps: List[ProcessStep] = Field(default_factory=list, title="Process step(s)", description="List of process steps", metadata={"type": "CHILDREN"})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1553,9 +1593,9 @@ class Publication(OpenBISObject):
     url: str = Field(default=None, title="URL", description="URL of the publication", metadata={"type": "VARCHAR"})
     dataset_url: str = Field(default=None, title="Dataset URL", description="URL to the associated dataset", metadata={"type": "VARCHAR"})
     year: int = Field(default=None, title="Year", description="Year of publication", metadata={"type": "INTEGER"})
-    authors: List[Person] = Field(default_factory=list, title="Authors", description="List of authors", metadata={"type": "SAMPLE", "multivalue": True})
-    drafts: List[Draft] = Field(default_factory=list, title="Drafts", description="Related drafts", metadata={"type": "PARENT"})
-    grants: List[Grant] = Field(default_factory=list, title="Grants", description="Grants supporting the publication", metadata={"type": "SAMPLE", "multivalue": True})
+    authors: List[Author] = Field(default_factory=list, title="Author(s)", description="List of authors", metadata={"type": "SAMPLE", "multivalue": True})
+    drafts: List[Draft] = Field(default_factory=list, title="Draft(s)", description="Related drafts", metadata={"type": "PARENT"})
+    grants: List[Grant] = Field(default_factory=list, title="Grant(s)", description="Grants supporting the publication", metadata={"type": "SAMPLE", "multivalue": True})
 
     @classmethod
     def get_code(cls) -> str:
@@ -1565,12 +1605,4 @@ class Publication(OpenBISObject):
     def get_label(cls) -> str:
         return "Publication"
 
-# import json
-# atomistic_model = AtomisticModel(name = "aa")
-# geoopt = GeometryOptimisation(atomistic_models = [atomistic_model])
-# schema = GeometryOptimisation.model_json_schema()
-# print(Grant.get_code())
-# print(Grant.model_fields)
-# with open("simulation_schema.json", "w") as f:
-#     json.dump(schema, f, indent=4)
     
