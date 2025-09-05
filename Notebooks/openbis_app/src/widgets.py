@@ -706,14 +706,64 @@ class ImportSimulationsWidget(ipw.VBox):
                 if obj_permid == "-1":
                     return
                 else:
-                    obj = utils.get_openbis_object(obj_permid)
+                    obj = get_cached_object(self.openbis_session, obj_permid)
                     obj_props = obj.props.all()
-                    obj_name = obj_props.get("name", "")
                     obj_details_string = "<div style='border: 1px solid grey; padding: 10px; margin: 10px;'>"
                     for key, value in obj_props.items():
                         if value:
-                            prop_type = utils.get_property_type(self.openbis_session, code = key)
+                            prop_type = utils.get_openbis_property_type(self.openbis_session, code = key)
                             prop_label = prop_type.label
+                            prop_datatype = prop_type.dataType
+                            if prop_datatype == OPENBIS_OBJECT_TYPES["Sample"]:
+                                if isinstance(value, list):
+                                    prop_obj_names = []
+                                    for id in value:
+                                        prop_obj = get_cached_object(self.openbis_session, id)
+                                        prop_obj_name = prop_obj.props["name"]
+                                        prop_obj_names.append(prop_obj_name)
+                                    value = ", ".join(prop_obj_names)
+                                else:
+                                    obj = get_cached_object(self.openbis_session, value)
+                                    value = obj.props["name"]
+                                    
+                            elif prop_datatype == "JSON":
+                                json_content = json.loads(value)
+                                if is_quantity_value(json_content):
+                                    value = f"<p>{json_content['value']} {json_content['unit']}</p>"
+                                else:
+                                    value = "<ul>"
+                                    for k, v in json_content.items():
+                                        if isinstance(v, dict):
+                                            if is_quantity_value(v):
+                                                value += f"<li><b>{k}:</b> {v['value']} {v['unit']}</li>"
+                                            else:
+                                                value += f"<li><b>{k}:</b> {v}</li>"
+                                        else:
+                                            value += f"<li><b>{k}:</b> {v}</li>"
+                                    
+                                    value += "</ul>"
+                            
+                            elif prop_datatype == "XML" and prop_type.metaData["custom_widget"] == "Spreadsheet":
+                                table_headers = value.headers
+                                table_data = value.data
+                                
+                                # Build table header
+                                table_html = "<table style='width:100%; border-collapse:collapse;'>"
+                                table_html += "<thead><tr>"
+                                for h in table_headers:
+                                    table_html += f"<th style='padding:0; text-align:left; font-weight:bold;'>{h}</th>"
+                                table_html += "</tr></thead>"
+
+                                # Build table body
+                                table_html += "<tbody>"
+                                for row in table_data:
+                                    table_html += "<tr>"
+                                    for cell in row:
+                                        table_html += f"<td style='padding:0;'>{cell}</td>"
+                                    table_html += "</tr>"
+                                table_html += "</tbody></table>"
+                                value = table_html
+                                
                             obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
                     
                     obj_details_string += "</div>"
@@ -2831,6 +2881,393 @@ class RegisterProcessWidget(ipw.VBox):
     def __init__(self, openbis_session):
         super().__init__()
         self.openbis_session = openbis_session
+        
+        self.select_collection_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Select collection</span>"
+        )
+        
+        self.new_processes_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Register new steps</span>"
+        )
+        
+        self.select_collection_label = ipw.Label(value = "Collection")
+        self.select_collection_dropdown = ipw.Dropdown()
+        self.select_collection_hbox = ipw.HBox([self.select_collection_label, self.select_collection_dropdown])
+        self.load_collections()
+        
+        self.process_properties_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Process properties</span>"
+        )
+        
+        self.process_name_label = ipw.Label(value = "Name")
+        self.process_name_text = ipw.Text()
+        self.process_name_hbox = ipw.HBox([self.process_name_label, self.process_name_text])
+        
+        self.process_short_name_label = ipw.Label(value = "Short name")
+        self.process_short_name_text = ipw.Text()
+        self.process_short_name_hbox = ipw.HBox([self.process_short_name_label, self.process_short_name_text])
+        
+        self.process_description_label = ipw.Label(value = "Description")
+        self.process_description_text = ipw.Textarea()
+        self.process_description_hbox = ipw.HBox([self.process_description_label, self.process_description_text])
+        
+        self.new_processes_accordion = ipw.Accordion()
+        
+        self.add_process_step_button = ipw.Button(
+            description = 'Add process step', 
+            disabled = False, 
+            button_style = 'success', 
+            tooltip = 'Add process step', 
+            layout = ipw.Layout(width = '150px', height = '25px')
+        )
+        
+        self.save_button = ipw.Button(
+            description = '', 
+            disabled = False, 
+            button_style = '', 
+            tooltip = 'Save', 
+            icon = 'save', 
+            layout = ipw.Layout(width = '100px', height = '50px')
+        )
+        
+        self.children = [
+            self.select_collection_title,
+            self.select_collection_hbox,
+            self.process_properties_title,
+            self.process_name_hbox,
+            self.process_short_name_hbox,
+            self.process_description_hbox,
+            self.new_processes_title,
+            self.new_processes_accordion,
+            self.add_process_step_button,
+            self.save_button
+        ]
+        
+        self.add_process_step_button.on_click(self.add_process_step)
+        self.save_button.on_click(self.save_process_steps)
+    
+    def load_collections(self):
+        collections = utils.get_openbis_collections(
+            self.openbis_session,
+            type = "COLLECTION",
+            project = "/METHODS/PROCESSES"
+        )
+        collection_options = []
+        for col in collections:
+            if "name" in col.props.all():
+                col_option = (f"{col.props['name']} from Project {col.project.code} and Space {col.project.space}", col.permId)
+            else:
+                col_option = (f"{col.code} from Project {col.project.code} and Space {col.project.space}", col.permId)
+            collection_options.append(col_option)
+        collection_options.insert(0, ("Select collection...", "-1"))
+        self.select_collection_dropdown.options = collection_options
+        self.select_collection_dropdown.value = "-1"
+    
+    def add_process_step(self, b):
+        processes_accordion_children = list(self.new_processes_accordion.children)
+        process_step_index = len(processes_accordion_children)
+        new_process_step_widget = RegisterProcessStepWidget(self.openbis_session, self.new_processes_accordion, process_step_index)
+        processes_accordion_children.append(new_process_step_widget)
+        self.new_processes_accordion.children = processes_accordion_children
+    
+    def save_process_steps(self, b):
+        collection_id = self.select_collection_dropdown.value
+        if collection_id == "-1":
+            display(Javascript(data = "alert('Select a collection.')"))
+            return
+        
+        process_steps_widgets = self.new_processes_accordion.children
+        if process_steps_widgets:
+            openbis_transaction_objects = []
+            
+            process_name = ""
+            if self.process_name_text.value:
+                process_name = self.process_name_text.value
+            
+            process_short_name = ""
+            if self.process_short_name_text.value:
+                process_short_name = self.process_short_name_text.value
+            
+            process_description = ""
+            if self.process_description_text.value:
+                process_description = self.process_description_text.value
+            
+            process_properties = {
+                "name": process_name,
+                "short_name": process_short_name,
+                "description": process_description,
+                "process_steps_settings": []
+            }
+            
+            process_steps_instruments = []
+            
+            for process_widget in process_steps_widgets:
+                process_step_name = process_widget.name_textbox.value
+                process_step_instrument = process_widget.instrument_dropdown.value
+                
+                actions_widgets = process_widget.actions_accordion.children
+                observables_widgets = process_widget.observables_accordion.children
+                actions = []
+                observables = []
+                
+                actions_codes = []
+                if actions_widgets:
+                    for action_widget in actions_widgets:
+                        action_properties = {}
+                        action_type = action_widget.action_type_dropdown.value
+                        duration_days = action_widget.duration_days_intbox.value
+                        duration_hours = action_widget.duration_hours_intbox.value
+                        duration_minutes = action_widget.duration_minutes_intbox.value
+                        duration_seconds = action_widget.duration_seconds_intbox.value
+
+                        if action_type == OPENBIS_OBJECT_TYPES["Annealing"]:
+                            target_temperature = {
+                                "value": action_widget.target_temperature_value_textbox.value,
+                                "unit": action_widget.target_temperature_unit_dropdown.value,
+                            }
+                            action_properties["target_temperature"] = json.dumps(target_temperature)
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
+                            target_temperature = {
+                                "value": action_widget.target_temperature_value_textbox.value,
+                                "unit": action_widget.target_temperature_unit_dropdown.value,
+                            }
+                            action_properties["target_temperature"] = json.dumps(target_temperature)
+                            action_properties["cryogen"] = action_widget.cryogen_textbox.value
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Deposition"]:
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            substance = action_widget.substance_dropdown.value
+                            if substance != "-1":
+                                action_properties["substance"] = substance
+                                
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Dosing"]:
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            pressure = {
+                                "value": action_widget.pressure_value_textbox.value,
+                                "unit": action_widget.pressure_unit_dropdown.value,
+                            }
+                            gas = action_widget.gas_dropdown.value
+                            action_properties["gas"] = gas
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties["pressure"] = json.dumps(pressure)
+
+                        elif action_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
+                            pressure = {
+                                "value": action_widget.pressure_value_textbox.value,
+                                "unit": action_widget.pressure_unit_dropdown.value,
+                            }
+                            current = {
+                                "value": action_widget.current_value_textbox.value,
+                                "unit": action_widget.current_unit_dropdown.value,
+                            }
+                            angle = {
+                                "value": action_widget.angle_value_textbox.value,
+                                "unit": action_widget.angle_unit_dropdown.value,
+                            }
+                            substrate_temperature = {
+                                "value": action_widget.substrate_temperature_value_textbox.value,
+                                "unit": action_widget.substrate_temperature_unit_dropdown.value,
+                            }
+                            action_properties["pressure"] = json.dumps(pressure)
+                            action_properties["current"] = json.dumps(current)
+                            action_properties["angle"] = json.dumps(angle)
+                            action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
+                            action_properties["ion"] = action_widget.sputter_ion_textbox.value
+                        
+                        component_permid = action_widget.component_dropdown.value
+                        if component_permid != "-1":
+                            component_object = get_cached_object(self.openbis_session, component_permid)
+                            component_type = component_object.type.code
+                            component_type_lower = component_type.lower()
+                            component_object_settings = component_object.props["actions_settings"]
+                            
+                            if component_object_settings:
+                                component_settings = {}
+                                component_object_settings = json.loads(component_object_settings)
+                                action_component_settings = []
+                                for action_settings in component_object_settings:
+                                    if action_settings["action_type"] == action_type:
+                                        action_component_settings = action_settings["component_properties"]
+                                        break
+                                    
+                                for setting in action_component_settings:
+                                    if setting == "target_temperature":
+                                        component_settings["target_temperature"] = {
+                                            "value": action_widget.target_temperature_value_comp_textbox.value,
+                                            "unit": action_widget.target_temperature_unit_comp_dropdown.value,
+                                        }
+                                    elif setting == "bias_voltage":
+                                        component_settings["bias_voltage"] = {
+                                            "value": action_widget.bias_voltage_value_textbox.value,
+                                            "unit": action_widget.bias_voltage_unit_dropdown.value,
+                                        }
+                                    elif setting == "discharge_voltage":
+                                        component_settings["discharge_voltage"] = {
+                                            "value": action_widget.discharge_voltage_value_textbox.value,
+                                            "unit": action_widget.discharge_voltage_unit_dropdown.value,
+                                        }
+                                    elif setting == "discharge_current":
+                                        component_settings["discharge_current"] = {
+                                            "value": action_widget.discharge_current_value_textbox.value,
+                                            "unit": action_widget.discharge_current_unit_dropdown.value,
+                                        }
+                                    elif setting == "p_value":
+                                        component_settings["p_value"] = float(action_widget.evaporator_p_value_textbox.value)
+                                        
+                                    elif setting == "i_value":
+                                        component_settings["i_value"] = float(action_widget.evaporator_i_value_textbox.value)
+                                        
+                                    elif setting == "ep_percentage":
+                                        component_settings["ep_percentage"] = float(action_widget.ep_percentage_textbox.value)
+                                
+                                # Update current component settings
+                                for setting_key, setting_value in component_settings.items():
+                                    if isinstance(setting_value, dict):
+                                        component_object.props[setting_key] = json.dumps(setting_value)
+                                    else:
+                                        component_object.props[setting_key] = setting_value
+                                component_object.save()
+                                
+                                action_properties["component_settings"] = json.dumps(component_settings)
+
+                            action_properties["name"] = action_widget.name_textbox.value
+                            action_properties["description"] = action_widget.description_textbox.value
+                            action_properties["duration"] = f"{duration_days} days {duration_hours:02}:{duration_minutes:02}:{duration_seconds:02}"
+                            action_properties["component"] = component_permid
+                            action_properties["comments"] = action_widget.comments_textarea.value
+                            
+                            new_action_object = utils.create_openbis_object(
+                                self.openbis_session,
+                                type = action_type,
+                                experiment = collection_id,
+                                props = action_properties
+                            )
+                            
+                            # Append action to list of actions
+                            actions.append(new_action_object.permId)
+                            
+                            # Get action code
+                            actions_codes.append(ACTIONS_CODES[action_type])
+                
+                if observables_widgets:
+                    for observable_widget in observables_widgets:
+                        observable_properties = {}
+                        observable_type = observable_widget.observable_type_dropdown.value
+                        
+                        component_permid = observable_widget.component_dropdown.value
+                        if component_permid != "-1":
+                            component_object = get_cached_object(self.openbis_session, component_permid)
+                            component_type = component_object.type.code
+                            component_type_lower = component_type.lower()
+                            component_object_settings = component_object.props["observables_settings"]
+                            
+                            if component_object_settings:
+                                component_settings = {}
+                                component_object_settings = json.loads(component_object_settings)
+                                observable_component_settings = []
+                                for observable_settings in component_object_settings:
+                                    if observable_settings["observable_type"] == observable_type:
+                                        observable_component_settings = observable_settings["component_properties"]
+                                        break
+                                    
+                                for setting in observable_component_settings:
+                                    if setting == "density":
+                                        component_settings["density"] = {
+                                            "value": observable_widget.density_value_textbox.value,
+                                            "unit": observable_widget.density_unit_dropdown.value,
+                                        }
+                                        
+                                    elif setting == "filament":
+                                        component_settings["filament"] = observable_widget.filament_textbox.value
+                                        
+                                    elif setting == "filament_current":
+                                        component_settings["filament_current"] = {
+                                            "value": observable_widget.filament_current_value_textbox.value,
+                                            "unit": observable_widget.filament_current_unit_dropdown.value,
+                                        }
+                                
+                                # Update current component settings
+                                for setting_key, setting_value in component_settings.items():
+                                    if isinstance(setting_value, dict):
+                                        component_object.props[setting_key] = json.dumps(setting_value)
+                                    else:
+                                        component_object.props[setting_key] = setting_value
+                                component_object.save()
+                                
+                                observable_properties["component_settings"] = json.dumps(component_settings)
+                        
+                            observable_properties["name"] = observable_widget.name_textbox.value
+                            observable_properties["description"] = observable_widget.description_textbox.value
+                            observable_properties["channel_name"] = observable_widget.ch_name_textbox.value
+                            observable_properties["component"] = component_permid
+                            observable_properties["comments"] = observable_widget.comments_textarea.value
+                            
+                            new_observable_object = utils.create_openbis_object(
+                                self.openbis_session,
+                                type = observable_type,
+                                experiment = collection_id,
+                                props = observable_properties
+                            )
+                            
+                            openbis_transaction_objects.append(new_observable_object)
+                            
+                            # Append observable to list of observables
+                            observables.append(new_observable_object.permId)
+                
+                actions_settings = []
+                for action_id in actions:
+                    actions_settings.append({"action": action_id})
+                
+                observables_settings = []
+                for observable_id in observables:
+                    observables_settings.append({"observable": observable_id})
+                
+                process_step_settings = {
+                    "name": process_step_name,
+                    "actions_settings": actions_settings,
+                    "observables_settings": observables_settings
+                }
+                process_properties["process_steps_settings"].append(process_step_settings)
+                
+                process_steps_instruments.append(process_step_instrument)
+            
+            if len(set(process_steps_instruments)) == 1:
+                process_properties["instrument"] = process_step_instrument
+            else:
+                display(Javascript(data = "alert('There are more than one instrument in the process steps. Only one instrument can be used in process registration tool.')"))
+            
+            # Convert property to JSON
+            process_properties["process_steps_settings"] = json.dumps(process_properties["process_steps_settings"])
+            
+            utils.create_openbis_object(
+                self.openbis_session,
+                type = "PROCESS",
+                experiment = collection_id,
+                props = process_properties
+            )
+            
+            # Reset new processes accordion
+            processes_accordion_children = list(self.new_processes_accordion.children)
+            for index, process_step in enumerate(processes_accordion_children):
+                self.new_processes_accordion.set_title(index, "")
+            
+            self.new_processes_accordion.children = []
+            
+            self.select_collection_dropdown.value = "-1"
+
+class RegisterPreparationWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
         self.sample_preparation_object = None
         
         self.select_experiment_title = ipw.HTML(
@@ -2858,7 +3295,7 @@ class RegisterProcessWidget(ipw.VBox):
             description = 'Load process', 
             disabled = False, 
             button_style = 'success', 
-            tooltip = 'Add process step', 
+            tooltip = 'Load process', 
             layout = ipw.Layout(width = '150px', height = '25px')
         )
         
@@ -2875,6 +3312,17 @@ class RegisterProcessWidget(ipw.VBox):
                 self.load_process_button,
                 self.add_process_step_button
             ]
+        )
+        
+        self.sort_name_label = ipw.Label(
+            value = "Name", 
+            layout=ipw.Layout(margin='2px', width='50px'),
+            style = {'description_width': 'initial'}
+        )
+        
+        self.sort_name_checkbox = ipw.Checkbox(
+            indent = False,
+            layout=ipw.Layout(margin='2px', width='20px')
         )
         
         self.load_processes_vbox = ipw.VBox()
@@ -2911,7 +3359,7 @@ class RegisterProcessWidget(ipw.VBox):
         self.load_process_button.on_click(self.load_process)
         self.processes_dropdown.observe(self.load_process_settings, names = "value")
         self.add_process_step_button.on_click(self.add_process_step)
-        self.save_button.on_click(self.save_processes)
+        self.save_button.on_click(self.save_process_steps)
     
     def load_sample_data(self, change):
         if self.select_sample_dropdown.sample_dropdown.value == "-1":
@@ -2979,10 +3427,6 @@ class RegisterProcessWidget(ipw.VBox):
             return
         else:
             process_object = get_cached_object(self.openbis_session, process_id)
-            process_type = OPENBIS_OBJECT_TYPES["Process"]
-            process_type_lower = process_type.lower()
-            process_step_type = OPENBIS_OBJECT_TYPES["Process Step"]
-            process_step_type_lower = process_step_type.lower()
             instrument_id = process_object.props["instrument"]
             process_steps_settings = process_object.props["process_steps_settings"]
             if process_steps_settings:
@@ -3001,9 +3445,8 @@ class RegisterProcessWidget(ipw.VBox):
                     self.new_processes_accordion.children = processes_accordion_children
 
             self.load_processes_vbox.children = []
-            
-
-    def save_processes(self, b):
+     
+    def save_process_steps(self, b):
         experiment_id = self.select_experiment_dropdown.experiment_dropdown.value
         if experiment_id == "-1":
             display(Javascript(data = "alert('Select an experiment.')"))
@@ -3035,14 +3478,12 @@ class RegisterProcessWidget(ipw.VBox):
                 # Reload sample preparation object to load children that was added in the cycle (e.g. process steps)
                 self.sample_preparation_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_preparation_id)
                 sample_type = OPENBIS_OBJECT_TYPES["Sample"]
-                sample_type_lower = sample_type.lower()
                 process_code = ""
                 current_sample.props["exists"] = False
                 current_sample_name = current_sample.props["name"]
                 current_sample.save()
                 
                 process_step_type = OPENBIS_OBJECT_TYPES["Process Step"]
-                process_step_type_lower = process_step_type.lower()
                 new_process_object = utils.create_openbis_object(
                     self.openbis_session,
                     type = process_step_type,
@@ -3066,7 +3507,6 @@ class RegisterProcessWidget(ipw.VBox):
                     for action_widget in actions_widgets:
                         action_properties = {}
                         action_type = action_widget.action_type_dropdown.value
-                        action_type_lower = action_type.lower()
                         duration_days = action_widget.duration_days_intbox.value
                         duration_hours = action_widget.duration_hours_intbox.value
                         duration_minutes = action_widget.duration_minutes_intbox.value
@@ -3680,12 +4120,12 @@ class SelectSampleWidget(ipw.VBox):
     
     def load_samples(self):
         sample_type = OPENBIS_OBJECT_TYPES["Sample"]
-        sample_type_lower = sample_type.lower()
         samples = utils.get_openbis_objects(
             self.openbis_session,
-            type = sample_type
+            type = sample_type,
+            where = {"exists": "true"}
         )
-        sample_options = [(f"{obj.props['name']}", obj.permId) for obj in samples if obj.props["exists"] == "true"]
+        sample_options = [(f"{obj.props['name']}", obj.permId) for obj in samples]
         sample_options.insert(0, ("Select sample...", "-1"))
         self.sample_dropdown.options = sample_options
         self.sample_dropdown.value = "-1"
@@ -4003,7 +4443,12 @@ class ActionHistoryWidget(ipw.VBox):
             substance_id = openbis_object_props["substance"]
             if substance_id:
                 substance_object = get_cached_object(self.openbis_session, substance_id)
-                self.substance_html.value = substance_object.props["name"]
+                substance_empa_number = substance_object.props["empa_number"]
+                substance_batch = substance_object.props["batch"]
+                substance_vial = substance_object.props["vial"]
+                self.substance_html.value = substance_empa_number + substance_batch
+                if substance_vial:
+                    self.substance_html.value += f"-{substance_vial}"
         
         component_id = openbis_object_props["component"]
         if component_id:

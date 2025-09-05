@@ -313,7 +313,7 @@ class Person(OpenBISObject):
     mobile_phone: str = Field(default="", title="Mobile phone", description="Mobile phone number", metadata={"type": "VARCHAR"})
     work_phone: str = Field(default="", title="Work phone", description="Work phone number", metadata={"type": "VARCHAR"})
     work_status: WorkStatusEnum = Field(default="Active", title="Work status", description="Current work status", metadata={"type": "CONTROLLEDVOCABULARY"})
-    office: "Location" = Field(default = None, title="Office", description = "Working office", metadata={"type": "VARCHAR"})
+    office: "Room" = Field(default = None, title="Office", description = "Working office", metadata={"type": "SAMPLE"})
     organisations: List[Organisation] = Field(default_factory=list, title="Organisation(s)", description="Organisation(s) to which the person belongs. Only used if the person does not belong to any group.", metadata={"type": "SAMPLE", "multivalue": True})
     groups: List[Group] = Field(default_factory=list, title="Group(s)", description="Group(s) to which the person belongs", metadata={"type": "SAMPLE", "multivalue": True})
     nanotech_surfaces_subgroup: NanotechSurfacesSubgroupEnum = Field(default = None, title="nanotech@surfaces subgroup", description="Subgroup of nanotech@surfaces at Empa. Only used for sorting people inside a collection. Not used in people that do not belong to nanotech@surfaces.", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -357,7 +357,7 @@ class Molecule(OpenBISObject):
 class GasBottle(OpenBISObject):
     molecules: List[Molecule] = Field(default_factory=list, title="Molecules", description = "List of molecules that gas bottle contains", metadata={"type": "SAMPLE", "multivalue": True})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of gas", metadata={"type": "JSON"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -393,7 +393,7 @@ class Substance(OpenBISObject):
     substance_type: str = Field(default="", title="Substance type", description="Type of the substance, e.g. Solvent", metadata={"type": "VARCHAR"})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of substance", metadata={"type": "JSON"})
     chemist_own_name: str = Field(default="", title="Chemist own name", description="Chemist's own name for the substance", metadata={"type": "VARCHAR"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -442,7 +442,7 @@ class Crystal(OpenBISObject):
     sample_plate: str = Field(default=None, title="Sample plate", description="Identifier for the sample plate", metadata={"type": "VARCHAR"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Crystal dimensions", metadata={"type": "JSON"})
     reference_number: str = Field(default="", title="Reference number", description="Reference number for the crystal", metadata={"type": "VARCHAR"})
-    location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Room", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -478,7 +478,7 @@ class TwoDLayerMaterial(OpenBISObject):
     substrate: str = Field(default="", title="Substrate", description="Substrate material", metadata={"type": "VARCHAR"})
     growth_method: str = Field(default="", title="Growth/Fabrication method", description="Method used for growth", metadata={"type": "VARCHAR"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the 2d layer material", metadata={"type": "JSON"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
@@ -509,7 +509,7 @@ class TwoDLayerMaterial(OpenBISObject):
 
 class Stamp(OpenBISObject):
     material: str = Field(default=None, title="Material", description="Material of the stamp", metadata={"type": "VARCHAR"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the stamp", metadata={"type": "CONTROLLEDVOCABULARY"})
     assembled_by: List[Person] = Field(default_factory=list, title="Synthesised by", description="List of people who assembled the stamp", metadata={"type": "SAMPLE", "multivalue": True})
@@ -540,7 +540,7 @@ class Wafer(OpenBISObject):
     doping: str = Field(default=None, title="Doping", description="Doping type or level", metadata={"type": "VARCHAR"})
     material_coating: List[MaterialCoating] = Field(default_factory=list, title="Material coating", description="Material coating details", metadata={"type": "JSON"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer substrate", metadata={"type": "JSON"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
@@ -574,7 +574,7 @@ class WaferSubstrate(OpenBISObject):
     face: str = Field(default=None, title="Face", description="Face orientation of the wafer", metadata={"type": "VARCHAR"})
     material_coating: List[MaterialCoating] = Field(default_factory=list, title="Material coating", description="Material coating details", metadata={"type": "JSON"})
     dimensions: Dimensions = Field(default_factory=Dimensions, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     sample_plate: str = Field(default=None, title="Sample plate", description="Sample plate identifier", metadata={"type": "VARCHAR"})
@@ -607,7 +607,7 @@ class Wire(OpenBISObject):
     material: str = Field(default=None, title="Material", description="Material of the wire", metadata={"type": "VARCHAR"})
     purity: float = Field(default=0.0, title="Purity", description="Purity level of the wire", metadata={"type": "REAL"})
     dimensions: Dimensions = Field(default=None, title="Dimensions", description="Dimensions of the wafer", metadata={"type": "JSON"})
-    location: Union["Instrument", "InstrumentSTM", "Location"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default=None, title="Package opening date", description="Date when the package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -678,7 +678,7 @@ class ReactionProduct(OpenBISObject):
         return "Reaction Product"
 
 class DeviceSubstrate(OpenBISObject):
-    location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the substrate", metadata={"type": "SAMPLE"})
+    location: Union["Room", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the substrate", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="List of special storage requirements", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     sample_plate: str = Field(default=None, title="Sample plate", description="Identifier for the sample plate", metadata={"type": "VARCHAR"})
     object_status: ObjectStatusEnum = Field(default="Active", title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -716,7 +716,7 @@ class WaferSample(OpenBISObject):
         return "Wafer Substrate"
 
 class SampleHolder(OpenBISObject):
-    location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the sample holder", metadata={"type": "SAMPLE"})
+    location: Union["Room", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Location of the sample holder", metadata={"type": "SAMPLE"})
     receive_date: str = Field(default=None, title="Receive date", description="Date when the sample holder was received", metadata={"type": "DATE"})
     
     @classmethod
@@ -734,7 +734,7 @@ class Component(OpenBISObject):
     model: str = Field(default="", title="Model", description="Model of the component", metadata={"type": "VARCHAR"})
     serial_number: str = Field(default="", title="Serial number", description="Serial number of the component", metadata={"type": "VARCHAR"})
     empa_id: str = Field(default="", title="Empa ID", description="ID given to expensive tools at Empa.", metadata={"type": "VARCHAR"})
-    location: Union["Location", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Current location of the component", metadata={"type": "SAMPLE"})
+    location: Union["Room", "Instrument", "InstrumentSTM"] = Field(default=None, title="Location", description="Current location of the component", metadata={"type": "SAMPLE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the component", metadata={"type": "CONTROLLEDVOCABULARY"})
     actions_settings: List[ComponentActionSettings] = Field(default_factory=list, title="Actions settings", description="Action types that use this component together with the names of the component properties that the action types use.", metadata={"type": "JSON"})
     observables_settings: List[ComponentObservableSettings]  = Field(default_factory=list, title="Observables settings", description="Observable types that use this component together with the names of the component properties that the observable types use and the readings that the observable type comprise.", metadata={"type": "JSON"})
@@ -958,7 +958,7 @@ class Instrument(OpenBISObject):
     model: str = Field(default=None, title="Model", description="Model number", metadata={"type": "VARCHAR"})
     serial_number: str = Field(default=None, title="Serial number", description="Serial number", metadata={"type": "VARCHAR"})
     empa_id: str = Field(default="", title="Empa ID", description="ID given to expensive tools at Empa.", metadata={"type": "VARCHAR"})
-    location: "Location" = Field(default=None, title="Location", description="Physical location", metadata={"type": "SAMPLE"})
+    location: "Room" = Field(default=None, title="Location", description="Physical location", metadata={"type": "SAMPLE"})
     object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the instrument", metadata={"type": "CONTROLLEDVOCABULARY"})
     responsibles: List[Person] = Field(default_factory=list, title="Responsible(s)", description="List of responsible persons", metadata={"type": "SAMPLE", "multivalue": True})
     receive_date: str = Field(default=None, title="Receive date", description="Date when the instrument was received", metadata={"type": "DATE"})
@@ -1366,16 +1366,16 @@ class Sputtering(Action):
     def get_label(cls) -> str:
         return "Sputtering"
 
-class Location(OpenBISObject):
+class Room(OpenBISObject):
     organisation: Organisation = Field(default=None, title="Organisation", description="Organisation associated with the location", metadata={"type": "SAMPLE"})
 
     @classmethod
     def get_code(cls) -> str:
-        return "LOCT"
+        return "ROOM"
     
     @classmethod
     def get_label(cls) -> str:
-        return "Location"
+        return "Room"
 
 class Analysis(OpenBISObject):
     codes: List[Code] = Field(default_factory=list, title="Code(s)", description="List of codes used in the analysis", metadata={"type": "SAMPLE", "multivalue": True})
