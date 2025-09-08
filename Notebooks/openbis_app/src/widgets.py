@@ -13,6 +13,7 @@ import atexit
 import ipyfilechooser
 import src.aiida_utils as aiida_utils
 import signal
+import base64
 
 OPENBIS_SAMPLES_CACHE = {}
 
@@ -152,6 +153,18 @@ OPENBIS_COLLECTIONS_PATHS = {
     "Instrument": "/EQUIPMENT/ILOG/INSTRUMENT_COLLECTION",
     "Chemical": "/MATERIALS/RAW_MATERIALS/CHEMICAL_COLLECTION"
 }
+
+def upload_files_to_openbis(openbis_session, uploader_widget, dataset_type, ob_object):
+    for filename in uploader_widget.value:
+        file_info = uploader_widget.value[filename]
+        utils.write_file(file_info['content'], filename)
+        utils.create_openbis_dataset(
+            openbis_session,
+            type = dataset_type, 
+            sample = ob_object, 
+            files = [filename]
+        )
+        os.remove(filename)
 
 def is_quantity_value(d):
     d_keys = set(d.keys())
@@ -990,28 +1003,20 @@ class ExportSimulationsWidget(ipw.VBox):
                     )
                     
                     # Simulation preview
-                    for filename in self.simulation_details_vbox.upload_image_preview_uploader.value:
-                        file_info = self.simulation_details_vbox.upload_image_preview_uploader.value[filename]
-                        utils.write_file(file_info['content'], filename)
-                        utils.create_openbis_dataset(
-                            self.openbis_session,
-                            type = "ELN_PREVIEW", 
-                            sample = simulation_obj, 
-                            files = [filename]
-                        )
-                        os.remove(filename)
+                    upload_files_to_openbis(
+                        self.openbis_session,
+                        self.simulation_details_vbox.upload_image_preview_uploader,
+                        "ELN_PREVIEW",
+                        simulation_obj
+                    )
                     
                     # Simulation datasets
-                    for filename in self.simulation_details_vbox.upload_datasets_uploader.value:
-                        file_info = self.simulation_details_vbox.upload_datasets_uploader.value[filename]
-                        utils.write_file(file_info['content'], filename)
-                        utils.create_openbis_dataset(
-                            self.openbis_session,
-                            type = "ATTACHMENT", 
-                            sample = simulation_obj, 
-                            files = [filename]
-                        )
-                        os.remove(filename)
+                    upload_files_to_openbis(
+                        self.openbis_session,
+                        self.simulation_details_vbox.upload_datasets_uploader,
+                        "ATTACHMENT",
+                        simulation_obj
+                    )
                 
 class SimulationDetailsWidget(ipw.VBox):
     def __init__(self, openbis_session, used_aiida):
@@ -3003,7 +3008,9 @@ class RegisterProcessWidget(ipw.VBox):
             
             for process_widget in process_steps_widgets:
                 process_step_name = process_widget.name_textbox.value
+                process_step_description = process_widget.description_textbox.value
                 process_step_instrument = process_widget.instrument_dropdown.value
+                process_step_comments = process_widget.comments_textarea.value
                 
                 actions_widgets = process_widget.actions_accordion.children
                 observables_widgets = process_widget.observables_accordion.children
@@ -3087,7 +3094,6 @@ class RegisterProcessWidget(ipw.VBox):
                         if component_permid != "-1":
                             component_object = get_cached_object(self.openbis_session, component_permid)
                             component_type = component_object.type.code
-                            component_type_lower = component_type.lower()
                             component_object_settings = component_object.props["actions_settings"]
                             
                             if component_object_settings:
@@ -3166,8 +3172,6 @@ class RegisterProcessWidget(ipw.VBox):
                         component_permid = observable_widget.component_dropdown.value
                         if component_permid != "-1":
                             component_object = get_cached_object(self.openbis_session, component_permid)
-                            component_type = component_object.type.code
-                            component_type_lower = component_type.lower()
                             component_object_settings = component_object.props["observables_settings"]
                             
                             if component_object_settings:
@@ -3233,17 +3237,15 @@ class RegisterProcessWidget(ipw.VBox):
                 
                 process_step_settings = {
                     "name": process_step_name,
+                    "description": process_step_description,
+                    "instrument": process_step_instrument,
+                    "comments": process_step_comments,
                     "actions_settings": actions_settings,
                     "observables_settings": observables_settings
                 }
                 process_properties["process_steps_settings"].append(process_step_settings)
                 
                 process_steps_instruments.append(process_step_instrument)
-            
-            if len(set(process_steps_instruments)) == 1:
-                process_properties["instrument"] = process_step_instrument
-            else:
-                display(Javascript(data = "alert('There are more than one instrument in the process steps. Only one instrument can be used in process registration tool.')"))
             
             # Convert property to JSON
             process_properties["process_steps_settings"] = json.dumps(process_properties["process_steps_settings"])
@@ -3427,12 +3429,10 @@ class RegisterPreparationWidget(ipw.VBox):
             return
         else:
             process_object = get_cached_object(self.openbis_session, process_id)
-            instrument_id = process_object.props["instrument"]
             process_steps_settings = process_object.props["process_steps_settings"]
             if process_steps_settings:
                 process_steps_settings = json.loads(process_steps_settings)
                 for step_settings in process_steps_settings:
-                    step_settings["instrument"] = instrument_id
                     processes_accordion_children = list(self.new_processes_accordion.children)
                     process_step_index = len(processes_accordion_children)
                     new_process_step_widget = RegisterProcessStepWidget(
@@ -3613,13 +3613,19 @@ class RegisterPreparationWidget(ipw.VBox):
                                             "unit": action_widget.discharge_current_unit_dropdown.value,
                                         }
                                     elif setting == "p_value":
-                                        component_settings["p_value"] = float(action_widget.evaporator_p_value_textbox.value)
+                                        p_value_str = action_widget.evaporator_p_value_textbox.value
+                                        if p_value_str:
+                                            component_settings["p_value"] = float(p_value_str)
                                         
                                     elif setting == "i_value":
-                                        component_settings["i_value"] = float(action_widget.evaporator_i_value_textbox.value)
+                                        i_value_str = action_widget.evaporator_i_value_textbox.value
+                                        if i_value_str:
+                                            component_settings["i_value"] = float(i_value_str)
                                         
                                     elif setting == "ep_percentage":
-                                        component_settings["ep_percentage"] = float(action_widget.ep_percentage_textbox.value)
+                                        ep_percentage_value_str = action_widget.ep_percentage_textbox.value
+                                        if ep_percentage_value_str:
+                                            component_settings["ep_percentage"] = float(ep_percentage_value_str)
                                 
                                 # Update current component settings
                                 for setting_key, setting_value in component_settings.items():
@@ -3670,13 +3676,11 @@ class RegisterPreparationWidget(ipw.VBox):
                     for observable_widget in observables_widgets:
                         observable_properties = {}
                         observable_type = observable_widget.observable_type_dropdown.value
-                        observable_type_lower = observable_type.lower()
                         
                         component_permid = observable_widget.component_dropdown.value
                         if component_permid != "-1":
                             component_object = get_cached_object(self.openbis_session, component_permid)
                             component_type = component_object.type.code
-                            component_type_lower = component_type.lower()
                             component_object_settings = component_object.props["observables_settings"]
                             
                             if component_object_settings:
@@ -3728,7 +3732,7 @@ class RegisterPreparationWidget(ipw.VBox):
                             )
                             
                             if openbis_experiments.df.empty:
-                                observables_collection_object = utils.create_openbis_collection(
+                                utils.create_openbis_collection(
                                     self.openbis_session,
                                     type = "COLLECTION",
                                     code = observable_collection_code,
@@ -3741,6 +3745,11 @@ class RegisterPreparationWidget(ipw.VBox):
                                 type = observable_type,
                                 experiment = f"{experiment_project_code}/{observable_collection_code}",
                                 props = observable_properties
+                            )
+                            
+                            upload_files_to_openbis(
+                                self.openbis_session, observable_widget.upload_readings_widget,
+                                "ATTACHMENT", new_observable_object
                             )
                             
                             openbis_transaction_objects.append(new_observable_object)
@@ -4065,7 +4074,6 @@ class SelectSampleWidget(ipw.VBox):
         
         self.sample_dropdown = ipw.Dropdown()
         self.load_samples()
-        
         
         self.sort_sample_label = ipw.Label(
             value = "Sort by:"
@@ -4446,9 +4454,24 @@ class ActionHistoryWidget(ipw.VBox):
                 substance_empa_number = substance_object.props["empa_number"]
                 substance_batch = substance_object.props["batch"]
                 substance_vial = substance_object.props["vial"]
-                self.substance_html.value = substance_empa_number + substance_batch
+                self.substance_html.value = "Identifier: " + substance_empa_number + substance_batch
                 if substance_vial:
                     self.substance_html.value += f"-{substance_vial}"
+                
+                substance_mols_ids = substance_object.props["molecules"]
+                if substance_mols_ids:
+                    mol_id = substance_mols_ids[0]
+                    molecule_obj = get_cached_object(self.openbis_session, mol_id)
+                    molecule_obj_datasets = molecule_obj.get_datasets(type = "ELN_PREVIEW")
+                    molecule_obj_preview = molecule_obj_datasets[0]
+                    molecule_obj_preview.download(destination="images")
+                    object_image_filepath = molecule_obj_preview.file_list[0]
+                    html_image = utils.read_file(f"images/{molecule_obj_preview.permId}/{object_image_filepath}")
+                    image_encoded = base64.b64encode(html_image).decode("utf-8")
+                    self.substance_html.value += f""" Molecule sketch: <img src="data:image/png;base64,{image_encoded}" width="100">"""
+                    
+                    # Erase file after downloading it
+                    shutil.rmtree(f"images/{molecule_obj_preview.permId}")
         
         component_id = openbis_object_props["component"]
         if component_id:
@@ -4633,8 +4656,6 @@ class RegisterProcessStepWidget(ipw.VBox):
         ]
     
     def load_process_step(self, settings):
-        process_step_code = OPENBIS_OBJECT_TYPES["Process Step"]
-        process_step_code_lower = process_step_code.lower()
         self.name_textbox.value = settings.get("name", "")
         self.description_textbox.value = settings.get("description", "")
         self.instrument_dropdown.value = settings.get("instrument", "-1")
@@ -4754,8 +4775,6 @@ class RegisterActionWidget(ipw.VBox):
             type = OPENBIS_OBJECT_TYPES["Substance"]
         )
         
-        substance_code = OPENBIS_OBJECT_TYPES["Substance"]
-        substance_code_lower = substance_code.lower()
         substances_names_ids = []
         for obj in substances_list:
             obj_props = obj.props.all()
@@ -4771,7 +4790,8 @@ class RegisterActionWidget(ipw.VBox):
             options = substance_options,
             value = "-1"
         )
-        self.substance_hbox = ipw.HBox(children = [self.substance_label, self.substance_dropdown])
+        self.substance_mol_image = ipw.Image(layout = ipw.Layout(width = '100px', height = '100px'))
+        self.substance_hbox = ipw.HBox(children = [self.substance_label, self.substance_dropdown, self.substance_mol_image])
         
         self.gas_label = ipw.Label(value = "Dosing gas")
         gas_list = utils.get_openbis_objects(self.openbis_session, collection = OPENBIS_COLLECTIONS_PATHS["Chemical"])
@@ -4826,8 +4846,6 @@ class RegisterActionWidget(ipw.VBox):
             children = [self.angle_label, self.angle_value_textbox, self.angle_unit_dropdown]
         )
         
-        instrument_stm_type = OPENBIS_OBJECT_TYPES["Instrument STM"]
-        instrument_stm_type_lower = instrument_stm_type.lower()
         self.instrument_type_components_dictionary = {
             OPENBIS_OBJECT_TYPES["Instrument STM"]: [
                 "pumps", "gauges", 
@@ -4893,9 +4911,6 @@ class RegisterActionWidget(ipw.VBox):
         self.ep_percentage_textbox = ipw.Text()
         self.ep_percentage_hbox = ipw.HBox(children = [self.ep_percentage_label, self.ep_percentage_textbox])
         
-        evaporator_slot_type_lower = OPENBIS_OBJECT_TYPES["Evaporator Slot"].lower()
-        pbn_stage_type_lower = OPENBIS_OBJECT_TYPES["PBN Stage"].lower()
-        sputter_gun_type_lower = OPENBIS_OBJECT_TYPES["Sputter Gun"].lower()
         self.components_properties_widgets = {
             "target_temperature": self.target_temperature_comp_hbox,
             "bias_voltage": self.bias_voltage_hbox,
@@ -4922,6 +4937,7 @@ class RegisterActionWidget(ipw.VBox):
         self.name_textbox.observe(self.change_action_title, names = "value")
         self.action_type_dropdown.observe(self.load_action_properties, names = "value")
         self.component_dropdown.observe(self.load_component_settings_list, names = "value")
+        self.substance_dropdown.observe(self.load_substance_mol_image, names = "value")
         self.remove_action_button.on_click(self.remove_action)
 
         if action_settings:
@@ -4932,6 +4948,25 @@ class RegisterActionWidget(ipw.VBox):
             self.action_properties_widgets,
             self.remove_action_button
         ]
+    
+    def load_substance_mol_image(self, change):
+        substance_id = self.substance_dropdown.value
+        if substance_id == "-1":
+            self.substance_mol_image.value = b""
+        else:
+            substance_obj = get_cached_object(self.openbis_session, substance_id)
+            substance_mols_ids = substance_obj.props["molecules"]
+            if substance_mols_ids:
+                mol_id = substance_mols_ids[0]
+                molecule_obj = get_cached_object(self.openbis_session, mol_id)
+                molecule_obj_datasets = molecule_obj.get_datasets(type = "ELN_PREVIEW")
+                molecule_obj_preview = molecule_obj_datasets[0]
+                molecule_obj_preview.download(destination="images")
+                object_image_filepath = molecule_obj_preview.file_list[0]
+                self.substance_mol_image.value = utils.read_file(f"images/{molecule_obj_preview.permId}/{object_image_filepath}")
+                
+                # Erase file after downloading it
+                shutil.rmtree(f"images/{molecule_obj_preview.permId}")
     
     def load_action(self, settings):
         action_permid = settings["action"]
@@ -4979,8 +5014,6 @@ class RegisterActionWidget(ipw.VBox):
             component_permid = action_props.get("component", {})
             if component_settings:
                 component_object = get_cached_object(self.openbis_session, component_permid)
-                component_type = component_object.type.code
-                component_type_lower = component_type.lower()
                 self.component_dropdown.value = component_permid
                 if "target_temperature" in component_settings:
                     self.target_temperature_value_comp_textbox.value = str(component_settings["target_temperature"]["value"])
@@ -5073,15 +5106,12 @@ class RegisterActionWidget(ipw.VBox):
                         
                         # Evaporators contain sub-components (evaporator slots)
                         evaporator_type = OPENBIS_OBJECT_TYPES["Evaporator"]
-                        evaporator_type_lower = evaporator_type.lower()
                         if component_object.type == evaporator_type:
                             evaporator_slots = component_object.props["evaporator_slots"]
                             for evaporator_slot_id in evaporator_slots:
                                 evaporator_slot_object = get_cached_object(self.openbis_session, evaporator_slot_id)
                                 all_instrument_components.append(evaporator_slot_object)
             for component_object in all_instrument_components:
-                component_type = component_object.type.code
-                component_type_lower = component_type.lower()
                 component_actions_settings_prop = component_object.props["actions_settings"]
                 if component_actions_settings_prop:
                     component_actions_settings = json.loads(component_actions_settings_prop)
@@ -5098,8 +5128,6 @@ class RegisterActionWidget(ipw.VBox):
             component_permid = self.component_dropdown.value
             if component_permid != "-1":
                 component_object = get_cached_object(self.openbis_session, component_permid)
-                component_type = component_object.type.code
-                component_type_lower = component_type.lower()
                 component_settings_property = component_object.props["actions_settings"]
                 component_settings_widgets = []
                 if component_settings_property:
@@ -5191,8 +5219,6 @@ class RegisterObservableWidget(ipw.VBox):
         self.ch_name_textbox = ipw.Text()
         self.ch_name_hbox = ipw.HBox(children = [self.ch_name_label, self.ch_name_textbox])
         
-        instrument_stm_type = OPENBIS_OBJECT_TYPES["Instrument STM"]
-        instrument_stm_type_lower = instrument_stm_type.lower()
         self.instrument_type_components_dictionary = {
             OPENBIS_OBJECT_TYPES["Instrument STM"]: [
                 "pumps", "gauges", 
@@ -5236,8 +5262,6 @@ class RegisterObservableWidget(ipw.VBox):
         )
         # END
         
-        ion_gauge_type_lower = OPENBIS_OBJECT_TYPES["Ion Gauge"].lower()
-        analyser_type_lower = OPENBIS_OBJECT_TYPES["Analyser"].lower()
         self.components_properties_widgets = {
             "filament": self.filament_hbox,
             "filament_current": self.filament_current_hbox,
@@ -5280,7 +5304,6 @@ class RegisterObservableWidget(ipw.VBox):
         observable_object = get_cached_object(self.openbis_session, observable_permid)
         observable_props = observable_object.props.all()
         observable_type = observable_object.type.code
-        observable_type_lower = observable_type.lower()
         self.observable_type_dropdown.value = observable_type
         self.name_textbox.value = observable_props["name"] or ""
         self.description_textbox.value = observable_props["description"] or ""

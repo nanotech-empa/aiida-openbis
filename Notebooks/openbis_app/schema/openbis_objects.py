@@ -233,6 +233,9 @@ class ObservableSettings(BaseModel):
 
 class ProcessStepSettings(BaseModel):
     name: str = Field(default="")
+    description: str = Field(default="")
+    instrument: str = Field(default="")
+    comments: str = Field(default="")
     actions_settings: List[ActionSettings] = Field(default_factory=list)
     observables_settings: List[ObservableSettings] = Field(default_factory=list)
 
@@ -1552,7 +1555,6 @@ class MeasurementSession(OpenBISObject):
 
 class Process(OpenBISObject):
     short_name: str = Field(default=None, title="Short name", description="Short name for the process", metadata={"type": "VARCHAR"})
-    instrument: Union[Instrument, InstrumentSTM] = Field(default=None, title="Instrument", description="Instrument used in the process", metadata={"type": "SAMPLE"})
     process_steps_settings: List[ProcessStepSettings] = Field(default_factory=list, title="Process steps settings", description="Settings for each process step", metadata={"type": "JSON"})
 
     @classmethod
