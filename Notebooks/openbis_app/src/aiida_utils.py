@@ -13,7 +13,7 @@ import json
 from ase.io.jsonio import encode
 from aiida.common.exceptions import NotExistentAttributeError
 import random
-import src.utils as utils
+from . import utils
 
 def original_structure(workchain_uuid):
     wc=orm.load_node(workchain_uuid)
@@ -436,9 +436,7 @@ def is_structure_optimized(structure_uuid):
 
 def get_uuids_from_oBIS(openbis_session):
     aiida_node_type = "AIIDA_NODE"
-    aiida_node_type_lower = aiida_node_type.lower()
     atom_model_type = "ATOMISTIC_MODEL"
-    atom_model_type_lower = atom_model_type.lower()
     aiida_nodes_oBIS = utils.get_openbis_objects(openbis_session, type = aiida_node_type)
     atom_mods_oBIS = utils.get_openbis_objects(openbis_session, type = atom_model_type)
     

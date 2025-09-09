@@ -82,4 +82,7 @@ if __name__ == "__main__":
             measurement_session_id = measurement_session_id,
             logging_filepath = logging_filepath
         )
+        
+        process_measurement_files(openbis_url, openbis_token, data_folder, measurement_session_id, logging_filepath)
+        
         monitor_folder(data_folder, custom_function)

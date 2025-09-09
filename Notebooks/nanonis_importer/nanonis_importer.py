@@ -503,6 +503,7 @@ def process_measurement_files(openbis_url, token, data_folder, measurements_id, 
                     experiment = measurements_object.experiment
                     demo_sxm_flow(session, file_path, sample = measurements_id, experiment = experiment)
                     logging_file["processed_files"].append(file_path)
+                    utils.write_json(logging_file, logging_filepath)
                     
                 except (ValueError, KeyError) as e :
                     print(f"Cannot upload {file_path}. Reason: {e}")
@@ -555,6 +556,8 @@ def process_measurement_files(openbis_url, token, data_folder, measurements_id, 
                             
                             # Upload dat files
                             demo_dat_flow(session, dat_files_directory, sample = measurements_id, experiment = experiment)
+                            utils.write_json(logging_file, logging_filepath)
+                            
                         except ValueError as e:
                             print(f"Cannot upload {dat_files_directory}. Reason: {e}")
                             # Report it in a logging file
@@ -564,12 +567,11 @@ def process_measurement_files(openbis_url, token, data_folder, measurements_id, 
                         experiment = measurements_object.experiment
                         # Upload dat files
                         demo_dat_flow(session, dat_files_directory, sample = measurements_id, experiment = experiment)
+                        utils.write_json(logging_file, logging_filepath)
                     except ValueError as e:
                         print(f"Cannot upload {dat_files_directory}. Reason: {e}")
                         # Report it in a logging file
                 shutil.rmtree(dat_files_directory)
-    
-    utils.write_json(logging_file, logging_filepath)
         
     session.logout()
 
