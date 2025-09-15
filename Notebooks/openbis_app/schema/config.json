@@ -28,6 +28,7 @@
             "Inventory": [
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='upload_substances.ipynb' target='_blank' style='font-size: 13px;'>Upload substances</a></li>",
                 "</div>",
                 "</div>"
             ],
@@ -67,6 +68,7 @@
             "Inventory": [
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
+                "<li><a href='upload_substances.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Upload substances</a></li>",
                 "</div>",
                 "</div>"
             ],

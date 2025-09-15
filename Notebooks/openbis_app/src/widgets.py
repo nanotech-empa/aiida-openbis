@@ -3,7 +3,10 @@ from src import utils
 from IPython.display import display, Javascript
 import pandas as pd
 import os
+import rdkit
+from rdkit.Chem import AllChem, Draw, rdMolDescriptors
 import shutil
+import io
 
 MATERIALS_CONCEPTS_TYPES = utils.read_json("metadata/materials_concepts_types.json")
 SIMULATION_TYPES = utils.read_json("metadata/simulation_types.json")
@@ -1030,6 +1033,7 @@ class SelectSampleWidget(ipw.VBox):
             where = {"exists": "true"}
         )
         sample_options = [(f"{obj.props['name']}", obj.permId) for obj in samples]
+        sample_options = sorted(sample_options, key=lambda x: x[1], reverse = True)
         sample_options.insert(0, ("Select sample...", "-1"))
         self.sample_dropdown.options = sample_options
         self.sample_dropdown.value = "-1"
@@ -1449,3 +1453,311 @@ class CreateResultsWidget(ipw.VBox):
         self.select_simulations_selector.options = simulations_objects
         self.select_measurements_selector.options = measurements_objects
         self.select_analysis_selector.options = analysis_objects  
+
+class CreateSubstanceWidget(ipw.VBox):
+    def __init__(self, openbis_session):
+        super().__init__()
+        self.openbis_session = openbis_session
+        
+        self.properties_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Properties</span>"
+        )
+        
+        self.molecules_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Molecules</span>"
+        )
+        
+        self.evaporation_temperatures_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Evaporation temperatures</span>"
+        )
+        
+        self.name_label = ipw.Label(value = "Name")
+        self.name_textbox = ipw.Text()
+        self.name_hbox = ipw.HBox([self.name_label, self.name_textbox])
+        
+        self.description_label = ipw.Label(value = "Description")
+        self.description_textbox = ipw.Textarea()
+        self.description_hbox = ipw.HBox([self.description_label, self.description_textbox])
+        
+        self.molecules_label = ipw.Label(value = "Molecules")
+        self.molecules_accordion = ipw.Accordion()
+        self.molecules_hbox = ipw.HBox([self.molecules_label, self.molecules_accordion])
+        
+        self.empa_number_label = ipw.Label(value = "Empa number")
+        self.empa_number_textbox = ipw.IntText()
+        self.empa_number_hbox = ipw.HBox([self.empa_number_label, self.empa_number_textbox])
+        
+        self.batch_label = ipw.Label(value = "Batch")
+        self.batch_textbox = ipw.Text()
+        self.batch_hbox = ipw.HBox([self.batch_label, self.batch_textbox])
+        
+        self.vial_label = ipw.Label(value = "Vial")
+        self.vial_textbox = ipw.Text()
+        self.vial_hbox = ipw.HBox([self.vial_label, self.vial_textbox])
+        
+        self.evaporation_temperatures_table = TableWidget()
+        
+        self.purity_label = ipw.Label(value = "Purity")
+        self.purity_textbox = ipw.FloatText()
+        self.purity_hbox = ipw.HBox([self.purity_label, self.purity_textbox])
+        
+        self.substance_type_label = ipw.Label(value = "Substance type")
+        self.substance_type_textbox = ipw.Text()
+        self.substance_type_hbox = ipw.HBox([self.substance_type_label, self.substance_type_textbox])
+        
+        self.amount_label = ipw.Label(value = "Amount")
+        self.amount_value_textbox = ipw.Text()
+        self.amount_unit_dropdown = ipw.Dropdown(options = ["g", "mg", "ug", "ml", "ul"])
+        self.amount_hbox = ipw.HBox([self.amount_label, self.amount_value_textbox, self.amount_unit_dropdown])
+        
+        self.chemist_own_name_label = ipw.Label(value = "Chemist own name")
+        self.chemist_own_name_textbox = ipw.Text()
+        self.chemist_own_name_hbox = ipw.HBox([self.chemist_own_name_label, self.chemist_own_name_textbox])
+        
+        self.location_label = ipw.Label(value = "Location")
+        self.location_dropdown = ipw.Dropdown(options = ["A", "B", "C"])
+        self.location_hbox = ipw.HBox([self.location_label, self.location_dropdown])
+        
+        self.storage_conditions_label = ipw.Label(value = "Special storage conditions")
+        self.storage_conditions_selector = ipw.SelectMultiple(
+            options = ["Fridge", "Freezer", "Poiseouns", "Dark", "Dry", "No oxygen", "Flammable"]
+        )
+        self.storage_conditions_hbox = ipw.HBox([self.storage_conditions_label, self.storage_conditions_selector])
+        
+        self.package_opening_date_label = ipw.Label(value = "Package opening date")
+        self.package_opening_date = ipw.DatePicker()
+        self.package_opening_date_hbox = ipw.HBox([self.package_opening_date_label, self.package_opening_date])
+        
+        self.object_status_label = ipw.Label(value = "Object status")
+        self.object_status_dropdown = ipw.Dropdown(options = ["Active", "Inactive", "Broken", "Disposed"])
+        self.object_status_hbox = ipw.HBox([self.object_status_label, self.object_status_dropdown])
+        
+        self.supplier_label = ipw.Label(value = "Supplier")
+        self.supplier_dropdown = ipw.Dropdown(options = ["A", "B", "C"])
+        self.supplier_hbox = ipw.HBox([self.supplier_label, self.supplier_dropdown])
+        
+        self.synthesised_by_label = ipw.Label(value = "Synthesised by")
+        self.synthesised_by_selector = ipw.SelectMultiple(options = ["A", "B", "C"])
+        self.synthesised_by_hbox = ipw.HBox([self.synthesised_by_label, self.synthesised_by_selector])
+        
+        self.supplier_own_name_label = ipw.Label(value = "Supplier own name")
+        self.supplier_own_name_textbox = ipw.Text()
+        self.supplier_own_name_hbox = ipw.HBox([self.supplier_own_name_label, self.supplier_own_name_textbox])
+        
+        self.receive_date_label = ipw.Label(value = "Receive date")
+        self.receive_date = ipw.DatePicker()
+        self.receive_date_hbox = ipw.HBox([self.receive_date_label, self.receive_date])
+        
+        self.comments_label = ipw.Label(value = "Comments")
+        self.comments_textbox = ipw.Textarea()
+        self.comments_hbox = ipw.HBox([self.comments_label, self.comments_textbox])
+        
+        self.add_molecule_button = ipw.Button(description = "Add molecule", button_style = 'success')
+        self.add_molecule_button.on_click(self.add_molecule)
+        
+        self.create_molecule_vbox = ipw.VBox()
+        self.create_molecule_button = ipw.Button(description = "Create molecule", button_style = 'success')
+        self.create_molecule_button.on_click(self.create_molecule)
+        
+        self.molecules_buttons = ipw.HBox(children = [self.add_molecule_button, self.create_molecule_button])
+        
+        self.children = [
+            self.molecules_title,
+            self.molecules_accordion,
+            self.create_molecule_vbox,
+            self.molecules_buttons,
+            self.evaporation_temperatures_title,
+            self.evaporation_temperatures_table,
+            self.properties_title,
+            self.name_hbox,
+            self.description_hbox,
+            self.empa_number_hbox,
+            self.batch_hbox,
+            self.vial_hbox,
+            self.purity_hbox,
+            self.substance_type_hbox,
+            self.amount_hbox,
+            self.chemist_own_name_hbox,
+            self.location_hbox,
+            self.storage_conditions_hbox,
+            self.package_opening_date_hbox,
+            self.object_status_hbox,
+            self.supplier_hbox,
+            self.synthesised_by_hbox,
+            self.supplier_own_name_hbox,
+            self.receive_date_hbox,
+            self.comments_hbox
+        ]
+    
+    def add_molecule(self, b):
+        molecules_accordion_children = list(self.molecules_accordion.children)
+        molecule_index = len(molecules_accordion_children)
+        new_molecule_widget = MoleculeWidget(self.openbis_session, self.molecules_accordion, molecule_index)
+        molecules_accordion_children.append(new_molecule_widget)
+        self.molecules_accordion.children = molecules_accordion_children
+    
+    def create_molecule(self, b):
+        name_label = ipw.Label(value = "Name")
+        name_textbox = ipw.Text()
+        name_hbox = ipw.HBox(children = [name_label, name_textbox])
+        
+        description_label = ipw.Label(value = "Description")
+        description_textbox = ipw.Textarea()
+        description_hbox = ipw.HBox(children = [description_label, description_textbox])
+        
+        cas_number_label = ipw.Label(value = "CAS number")
+        cas_number_textbox = ipw.Text()
+        cas_number_hbox = ipw.HBox(children = [cas_number_label, cas_number_textbox])
+        
+        iupac_name_label = ipw.Label(value = "IUPAC name")
+        iupac_name_textbox = ipw.Text()
+        iupac_name_hbox = ipw.HBox(children = [iupac_name_label, iupac_name_textbox])
+        
+        comments_label = ipw.Label(value = "Comments")
+        comments_textbox = ipw.Textarea()
+        comments_hbox = ipw.HBox(children = [comments_label, comments_textbox])
+        
+        chemical_props_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 20px;'>Chemical properties</span>"
+        )
+        chemical_props_vbox = ipw.VBox()
+        
+        smiles_label = ipw.Label(value = "SMILES")
+        smiles_textbox = ipw.Text()
+        smiles_hbox = ipw.HBox(children = [smiles_label, smiles_textbox])
+        
+        sum_formula_label = ipw.Label(value = "Sum formula")
+        sum_formula_textbox = ipw.Text()
+        sum_formula_hbox = ipw.HBox(children = [sum_formula_label, sum_formula_textbox])
+        
+        sketch_label = ipw.Label(value = "Molecule sketch")
+        sketch_image = ipw.Image()
+        sketch_hbox = ipw.HBox(children = [sketch_label, sketch_image])
+        
+        molecule_cdxml_label = ipw.Label(value = "Upload molecule CDXML file")
+        molecule_cdxml_uploader = ipw.FileUpload(accept = ".cdxml")
+        molecule_cdxml_hbox = ipw.HBox(children = [molecule_cdxml_label, molecule_cdxml_uploader])
+        
+        def load_molecule_structure(change):
+            
+            # Create structures directory if it does not exist
+            os.makedirs("structures", exist_ok=True)
+            
+            for filename in molecule_cdxml_uploader.value:
+                file_info = molecule_cdxml_uploader.value[filename]
+                utils.write_file(file_info['content'], "structures/structure.cdxml")
+                
+            cdxml_molecule = utils.read_file("structures/structure.cdxml")
+            molecules = rdkit.Chem.MolsFromCDXML(cdxml_molecule)
+            
+            if len(molecules) == 1:
+                mol = molecules[0] # Get first molecule
+                molecule_sum_formula = rdMolDescriptors.CalcMolFormula(mol) # Sum Formula
+                molecule_smiles = rdkit.Chem.MolToSmiles(mol) # Canonical Smiles
+                chem_mol = rdkit.Chem.MolFromSmiles(molecule_smiles)
+                
+                smiles_textbox.value = molecule_smiles
+                sum_formula_textbox.value = molecule_sum_formula
+                
+                if chem_mol is not None:
+                    AllChem.Compute2DCoords(chem_mol) # Add coords to the atoms in the molecule
+                    img = Draw.MolToImage(chem_mol)
+                    buffer = io.BytesIO()
+                    img.save(buffer, format="PNG")
+                    sketch_image.value = buffer.getvalue()
+                    img.save("structures/structure.png")
+                
+                chemical_props_vbox.children = [
+                    chemical_props_title,
+                    smiles_hbox,
+                    sum_formula_hbox,
+                    sketch_hbox
+                ]
+            
+        def save_molecule(b):
+            #TODO: Save molecule in openBIS
+            self.create_molecule_vbox.children = []
+        
+        def close_molecule(b):
+            self.create_molecule_vbox.children = []
+        
+        molecule_cdxml_uploader.observe(load_molecule_structure, names = "value")
+        chemical_props_vbox.children = [molecule_cdxml_hbox]
+        
+        save_molecule_button = ipw.Button(icon = "fa-save")
+        save_molecule_button.on_click(save_molecule)
+        
+        close_molecule_button = ipw.Button(icon = "fa-times")
+        close_molecule_button.on_click(close_molecule)
+        
+        save_close_molecule_buttons = ipw.HBox(children = [save_molecule_button, close_molecule_button])
+        
+        self.create_molecule_vbox.children = [
+            name_hbox,
+            description_hbox,
+            comments_hbox,
+            cas_number_hbox,
+            iupac_name_hbox,
+            chemical_props_vbox,
+            save_close_molecule_buttons
+        ]
+        
+        
+
+class TableWidget(ipw.GridBox):
+    def __init__(self):
+        super().__init__()
+        
+        self.gridbox_items = [
+            ipw.Label(value="Datetime"),
+            ipw.Label(value="Instrument name"),
+            ipw.Label(value="Temperature (value)"),
+            ipw.Label(value="Temperature (unit)"),
+            ipw.DatePicker(layout=ipw.Layout(width="80%")),
+            ipw.Text(layout=ipw.Layout(width="80%")),
+            ipw.Text(layout=ipw.Layout(width="80%")),
+            ipw.Dropdown(layout=ipw.Layout(width="80%"), options = ["C", "K"])
+        ]
+
+        self.table_gridbox = ipw.GridBox(
+            self.gridbox_items,
+            layout=ipw.Layout(grid_template_columns="repeat(4, 15%)"),
+        )
+        
+        self.table_gridbox = ipw.GridBox(
+            self.gridbox_items,
+            layout=ipw.Layout(grid_template_columns="repeat(4, 15%)"),
+        )
+        
+        self.add_row_button = ipw.Button(icon = "fa-plus", button_style = 'success')
+        self.remove_row_button = ipw.Button(icon = "fa-minus", button_style = 'danger')
+        self.table_buttons = ipw.HBox(children = [
+                self.add_row_button, self.remove_row_button
+            ]
+        )
+        
+        self.add_row_button.on_click(self.add_row)
+        self.remove_row_button.on_click(self.remove_row)
+        
+        self.children = [
+            self.table_gridbox,
+            self.table_buttons
+        ]
+        
+    def add_row(self, b):
+        grid_box_items = list(self.table_gridbox.children)
+        grid_box_items.extend(
+            [
+                ipw.DatePicker(layout=ipw.Layout(width="80%")),
+                ipw.Text(layout=ipw.Layout(width="80%")),
+                ipw.Text(layout=ipw.Layout(width="80%")),
+                ipw.Dropdown(layout=ipw.Layout(width="80%"), options = ["C", "K"])
+            ]
+        )
+        self.table_gridbox.children = grid_box_items
+    
+    def remove_row(self, b):
+        grid_box_items = list(self.table_gridbox.children)
+        if len(grid_box_items) > 8:
+            self.table_gridbox.children = grid_box_items[:-4]
+    

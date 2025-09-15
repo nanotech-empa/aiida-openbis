@@ -238,9 +238,13 @@ class ProcessStepSettings(BaseModel):
     comments: str = Field(default="")
     actions_settings: List[ActionSettings] = Field(default_factory=list)
     observables_settings: List[ObservableSettings] = Field(default_factory=list)
+    
+class EvaporationTemperature(BaseModel):
+    measurement_datetime: datetime = None
+    instrument_name: str = Field(default="")
+    temperature: TemperatureValue = None
 
 # Objects
-
 class OpenBISObject(BaseModel):
     permId: str = Field(default="", title="PermID", description="Permanent identifier for the OpenBIS object", metadata={"type": "No type"})
     name: str = Field(default="", title="Name", description="Name of the OpenBIS object", metadata={"type": "VARCHAR"})
@@ -391,7 +395,7 @@ class Substance(OpenBISObject):
     empa_number: int = Field(default=0, title="Empa number", ge = 1, description = "Integer value given to new substances inside Empa (0 = unassigned)", metadata={"type": "INTEGER"})
     batch: str = Field(default="", title="Batch", description = "Letter given to the batch of substances, e.g., a for the first, b for the second.", metadata={"type": "VARCHAR"})
     vial: str = Field(default="", title="Vial", description = "Letter given to the vial of the batch of substances, e.g. i, ii, iii.", metadata={"type": "VARCHAR"})
-    evaporation_temperatures: Dict = Field(default_factory=dict, title="Evaporation temperature(s)", description="Evaporation temperatures", metadata={"type": "XML", "custom_widget": "Spreadsheet"})
+    evaporation_temperatures: EvaporationTemperature = Field(default_factory=list, title="Evaporation temperature(s)", description="Evaporation temperatures", metadata={"type": "XML", "custom_widget": "Spreadsheet"})
     purity: float = Field(default=0.0, title="Purity", description="Purity of the substance", metadata={"type": "REAL"})
     substance_type: str = Field(default="", title="Substance type", description="Type of the substance, e.g. Solvent", metadata={"type": "VARCHAR"})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of substance", metadata={"type": "JSON"})

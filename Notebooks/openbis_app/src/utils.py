@@ -8,15 +8,12 @@ from functools import lru_cache
 
 # OpenBIS-AiiDAlab functions
 
-@lru_cache(maxsize=5000)
 def get_openbis_collections(openbis_session, **kwargs):
     return openbis_session.get_collections(**kwargs)
 
-@lru_cache(maxsize=5000)
 def get_openbis_projects(openbis_session, **kwargs):
     return openbis_session.get_projects(**kwargs)
 
-@lru_cache(maxsize=5000)
 def get_openbis_objects(openbis_session, **kwargs):
     return openbis_session.get_objects(**kwargs)
 
