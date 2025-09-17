@@ -224,7 +224,6 @@ class ImportSimulationsWidget(ipw.VBox):
         self.found_simulations_select_multiple.options = simulation_aiida_node_list
     
     def import_aiida_nodes(self, b):
-        
         selected_simulations = self.found_simulations_select_multiple.value
         selected_labels = [label for label, value in self.found_simulations_select_multiple.options if value in selected_simulations]
         
@@ -234,8 +233,6 @@ class ImportSimulationsWidget(ipw.VBox):
             
             if aiida_node_permid:
                 aiida_node_object = utils.get_openbis_object(self.openbis_session, sample_ident = aiida_node_permid)
-                aiida_node_object_type = aiida_node_object.type.code
-                aiida_node_object_type_lower = aiida_node_object_type.lower()
                 object_datasets = aiida_node_object.get_datasets()
                 
                 for dataset in object_datasets:

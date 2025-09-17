@@ -6,6 +6,9 @@ from IPython.display import display, Javascript
 from collections import Counter
 import shutil
 import base64
+import os
+import io
+import matplotlib.pyplot as plt
 
 OBSERVABLES_TYPES = utils.read_json("metadata/observables_types.json")
 ACTIONS_TYPES = utils.read_json("metadata/actions_types.json")
@@ -1990,7 +1993,6 @@ class RegisterActionWidget(ipw.VBox):
         action_object = utils.get_openbis_object(self.openbis_session, sample_ident = action_permid)
         action_props = action_object.props.all()
         action_type = action_object.type.code
-        action_type_lower = action_type.lower()
         self.action_type_dropdown.value = action_type
         self.name_textbox.value = action_props["name"] or ""
         duration_str = action_props["duration"]
@@ -2030,7 +2032,6 @@ class RegisterActionWidget(ipw.VBox):
             component_settings = json.loads(component_settings)
             component_permid = action_props.get("component", {})
             if component_settings:
-                component_object = utils.get_openbis_object(self.openbis_session, sample_ident = component_permid)
                 self.component_dropdown.value = component_permid
                 if "target_temperature" in component_settings:
                     self.target_temperature_value_comp_textbox.value = str(component_settings["target_temperature"]["value"])
@@ -2075,19 +2076,23 @@ class RegisterActionWidget(ipw.VBox):
 
             if action_type == OPENBIS_OBJECT_TYPES["Annealing"]:
                 action_properties.append(self.target_temperature_hbox)
+                self.action_icon = "🔥"
 
             elif action_type == OPENBIS_OBJECT_TYPES["Cooldown"]:
                 action_properties.append(self.target_temperature_hbox)
                 action_properties.append(self.cryogen_hbox)
+                self.action_icon = "❄️"
 
             elif action_type == OPENBIS_OBJECT_TYPES["Deposition"]:
                 action_properties.append(self.substance_hbox)
                 action_properties.append(self.substrate_temperature_hbox)
-
+                self.action_icon = "🟫"
+                
             elif action_type == OPENBIS_OBJECT_TYPES["Dosing"]:
                 action_properties.append(self.substrate_temperature_hbox)
                 action_properties.append(self.pressure_hbox)
                 action_properties.append(self.gas_hbox)
+                self.action_icon = "💧"
 
             elif action_type == OPENBIS_OBJECT_TYPES["Sputtering"]:
                 action_properties.append(self.pressure_hbox)
@@ -2095,6 +2100,24 @@ class RegisterActionWidget(ipw.VBox):
                 action_properties.append(self.angle_hbox)
                 action_properties.append(self.substrate_temperature_hbox)
                 action_properties.append(self.sputter_ion_hbox)
+                self.action_icon = "🌫️"
+            
+            elif action_type == OPENBIS_OBJECT_TYPES["Coating"]:
+                self.action_icon = "🧥"
+            elif action_type == OPENBIS_OBJECT_TYPES["Delamination"]:
+                self.action_icon = "🧩"
+            elif action_type == OPENBIS_OBJECT_TYPES["Etching"]:
+                self.action_icon = "📌"
+            elif action_type == OPENBIS_OBJECT_TYPES["Fishing"]:
+                self.action_icon = "🎣"
+            elif action_type == OPENBIS_OBJECT_TYPES["Field Emission"]:
+                self.action_icon = "⚡"
+            elif action_type == OPENBIS_OBJECT_TYPES["Light Irradiation"]:
+                self.action_icon = "💡"
+            elif action_type == OPENBIS_OBJECT_TYPES["Mechanical Pressing"]:
+                self.action_icon = "🔩"
+            elif action_type == OPENBIS_OBJECT_TYPES["Rinse"]:
+                self.action_icon = "🚿"
             
             action_properties.append(self.component_hbox)
             action_properties.append(self.component_settings_hbox)
@@ -2106,6 +2129,8 @@ class RegisterActionWidget(ipw.VBox):
             self.component_dropdown.value = "-1"
             
             self.action_properties_widgets.children = action_properties
+            
+            self.actions_accordion.set_title(self.action_index, self.action_icon)
     
     def get_instrument_components(self, instrument_permid, action_type):
         component_list = []
@@ -2190,7 +2215,7 @@ class RegisterActionWidget(ipw.VBox):
 
     def change_action_title(self, change):
         title = self.name_textbox.value
-        self.actions_accordion.set_title(self.action_index, title)
+        self.actions_accordion.set_title(self.action_index, f"{self.action_icon} {title}")
                     
     def remove_action(self, b):
         actions_accordion_children = list(self.actions_accordion.children)
@@ -2290,8 +2315,10 @@ class RegisterObservableWidget(ipw.VBox):
         self.comments_hbox = ipw.HBox(children = [self.comments_label, self.comments_textarea])
         
         self.upload_readings_label = ipw.Label(value = "Upload readings")
-        self.upload_readings_widget = ipw.FileUpload(multiple = True)
+        self.upload_readings_widget = ipw.FileUpload(multiple = False, accept = '.csv, .txt')
         self.upload_readings_hbox = ipw.HBox(children = [self.upload_readings_label, self.upload_readings_widget])
+        
+        self.plot_readings_widget = ipw.Output()
         
         self.remove_observable_button = ipw.Button(
             description = 'Remove', 
@@ -2304,6 +2331,7 @@ class RegisterObservableWidget(ipw.VBox):
         self.name_textbox.observe(self.change_observable_title, names = "value")
         self.observable_type_dropdown.observe(self.load_observable_properties, names = "value")
         self.component_dropdown.observe(self.load_component_settings_list, names = "value")
+        self.upload_readings_widget.observe(self.plot_readings, names = "value")
         self.remove_observable_button.on_click(self.remove_observable)
         
         if observable_settings:
@@ -2312,7 +2340,6 @@ class RegisterObservableWidget(ipw.VBox):
         self.children = [
             self.observable_type_hbox,
             self.observable_properties_widgets,
-            self.upload_readings_hbox,
             self.remove_observable_button
         ]
     
@@ -2355,7 +2382,9 @@ class RegisterObservableWidget(ipw.VBox):
                 self.ch_name_hbox,
                 self.component_hbox,
                 self.component_settings_hbox,
-                self.comments_hbox
+                self.comments_hbox,
+                self.upload_readings_hbox,
+                self.plot_readings_widget
             ]
 
             component_options = self.get_instrument_components(self.instrument_permid, observable_type)
@@ -2364,6 +2393,33 @@ class RegisterObservableWidget(ipw.VBox):
             self.component_dropdown.value = "-1"
             
             self.observable_properties_widgets.children = observable_properties
+            
+            if observable_type == OPENBIS_OBJECT_TYPES["Current"]:
+                self.observable_icon = "⚡"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Elemental Composition"]:
+                self.observable_icon = "⚛️"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Pressure"]:
+                self.observable_icon = "Ψ"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Voltage"]:
+                self.observable_icon = "🔌"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Temperature"]:
+                self.observable_icon = "🌡️"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Resistance"]:
+                self.observable_icon = "⛔"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Inductance"]:
+                self.observable_icon = "🌀"
+            elif observable_type == OPENBIS_OBJECT_TYPES["pH Value"]:
+                self.observable_icon = "🧪"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Speed"]:
+                self.observable_icon = "💨"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Force"]:
+                self.observable_icon = "💪"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Flux"]:
+                self.observable_icon = "🌊"
+            elif observable_type == OPENBIS_OBJECT_TYPES["Observable"]:
+                self.observable_icon = "📏"
+                
+            self.observables_accordion.set_title(self.observable_index, self.observable_icon)
     
     def get_instrument_components(self, instrument_permid, observable_type):
         component_list = []
@@ -2432,10 +2488,10 @@ class RegisterObservableWidget(ipw.VBox):
                                     component_settings_widgets.append(self.components_properties_widgets[prop])
                             
                 self.component_settings_vbox.children = component_settings_widgets
-                
+    
     def change_observable_title(self, change):
         title = self.name_textbox.value
-        self.observables_accordion.set_title(self.observable_index, title)
+        self.observables_accordion.set_title(self.observable_index, f"{self.observable_icon} {title}")
     
     def remove_observable(self, b):
         observables_accordion_children = list(self.observables_accordion.children)
@@ -2449,3 +2505,26 @@ class RegisterObservableWidget(ipw.VBox):
 
         self.observables_accordion.set_title(num_observables - 1, "")
         self.observables_accordion.children = observables_accordion_children
+
+    def plot_readings(self, change):
+        # Create structures directory if it does not exist
+        for filename in self.upload_readings_widget.value:
+            file_info = self.upload_readings_widget.value[filename]
+            content = file_info['content'].decode('utf-8')
+            try:
+                df = pd.read_csv(io.StringIO(content), sep=",")
+                
+                if df.shape[1] < 2:
+                    raise ValueError("Dataframe has less than 2 columns.")
+                
+                self.plot_readings_widget.clear_output()
+                with self.plot_readings_widget:
+                    plt.figure(figsize=(6,4))
+                    plt.plot(df.iloc[:, 0], df.iloc[:, 1])
+                    plt.xlabel(df.columns[0])
+                    plt.ylabel(df.columns[1])
+                    plt.grid(True)
+                    plt.show()
+                
+            except Exception as e:
+                display(Javascript(data = "alert('Data cannot be plotted!')"))

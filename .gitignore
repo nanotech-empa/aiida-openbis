@@ -13,3 +13,7 @@ build/
 dist/
 pip-wheel-metadata/
 .ipynb_checkpoints/
+.*.ipynb
+Notebooks/openbis_app/.upload_substances-1.ipynb
+openbis_app/structures/
+openbis_app/data/

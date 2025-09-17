@@ -5,6 +5,7 @@ import yaml
 import datetime
 import os
 from functools import lru_cache
+import ipywidgets as ipw
 
 # OpenBIS-AiiDAlab functions
 
@@ -108,6 +109,19 @@ def create_openbis_collection(openbis_session, **kwargs):
     return collection
 
 # General functions
+def clone_widgets_empty(widgets):
+    new_widgets = []
+    for w in widgets:
+        cls = w.__class__
+        kwargs = {}
+        
+        kwargs["layout"] = w.layout
+        
+        if isinstance(w, ipw.Dropdown):
+            kwargs["options"] = w.options
+        
+        new_widgets.append(cls(**kwargs))
+    return new_widgets
 
 def full_listdir(path):
     return [f"{path}{os.sep}{filepath}" for filepath in os.listdir(path)]

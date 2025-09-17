@@ -1471,6 +1471,25 @@ class CreateSubstanceWidget(ipw.VBox):
             value = "<span style='font-weight: bold; font-size: 20px;'>Evaporation temperatures</span>"
         )
         
+        headers_items = [
+            ipw.Label(value="Datetime"),
+            ipw.Label(value="Instrument name"),
+            ipw.Label(value="Temperature (value)"),
+            ipw.Label(value="Temperature (unit)")
+        ]
+        
+        row_items = [
+            ipw.DatePicker(layout=ipw.Layout(width="80%")),
+            ipw.Text(layout=ipw.Layout(width="80%")),
+            ipw.Text(layout=ipw.Layout(width="80%")),
+            ipw.Dropdown(layout=ipw.Layout(width="80%"), options = ["C", "K"])
+        ]
+        
+        self.evaporation_temperatures_table = TableWidget(
+            headers_items = headers_items,
+            row_items = row_items
+        )
+        
         self.name_label = ipw.Label(value = "Name")
         self.name_textbox = ipw.Text()
         self.name_hbox = ipw.HBox([self.name_label, self.name_textbox])
@@ -1495,8 +1514,6 @@ class CreateSubstanceWidget(ipw.VBox):
         self.vial_textbox = ipw.Text()
         self.vial_hbox = ipw.HBox([self.vial_label, self.vial_textbox])
         
-        self.evaporation_temperatures_table = TableWidget()
-        
         self.purity_label = ipw.Label(value = "Purity")
         self.purity_textbox = ipw.FloatText()
         self.purity_hbox = ipw.HBox([self.purity_label, self.purity_textbox])
@@ -1515,7 +1532,11 @@ class CreateSubstanceWidget(ipw.VBox):
         self.chemist_own_name_hbox = ipw.HBox([self.chemist_own_name_label, self.chemist_own_name_textbox])
         
         self.location_label = ipw.Label(value = "Location")
-        self.location_dropdown = ipw.Dropdown(options = ["A", "B", "C"])
+        instruments_options = self.load_instruments(collection = OPENBIS_COLLECTIONS_PATHS["Instrument"])
+        rooms_options = self.load_rooms(project = "/ADMINISTRATIVE/LOCATIONS")
+        location_options = instruments_options + rooms_options
+        location_options.insert(0, ("Select a location...", "-1"))
+        self.location_dropdown = ipw.Dropdown(options = location_options)
         self.location_hbox = ipw.HBox([self.location_label, self.location_dropdown])
         
         self.storage_conditions_label = ipw.Label(value = "Special storage conditions")
@@ -1533,11 +1554,14 @@ class CreateSubstanceWidget(ipw.VBox):
         self.object_status_hbox = ipw.HBox([self.object_status_label, self.object_status_dropdown])
         
         self.supplier_label = ipw.Label(value = "Supplier")
-        self.supplier_dropdown = ipw.Dropdown(options = ["A", "B", "C"])
+        supplier_options = self.load_suppliers(project = "/ADMINISTRATIVE/INSTITUTIONS")
+        supplier_options.insert(0, ("Select a supplier...", "-1"))
+        self.supplier_dropdown = ipw.Dropdown(options = supplier_options)
         self.supplier_hbox = ipw.HBox([self.supplier_label, self.supplier_dropdown])
         
         self.synthesised_by_label = ipw.Label(value = "Synthesised by")
-        self.synthesised_by_selector = ipw.SelectMultiple(options = ["A", "B", "C"])
+        synthesised_by_options = self.load_synthesisers(project = "/ADMINISTRATIVE/PEOPLE")
+        self.synthesised_by_selector = ipw.SelectMultiple(options = synthesised_by_options)
         self.synthesised_by_hbox = ipw.HBox([self.synthesised_by_label, self.synthesised_by_selector])
         
         self.supplier_own_name_label = ipw.Label(value = "Supplier own name")
@@ -1589,6 +1613,54 @@ class CreateSubstanceWidget(ipw.VBox):
             self.comments_hbox
         ]
     
+    def load_synthesisers(self, **kwargs):
+        synthesisers = utils.get_openbis_objects(self.openbis_session, **kwargs)
+        synthesisers_identifiers = []
+        for obj in synthesisers:
+            obj_name = obj.props["name"]
+            organisations = obj.props.get("organisations") or []
+            organisations_names_list = []
+            for organisation in organisations:
+                organisation_obj = utils.get_openbis_object(
+                    self.openbis_session, sample_ident = organisation
+                )
+                organisation_name = organisation_obj.props["name"]
+                organisations_names_list.append(organisation_name)
+            
+            organisations_names = ", ".join(organisations_names_list)
+            synthesiser_id = (f"{obj_name} ({organisations_names})" )
+            synthesisers_identifiers.append(synthesiser_id)
+        
+        return synthesisers_identifiers
+    
+    def load_suppliers(self, **kwargs):
+        suppliers = utils.get_openbis_objects(self.openbis_session, **kwargs)
+        suppliers_identifiers = [(obj.props["name"], obj.permId) for obj in suppliers]
+        return suppliers_identifiers
+    
+    def load_rooms(self, **kwargs):
+        rooms = utils.get_openbis_objects(self.openbis_session, **kwargs)
+        rooms_identifiers = []
+        for obj in rooms:
+            room_name = obj.props["name"]
+            room_id = (f"{room_name} (Room)", obj.permId)
+            rooms_identifiers.append(room_id)
+        return rooms_identifiers
+    
+    def load_instruments(self, **kwargs):
+        instruments = utils.get_openbis_objects(self.openbis_session, **kwargs)
+        instruments_identifiers = []
+        for obj in instruments:
+            instrument_name = obj.props["name"]
+            instrument_id = (f"{instrument_name} (Instrument)", obj.permId)
+            instruments_identifiers.append(instrument_id)
+        return instruments_identifiers
+    
+    def load_objects(self, **kwargs):
+        objects = utils.get_openbis_objects(self.openbis_session, **kwargs)
+        objects_identifiers = [(obj.props["name"], obj.permId) for obj in objects]
+        return objects_identifiers
+    
     def add_molecule(self, b):
         molecules_accordion_children = list(self.molecules_accordion.children)
         molecule_index = len(molecules_accordion_children)
@@ -1597,6 +1669,14 @@ class CreateSubstanceWidget(ipw.VBox):
         self.molecules_accordion.children = molecules_accordion_children
     
     def create_molecule(self, b):
+        create_molecule_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 16px;'>Create molecule</span>"
+        )
+        
+        general_props_title = ipw.HTML(
+            value = "<span style='font-weight: bold; font-size: 14px;'>General properties</span>"
+        )
+        
         name_label = ipw.Label(value = "Name")
         name_textbox = ipw.Text()
         name_hbox = ipw.HBox(children = [name_label, name_textbox])
@@ -1618,7 +1698,7 @@ class CreateSubstanceWidget(ipw.VBox):
         comments_hbox = ipw.HBox(children = [comments_label, comments_textbox])
         
         chemical_props_title = ipw.HTML(
-            value = "<span style='font-weight: bold; font-size: 20px;'>Chemical properties</span>"
+            value = "<span style='font-weight: bold; font-size: 14px;'>Chemical properties</span>"
         )
         chemical_props_vbox = ipw.VBox()
         
@@ -1668,14 +1748,45 @@ class CreateSubstanceWidget(ipw.VBox):
                     img.save("structures/structure.png")
                 
                 chemical_props_vbox.children = [
-                    chemical_props_title,
                     smiles_hbox,
                     sum_formula_hbox,
-                    sketch_hbox
+                    sketch_hbox,
+                    molecule_cdxml_hbox
                 ]
             
         def save_molecule(b):
-            #TODO: Save molecule in openBIS
+            molecule_dict = {
+                "name": name_textbox.value,
+                "description": description_textbox.value,
+                "comments": comments_textbox.value,
+                "iupac_name": iupac_name_textbox.value,
+                "cas_number": cas_number_textbox.value,
+                "smiles": smiles_textbox.value,
+                "sum_formula": sum_formula_textbox.value
+            }
+            
+            molecule_object = utils.create_openbis_object(
+                self.openbis_session,
+                type = OPENBIS_OBJECT_TYPES["Molecule"],
+                collection = OPENBIS_COLLECTIONS_PATHS["Precursor Molecule"],
+                props = molecule_dict
+            )
+
+            utils.create_openbis_dataset(
+                self.openbis_session, sample = molecule_object,
+                type = "ELN_PREVIEW", files = ["structures/structure.png"],
+                props = {"name": "Sketch"}
+            )
+            
+            utils.create_openbis_dataset(
+                self.openbis_session, sample = molecule_object,
+                type = "ATTACHMENT", files = ["structures/structure.cdxml"],
+                props = {"name": "Structure file"}
+            )
+            
+            shutil.rmtree("structures")
+
+            display(Javascript(data = "alert('Molecule created successfully!')"))
             self.create_molecule_vbox.children = []
         
         def close_molecule(b):
@@ -1693,40 +1804,63 @@ class CreateSubstanceWidget(ipw.VBox):
         save_close_molecule_buttons = ipw.HBox(children = [save_molecule_button, close_molecule_button])
         
         self.create_molecule_vbox.children = [
+            create_molecule_title,
+            general_props_title,
             name_hbox,
             description_hbox,
             comments_hbox,
-            cas_number_hbox,
+            chemical_props_title,
             iupac_name_hbox,
+            cas_number_hbox,
             chemical_props_vbox,
             save_close_molecule_buttons
         ]
+    
+    def reset_widgets(self):
+        self.name_textbox.value = ""
+        self.description_textbox.value = ""
+        self.empa_number_textbox.value = 0
+        self.batch_textbox.value = ""
+        self.vial_textbox.value = ""
+        self.purity_textbox.value = 0
+        self.substance_type_textbox.value = ""
+        self.chemist_own_name_textbox.value = ""
+        self.storage_conditions_selector.value = []
+        self.object_status_dropdown.value = "Active"
+        self.synthesised_by_selector.value = []
+        self.supplier_own_name_textbox.value = ""
+        self.comments_textbox.value = ""
+        self.amount_value_textbox.value = ""
+        self.amount_unit_dropdown.value = "g"
+        self.location_dropdown.value = "-1"
+        self.package_opening_date.value = None
+        self.supplier_dropdown.value = "-1"
+        self.receive_date.value = None
         
+        for index, _ in enumerate(self.molecules_accordion.children):
+            self.molecules_accordion.set_title(index, "")
         
+        self.molecules_accordion.children = []
+        
+        self.evaporation_temperatures_table.reset_table()
 
 class TableWidget(ipw.GridBox):
-    def __init__(self):
+    def __init__(self, headers_items, row_items):
         super().__init__()
         
-        self.gridbox_items = [
-            ipw.Label(value="Datetime"),
-            ipw.Label(value="Instrument name"),
-            ipw.Label(value="Temperature (value)"),
-            ipw.Label(value="Temperature (unit)"),
-            ipw.DatePicker(layout=ipw.Layout(width="80%")),
-            ipw.Text(layout=ipw.Layout(width="80%")),
-            ipw.Text(layout=ipw.Layout(width="80%")),
-            ipw.Dropdown(layout=ipw.Layout(width="80%"), options = ["C", "K"])
-        ]
+        self.headers_items = headers_items
+        self.row_items = row_items
+        self.gridbox_items = headers_items + row_items
+        num_cols = len(headers_items)
 
         self.table_gridbox = ipw.GridBox(
             self.gridbox_items,
-            layout=ipw.Layout(grid_template_columns="repeat(4, 15%)"),
+            layout=ipw.Layout(grid_template_columns=f"repeat({num_cols}, 15%)"),
         )
         
         self.table_gridbox = ipw.GridBox(
             self.gridbox_items,
-            layout=ipw.Layout(grid_template_columns="repeat(4, 15%)"),
+            layout=ipw.Layout(grid_template_columns=f"repeat({num_cols}, 15%)"),
         )
         
         self.add_row_button = ipw.Button(icon = "fa-plus", button_style = 'success')
@@ -1746,18 +1880,19 @@ class TableWidget(ipw.GridBox):
         
     def add_row(self, b):
         grid_box_items = list(self.table_gridbox.children)
-        grid_box_items.extend(
-            [
-                ipw.DatePicker(layout=ipw.Layout(width="80%")),
-                ipw.Text(layout=ipw.Layout(width="80%")),
-                ipw.Text(layout=ipw.Layout(width="80%")),
-                ipw.Dropdown(layout=ipw.Layout(width="80%"), options = ["C", "K"])
-            ]
-        )
+        new_row_items = utils.clone_widgets_empty(self.row_items)
+        grid_box_items.extend(new_row_items)
         self.table_gridbox.children = grid_box_items
     
     def remove_row(self, b):
         grid_box_items = list(self.table_gridbox.children)
         if len(grid_box_items) > 8:
             self.table_gridbox.children = grid_box_items[:-4]
+        elif len(grid_box_items) > 4:
+            new_row_items = utils.clone_widgets_empty(self.row_items)
+            self.table_gridbox.children = self.headers_items + new_row_items
+    
+    def reset_table(self):
+        new_row_items = utils.clone_widgets_empty(self.row_items)
+        self.table_gridbox.children = self.headers_items + new_row_items
     
