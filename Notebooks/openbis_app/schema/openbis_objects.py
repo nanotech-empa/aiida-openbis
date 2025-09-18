@@ -643,7 +643,7 @@ class Wire(OpenBISObject):
         return v
 
 class Sample(OpenBISObject):
-    exists: bool = Field(default=True, title="Exists", description="Whether the sample physically exists", metadata={"type": "BOOLEAN"})
+    object_status: ObjectStatusEnum = Field(default=None, title="Object status", description="Status of the wafer", metadata={"type": "CONTROLLEDVOCABULARY"})
     crystal: Crystal = Field(default=None, title="Crystal", description="Crystal structure of the sample", metadata={"type": "PARENT"})
     two_d_layer_material: TwoDLayerMaterial = Field(default=None, title="2D layer material", description="2D layer material associated with the sample", metadata={"type": "PARENT"})
     wafer_substrate: WaferSubstrate = Field(default=None, title="Wafer substrate", description="Wafer substrate used for the sample", metadata={"type": "PARENT"})
@@ -660,8 +660,8 @@ class Sample(OpenBISObject):
 class ReactionProductConcept(OpenBISObject):
     sum_formula: str = Field(default=None, title="Sum formula", description="Sum formula of the reaction product concept", metadata={"type": "VARCHAR"})
     molecules: List[Molecule] = Field(default_factory=list, title="Molecule(s)", description="List of molecules involved", metadata={"type": "SAMPLE", "multivalue": True})
-    crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concept(s)", description="Associated crystal concepts", metadata={"type": "SAMPLE", "multivalue": True})
-
+    # crystal_concepts: List[CrystalConcept] = Field(default_factory=list, title="Crystal concept(s)", description="Associated crystal concepts", metadata={"type": "SAMPLE", "multivalue": True})
+    
     @classmethod
     def get_code(cls) -> str:
         return "RPCO"

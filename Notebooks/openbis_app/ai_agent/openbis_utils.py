@@ -1,4 +1,11 @@
-import src.utils as utils
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
+
+from src import utils
 from functools import lru_cache
 
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida()
@@ -17,15 +24,8 @@ def get_openbis_object(permId):
     except ValueError as e:
         return None
 
-@lru_cache(maxsize=100)
-def get_openbis_objects(type = None, collection = None):
-    if type:
-        if collection:
-            return OPENBIS_SESSION.get_objects(type = type, collection = collection)
-        else:
-            return OPENBIS_SESSION.get_objects(type = type)
-    else:
-        return OPENBIS_SESSION.get_objects()
+def get_openbis_objects(**kwargs):
+    return OPENBIS_SESSION.get_objects(**kwargs)
 
 @lru_cache(maxsize=5000)
 def get_openbis_object_data(obj, depth=1):

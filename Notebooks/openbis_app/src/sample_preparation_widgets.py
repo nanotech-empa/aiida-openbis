@@ -241,7 +241,7 @@ class CreateSampleWidget(ipw.VBox):
                 sample_type = OPENBIS_OBJECT_TYPES["Sample"]
                 sample_props = {
                     "name": sample_name,
-                    "exists": True
+                    "object_status": "ACTIVE"
                 }
                 utils.create_openbis_object(
                     self.openbis_session,
@@ -1280,7 +1280,7 @@ class RegisterPreparationWidget(ipw.VBox):
                 self.sample_preparation_object = utils.get_openbis_object(self.openbis_session, sample_ident = sample_preparation_id)
                 sample_type = OPENBIS_OBJECT_TYPES["Sample"]
                 process_code = ""
-                current_sample.props["exists"] = False
+                current_sample.props["object_status"] = "INACTIVE"
                 current_sample_name = current_sample.props["name"]
                 current_sample.save()
                 
@@ -1584,7 +1584,7 @@ class RegisterPreparationWidget(ipw.VBox):
                     type = sample_type,
                     experiment = OPENBIS_COLLECTIONS_PATHS["Sample"],
                     parents = [new_process_object],
-                    props = {"name": new_sample_name, "exists": True}
+                    props = {"name": new_sample_name, "object_status": "ACTIVE"}
                 )
                 
                 # After a process step, the current sample is now the new one

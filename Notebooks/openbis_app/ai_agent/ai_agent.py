@@ -1,5 +1,5 @@
-from ai_agent import openbis_utils
-from ai_agent.tools import inventory_tools
+import openbis_utils
+import inventory_tools
 
 import asyncio
 import ipywidgets as ipw
@@ -37,7 +37,7 @@ class OpenBISAgent():
     """
     def __init__(self, google_api_key):
         self.google_api_key = google_api_key
-        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.google_api_key)
+        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash-lite", google_api_key = self.google_api_key)
         
         self.system_prompt = f"""
             You are a helpful assistant that can answer questions about experiments, simulations, 
@@ -120,6 +120,7 @@ class OpenBISAgent():
             inventory_tools.get_openbis_objects_by_date,
             
             # Substances tools
+            inventory_tools.get_live_samples_by_attributes,
             inventory_tools.get_substances_by_attributes,
             inventory_tools.get_crystals_by_attributes,
             inventory_tools.get_2d_materials_by_attributes,

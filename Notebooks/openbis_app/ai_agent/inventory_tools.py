@@ -1,9 +1,9 @@
 from langchain_core.tools import tool
-from ai_agent import openbis_utils
+import openbis_utils
 from pydantic import BaseModel, Field, model_validator, field_validator
-from typing import List, Dict, Literal, Annotated, Optional
+from typing import List, Dict, Literal, Annotated, Optional, Union
 from datetime import datetime
-from schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial
+from schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial, Sample
 
 # Pydantic models for input validation
 class TimestampInterval(BaseModel):
@@ -125,7 +125,117 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
     return objects_data
 
 # Specific tools
+# @tool("get_samples_by_substance")
+def get_sample_provenance(sample: Sample) -> List[str]:
+    sample_provenance = []
+    openbis_obj = openbis_utils.get_openbis_object(sample.permId)
+    
+    while openbis_obj:
+        parents = openbis_obj.parents
+        for parent in parents:
+            parent_obj = openbis_utils.get_openbis_object(parent)
+            if parent_obj.type.code == "SAMPLE":
+                openbis_obj = parent_obj
+                break
+            elif parent_obj.type.code == "PROCESS_STEP":
+                openbis_obj = parent_obj
+                sample_provenance.append([openbis_obj.permId, parent_obj.type.code])
+            else:
+                openbis_obj = None
+    
+    return sample_provenance
 
+def get_samples_by_substance(input_substance: Substance) -> List[Dict]:
+    """
+    Search for samples in openBIS that contains the input substance.
+
+    Args:
+        substance (Substance): 
+    Returns:
+        List[Dict]: A list of dictionaries, where each dictionary represents a sample object from openBIS.
+
+    Example:
+        >>> get_samples_by_substance(substance: Substance): A data object describing the substance to search for. It may include:
+            - permId (str, mandatory): Permanent ID of the sample in openBIS, e.g. 20250909093058356-304898
+                
+        # Returns all samples that uses that substance
+    """
+    
+    obj_type = "SAMPLE"
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        attrs = ["parents"],
+        where = {"object_status": "ACTIVE"}
+    )
+    
+    sample_found = False
+    cleaned_sample = False
+    objects_data = []
+    for obj in objects:
+        for parent in obj.parents:
+            parent_obj = openbis_utils.get_openbis_object(parent)
+            if parent_obj.type == "PROCESS_STEP":
+                process_step_actions = parent_obj.props["actions"]
+                for action in process_step_actions:
+                    action_obj = openbis_utils.get_openbis_object(action)
+                    if action_obj.type == "SPUTTERING":
+                        cleaned_sample = True
+                    elif action_obj.type == "DEPOSITION":
+                        substance = action_obj.props["substance"]
+                        if substance:
+                            substance_obj = openbis_utils.get_openbis_object(substance)
+                            if substance_obj.permId == input_substance.permId:
+                                sample_found = True
+                    
+                    if sample_found:
+                        break
+                    
+                    if cleaned_sample:
+                        break
+                
+                if sample_found:
+                    break
+                
+                if cleaned_sample:
+                    break
+                
+                
+            
+            if sample_found:
+                break
+            
+            if cleaned_sample:
+                break
+        
+        cleaned_sample = False
+        sample_found = False
+
+@tool("get_live_samples_by_attributes")
+def get_live_samples_by_attributes() -> List[Dict]:
+    """
+    Search for samples in openBIS that still exist in the labs.
+
+    Returns:
+        List[Dict]: A list of dictionaries, where each dictionary represents a sample object from openBIS.
+
+    Example:
+        >>> get_live_samples_by_attributes()
+        # Returns all samples with exists equals to True
+    """
+    
+    obj_type = "SAMPLE"
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        where = {"object_status": "ACTIVE"}
+    )
+    objects_data = []
+    
+    for obj in objects:
+        obj_data = openbis_utils.get_openbis_object_data(obj)
+        objects_data.append(obj_data)
+                                
+    return objects_data
+    
 # @tool("get_substances_by_attributes")
 def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
@@ -161,7 +271,6 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     
     obj_type = "SUBSTANCE"
-    obj_type_lower = obj_type.lower()
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
     
@@ -242,7 +351,6 @@ def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
         concept with material Au and face 111
     """
     obj_type = "CRYSTAL"
-    obj_type_lower = obj_type.lower()
     objects = openbis_utils.get_openbis_objects(obj_type)
     objects_data = []
     
@@ -301,32 +409,27 @@ def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Di
     """
     
     obj_type = "2D_LAYER_MATERIAL"
-    obj_type_lower = obj_type.lower()
-    objects = openbis_utils.get_openbis_objects(obj_type)
+    query_parameters = {}
+    if two_d_material.top_layer_material:
+        query_parameters["top_layer_material"] = two_d_material.top_layer_material
+    
+    if two_d_material.layer_count:
+        query_parameters["layer_count"] = two_d_material.layer_count
+    
+    if two_d_material.substrate:
+        query_parameters["substrate"] = two_d_material.substrate
+    
+    if two_d_material.growth_method:
+        query_parameters["growth_method"] = two_d_material.growth_method
+    
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        where = query_parameters
+    )
     objects_data = []
     
     for obj in objects:
-        obj_props = obj.props.all()
-        obj_top_layer_material = obj_props["top_layer_material"]
-        obj_layer_count = obj_props["layer_count"]
-        obj_substrate = obj_props["substrate"]
-        obj_growth_method = obj_props["growth_method"]
-        
-        load_obj_data = True
-        if two_d_material.top_layer_material:
-            load_obj_data = obj_top_layer_material == two_d_material.top_layer_material
-        
-        if two_d_material.layer_count:
-            load_obj_data = (obj_layer_count == two_d_material.layer_count and load_obj_data)
-            
-        if two_d_material.substrate:
-            load_obj_data = (obj_substrate == two_d_material.substrate and load_obj_data)
-        
-        if two_d_material.growth_method:
-            load_obj_data = (obj_growth_method == two_d_material.growth_method and load_obj_data)
-        
-        if load_obj_data:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
+        obj_data = openbis_utils.get_openbis_object_data(obj)
+        objects_data.append(obj_data)
                                 
     return objects_data

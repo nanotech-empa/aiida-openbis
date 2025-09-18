@@ -1030,7 +1030,7 @@ class SelectSampleWidget(ipw.VBox):
         samples = utils.get_openbis_objects(
             self.openbis_session,
             type = sample_type,
-            where = {"exists": "true"}
+            where = {"object_status": "ACTIVE"}
         )
         sample_options = [(f"{obj.props['name']}", obj.permId) for obj in samples]
         sample_options = sorted(sample_options, key=lambda x: x[1], reverse = True)
