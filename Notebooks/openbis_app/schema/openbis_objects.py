@@ -126,6 +126,7 @@ class NanotechSurfacesSubgroupEnum(str, Enum):
     Two_D_Quantum_Materials = "2D Quantum Materials"
     Quantum_Magnetism = "Quantum Magnetism"
     Atomistic_Simulations = "Atomistic Simulations"
+    Chiral_Surfaces = "Chiral Surfaces"
 
 # Complex properties
 
@@ -400,7 +401,7 @@ class Substance(OpenBISObject):
     substance_type: str = Field(default="", title="Substance type", description="Type of the substance, e.g. Solvent", metadata={"type": "VARCHAR"})
     amount: Union[MassValue, VolumeValue] = Field(default=None, title="Amount", description="Amount of substance", metadata={"type": "JSON"})
     chemist_own_name: str = Field(default="", title="Chemist own name", description="Chemist's own name for the substance", metadata={"type": "VARCHAR"})
-    location: Union["Instrument", "InstrumentSTM", "Room"] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
+    location: Optional[Union["Instrument", "InstrumentSTM", "Room"]] = Field(default=None, title="Location", description="Storage location", metadata={"type": "SAMPLE"})
     special_storage_conditions: List[SpecialStorageConditionsEnum] = Field(default_factory=list, title="Special storage condition(s)", description="Special storage conditions required", metadata={"type": "CONTROLLEDVOCABULARY", "multivalue": True})
     package_opening_date: str = Field(default="", title="Package opening date", description="Date when package was opened", metadata={"type": "DATE"})
     object_status: ObjectStatusEnum = Field(default=ObjectStatusEnum.Active, title="Object status", description="Current status of the object", metadata={"type": "CONTROLLEDVOCABULARY"})
@@ -530,7 +531,7 @@ class Stamp(OpenBISObject):
     def get_label(cls) -> str:
         return "Stamp"
 
-    @field_validator("receive_date", "assembled_date")
+    @field_validator("assembled_date")
     @classmethod
     def validate_receive_date(cls, v: str) -> str:
         if v is None:
@@ -1559,6 +1560,7 @@ class MeasurementSession(OpenBISObject):
 
 class Process(OpenBISObject):
     short_name: str = Field(default=None, title="Short name", description="Short name for the process", metadata={"type": "VARCHAR"})
+    instrument: Union[Instrument, InstrumentSTM] = Field(default=None, title="Instrument", description="Instrument used for the process", metadata={"type": "SAMPLE"})
     process_steps_settings: List[ProcessStepSettings] = Field(default_factory=list, title="Process steps settings", description="Settings for each process step", metadata={"type": "JSON"})
 
     @classmethod

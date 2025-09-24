@@ -186,10 +186,10 @@
                 "LOCATIONS": {
                     "description": "Locations",
                     "experiments": {
-                        "LABS_COLLECTION": {
+                        "LAB_COLLECTION": {
                             "name": "Labs"
                         },
-                        "OFFICES_COLLECTION": {
+                        "OFFICE_COLLECTION": {
                             "name": "Offices"
                         }
                     }

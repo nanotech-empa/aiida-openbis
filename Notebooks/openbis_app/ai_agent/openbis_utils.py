@@ -52,14 +52,14 @@ def get_openbis_object_data(obj, depth=1):
         complete_obj_props[prop_key] = prop_value
     
     obj_parents = obj.get_parents()
+    obj_parents_data = []
     if obj_parents:
         obj_parents = obj_parents.df.permId.to_list()
         
-    obj_parents_data = []
-    for parent in obj_parents:
-        parent_obj = get_openbis_object(parent)
-        parent_obj_data = get_openbis_object_data(parent_obj, depth = depth - 1)
-        obj_parents_data.append(parent_obj_data)
+        for parent in obj_parents:
+            parent_obj = get_openbis_object(parent)
+            parent_obj_data = get_openbis_object_data(parent_obj, depth = depth - 1)
+            obj_parents_data.append(parent_obj_data)
         
     obj_data = {
         "permId": obj.permId,

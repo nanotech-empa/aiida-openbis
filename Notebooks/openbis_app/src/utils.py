@@ -60,11 +60,10 @@ def upload_datasets(ob_session, ob_object, files_widget, dataset_type):
         create_openbis_dataset(ob_session, type = dataset_type, sample = ob_object, files = [filename])
         os.remove(filename)
 
-def connect_openbis_aiida():
+def connect_openbis_aiida(eln_url = "https://local.openbis.ch"):
     eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
     eln_config.parent.mkdir(parents=True, exist_ok=True)  # making sure that the folder exists.
     config = read_json(eln_config)
-    eln_url = config["default"]
     eln_token = config[eln_url]["token"]
     openbis_session, session_data = connect_openbis(eln_url, eln_token)
     return openbis_session, session_data

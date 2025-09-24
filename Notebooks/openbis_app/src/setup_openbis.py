@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     # Define the arguments with flags
     parser.add_argument('-u', '--openbis_url', type=str, help='OpenBIS URL', default = 'https://local.openbis.ch/openbis')
-    parser.add_argument('-t', '--openbis_token', type=str, help='OpenBIS User', default = '$pat-admin-250731124326911xD6B6FB8A855F97B9003A63626810D9CA')
+    parser.add_argument('-t', '--openbis_token', type=str, help='OpenBIS User', default = '$pat-admin-250922090724661x119C50E3D96C78FB49811744BFCD86B8')
     parser.add_argument('-p', '--config_filepath', type=str, 
                         help='File that contains the spaces, projects, and collections configuration', 
                         default = "/home/jovyan/aiida-openbis/Notebooks/openbis_app/schema/collections_config.json")

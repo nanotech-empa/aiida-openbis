@@ -10,13 +10,19 @@ from functools import lru_cache
 from langchain_core.tools import tool
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition, create_react_agent
+from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_ollama import ChatOllama
 from typing import List, Dict, Literal, Annotated
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import SystemMessage
 from uuid import uuid4
+
+def read_text_file(file_path: str) -> str:
+    with open(file_path, 'r') as file:
+        return file.read()
 
 def get_current_time() -> str:
     """
@@ -35,83 +41,25 @@ class OpenBISAgent():
     An agent that can answer questions about openBIS inventories.
     It uses a LangChain model and tools to interact with the openBIS session.
     """
-    def __init__(self, google_api_key):
-        self.google_api_key = google_api_key
-        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash-lite", google_api_key = self.google_api_key)
+    def __init__(self, llm_api_key):
+        self.llm_api_key = llm_api_key
+        # self.llm_model = ChatOllama(
+        #     model = "qwen3:4b", 
+        #     base_url = "http://host.docker.internal:11434", 
+        #     reasoning = False,
+        #     temperature = 0.7,
+        #     top_p = 0.8,
+        #     top_k = 20
+        # ) # Too slow on my laptop
+        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.llm_api_key)
+        # self.llm_model = ChatOpenAI(
+        #     model = "x-ai/grok-4-fast:free",
+        #     base_url = "https://openrouter.ai/api/v1",
+        #     openai_api_key = self.llm_api_key
+        # )
         
-        self.system_prompt = f"""
-            You are a helpful assistant that can answer questions about experiments, simulations, 
-            and all the inventories inside openBIS.
-            
-            In our openBIS instance there are multiple types, such as:
-            SUBSTANCE: substances (also known as precursors) and chemicals. However there is a difference between them
-            precursors are located in collection /MATERIALS/MOLECULES/PRECURSOR_COLLECTION and chemicals are located
-            in collection /MATERIALS/RAW_MATERIALS/CHEMICAL_COLLECTION
-            MOLECULE: molecule that is the basis for the different substances and chemicals
-            PUBLICATION: publications
-            GRANT: grants
-            ORGANISATION: companies, organisations, and institutions
-            PERSON: people
-            LOCATION: locations such as rooms
-            INSTRUMENT: instruments found in the labs
-            INSTRUMENT.STM: instruments found in the labs specialised for STM measurements
-            ANALYSER: analyser component
-            CHAMBER: chamber component
-            COMPONENT: general component
-            ELECTRONICS: electronics component
-            EVAPORATOR: evaporator component
-            EVAPORATOR_SLOT: evaporator slot component which is normally part of the evaporator
-            ION_GAUGE: ion gauge component
-            ION_PUMP: ion pump component
-            PBN_STAGE: PBN stage component
-            SCROLL_PUMP: scroll pump component
-            SPUTTER_GUN: sputter gun component
-            STM_AFM_TIP: stm/afm tip component
-            THYRACONT: thyracont component
-            TURBO_PUMP: turbo pump component
-            VALVE: valve component
-            2D_LAYER_MATERIAL: 2D layer material
-            WAFER_SAMPLE: wafer sample
-            WAFER: wafer
-            WIRE: wire
-            SAMPLE: samples prepared in the labs using annealing, deposition, sputtering tasks, etc.
-            ATOMISTIC_MODEL: atomistic models developed in the computational simulations
-            AIIDA_NODE: AiiDA nodes representing the nodes inside AiiDAlab 
-            CRYSTAL: crystals (also known as slabs)
-            CRYSTAL_CONCEPT: theorical concept of the crystals used in the labs
-            SOFTWARE: software used in the analysis of measurements
-            CODE: scripts/codes used in the analysis of measurements or for performing simulations
-            
-            The tools that you use return either lists of openBIS objects of the openBIS object directly.
-            Every object is a dict type. An example of openBIS object is the following:
-            
-            {{
-                'permId': '20250804112119202-7435',
-                'type': 'ATOMISTIC_MODEL',
-                'properties': {{
-                    'name': 'Atomistic model'
-                }},
-                'parents': [
-                    {{
-                        'permId': 20250804112117232-74312,
-                        'type': 'GEOMETRY_OPTIMISATION',
-                        'properties': {{
-                            'name': 'Geo-Opt'
-                        }},
-                        'parents': ...,
-                        'registration_date': '2024-08-04 11:21:17'
-                    }}
-                ],
-                'registration_date': '2024-08-04 11:21:19'
-            }}
-            
-            The parents on the objects are other objects that are used to create this one. Example, in this case, 
-            atomistic model was created using geometry optimisation (because geometry optimisation is an action/simulation). 
-            If a molecule was parent, it would mean that the molecule is part of the atomistic model.
-            
-            Today is {get_current_time()}.
-        """
-        
+        self.system_prompt = read_text_file("ai_agent/data/system_prompt.txt")
+
         self._tools = [
             # General openBIS objects tools
             inventory_tools.get_openbis_objects,
@@ -119,11 +67,11 @@ class OpenBISAgent():
             inventory_tools.get_openbis_objects_by_name,
             inventory_tools.get_openbis_objects_by_date,
             
-            # Substances tools
+            # Specific tools
             inventory_tools.get_live_samples_by_attributes,
             inventory_tools.get_substances_by_attributes,
-            inventory_tools.get_crystals_by_attributes,
-            inventory_tools.get_2d_materials_by_attributes,
+            # inventory_tools.get_crystals_by_attributes,
+            # inventory_tools.get_2d_materials_by_attributes,
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)

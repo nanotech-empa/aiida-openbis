@@ -31,22 +31,32 @@ class TimestampInterval(BaseModel):
 
 # Generic openBIS tools
 
-@tool("get_openbis_objects")
-def get_openbis_objects(type: str, collection_identifier: str = None) -> List[Dict]:
+# @tool("get_openbis_objects")
+def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> List[Dict]:
     """
     Return list of openBIS objects based on the type.
     
     Args:
-        type (str): openBIS object type
+        obj_type (str): openBIS object type
         collection_identifier (str): openBIS collection identifier
+    
+    E.g.:
+        User: Give me all instruments in openBIS
+        Tool: get_openbis_objects(obj_type="INSTRUMENT")
+        User: Give me all instruments in collection /INSTRUMENTS/STM
+        Tool: get_openbis_objects(obj_type="INSTRUMENT", collection_identifier="/INSTRUMENTS/STM")
     """
-    objects = openbis_utils.get_openbis_objects(type, collection_identifier)
+    if collection_identifier:
+        objects = openbis_utils.get_openbis_objects(type = obj_type, collection = collection_identifier)
+    else:
+        objects = openbis_utils.get_openbis_objects(type = obj_type)
+    
     objects_data = []
     for obj in objects:
         obj_data = openbis_utils.get_openbis_object_data(obj)
         objects_data.append(obj_data)
     
-    return objects_data[0:50] # TODO: Remove this restriction or adapt the function to ask the user if one really wants that
+    return objects_data[0:100] # TODO: Remove this restriction or adapt the function to ask the user if one really wants that
 
 @tool("get_openbis_object_by_permId")
 def get_openbis_object_by_permId(permId: str) -> Dict:
@@ -236,7 +246,9 @@ def get_live_samples_by_attributes() -> List[Dict]:
                                 
     return objects_data
     
-# @tool("get_substances_by_attributes")
+
+
+@tool("get_substances_by_attributes")
 def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     Search for substances in openBIS using one or more identifying attributes.
@@ -271,7 +283,7 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
     
     obj_type = "SUBSTANCE"
-    objects = openbis_utils.get_openbis_objects(obj_type)
+    objects = openbis_utils.get_openbis_objects(type = obj_type)
     objects_data = []
     
     for obj in objects:
