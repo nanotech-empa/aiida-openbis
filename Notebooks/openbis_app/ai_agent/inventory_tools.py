@@ -31,7 +31,7 @@ class TimestampInterval(BaseModel):
 
 # Generic openBIS tools
 
-# @tool("get_openbis_objects")
+@tool
 def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> List[Dict]:
     """
     Return list of openBIS objects based on the type.
@@ -58,7 +58,7 @@ def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> Lis
     
     return objects_data[0:100] # TODO: Remove this restriction or adapt the function to ask the user if one really wants that
 
-@tool("get_openbis_object_by_permId")
+@tool
 def get_openbis_object_by_permId(permId: str) -> Dict:
     """
     Return an object available in openBIS by permanent ID (permId). PermId follows the following 
@@ -74,7 +74,7 @@ def get_openbis_object_by_permId(permId: str) -> Dict:
     
     return obj_data
 
-@tool("get_openbis_object_by_name")
+@tool
 def get_openbis_objects_by_name(name: str) -> List[Dict]:
     """
     Return objects available in openBIS by name.
@@ -91,7 +91,7 @@ def get_openbis_objects_by_name(name: str) -> List[Dict]:
     
     return objects_data
 
-@tool("get_openbis_object_by_date")
+@tool
 def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
     """
     Returns objects available in openBIS that were registered between the given time interval.
@@ -117,7 +117,7 @@ def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
     
     return objects_data
 
-@tool("get_openbis_object_by_description")
+@tool
 def get_openbis_objects_by_description(description: str) -> List[Dict]:
     """
     Return objects available in openBIS by description.
@@ -246,8 +246,6 @@ def get_live_samples_by_attributes() -> List[Dict]:
                                 
     return objects_data
     
-
-
 @tool("get_substances_by_attributes")
 def get_substances_by_attributes(substance: Substance) -> List[Dict]:
     """
