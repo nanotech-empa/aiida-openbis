@@ -1,5 +1,5 @@
 import openbis_utils
-import inventory_tools
+import tools
 
 import asyncio
 import ipywidgets as ipw
@@ -17,7 +17,7 @@ from typing import List, Dict, Literal, Annotated
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import SystemMessage, ToolMessage, HumanMessage, AIMessage
 from uuid import uuid4
 
 def read_text_file(file_path: str) -> str:
@@ -35,6 +35,15 @@ def get_current_time() -> str:
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]
+    
+class ToolMessageFilteringMemory(InMemorySaver):
+    def save_state(self, agent_config, state):
+        # Remove ToolMessages before actually saving
+        cleaned_state = state.copy()
+        cleaned_state["messages"] = [
+            m for m in cleaned_state.get("messages", []) if not isinstance(m, ToolMessage)
+        ]
+        super().save_state(agent_config, cleaned_state)
 
 class OpenBISAgent():
     """
@@ -42,36 +51,28 @@ class OpenBISAgent():
     It uses a LangChain model and tools to interact with the openBIS session.
     """
     def __init__(self, llm_api_key):
+        self.messages = {"messages": []}
         self.llm_api_key = llm_api_key
-        # self.llm_model = ChatOllama(
-        #     model = "qwen3:4b", 
-        #     base_url = "http://host.docker.internal:11434", 
-        #     reasoning = False,
-        #     temperature = 0.7,
-        #     top_p = 0.8,
-        #     top_k = 20
-        # ) # Too slow on my laptop
-        self.llm_model = ChatGoogleGenerativeAI(model = "models/gemini-2.5-flash", google_api_key = self.llm_api_key)
-        # self.llm_model = ChatOpenAI(
-        #     model = "x-ai/grok-4-fast:free",
-        #     base_url = "https://openrouter.ai/api/v1",
-        #     openai_api_key = self.llm_api_key
-        # )
-        
+        self.llm_model = ChatGoogleGenerativeAI(
+            model = "models/gemini-2.5-flash", 
+            google_api_key = self.llm_api_key,
+            temperature=0.0,
+            max_retries=3
+        )
         self.system_prompt = read_text_file("ai_agent/data/system_prompt.txt")
 
         self._tools = [
             # General openBIS objects tools
-            inventory_tools.get_openbis_objects,
-            inventory_tools.get_openbis_object_by_permId,
-            inventory_tools.get_openbis_objects_by_name,
-            inventory_tools.get_openbis_objects_by_date,
+            tools.get_openbis_objects,
+            tools.get_openbis_object_by_permId,
+            tools.get_openbis_objects_by_name,
+            tools.get_openbis_objects_by_date,
             
             # Specific tools
-            inventory_tools.get_live_samples_by_attributes,
-            inventory_tools.get_substances_by_attributes,
-            # inventory_tools.get_crystals_by_attributes,
-            # inventory_tools.get_2d_materials_by_attributes,
+            tools.get_live_samples_by_properties,
+            tools.get_substances_by_properties,
+            tools.get_crystals_by_properties,
+            tools.get_2d_materials_by_properties,
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
@@ -82,24 +83,37 @@ class OpenBISAgent():
             # Check if the system prompt is already there to avoid duplication
             if not any(isinstance(msg, SystemMessage) and msg.content == self.system_prompt for msg in messages):
                 messages = [SystemMessage(content=self.system_prompt)] + messages
+            
+            # messages = [m for m in state["messages"] if not isinstance(m, ToolMessage)]
 
             return {"messages": [llm_with_tools.invoke(messages)]}
+        
+        def clear_tool_messages(state: State):
+            # Remove all tool messages from the state
+            state["messages"] = [m for m in state["messages"] if not isinstance(m, ToolMessage)]
+            return state
+        
+        tool_node = ToolNode(tools = self._tools)
         
         # Define the state machine
         # Add the nodes
         graph_builder = StateGraph(State)
         graph_builder.add_node("chatbot", chatbot)
-        tool_node = ToolNode(tools = self._tools)
         graph_builder.add_node("tools", tool_node)
+        graph_builder.add_node("clear_tool_messages", clear_tool_messages)
         graph_builder.add_conditional_edges("chatbot", tools_condition)
         
-        # Build the edges. Make sure that the bot always gets the openBIS schema before using the other tools
+        # Build the edges
         graph_builder.add_edge(START, "chatbot")
         graph_builder.add_edge("tools", "chatbot")
+        # graph_builder.add_edge("chatbot", "clear_tool_messages")
+        # graph_builder.add_edge("clear_tool_messages", END)
         
-        memory = InMemorySaver()
-        self.graph = graph_builder.compile(checkpointer=memory)
-        self.agent_config = {"configurable": {"thread_id": uuid4()}}
+        self.graph = graph_builder.compile()
+        
+        # memory = InMemorySaver()
+        # self.graph = graph_builder.compile(checkpointer=memory)
+        # self.agent_config = {"configurable": {"thread_id": uuid4()}}
         
 
     def ask_question(self, user_prompt: str):
@@ -115,14 +129,32 @@ class OpenBISAgent():
         # Builds a LangGraph agent that interleaves reasoning and tool execution (ReAct pattern)
         # Runs the full workflow, returning a state object 
         # where the last message contains the model’s response after any tool invocations
+        self.messages["messages"].append({"role": "user", "content": user_prompt})
+        
         events = self.graph.stream(
-            {"messages": [{"role": "user", "content": user_prompt}]},
-            self.agent_config,
+            self.messages,
             stream_mode="values",
         )
+        
         response = []
         for event in events:
+            role = ""
+            
+            if isinstance(event["messages"][-1], HumanMessage):
+                role = "user"
+            elif isinstance(event["messages"][-1], AIMessage):
+                role = "assistant"
+            elif isinstance(event["messages"][-1], SystemMessage):
+                role = "system"
+            
+            if role:
+                message = {"role": role, "content": event["messages"][-1].content}
+                if message not in self.messages["messages"]:
+                    self.messages["messages"].append(message)
+            
+            print(event["messages"][-1])
             response.append(event["messages"][-1])
+            
         return response
 
     def get_graph_replay(self):

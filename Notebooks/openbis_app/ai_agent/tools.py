@@ -53,10 +53,9 @@ def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> Lis
     
     objects_data = []
     for obj in objects:
-        obj_data = openbis_utils.get_openbis_object_data(obj)
-        objects_data.append(obj_data)
+        objects_data.append(f"The permID of the object is {obj.permId}.")
     
-    return objects_data[0:100] # TODO: Remove this restriction or adapt the function to ask the user if one really wants that
+    return objects_data
 
 @tool
 def get_openbis_object_by_permId(permId: str) -> Dict:
@@ -221,7 +220,7 @@ def get_samples_by_substance(input_substance: Substance) -> List[Dict]:
         sample_found = False
 
 @tool
-def get_live_samples_by_attributes() -> List[Dict]:
+def get_live_samples_by_properties() -> List[Dict]:
     """
     Search for samples in openBIS that still exist in the labs.
 
@@ -247,13 +246,17 @@ def get_live_samples_by_attributes() -> List[Dict]:
     return objects_data
     
 @tool
-def get_substances_by_attributes(substance: Substance) -> List[Dict]:
+def get_substances_by_properties(substance: Substance) -> List[str]:
     """
     Search for substances in openBIS using one or more identifying attributes.
 
-    This tool retrieves substances by matching the given Empa identifier (empa number and batch together), e.g. 
+    This tool retrieves substances permIDs by matching the given Empa identifier (empa number and batch together), e.g. 
     704a (empa number is 704 and batch is a), or any molecular descriptor (SMILES, sum formula, IUPAC name). 
-    You can specify any subset of these fields. Unprovided fields will be ignored in the search.
+    You can specify any subset of these fields. These permIDs can then be used to retrieve more information about the substances.
+    
+    Unprovided fields will be ignored in the search. Sometimes the users 
+    might call the substance as molecule. So be aware of that. If they ask for a molecule by the empa number and the batch,
+    e.g, 650a, it means that they want the substance with that empa number and batch.
 
     Args:
         substance (Substance): A data object describing the substance to search for. It may include:
@@ -266,8 +269,7 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
                 - iupac_name (str, optional): IUPAC name, e.g. "benzene"
 
     Returns:
-        List[Dict]: A list of dictionaries, where each dictionary represents a substance object from openBIS 
-        matching the provided criteria.
+        List[str]: A list of strings, where each string represents the permID of a substance object from openBIS.
 
     Example:
         >>> get_substances_by_attributes(
@@ -277,7 +279,7 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
         ...         molecules=[Molecule(smiles="CCO")]
         ...     )
         ... )
-        # Returns all matching substance objects with Empa ID 704a and containing a molecule with SMILES "CCO".
+        # Returns all matching substance objects permIDs with Empa ID 704a and containing a molecule with SMILES "CCO".
     """
     
     obj_type = "SUBSTANCE"
@@ -325,18 +327,21 @@ def get_substances_by_attributes(substance: Substance) -> List[Dict]:
                             load_obj_data = (prompt_molecule.iupac_name == molecule_iupac and load_obj_data)
         
         if load_obj_data:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
-                                
+            objects_data.append(f"The permID of the molecule is {obj.permId}.")
+
     return objects_data
 
 @tool
-def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
+def get_crystals_by_properties(crystal: Crystal) -> List[str]:
     """
     Search for crystals in openBIS using one or more identifying attributes.
 
-    This tool retrieves crystals by matching the given crystal concept descriptor (face, material). 
+    This tool retrieves crystals permIDs by matching the given crystal concept descriptor (face, material). 
     You can specify any subset of these fields. Unprovided fields will be ignored in the search.
+    These permIDs can then be used to retrieve more information about the substances.
+    
+    If the user asks for crystals Au111 or Gold-111, its means that one wants crystals with a crystal 
+    concept with material Au and face 111.
 
     Args:
         crystal (Crystal): A data object describing the crystal to search for. It may include:
@@ -346,8 +351,7 @@ def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
                 - material (str, optional): Crystal material, e.g. Au, Pt, Ag, Pd
 
     Returns:
-        List[Dict]: A list of dictionaries, where each dictionary represents a crystal object from openBIS 
-        matching the provided criteria.
+        List[str]: A list of strings, where each string represents the permID of a crystal object from openBIS.
 
     Example:
         >>> get_crystals_by_attributes(
@@ -355,10 +359,7 @@ def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
         ...         crystal_concepts=[CrystalConcept(face="111", material="Au")]
         ...     )
         ... )
-        # Returns all matching crystal objects containing a crystal concept with face 111 and material Au.
-        
-        If the user asks for crystals Au111 or Gold-111, its means that one wants crystals with a crystal 
-        concept with material Au and face 111
+        # Returns all matching crystal objects permIDs containing a crystal concept with face 111 and material Au.
     """
     obj_type = "CRYSTAL"
     objects = openbis_utils.get_openbis_objects(obj_type)
@@ -382,20 +383,21 @@ def get_crystals_by_attributes(crystal: Crystal) -> List[Dict]:
                     load_obj_data = (crystal.crystal_concept.material == crystal_concept_material and load_obj_data)
         
         if load_obj_data:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
+            objects_data.append(f"The permID of the crystal is {obj.permId}.")
                                 
     return objects_data
 
 @tool
-def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Dict]:
+def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterial) -> List[str]:
     """
     Search for 2D layer materials in openBIS using one or more identifying attributes.
 
-    This tool retrieves 2D layer materials by matching the given top layer material, layer count,
+    This tool retrieves 2D layer materials permIDs by matching the given top layer material, layer count,
     substrate, growth/fabrication method.
     
     You can specify any subset of these fields. Unprovided fields will be ignored in the search.
+    
+    These permIDs can then be used to retrieve more information about the substances.
 
     Args:
         two_d_material (TwoDLayerMaterial): A data object describing the 2d layer material 
@@ -406,8 +408,7 @@ def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Di
             - growth_method (str, optional): Growth/Fabrication method
 
     Returns:
-        List[Dict]: A list of dictionaries, where each dictionary represents a 2d layer material object 
-        from openBIS matching the provided criteria.
+        List[str]: A list of strings, where each string represents the permID of a 2D layer material object from openBIS.
 
     Example:
         >>> get_2d_materials_by_attributes(
@@ -415,7 +416,7 @@ def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Di
         ...         top_layer_material='MoS2'
         ...     )
         ... )
-        # Returns all matching 2d later material objects
+        # Returns all matching 2d later material objects permIDs
     """
     
     obj_type = "2D_LAYER_MATERIAL"
@@ -439,7 +440,6 @@ def get_2d_materials_by_attributes(two_d_material: TwoDLayerMaterial) -> List[Di
     objects_data = []
     
     for obj in objects:
-        obj_data = openbis_utils.get_openbis_object_data(obj)
-        objects_data.append(obj_data)
+        objects_data.append(f"The permID of the 2D layer material is {obj.permId}.")
                                 
     return objects_data
