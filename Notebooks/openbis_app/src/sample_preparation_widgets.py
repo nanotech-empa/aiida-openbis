@@ -491,8 +491,10 @@ class ActionHistoryWidget(ipw.VBox):
             self.substrate_temperature_html = ipw.HTML()
             self.substrate_temperature_hbox = ipw.HBox(children = [self.substrate_temperature_label, self.substrate_temperature_html])
             
-            widget_children.append(self.dosing_gas_hbox)
+            widget_children.append(self.sputter_ion_hbox)
             widget_children.append(self.pressure_hbox)
+            widget_children.append(self.current_hbox)
+            widget_children.append(self.angle_hbox)
             widget_children.append(self.substrate_temperature_hbox)
             
         widget_children.append(self.comments_hbox)
@@ -889,7 +891,7 @@ class RegisterProcessWidget(ipw.VBox):
                             action_properties["current"] = json.dumps(current)
                             action_properties["angle"] = json.dumps(angle)
                             action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
-                            action_properties["ion"] = action_widget.sputter_ion_textbox.value
+                            action_properties["sputter_ion"] = action_widget.sputter_ion_textbox.value
                         
                         component_permid = action_widget.component_dropdown.value
                         if component_permid != "-1":
@@ -1374,7 +1376,7 @@ class RegisterPreparationWidget(ipw.VBox):
                             action_properties["current"] = json.dumps(current)
                             action_properties["angle"] = json.dumps(angle)
                             action_properties["substrate_temperature"] = json.dumps(substrate_temperature)
-                            action_properties["ion"] = action_widget.sputter_ion_textbox.value
+                            action_properties["sputter_ion"] = action_widget.sputter_ion_textbox.value
                         
                         component_permid = action_widget.component_dropdown.value
                         if component_permid != "-1":
@@ -2011,19 +2013,38 @@ class RegisterActionWidget(ipw.VBox):
         self.duration_minutes_intbox.value = minutes
         self.duration_seconds_intbox.value = seconds
         
-        self.description_textbox.value = action_props["description"] or ""
+        self.description_textbox.value = action_props.get("description", "") or ""
+        self.sputter_ion_textbox.value = action_props.get("sputter_ion", "") or ""
+        
+        action_pressure = action_props.get("pressure", "")
+        if action_pressure:
+            action_pressure = json.loads(action_pressure)
+            self.pressure_value_textbox.value = str(action_pressure["value"])
+            self.pressure_unit_dropdown.value = action_pressure["unit"]
+        
+        action_current = action_props.get("current", "")
+        if action_current:
+            action_current = json.loads(action_current)
+            self.current_value_textbox.value = str(action_current["value"])
+            self.current_unit_dropdown.value = action_current["unit"]
+        
+        action_angle = action_props.get("angle", "")
+        if action_angle:
+            action_angle = json.loads(action_angle)
+            self.angle_value_textbox.value = str(action_angle["value"])
+            self.angle_unit_dropdown.value = action_angle["unit"]
+        
         action_target_temperature = action_props.get("target_temperature", "")
-        action_cryogen = action_props.get("cryogen", "")
-        action_substance = action_props.get("substance", "")
-        
-        if action_cryogen:
-            self.cryogen_textbox.value = action_cryogen
-        
         if action_target_temperature:
             action_target_temperature = json.loads(action_target_temperature)
             self.target_temperature_value_textbox.value = str(action_target_temperature["value"])
             self.target_temperature_unit_dropdown.value = action_target_temperature["unit"]
         
+        action_cryogen = action_props.get("cryogen", "")
+        if action_cryogen:
+            self.cryogen_textbox.value = action_cryogen
+        
+        action_substance = action_props.get("substance", "")
         if action_substance:
             self.substance_dropdown.value = action_substance
         
@@ -2188,18 +2209,18 @@ class RegisterActionWidget(ipw.VBox):
                                         
                                         elif prop == "bias_voltage":
                                             bias_voltage_comp = json.loads(component_object.props[prop])
-                                            self.bias_voltage_value_comp_textbox.value = bias_voltage_comp["value"]
-                                            self.bias_voltage_unit_comp_dropdown.value = bias_voltage_comp["unit"]
+                                            self.bias_voltage_value_textbox.value = bias_voltage_comp["value"]
+                                            self.bias_voltage_unit_dropdown.value = bias_voltage_comp["unit"]
                                             
                                         elif prop == "discharge_voltage":
                                             discharge_voltage_comp = json.loads(component_object.props[prop])
-                                            self.discharge_voltage_value_comp_textbox.value = discharge_voltage_comp["value"]
-                                            self.discharge_voltage_unit_comp_dropdown.value = discharge_voltage_comp["unit"]
+                                            self.discharge_voltage_value_textbox.value = discharge_voltage_comp["value"]
+                                            self.discharge_voltage_unit_dropdown.value = discharge_voltage_comp["unit"]
                                         
                                         elif prop == "discharge_current":
                                             discharge_current_comp = json.loads(component_object.props[prop])
-                                            self.discharge_current_value_comp_textbox.value = discharge_current_comp["value"]
-                                            self.discharge_current_unit_comp_dropdown.value = discharge_current_comp["unit"]
+                                            self.discharge_current_value_textbox.value = discharge_current_comp["value"]
+                                            self.discharge_current_unit_dropdown.value = discharge_current_comp["unit"]
                                         
                                         elif prop == "p_value":
                                             self.evaporator_p_value_textbox.value = str(component_object.props[prop])
@@ -2358,8 +2379,8 @@ class RegisterObservableWidget(ipw.VBox):
             component_settings = observable_props.get("component_settings", {})
             component_settings = json.loads(component_settings)
             component_permid = observable_props.get("component", {})
+            self.component_dropdown.value = component_permid
             if component_settings:
-                self.component_dropdown.value = component_permid
                 if "density" in component_settings:
                     self.density_value_textbox.value = str(component_settings["density"]["value"])
                     self.density_unit_dropdown.value = component_settings["density"]["unit"]

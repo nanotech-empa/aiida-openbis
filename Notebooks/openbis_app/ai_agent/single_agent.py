@@ -83,15 +83,8 @@ class OpenBISAgent():
             # Check if the system prompt is already there to avoid duplication
             if not any(isinstance(msg, SystemMessage) and msg.content == self.system_prompt for msg in messages):
                 messages = [SystemMessage(content=self.system_prompt)] + messages
-            
-            # messages = [m for m in state["messages"] if not isinstance(m, ToolMessage)]
 
             return {"messages": [llm_with_tools.invoke(messages)]}
-        
-        def clear_tool_messages(state: State):
-            # Remove all tool messages from the state
-            state["messages"] = [m for m in state["messages"] if not isinstance(m, ToolMessage)]
-            return state
         
         tool_node = ToolNode(tools = self._tools)
         
@@ -100,14 +93,11 @@ class OpenBISAgent():
         graph_builder = StateGraph(State)
         graph_builder.add_node("chatbot", chatbot)
         graph_builder.add_node("tools", tool_node)
-        graph_builder.add_node("clear_tool_messages", clear_tool_messages)
-        graph_builder.add_conditional_edges("chatbot", tools_condition)
         
         # Build the edges
         graph_builder.add_edge(START, "chatbot")
+        graph_builder.add_conditional_edges("chatbot", tools_condition)
         graph_builder.add_edge("tools", "chatbot")
-        # graph_builder.add_edge("chatbot", "clear_tool_messages")
-        # graph_builder.add_edge("clear_tool_messages", END)
         
         self.graph = graph_builder.compile()
         

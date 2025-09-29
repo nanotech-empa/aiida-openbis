@@ -32,9 +32,9 @@ class TimestampInterval(BaseModel):
 # Generic openBIS tools
 
 @tool
-def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> List[Dict]:
+def get_openbis_objects(obj_type: str, collection_identifier: str = None) -> List[str]:
     """
-    Return list of openBIS objects based on the type.
+    Return list of openBIS object permIDs based on the object type.
     
     Args:
         obj_type (str): openBIS object type
@@ -74,26 +74,26 @@ def get_openbis_object_by_permId(permId: str) -> Dict:
     return obj_data
 
 @tool
-def get_openbis_objects_by_name(name: str) -> List[Dict]:
+def get_openbis_objects_by_name(name: str) -> List[str]:
     """
-    Return objects available in openBIS by name.
+    Search openBIS objects by name and return all the permIDs of the matching objects.
     
     Args:
         name (str): openBIS object name
     """
-    objects = openbis_utils.get_openbis_objects()
+    objects = openbis_utils.get_openbis_objects(
+        where = {"name": name}
+    )
     objects_data = []
     for obj in objects:
-        if obj.props["name"] == name:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
+        objects_data.append(f"The permID of the object is {obj.permId}.")
     
     return objects_data
 
 @tool
-def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
+def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[str]:
     """
-    Returns objects available in openBIS that were registered between the given time interval.
+    Search objects in openBIS registered between a given time interval and return the permIDs of the matching objects.
 
     Args:
         time_interval: An object containing:
@@ -101,7 +101,7 @@ def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
             - end_date_str (str): End of the time interval in format YYYY-MM-DD HH:MM:SS
 
     Returns:
-        A list of dictionaries with openBIS objects matching the interval.
+        A list of strings with openBIS objects permIDs matching the interval.
     """
     begin_date = datetime.strptime(time_interval.begin_date_str, "%Y-%m-%d %H:%M:%S")
     end_date = datetime.strptime(time_interval.end_date_str, "%Y-%m-%d %H:%M:%S")
@@ -111,12 +111,11 @@ def get_openbis_objects_by_date(time_interval: TimestampInterval) -> List[Dict]:
     for obj in objects:
         obj_registration_date = datetime.strptime(obj.registrationDate, "%Y-%m-%d %H:%M:%S")
         if begin_date <= obj_registration_date and end_date >= obj_registration_date:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
+            objects_data.append(f"The permID of the object is {obj.permId}.")
     
     return objects_data
 
-@tool
+# @tool
 def get_openbis_objects_by_description(description: str) -> List[Dict]:
     """
     Return objects available in openBIS by description.
@@ -128,31 +127,74 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
         obj_description = obj_props.get("description", "")
         # TODO: Here the tool needs to check by similarity and not by equality
         if obj_description == description:
-            obj_data = openbis_utils.get_openbis_object_data(obj)
-            objects_data.append(obj_data)
+            objects_data.append(f"The permID of the object is {obj.permId}.")
     
     return objects_data
 
 # Specific tools
-# @tool
-def get_sample_provenance(sample: Sample) -> List[str]:
-    sample_provenance = []
+@tool
+def get_sample_provenance(sample: Sample) -> str:
+    """
+        Return the summary of the processes performed during the sample preparation. It includes 
+        mainly the permIDs of the objects that are linked to the history of this sample.
+        
+        Args:
+            sample (Sample): Object of type Sample that contains the permID of the sample
+        Return:
+            sample_summary (str). Summary of the sample asked by the user
+        
+        Example:
+        >>> get_sample_provenance(
+        ...     Sample(
+        ...         permId = '20250929123440615-4070'
+        ...     )
+        ... )
+        Returns the history of the sample including all the connected process steps, samples, 
+        and first materials with some details about these as well.
+    """
+    sample_provenance = [f"Sample {sample.permId} provenance:"]
     openbis_obj = openbis_utils.get_openbis_object(sample.permId)
     
     while openbis_obj:
         parents = openbis_obj.parents
-        for parent in parents:
-            parent_obj = openbis_utils.get_openbis_object(parent)
-            if parent_obj.type.code == "SAMPLE":
-                openbis_obj = parent_obj
-                break
-            elif parent_obj.type.code == "PROCESS_STEP":
-                openbis_obj = parent_obj
-                sample_provenance.append([openbis_obj.permId, parent_obj.type.code])
-            else:
-                openbis_obj = None
+        if parents:
+            for parent in parents:
+                parent_obj = openbis_utils.get_openbis_object(parent)
+                if parent_obj.type.code == "SAMPLE":
+                    parent_obj_permid = parent_obj.permId
+                    openbis_obj_permid = openbis_obj.permId
+                    sample_provenance.append(f"- Sample: {parent_obj_permid} is parent of {openbis_obj_permid}.")
+                    openbis_obj = parent_obj
+                    break
+                
+                elif parent_obj.type.code == "PROCESS_STEP":
+                    openbis_obj_permid = openbis_obj.permId
+                    parent_obj_permid = parent_obj.permId
+                    parent_obj_props = parent_obj.props.all()
+                    parent_obj_metadata = [
+                        f"PermID: {parent_obj_permid}",
+                        f"Name: {parent_obj_props['name']}",
+                        f"Actions: {', '.join(parent_obj_props['actions'])}",
+                        f"Observables: {', '.join(parent_obj_props['observables'])}",
+                        f"Instrument: {parent_obj_props['instrument']}",
+                    ]
+                    parent_obj_metadata = ". ".join(parent_obj_metadata)
+                    sample_provenance.append(f"- Process Step: {parent_obj_metadata}. It is parent of {openbis_obj_permid}.")
+                    openbis_obj = parent_obj
+                    break
+                
+                elif parent_obj.type.code in ["CRYSTAL", "2D_LAYER_MATERIAL"]:
+                    parent_obj_metadata = parent_obj.permId
+                    openbis_obj_metadata = openbis_obj.permId
+                    sample_provenance.append(f"- First material: {parent_obj_metadata} is parent of {openbis_obj_metadata}.")
+                    openbis_obj = parent_obj
+                    break
+        else:
+            openbis_obj = None
     
-    return sample_provenance
+    sample_summary = "\n".join(sample_provenance)
+    
+    return sample_summary
 
 def get_samples_by_substance(input_substance: Substance) -> List[Dict]:
     """
@@ -220,12 +262,13 @@ def get_samples_by_substance(input_substance: Substance) -> List[Dict]:
         sample_found = False
 
 @tool
-def get_live_samples_by_properties() -> List[Dict]:
+def get_live_samples_by_properties() -> List[str]:
     """
-    Search for samples in openBIS that still exist in the labs.
+    Search for samples (type: SAMPLE) in openBIS that still exist in the labs. The ones that were already processed will not be returned 
+    because they have the object_status set to INACTIVE.
 
     Returns:
-        List[Dict]: A list of dictionaries, where each dictionary represents a sample object from openBIS.
+        List[Dict]: A list of strings, where each string represents the permID of a sample object from openBIS that exists in the labs.
 
     Example:
         >>> get_live_samples_by_attributes()
@@ -240,8 +283,7 @@ def get_live_samples_by_properties() -> List[Dict]:
     objects_data = []
     
     for obj in objects:
-        obj_data = openbis_utils.get_openbis_object_data(obj)
-        objects_data.append(obj_data)
+        objects_data.append(f"The permID of the sample is {obj.permId}.")
                                 
     return objects_data
     
@@ -362,12 +404,17 @@ def get_crystals_by_properties(crystal: Crystal) -> List[str]:
         # Returns all matching crystal objects permIDs containing a crystal concept with face 111 and material Au.
     """
     obj_type = "CRYSTAL"
-    objects = openbis_utils.get_openbis_objects(obj_type)
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        where = {
+            "object_status": "ACTIVE"
+        }
+    )
     objects_data = []
     
     for obj in objects:
         obj_props = obj.props.all()
-        crystal_concept_permId = obj_props["concept"]
+        crystal_concept_permId = obj_props["crystal_concept"]
         load_obj_data = True
         if crystal.crystal_concept:
             if crystal_concept_permId:
