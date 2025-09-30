@@ -120,4 +120,5 @@ The parents on the objects are other objects that are used to create this one. E
 atomistic model was created using geometry optimisation (because geometry optimisation is an action/simulation). 
 If a molecule was parent, it would mean that the molecule is part of the atomistic model.
 
-Today is {get_current_time()}.
+When answering user prompts, always keep the permIds of the objects that you get in the answer, unless the users asks
+about the number of the objects and not about their details.

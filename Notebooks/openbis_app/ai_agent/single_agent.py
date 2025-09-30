@@ -54,12 +54,13 @@ class OpenBISAgent():
         self.messages = {"messages": []}
         self.llm_api_key = llm_api_key
         self.llm_model = ChatGoogleGenerativeAI(
-            model = "models/gemini-2.5-flash", 
+            model = "models/gemini-2.5-flash-lite", 
             google_api_key = self.llm_api_key,
             temperature=0.0,
             max_retries=3
         )
         self.system_prompt = read_text_file("ai_agent/data/system_prompt.txt")
+        self.system_prompt += f"\nToday is {get_current_time()}."
 
         self._tools = [
             # General openBIS objects tools
@@ -73,6 +74,8 @@ class OpenBISAgent():
             tools.get_substances_by_properties,
             tools.get_crystals_by_properties,
             tools.get_2d_materials_by_properties,
+            tools.get_simulations_by_molecule,
+            tools.get_samples_by_substance
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
@@ -142,7 +145,7 @@ class OpenBISAgent():
                 if message not in self.messages["messages"]:
                     self.messages["messages"].append(message)
             
-            print(event["messages"][-1])
+            # print(event["messages"][-1])
             response.append(event["messages"][-1])
             
         return response

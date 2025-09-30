@@ -1613,4 +1613,23 @@ class Publication(OpenBISObject):
     def get_label(cls) -> str:
         return "Publication"
 
+
+AllowedTypes = Union[Publication, Preparation, Person]
+class InstanceTypes(BaseModel):
+    types: List[AllowedTypes]
+        
+
+def get_all_openbis_subclasses(cls=OpenBISObject):
+    subclasses = set()
+    for subclass in cls.__subclasses__():
+        subclasses.add(subclass)
+        subclasses.update(get_all_openbis_subclasses(subclass))
+    return subclasses
+
+
+OpenBISUnion = Union[tuple(get_all_openbis_subclasses())]
+
+class OpenBISInstance(BaseModel):
+    instance: OpenBISUnion
     
+# print(OpenBISInstance.schema_json(indent = 4))
