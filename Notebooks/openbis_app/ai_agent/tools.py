@@ -3,9 +3,70 @@ import openbis_utils
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import List, Dict, Literal, Annotated, Optional, Union
 from datetime import datetime
+from enum import Enum
 from schema.openbis_objects import Substance, Crystal, TwoDLayerMaterial, Sample, Molecule
+import subprocess
+from aiida import orm
+import shutil
+from langchain.schema import Document
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+import json
+from langchain_chroma import Chroma
+from langchain.chains import RetrievalQA
+import os
+
+SIMULATION_TYPES = [
+    "ATOMISTIC_MODEL",
+    "BAND_STRUCTURE",
+    "GEOMETRY_OPTIMISATION",
+    "MEASUREMENT_SESSION",
+    "MINIMUM_ENERGY_POTENTIAL",
+    "PDOS",
+    "POTENTIAL_ENERGY_CALCULATION",
+    "SIMULATION",
+    "UNCLASSIFIED_SIMULATION",
+    "VIBRATIONAL_SPECTROSCOPY"
+]
 
 # Pydantic models for input validation
+class OpenBISObjectArgs(BaseModel):
+    permId: Optional[str] = Field(default = "", description = "PermID of the openBIS object")
+    name: Optional[str] = Field(default = "", description = "Name of the openBIS object")
+
+class MoleculeArgs(OpenBISObjectArgs):
+    empa_number: Optional[int] = Field(default = 0, description = "Empa number that identifies the molecule in ")
+    smiles: Optional[str] = Field(default = "", description = "SMILES string, e.g. 'CCO'")
+    sum_formula: Optional[str] = Field(default = "", description = "Molecular sum formula, e.g. 'CH4'")
+    iupac_name: Optional[str] = Field(default = "", description = "IUPAC name, e.g. 'benzene'")
+
+class SubstanceArgs(OpenBISObjectArgs):
+    empa_number: Optional[int] = Field(default = 0, description = "Empa identifier number, e.g. 704")
+    batch: Optional[str] = Field(default = "", description = "Batch letter of the substance, e.g. 'a'")
+    molecules: Optional[List[MoleculeArgs]] = Field(default_factory = list, description = "A list of one or more molecules that describe the substance.")
+
+class CrystalConceptArgs(OpenBISObjectArgs):
+    face: Optional[str] = Field(default = "", description = "Material face, e.g. 111 or 10000")
+    material: Optional[str] = Field(default = "", description = "Crystal material, e.g. Au, Pt, Ag, Pd")
+
+class CrystalArgs(OpenBISObjectArgs):
+    crystal_concept: Optional[CrystalConceptArgs] = Field(default = None, description = "Crystal concept that contains properties of the crystal")
+
+class TwoDLayerMaterialArgs(OpenBISObjectArgs):
+    top_layer_material: Optional[str] = Field(default = "", description = "Top layer material")
+    layer_count: Optional[str] = Field(default = "", description = "Number of layers in string")
+    substrate: Optional[str] = Field(default = "", description = "Substrate material")
+    growth_method: Optional[str] = Field(default = "", description = "Growth/Fabrication method")
+
+class ObjectStatusEnum(str, Enum):
+    Active = "Active"
+    Broken = "Broken"
+    Disposed = "Disposed"
+    Inactive = "Inactive"
+
+class SampleArgs(OpenBISObjectArgs):
+    object_status: ObjectStatusEnum = Field(default="", title="Object status", description="Current status of the object")
+
 class TimestampInterval(BaseModel):
     begin_date_str: str = Field(
         ..., 
@@ -88,7 +149,6 @@ def get_openbis_objects_by_name(name: str) -> List[str]:
     )
     objects_data = []
     for obj in objects:
-        obj_data = openbis_utils.get_openbis_object_data(obj)
         objects_data.append(f"The permID of the object is {obj.permId}.")
     
     return objects_data
@@ -136,252 +196,7 @@ def get_openbis_objects_by_description(description: str) -> List[Dict]:
 
 # Specific tools
 @tool
-def get_simulations_by_molecule(molecule: Molecule) -> List[str]:
-    """
-    Get all the simulations that were done using the molecule chosen by the user.
-    
-    Args:
-        molecule (Molecule): A data object describing the molecule to search for. It may include:
-            - permId(optional, str): PermID, e.g., 20250922145817954-468
-            - name (optional, str): Name, e.g. 704 or DBBA
-            - empa_number (optional, str): Empa number, e.g. 700
-            - smiles (optional, str): SMILES string, e.g. C or CCO
-            - sum_formula (optional, str): Sum (chemical) formula, e.g. CH4
-    Return:
-        List[str]: Summary of simulations performed using the input molecule. In case there are more than one possible molecules, 
-        the function returns the names and permIDs with the molecules in order for the user to pick the one that the user wants to search about.
-    """
-    objects_data = []
-    obj_type = "MOLECULE"
-    if molecule.permId:
-        obj = openbis_utils.get_openbis_object(molecule.permId)
-    else:
-        query_parameters = {}
-        if molecule.name:
-            query_parameters["name"] = molecule.name
-        if molecule.empa_number:
-            query_parameters["empa_number"] = molecule.empa_number
-        if molecule.smiles:
-            query_parameters["smiles"] = molecule.smiles
-        if molecule.sum_formula:
-            query_parameters["sum_formula"] = molecule.sum_formula
-            
-        objects = openbis_utils.get_openbis_objects(
-            type = obj_type,
-            props = ["name"],
-            attrs = ["children"],
-            where = query_parameters
-        )
-        
-        if len(objects) > 1:
-            for obj in objects:
-                objects_data.append(f"Molecule {obj.props['name']} ({obj.permId}).")
-            return objects_data
-        else:
-            obj = objects[0]
-    
-    simulations_summary = []
-    stack = [(obj, obj.props["name"], obj.permId)]
-
-    while stack:
-        current_obj, parent_name, parent_id = stack.pop()
-        
-        for child in current_obj.children:
-            child_obj = openbis_utils.get_openbis_object(child)
-            child_name = child_obj.props['name'] or "No name"
-            child_id = child_obj.permId
-            obj_type_label = auto_label(child_obj.type.code)
-            simulations_summary.append(
-                f"- {obj_type_label}: {child_name} ({child_id}). It is child of {parent_name} ({parent_id})."
-            )
-            
-            # push the child to stack so its children will also be explored
-            stack.append((child_obj, child_name, child_id))
-    
-    return simulations_summary
-
-@tool
-def get_sample_provenance(sample: Sample) -> str:
-    """
-        Return the summary of the processes performed during the sample preparation. It includes 
-        mainly the permIDs of the objects that are linked to the history of this sample.
-        
-        Args:
-            sample (Sample): Object of type Sample that contains the permID of the sample
-        Return:
-            sample_summary (str). Summary of the sample asked by the user
-        
-        Example:
-        >>> get_sample_provenance(
-        ...     Sample(
-        ...         permId = '20250929123440615-4070'
-        ...     )
-        ... )
-        Returns the history of the sample including all the connected process steps, samples, 
-        and first materials with some details about these as well.
-    """
-    sample_provenance = [f"Sample {sample.permId} provenance:"]
-    openbis_obj = openbis_utils.get_openbis_object(sample.permId)
-    
-    while openbis_obj:
-        parents = openbis_obj.parents
-        if parents:
-            for parent in parents:
-                parent_obj = openbis_utils.get_openbis_object(parent)
-                if parent_obj.type.code == "SAMPLE":
-                    parent_obj_permid = parent_obj.permId
-                    openbis_obj_permid = openbis_obj.permId
-                    sample_provenance.append(f"- Sample: {parent_obj_permid} is parent of {openbis_obj_permid}.")
-                    openbis_obj = parent_obj
-                    break
-                
-                elif parent_obj.type.code == "PROCESS_STEP":
-                    openbis_obj_permid = openbis_obj.permId
-                    parent_obj_permid = parent_obj.permId
-                    parent_obj_props = parent_obj.props.all()
-                    parent_obj_metadata = [
-                        f"PermID: {parent_obj_permid}",
-                        f"Name: {parent_obj_props['name']}",
-                        f"Actions: {', '.join(parent_obj_props['actions'])}",
-                        f"Observables: {', '.join(parent_obj_props['observables'])}",
-                        f"Instrument: {parent_obj_props['instrument']}",
-                    ]
-                    parent_obj_metadata = ". ".join(parent_obj_metadata)
-                    sample_provenance.append(f"- Process Step: {parent_obj_metadata}. It is parent of {openbis_obj_permid}.")
-                    openbis_obj = parent_obj
-                    break
-                
-                elif parent_obj.type.code in ["CRYSTAL", "2D_LAYER_MATERIAL"]:
-                    parent_obj_metadata = parent_obj.permId
-                    openbis_obj_metadata = openbis_obj.permId
-                    sample_provenance.append(f"- First material: {parent_obj_metadata} is parent of {openbis_obj_metadata}.")
-                    openbis_obj = parent_obj
-                    break
-        else:
-            openbis_obj = None
-    
-    sample_summary = "\n".join(sample_provenance)
-    
-    return sample_summary
-
-@tool
-def get_samples_by_substance(input_substance: Substance) -> List[str]:
-    """
-    Search for objects in openBIS of type SAMPLE that contains the input substance 
-    (was not removed from the surface yet) and are alive in the labs.
-
-    Args:
-        substance (Substance): A data object describing the substance to search for. It may include:
-            - permId (str, optional): Permanent ID of the substance in openBIS, e.g. 20250909093058356-304898.
-            - name (str, optional): Name of the substance in openBIS, e.g., Pyrentetraon.
-            - empa_number (str, optional): Empa number of the substance in openBIS, e.g., 704.
-            - batch (str, optional): Batch of the substance in openBIS, e.g., a or b.
-    Returns:
-        List[str]: A list of strings, where each string contains the sample name and the sample permId from openBIS.
-        In case there are more than one possible substance, the function returns the names and permIDs with the substances 
-        in order for the user to pick the one that the user wants to search about.
-    """
-    
-    objects_data = []
-    
-    if input_substance.permId:
-        input_substance_obj = openbis_utils.get_openbis_object(input_substance.permId)
-    else:
-        query_parameters = {}
-        if input_substance.name:
-            query_parameters["name"] = input_substance.name
-        if input_substance.empa_number:
-            query_parameters["empa_number"] = input_substance.empa_number
-        if input_substance.batch:
-            query_parameters["batch"] = input_substance.batch
-            
-        objects = openbis_utils.get_openbis_objects(
-            type = "SUBSTANCE",
-            props = ["name"],
-            where = query_parameters
-        )
-        
-        if len(objects) > 1:
-            for obj in objects:
-                objects_data.append(f"Substance {obj.props['name']} ({obj.permId}).")
-            return objects_data
-        else:
-            input_substance_obj = objects[0]
-    
-    obj_type = "SAMPLE"
-    objects = openbis_utils.get_openbis_objects(
-        type = obj_type,
-        attrs = ["parents"],
-        where = {"object_status": "ACTIVE"}
-    )
-    
-    sample_found = False
-    cleaned_sample = False
-    for obj in objects:
-        for parent in obj.parents:
-            parent_obj = openbis_utils.get_openbis_object(parent)
-            if parent_obj.type.code == "PROCESS_STEP":
-                process_step_actions = parent_obj.props["actions"]
-                for action in process_step_actions:
-                    action_obj = openbis_utils.get_openbis_object(action)
-                    if action_obj.type.code == "SPUTTERING":
-                        cleaned_sample = True
-                    elif action_obj.type.code == "DEPOSITION":
-                        substance = action_obj.props["substance"]
-                        if substance:
-                            substance_obj = openbis_utils.get_openbis_object(substance)
-                            if substance_obj.permId == input_substance_obj.permId:
-                                sample_found = True
-                    
-                    if sample_found:
-                        break
-                    
-                    if cleaned_sample:
-                        break
-                
-            if sample_found:
-                break
-            
-            if cleaned_sample:
-                break
-        
-        if sample_found:
-            objects_data.append(f"Sample {obj.props['name']} ({obj.permId})")
-        
-        cleaned_sample = False
-        sample_found = False
-    
-    return objects_data
-
-@tool
-def get_live_samples_by_properties() -> List[str]:
-    """
-    Search for samples (type: SAMPLE) in openBIS that still exist in the labs. The ones that were already processed will not be returned 
-    because they have the object_status set to INACTIVE.
-
-    Returns:
-        List[Dict]: List of strings with the names and the permIDs in parenthesis of all the sample objects from openBIS that exists in the labs.
-
-    Example:
-        >>> get_live_samples_by_attributes()
-        # Returns all samples with exists equals to True
-    """
-    
-    obj_type = "SAMPLE"
-    objects = openbis_utils.get_openbis_objects(
-        type = obj_type,
-        where = {"object_status": "ACTIVE"},
-        props = ["name"]
-    )
-    objects_data = []
-    
-    for obj in objects:
-        objects_data.append(f"Sample {obj.props.name} ({obj.permId}).")
-                                
-    return objects_data
-    
-@tool
-def get_substances_by_properties(substance: Substance) -> List[str]:
+def get_substances_by_properties(substance: SubstanceArgs) -> List[str]:
     """
     Search for substances in openBIS using one or more identifying attributes.
 
@@ -394,7 +209,7 @@ def get_substances_by_properties(substance: Substance) -> List[str]:
     e.g, 650a, it means that they want the substance with that empa number and batch.
 
     Args:
-        substance (Substance): A data object describing the substance to search for. It may include:
+        substance (SubstanceArgs): A data object describing the substance to search for. It may include:
             - empa_number (int, optional): Empa identifier number, e.g. 704.
             - batch (str, optional): Batch letter of the substance, e.g. 'a'.
             - molecules (List[Molecule], optional): A list of one or more molecules that describe the substance. 
@@ -470,7 +285,7 @@ def get_substances_by_properties(substance: Substance) -> List[str]:
     return objects_data
 
 @tool
-def get_crystals_by_properties(crystal: Crystal) -> List[str]:
+def get_crystals_by_properties(crystal: CrystalArgs) -> List[str]:
     """
     Search for crystals in openBIS using one or more identifying attributes.
 
@@ -482,8 +297,8 @@ def get_crystals_by_properties(crystal: Crystal) -> List[str]:
     concept with material Au and face 111.
 
     Args:
-        crystal (Crystal): A data object describing the crystal to search for. It may include:
-            - crystal_concept (CrystalConcept, optional): crystal concept that contains properties of the crystal
+        crystal (CrystalArgs): A data object describing the crystal to search for. It may include:
+            - crystal_concept (CrystalConceptArgs, optional): crystal concept that contains properties of the crystal
               Each crystal_concept may include:
                 - face (str, optional): Material face, e.g. 111 or 10000
                 - material (str, optional): Crystal material, e.g. Au, Pt, Ag, Pd
@@ -493,8 +308,8 @@ def get_crystals_by_properties(crystal: Crystal) -> List[str]:
 
     Example:
         >>> get_crystals_by_attributes(
-        ...     Crystal(
-        ...         crystal_concepts=[CrystalConcept(face="111", material="Au")]
+        ...     CrystalArgs(
+        ...         crystal_concept=[CrystalConceptArgs(face="111", material="Au")]
         ...     )
         ... )
         # Returns all matching crystal objects permIDs containing a crystal concept with face 111 and material Au.
@@ -529,7 +344,7 @@ def get_crystals_by_properties(crystal: Crystal) -> List[str]:
     return objects_data
 
 @tool
-def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterial) -> List[str]:
+def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterialArgs) -> List[str]:
     """
     Search for 2D layer materials in openBIS using one or more identifying attributes.
 
@@ -541,7 +356,7 @@ def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterial) -> List[st
     These permIDs can then be used to retrieve more information about the substances.
 
     Args:
-        two_d_material (TwoDLayerMaterial): A data object describing the 2d layer material 
+        two_d_material (TwoDLayerMaterialArgs): A data object describing the 2d layer material 
         to search for. It may include:
             - top_layer_material (str, optional): Top layer material
             - layer_count (str, optional): Number of layers in string
@@ -553,7 +368,7 @@ def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterial) -> List[st
 
     Example:
         >>> get_2d_materials_by_attributes(
-        ...     TwoDLayerMaterial(
+        ...     TwoDLayerMaterialArgs(
         ...         top_layer_material='MoS2'
         ...     )
         ... )
@@ -583,5 +398,462 @@ def get_2d_materials_by_properties(two_d_material: TwoDLayerMaterial) -> List[st
     
     for obj in objects:
         objects_data.append(f"2D layer material {obj.props.name} ({obj.permId}).")
+                                
+    return objects_data
+
+@tool
+def import_simulation_from_openbis(simulation_permid, human_response = False) -> str:
+    """
+    Import simulation from openBIS into AiiDAlab. For that, the function takes the simulation 
+    permID and downloads data from openBIS. This function returns a response that reports
+    whether the import was successful or not.
+    
+    Args:
+        simulation_permid (str): Permanent ID of the simulation that the user wants to import
+        human_response (bool): Human response to import the simulation
+    Returns:
+        response (str): Response reporting the user if the import was successful
+    """
+    if human_response:
+        if simulation_permid:
+            simulation_obj = openbis_utils.get_openbis_object(simulation_permid)
+            for parent in simulation_obj.parents:
+                parent_obj = openbis_utils.get_openbis_object(parent)
+                if parent_obj.type.code == "AIIDA_NODE":
+                    object_datasets = parent_obj.get_datasets()
+                    for dataset in object_datasets:
+                        dataset_filenames = dataset.file_list
+                        is_aiida_file = False
+                        if len(dataset_filenames) == 1:
+                            for filename in dataset_filenames:
+                                if ".aiida" in filename:
+                                    is_aiida_file = True
+                        
+                        if is_aiida_file:
+                            dataset.download(destination = 'aiida_nodes')
+                            aiida_node_filename = dataset.file_list[0]
+                            aiida_node_filepath = f"aiida_nodes/{dataset.permId}/{aiida_node_filename}"
+                            command = ["verdi", "archive", "import", aiida_node_filepath]
+                            
+                            # Execute the command
+                            result = subprocess.run(command, capture_output=True, text=True)
+                            if result.returncode != 0:
+                                response = "Simulation cannot be imported."
+                            else:
+                                response = "Simulation was imported successfully."
+                            
+                            shutil.rmtree(f"aiida_nodes/")
+                    
+                    return response
+        else:
+            return "Simulation was not found"
+    else:
+        return "Need human acceptance to import this."
+
+import hashlib
+def compute_doc_id(doc):
+    """Compute a hash for a document based on its content."""
+    return hashlib.sha256(doc.page_content.encode("utf-8")).hexdigest()
+
+# @tool
+def get_processes_documents(question):
+    """
+    Get all the descriptions from the processes available in openBIS and tell the user 
+    which one can be used for the experiment that the user wants to do.
+    """
+    openbis_type = "PROCESS"
+    objects = openbis_utils.get_openbis_objects(
+        type = openbis_type,
+        props = ["description"]
+    )
+    docs = []
+    for obj in objects:
+        obj_description = obj.props.description or ""
+        docs.append({"permId": obj.permId, "description": obj_description})
+    docs = [Document(page_content = d["description"], metadata = {"permId": d["permId"]}) for d in docs]
+    
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size = 500,
+        chunk_overlap = 10,
+        length_function = len,
+    )
+    
+    chunks = text_splitter.split_documents(docs)
+    
+    filename = "/home/jovyan/api_keys/gemini_api.json"
+    with open(filename, 'r') as file:
+        api_key = json.load(file)["api_key"]
+    
+    llm_model = ChatGoogleGenerativeAI(
+        model = "gemini-2.5-flash", 
+        google_api_key = api_key,
+        temperature=0.5,
+        max_retries=3
+    )
+    
+    embedding_model = GoogleGenerativeAIEmbeddings(
+        model = "gemini-embedding-001", 
+        google_api_key = api_key
+    )
+    
+    if os.path.exists("./chroma_db"):
+        vectordb = Chroma(persist_directory = "./chroma_db", embedding_function = embedding_model)
+        existing_ids = set()
+        for doc in vectordb.get(include=["metadatas"])["metadatas"]:
+            if doc and "doc_id" in doc:
+                existing_ids.add(doc["doc_id"])
+
+        new_docs = []
+        for doc in chunks:
+            doc_id = compute_doc_id(doc)
+            if doc_id not in existing_ids:
+                doc.metadata["doc_id"] = doc_id
+                new_docs.append(doc)
+        
+        if new_docs:
+            vectordb.add_documents(new_docs)
+            print(f"Added {len(new_docs)} new documents to Chroma DB.")
+        else:
+            print("All documents are already in the Chroma DB, nothing to add.")
+    else:
+        vectordb = Chroma.from_documents(chunks, embedding_model, persist_directory="./chroma_db")
+    
+    retriever = vectordb.as_retriever()
+    
+    qa_chain = RetrievalQA.from_chain_type(
+        llm = llm_model,
+        chain_type = "stuff",  # "stuff", "map_reduce", etc.
+        retriever = retriever,
+        return_source_documents = True  # optional, returns the chunks used
+    )
+    
+    result = qa_chain.invoke({"query": question})  # or qa_chain.invoke({"query": question})
+    
+    return result
+    
+@tool
+def get_measurements_by_sample(sample: SampleArgs) -> List[str]:
+    """
+    Get all the measurements that were done using the sample chosen by the user.
+    
+    Args:
+        sample (SampleArgs): A data object describing the sample used for taking measurements. It may include:
+            - permId(optional, str): PermID, e.g., 20250922145817954-468
+            - name (optional, str): Name, e.g. 20250929143406_Au111_Gino:[IONB:HEAT]
+    Return:
+        List[str]: Summary of measurements performed using the input sample.
+    """
+    objects_data = []
+    if sample.permId:
+        obj = openbis_utils.get_openbis_object(sample.permId)
+    else:
+        query_parameters = {}
+        if sample.name:
+            query_parameters["name"] = sample.name
+        
+        objects = openbis_utils.get_openbis_objects(
+            type = "SAMPLE",
+            props = ["name"],
+            attrs = ["children"],
+            where = query_parameters
+        )
+        
+        if len(objects) == 0:
+            return ["No sample was found."]
+        elif len(objects) == 1:
+            obj = objects[0]
+        else:
+            for obj in objects:
+                objects_data.append(f"Sample {obj.props['name']} ({obj.permId}).")
+            return objects_data
+    
+    measurements_summary = []
+    stack = [(obj, obj.props["name"], obj.permId)]
+
+    while stack:
+        current_obj, parent_name, parent_id = stack.pop()
+        
+        for child in current_obj.children:
+            child_obj = openbis_utils.get_openbis_object(child)
+            if child_obj.type.code == "MEASUREMENT_SESSION":
+                child_name = child_obj.props['name'] or "No name"
+                child_id = child_obj.permId
+                obj_type_label = auto_label(child_obj.type.code)
+                measurements_summary.append(
+                    f"- {obj_type_label}: {child_name} ({child_id}). It is child of {parent_name} ({parent_id})."
+                )
+                
+                # push the child to stack so its children will also be explored
+                stack.append((child_obj, child_name, child_id))
+    
+    return measurements_summary
+    
+@tool
+def get_simulations_by_molecule(molecule: MoleculeArgs) -> List[str]:
+    """
+    Get all the simulations that were done using the molecule chosen by the user.
+    
+    Args:
+        molecule (MoleculeArgs): A data object describing the molecule to search for. It may include:
+            - permId(optional, str): PermID, e.g., 20250922145817954-468
+            - name (optional, str): Name, e.g. 704 or DBBA
+            - empa_number (optional, str): Empa number, e.g. 700
+            - smiles (optional, str): SMILES string, e.g. C or CCO
+            - sum_formula (optional, str): Sum (chemical) formula, e.g. CH4
+    Return:
+        List[str]: Summary of simulations performed using the input molecule. In case there are more than one possible molecules, 
+        the function returns the names and permIDs with the molecules in order for the user to pick the one that the user wants to search about.
+    """
+    objects_data = []
+    obj_type = "MOLECULE"
+    if molecule.permId:
+        obj = openbis_utils.get_openbis_object(molecule.permId)
+    else:
+        query_parameters = {}
+        if molecule.name:
+            query_parameters["name"] = molecule.name
+        if molecule.empa_number:
+            query_parameters["empa_number"] = molecule.empa_number
+        if molecule.smiles:
+            query_parameters["smiles"] = molecule.smiles
+        if molecule.sum_formula:
+            query_parameters["sum_formula"] = molecule.sum_formula
+            
+        objects = openbis_utils.get_openbis_objects(
+            type = obj_type,
+            props = ["name"],
+            attrs = ["children"],
+            where = query_parameters
+        )
+        
+        if len(objects) == 0:
+            return ["No molecule was found."]
+        elif len(objects) == 1:
+            obj = objects[0]
+        else:
+            for obj in objects:
+                objects_data.append(f"Molecule {obj.props['name']} ({obj.permId}).")
+            return objects_data
+    
+    simulations_summary = []
+    stack = [(obj, obj.props["name"], obj.permId)]
+    
+
+    while stack:
+        current_obj, parent_name, parent_id = stack.pop()
+        
+        for child in current_obj.children:
+            child_obj = openbis_utils.get_openbis_object(child)
+            child_name = child_obj.props['name'] or "No name"
+            child_id = child_obj.permId
+            
+            if child_obj.type.code in SIMULATION_TYPES:
+                obj_type_label = auto_label(child_obj.type.code)
+                simulations_summary.append(
+                    f"- {obj_type_label}: {child_name} ({child_id}). It is child of {parent_name} ({parent_id})."
+                )
+            
+            # push the child to stack so its children will also be explored
+            stack.append((child_obj, child_name, child_id))
+    
+    return simulations_summary
+
+@tool
+def get_sample_provenance(sample: SampleArgs) -> str:
+    """
+        Return the summary of the processes performed during the sample preparation. It includes 
+        mainly the permIDs of the objects that are linked to the history of this sample.
+        
+        Args:
+            sample (SampleArgs): Object of type Sample that contains the permID of the sample
+        Return:
+            sample_summary (str). Summary of the sample asked by the user
+        
+        Example:
+        >>> get_sample_provenance(
+        ...     Sample(
+        ...         permId = '20250929123440615-4070'
+        ...     )
+        ... )
+        Returns the history of the sample including all the connected process steps, samples, 
+        and first materials with some details about these as well.
+    """
+    sample_provenance = [f"Sample {sample.permId} provenance:"]
+    openbis_obj = None
+    if sample.permId:
+        openbis_obj = openbis_utils.get_openbis_object(sample.permId)
+    
+    while openbis_obj:
+        parents = openbis_obj.parents
+        if parents:
+            for parent in parents:
+                parent_obj = openbis_utils.get_openbis_object(parent)
+                if parent_obj.type.code == "SAMPLE":
+                    parent_obj_permid = parent_obj.permId
+                    openbis_obj_permid = openbis_obj.permId
+                    sample_provenance.append(f"- Sample: {parent_obj_permid} is parent of {openbis_obj_permid}.")
+                    openbis_obj = parent_obj
+                    break
+                
+                elif parent_obj.type.code == "PROCESS_STEP":
+                    openbis_obj_permid = openbis_obj.permId
+                    parent_obj_permid = parent_obj.permId
+                    parent_obj_props = parent_obj.props.all()
+                    parent_obj_metadata = [
+                        f"PermID: {parent_obj_permid}",
+                        f"Name: {parent_obj_props['name']}",
+                        f"Actions: {', '.join(parent_obj_props['actions'])}",
+                        f"Observables: {', '.join(parent_obj_props['observables'])}",
+                        f"Instrument: {parent_obj_props['instrument']}",
+                    ]
+                    parent_obj_metadata = ". ".join(parent_obj_metadata)
+                    sample_provenance.append(f"- Process Step: {parent_obj_metadata}. It is parent of {openbis_obj_permid}.")
+                    openbis_obj = parent_obj
+                    break
+                
+                elif parent_obj.type.code in ["CRYSTAL", "2D_LAYER_MATERIAL"]:
+                    parent_obj_metadata = parent_obj.permId
+                    openbis_obj_metadata = openbis_obj.permId
+                    sample_provenance.append(f"- First material: {parent_obj_metadata} is parent of {openbis_obj_metadata}.")
+                    openbis_obj = parent_obj
+                    break
+        else:
+            openbis_obj = None
+    
+    sample_summary = "\n".join(sample_provenance)
+    
+    return sample_summary
+
+@tool
+def get_samples_by_substance(input_substance: SubstanceArgs) -> List[str]:
+    """
+    Search for objects in openBIS of type SAMPLE that contains the input substance 
+    (was not removed from the surface yet). Only samples that are active or disposed are retrieved.
+
+    Args:
+        substance (SubstanceArgs): A data object describing the substance to search for. It may include:
+            - permId (str, optional): Permanent ID of the substance in openBIS, e.g. 20250909093058356-304898.
+            - name (str, optional): Name of the substance in openBIS, e.g., Pyrentetraon.
+            - empa_number (str, optional): Empa number of the substance in openBIS, e.g., 704.
+            - batch (str, optional): Batch of the substance in openBIS, e.g., a or b.
+    Returns:
+        List[str]: A list of strings, where each string contains the sample name and the sample permId from openBIS.
+        In case there are more than one possible substance, the function returns the names and permIDs with the substances 
+        in order for the user to pick the one that the user wants to search about.
+    """
+    
+    objects_data = []
+    
+    if input_substance.permId:
+        input_substance_obj = openbis_utils.get_openbis_object(input_substance.permId)
+    else:
+        query_parameters = {}
+        if input_substance.name:
+            query_parameters["name"] = input_substance.name
+        if input_substance.empa_number:
+            query_parameters["empa_number"] = input_substance.empa_number
+        if input_substance.batch:
+            query_parameters["batch"] = input_substance.batch
+            
+        objects = openbis_utils.get_openbis_objects(
+            type = "SUBSTANCE",
+            props = ["name"],
+            where = query_parameters
+        )
+        
+        if len(objects) == 0:
+            return ["No substance was entered."]
+        elif len(objects) == 1:
+            input_substance_obj = objects[0]
+        else:
+            for obj in objects:
+                objects_data.append(f"Substance {obj.props['name']} ({obj.permId}).")
+            return objects_data
+    
+    obj_type = "SAMPLE"
+    samples_active = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        attrs = ["parents"],
+        where = {"object_status": "ACTIVE"}
+    )
+    
+    samples_disposed = openbis_utils.get_openbis_objects(
+        type = obj_type,
+        attrs = ["parents"],
+        where = {"object_status": "DISPOSED"}
+    )
+    
+    # Merge both lists
+    samples = list(samples_active) + list(samples_disposed)
+    
+    sample_found = False
+    cleaned_sample = False
+    for obj in samples:
+        for parent in obj.parents:
+            parent_obj = openbis_utils.get_openbis_object(parent)
+            if parent_obj.type.code == "PROCESS_STEP":
+                process_step_actions = parent_obj.props["actions"]
+                for action in process_step_actions:
+                    action_obj = openbis_utils.get_openbis_object(action)
+                    if action_obj.type.code == "SPUTTERING":
+                        cleaned_sample = True
+                    elif action_obj.type.code == "DEPOSITION":
+                        substance = action_obj.props["substance"]
+                        if substance:
+                            substance_obj = openbis_utils.get_openbis_object(substance)
+                            if substance_obj.permId == input_substance_obj.permId:
+                                sample_found = True
+                    
+                    if sample_found:
+                        break
+                    
+                    if cleaned_sample:
+                        break
+                
+            if sample_found:
+                break
+            
+            if cleaned_sample:
+                break
+        
+        if sample_found:
+            objects_data.append(f"Sample {obj.props['name']} ({obj.permId})")
+        
+        cleaned_sample = False
+        sample_found = False
+    
+    return objects_data
+
+@tool
+def get_live_samples_by_properties() -> List[str]:
+    """
+    Search for samples (type: SAMPLE) in openBIS that still exist in the labs or that were already disposed (ACTIVE and DISPOSED). 
+    The ones used to store the sample provenance will not be returned because they have the object_status set to INACTIVE.
+
+    Returns:
+        List[Dict]: List of strings with the names and the permIDs in parenthesis of all the sample objects from openBIS 
+        that exists in the labs or that were disposed. The sample created during the sample preparation are not retrieved.
+
+    Example:
+        >>> get_live_samples_by_attributes()
+        # Returns all samples with object_status ACTIVE and DISPOSED.
+    """
+    
+    objects_data = []
+    obj_type = "SAMPLE"
+    
+    # Active samples
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type, where = {"object_status": "ACTIVE"}, props = ["name"]
+    )
+    for obj in objects:
+        objects_data.append(f"Sample {obj.props.name} ({obj.permId}).")
+    
+    # Disposed samples
+    objects = openbis_utils.get_openbis_objects(
+        type = obj_type, where = {"object_status": "DISPOSED"}, props = ["name"]
+    )
+    for obj in objects:
+        objects_data.append(f"Sample {obj.props.name} ({obj.permId}).")
                                 
     return objects_data

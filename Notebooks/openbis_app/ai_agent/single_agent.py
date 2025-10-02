@@ -19,6 +19,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import SystemMessage, ToolMessage, HumanMessage, AIMessage
 from uuid import uuid4
+import functools
 
 def read_text_file(file_path: str) -> str:
     with open(file_path, 'r') as file:
@@ -54,9 +55,9 @@ class OpenBISAgent():
         self.messages = {"messages": []}
         self.llm_api_key = llm_api_key
         self.llm_model = ChatGoogleGenerativeAI(
-            model = "models/gemini-2.5-flash-lite", 
+            model = "gemini-2.5-flash", 
             google_api_key = self.llm_api_key,
-            temperature=0.0,
+            temperature=0.5,
             max_retries=3
         )
         self.system_prompt = read_text_file("ai_agent/data/system_prompt.txt")
@@ -75,7 +76,9 @@ class OpenBISAgent():
             tools.get_crystals_by_properties,
             tools.get_2d_materials_by_properties,
             tools.get_simulations_by_molecule,
-            tools.get_samples_by_substance
+            tools.get_samples_by_substance,
+            tools.get_measurements_by_sample,
+            tools.import_simulation_from_openbis
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
@@ -145,7 +148,7 @@ class OpenBISAgent():
                 if message not in self.messages["messages"]:
                     self.messages["messages"].append(message)
             
-            # print(event["messages"][-1])
+            print(event["messages"][-1])
             response.append(event["messages"][-1])
             
         return response

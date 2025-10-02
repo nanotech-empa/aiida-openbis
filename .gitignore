@@ -14,6 +14,9 @@ dist/
 pip-wheel-metadata/
 .ipynb_checkpoints/
 .*.ipynb
-Notebooks/openbis_app/.upload_substances-1.ipynb
+
+openbis_app/ai_agent/chroma_db/
 openbis_app/structures/
 openbis_app/data/
+openbis_app/images/
+openbis_app/logs/
