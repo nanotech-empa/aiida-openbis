@@ -1220,7 +1220,10 @@ class RegisterPreparationWidget(ipw.VBox):
     
     def load_process(self, b):
         openbis_processes = utils.get_openbis_objects(self.openbis_session, type = "PROCESS")
-        processes_options = [(obj.props["name"], obj.permId) for obj in openbis_processes]
+        processes_options = []
+        for obj in openbis_processes:
+            if obj.props["process_steps_settings"]:
+                processes_options.append((obj.props["name"], obj.permId))
         processes_options.insert(0, ("Select a process...", "-1"))
         self.processes_dropdown.options = processes_options
         self.processes_dropdown.value = "-1"

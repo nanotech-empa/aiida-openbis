@@ -62,8 +62,8 @@ PRESSURE_OBSERVABLE: Pressure timeseries obtained from the components during the
 PROCESS: Contains one or multiple process steps. This object is used as a template to register the process steps performed during a sample preparation.
 PROCESS_STEP: A step performed in a preparation. It contains multiple actions and observables that occur/are recorded concurrently during the process step.
 PUBLICATION: Publication object.
-REACTION_PRODUCT: Reaction products that are created in the labs using different synthesis/sample preparation methods.
-REACTION_PRODUCT_CONCEPT: Theoretical concept of a reaction product. It is used to perform simulations.
+REACTION_PRODUCT: Reaction products that are created in the labs using different synthesis/sample preparation methods. These are linked to the theoretical representation which is derived from precursor molecules.
+REACTION_PRODUCT_CONCEPT: Theoretical concept of a reaction product. It is used to perform simulations. These products are made of precursor molecules.
 RESISTANCE_OBSERVABLE: Resistance timeseries obtained from the components during the tasks performed in the labs.
 RESULT: Result obtained after doing data analysis or after getting a measurement.
 RINSE: Rinse action.

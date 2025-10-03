@@ -70,15 +70,26 @@ class OpenBISAgent():
             tools.get_openbis_objects_by_name,
             tools.get_openbis_objects_by_date,
             
-            # Specific tools
+            # Inventory
             tools.get_live_samples_by_properties,
             tools.get_substances_by_properties,
             tools.get_crystals_by_properties,
             tools.get_2d_materials_by_properties,
+            tools.get_reacprods_by_properties,
+            
+            # Simulations
             tools.get_simulations_by_molecule,
+            tools.get_simulations_by_crystal_concept,
+            tools.get_simulations_by_reacprod_concept,
+            tools.import_simulation_from_openbis,
+            
+            # Experiments
             tools.get_samples_by_substance,
+            tools.get_samples_by_crystal,
             tools.get_measurements_by_sample,
-            tools.import_simulation_from_openbis
+            
+            # RAG
+            tools.get_processes_documents
         ]
         
         llm_with_tools = self.llm_model.bind_tools(self._tools)
