@@ -1,0 +1,37 @@
+---
+ci:
+    autoupdate_schedule: quarterly
+
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v5.0.0
+      hooks:
+          - id: check-json
+          - id: check-yaml
+          - id: end-of-file-fixer
+          - id: trailing-whitespace
+            exclude: miscellaneous/structures
+
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      rev: v0.12.7
+      hooks:
+          - id: ruff-format
+            exclude: ^docs/.*
+          - id: ruff
+            args: [--fix, --exit-non-zero-on-fix, --show-fixes]
+
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 0.2.3
+      hooks:
+          - id: yamlfmt
+            args: [--preserve-quotes]
+
+    - repo: https://github.com/sirosen/check-jsonschema
+      rev: 0.33.2
+      hooks:
+          - id: check-github-workflows
+
+    - repo: https://github.com/kynan/nbstripout
+      rev: 0.8.1
+      hooks:
+          - id: nbstripout

@@ -15,7 +15,17 @@
         "ase",
         "scikit-learn",
         "pybis",
-        "rdkit"
+        "rdkit",
+        "SPIEPy",
+        "ipyfilechooser",
+        "langchain",
+        "langchain-core",
+        "langgraph",
+        "langchain-openai",
+        "langchain-google-genai",
+        "langchain-ollama",
+        "langchain-text-splitters",
+        "langchain-chroma"
     ],
     "data_files": [
         [

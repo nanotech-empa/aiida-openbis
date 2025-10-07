@@ -1,21 +1,18 @@
-import numpy as np
-
 import ipywidgets as ipw
-#import nglview
-
-from traitlets import Instance, default
-
+import numpy as np
+from aiida import orm
 from ase import Atoms
 from ase.data import chemical_symbols
-
-from sklearn.decomposition import PCA
-from aiida import orm
-from aiida_openbis.utils import bisutils
-
-from openbabel import pybel as pb
 from openbabel import openbabel as ob
+from openbabel import pybel as pb
 from rdkit import Chem  # pylint: disable=(import-error)
 from rdkit.Chem import AllChem  # pylint: disable=(import-error)
+from sklearn.decomposition import PCA
+from traitlets import Instance, default
+
+from aiida_openbis.utils import bisutils
+
+# import nglview
 
 
 class OpenbisMolWidget(ipw.VBox):
@@ -30,77 +27,128 @@ class OpenbisMolWidget(ipw.VBox):
         self.title = title
 
         try:
-            from openbabel import pybel  # noqa: F401
             from openbabel import openbabel  # noqa: F401
+            from openbabel import pybel  # noqa: F401
         except ImportError:
-            super().__init__([
-                ipw.HTML(
-                    "The SmilesWidget requires the OpenBabel library, "
-                    "but the library was not found."
-                )
-            ])
+            super().__init__(
+                [
+                    ipw.HTML(
+                        "The SmilesWidget requires the OpenBabel library, "
+                        "but the library was not found."
+                    )
+                ]
+            )
             return
         try:
             from rdkit import Chem  # noqa: F401
             from rdkit.Chem import AllChem  # noqa: F401
         except ImportError:
-            super().__init__([
-                ipw.HTML(
-                    "The SmilesWidget requires the rdkit library, "
-                    "but the library was not found."
-                )
-            ])
+            super().__init__(
+                [
+                    ipw.HTML(
+                        "The SmilesWidget requires the rdkit library, "
+                        "but the library was not found."
+                    )
+                ]
+            )
             return
-        #_output = ipw.Output()
-        #with _output:
-        self.session = bisutils.log_in(bisurl = "openbis", bisuser = "admin", bispasswd = "123456789")
-        mols = bisutils.get_precursors(session=self.session)
-        self.create_structure_btn = ipw.Button(description="Generate molecule", button_style="info")
+        # _output = ipw.Output()
+        # with _output:
+        self.session = bisutils.log_in(
+            bisurl="openbis", bisuser="admin", bispasswd="123456789"
+        )
+        # mols = bisutils.get_precursors(session=self.session)
+        self.create_structure_btn = ipw.Button(
+            description="Generate molecule", button_style="info"
+        )
         self.create_structure_btn.on_click(self._on_button_pressed)
         self.output = ipw.HTML("")
-        
-        
+
         # Dropdowns
         def observe_spaces(change):
             """Observe OpenBIS space change."""
-            self.project_dropdown.options = [(project.code.capitalize(), project.code) for  project in self.session.get_projects(space=change['new'])]
-            
+            self.project_dropdown.options = [
+                (project.code.capitalize(), project.code)
+                for project in self.session.get_projects(space=change["new"])
+            ]
+
         self.space_dropdown = ipw.Dropdown(
-            description = "Space:",
-            options = [(space.code.capitalize(), space.code) for space in self.session.get_spaces()],
+            description="Space:",
+            options=[
+                (space.code.capitalize(), space.code)
+                for space in self.session.get_spaces()
+            ],
         )
-        self.space_dropdown.observe(observe_spaces, names='value')
-        
+        self.space_dropdown.observe(observe_spaces, names="value")
+
         def observe_projects(change):
             """Observe OpenBIS project change."""
-            self.collection_dropdown.options = [(collection.props["$name"].capitalize(), collection.code) for collection in self.session.get_collections(space=self.space_dropdown.value, project=change['new'])]
-            
+            self.collection_dropdown.options = [
+                (collection.props["$name"].capitalize(), collection.code)
+                for collection in self.session.get_collections(
+                    space=self.space_dropdown.value, project=change["new"]
+                )
+            ]
+
         self.project_dropdown = ipw.Dropdown(
             description="Project:",
-            options=[(project.description or project.code, project.code) for project in self.session.get_projects(space=self.space_dropdown.value)],
+            options=[
+                (project.description or project.code, project.code)
+                for project in self.session.get_projects(
+                    space=self.space_dropdown.value
+                )
+            ],
         )
-        
-        self.project_dropdown.observe(observe_projects, names='value')
-        
+
+        self.project_dropdown.observe(observe_projects, names="value")
+
         def observe_collections(change):
             """Observe OpenBIS project change."""
-            self.objects_dropdown.options = [(f"{obj.props['$name']}: {obj.props['sumformula']}", {'permId': obj.permId, 'smiles': obj.props["smiles"]}) for obj in self.session.get_objects(space=self.space_dropdown.value, project=self.project_dropdown.value, experiment = change['new'])]
-            
+            self.objects_dropdown.options = [
+                (
+                    f"{obj.props['$name']}: {obj.props['sumformula']}",
+                    {"permId": obj.permId, "smiles": obj.props["smiles"]},
+                )
+                for obj in self.session.get_objects(
+                    space=self.space_dropdown.value,
+                    project=self.project_dropdown.value,
+                    experiment=change["new"],
+                )
+            ]
+
         self.collection_dropdown = ipw.Dropdown(
             description="Collection:",
-            options=[(collection.description or collection.code, collection.code) for collection in self.session.get_collections(space=self.space_dropdown.value, project=self.project_dropdown.value)],
+            options=[
+                (collection.description or collection.code, collection.code)
+                for collection in self.session.get_collections(
+                    space=self.space_dropdown.value, project=self.project_dropdown.value
+                )
+            ],
         )
-        
-        self.collection_dropdown.observe(observe_collections, names='value')
-        
+
+        self.collection_dropdown.observe(observe_collections, names="value")
+
         self.objects_dropdown = ipw.Dropdown(
             description="Object:"
-#             options=[(str(mol[1])+": "+str(mol[2]), {'permId': mol[0], 'smiles':mol[3]}) for mol in mols]
+            #             options=[(str(mol[1])+": "+str(mol[2]), {'permId': mol[0], 'smiles':mol[3]}) for mol in mols]
         )
-        
-        #bisutils.log_out(session=self.session)
 
-        super().__init__([ipw.HBox([self.space_dropdown, self.project_dropdown, self.collection_dropdown, self.objects_dropdown]), self.create_structure_btn, self.output])
+        # bisutils.log_out(session=self.session)
+
+        super().__init__(
+            [
+                ipw.HBox(
+                    [
+                        self.space_dropdown,
+                        self.project_dropdown,
+                        self.collection_dropdown,
+                        self.objects_dropdown,
+                    ]
+                ),
+                self.create_structure_btn,
+                self.output,
+            ]
+        )
 
     def make_ase(self, species, positions):
         """Create ase Atoms object."""
@@ -169,12 +217,14 @@ class OpenbisMolWidget(ipw.VBox):
         eln_info = {
             "eln_instance": "https://openbis-empa-lab205.labnotebook.ch/",
             "eln_type": "OpenBIS",
-            #"sample_uuid": self.objects_dropdown.value.permId,
+            # "sample_uuid": self.objects_dropdown.value.permId,
             "spectrum_type": "molecule",
             "file_name": self.objects_dropdown.label,
         }
 
-        self.structure = orm.StructureData(ase=self.mol_from_smiles(self.objects_dropdown.value['smiles']))
+        self.structure = orm.StructureData(
+            ase=self.mol_from_smiles(self.objects_dropdown.value["smiles"])
+        )
         self.structure.set_extra("eln", eln_info)
         self.output.value = ""
 
