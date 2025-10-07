@@ -8,6 +8,7 @@ import shutil
 import base64
 import io
 import matplotlib.pyplot as plt
+import logging
 
 OBSERVABLES_TYPES = utils.read_json("metadata/observables_types.json")
 ACTIONS_TYPES = utils.read_json("metadata/actions_types.json")
@@ -16,6 +17,14 @@ OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
 MATERIALS_TYPES = utils.read_json("metadata/materials_types.json")
 OPENBIS_OBJECT_CODES = utils.read_json("metadata/object_codes.json")
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="logs/aiidalab_openbis_interface.log",
+    encoding="utf-8",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
+)
 
 
 class CreateSampleWidget(ipw.VBox):
@@ -69,6 +78,7 @@ class CreateSampleWidget(ipw.VBox):
     def load_material_type_widgets(self, change):
         if self.material_type_dropdown.value == "-1":
             self.material_details_vbox.children = []
+            logger.info("Material type is not selected.")
             return
         else:
             material_options = [("Select material...", "-1")]
@@ -151,6 +161,7 @@ class CreateSampleWidget(ipw.VBox):
             def load_material_details(change):
                 obj_permid = material_dropdown.value
                 if obj_permid == "-1":
+                    logger.info("Material is not selected.")
                     return
                 else:
                     obj = utils.get_openbis_object(
@@ -245,9 +256,11 @@ class CreateSampleWidget(ipw.VBox):
 
     def save_sample(self, b):
         if self.material_type_dropdown.value == "-1":
+            logger.info("Material type is not selected.")
             return
         else:
             if self.material_details_vbox.children[0].children[0].value == "-1":
+                logger.info("Material is not selected.")
                 return
             else:
                 material_object = (
@@ -256,7 +269,7 @@ class CreateSampleWidget(ipw.VBox):
                 sample_name = self.sample_name_textbox.value
                 sample_type = OPENBIS_OBJECT_TYPES["Sample"]
                 sample_props = {"name": sample_name, "object_status": "ACTIVE"}
-                utils.create_openbis_object(
+                sample_object = utils.create_openbis_object(
                     self.openbis_session,
                     type=sample_type,
                     collection=OPENBIS_COLLECTIONS_PATHS["Sample"],
@@ -265,6 +278,8 @@ class CreateSampleWidget(ipw.VBox):
                 )
 
                 display(Javascript(data="alert('Sample created successfully!')"))
+
+                logger.info(f"Sample {sample_object.permId} created successfully!")
 
                 # Clear interface
                 self.material_type_dropdown.value = "-1"
@@ -316,6 +331,7 @@ class SampleHistoryWidget(ipw.VBox):
             self.sample_history.set_title(i, process_step_title)
 
         self.sample_history.children = sample_history_children
+        logger.info("Sample history loaded successfully.")
 
 
 class ProcessStepHistoryWidget(ipw.VBox):
@@ -913,6 +929,7 @@ class RegisterProcessWidget(ipw.VBox):
         collection_id = self.select_collection_dropdown.value
         if collection_id == "-1":
             display(Javascript(data="alert('Select a collection.')"))
+            logger.info("Collection was not selected.")
             return
 
         process_steps_widgets = self.new_processes_accordion.children
@@ -1120,6 +1137,9 @@ class RegisterProcessWidget(ipw.VBox):
                                             setting_value
                                         )
                                 component_object.save()
+                                logger.info(
+                                    f"Component {component_object.permId} properties changed successfully."
+                                )
 
                                 action_properties["component_settings"] = json.dumps(
                                     component_settings
@@ -1142,6 +1162,9 @@ class RegisterProcessWidget(ipw.VBox):
                                 type=action_type,
                                 experiment=collection_id,
                                 props=action_properties,
+                            )
+                            logger.info(
+                                f"Action {new_action_object.permId} created successfully."
                             )
 
                             # Append action to list of actions
@@ -1218,6 +1241,9 @@ class RegisterProcessWidget(ipw.VBox):
                                             setting_value
                                         )
                                 component_object.save()
+                                logger.info(
+                                    f"Component {component_object.permId} properties changed successfully."
+                                )
 
                                 observable_properties["component_settings"] = (
                                     json.dumps(component_settings)
@@ -1242,6 +1268,10 @@ class RegisterProcessWidget(ipw.VBox):
                                 type=observable_type,
                                 experiment=collection_id,
                                 props=observable_properties,
+                            )
+
+                            logger.info(
+                                f"Observable {new_observable_object.permId} created successfully."
                             )
 
                             openbis_transaction_objects.append(new_observable_object)
@@ -1276,21 +1306,25 @@ class RegisterProcessWidget(ipw.VBox):
                 process_properties["process_steps_settings"]
             )
 
-            utils.create_openbis_object(
+            new_process_object = utils.create_openbis_object(
                 self.openbis_session,
                 type="PROCESS",
                 experiment=collection_id,
                 props=process_properties,
             )
 
+            logger.info(f"Process {new_process_object.permId} created successfully.")
+
             # Reset new processes accordion
             processes_accordion_children = list(self.new_processes_accordion.children)
-            for index, process_step in enumerate(processes_accordion_children):
+            for index, _ in enumerate(processes_accordion_children):
                 self.new_processes_accordion.set_title(index, "")
 
             self.new_processes_accordion.children = []
 
             self.select_collection_dropdown.value = "-1"
+
+            logger.info("Resetting new process steps interface.")
 
 
 class RegisterPreparationWidget(ipw.VBox):

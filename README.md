@@ -7,16 +7,27 @@ Common metadata schema to store and access microscopy data from simulations and 
 - Carlo Pignedoli
 
 ## Goal
-* `Notebooks` contains schemas and Pythron scripts needed to set up openBIS instance.
-* `setup_openbis_using_linkml.py` creates vocabularies, property types, and object types following the schema provided in the `materialMLinfo.yaml` file contained in the `Metadata_Schemas_LinkML` directory. It also creates the spaces, projects, and collections that will contain data inserted by users. To build such elements, it follows the configuration avaialble in the `collection_config.json`.
-* `materialMLinfo.yaml` is a YAML file following the [LinkML](https://linkml.io/) file format. It contains the schema required to mimic what is done in the material science labs working with molecules on surfaces and scanning probe microscopy. It also contains the ontology links necessary to make the data FAIR.
-* `import_crystals_to_openBIS.ipynb` uploads the information stored in the inventory of crystals into openBIS.
-* `import_molecules_to_openBIS.ipynb` uploads the information stored in the inventory of molecules into openBIS.
-* `import_layered2dmaterials_to_openBIS.ipynb` uploads the information stored in the inventory of 2D-layer materials into openBIS.
-* `import_images_to_openbis.ipynb` uploads SXM and DAT files into openBIS imaging plugin.
+* `home.ipynb` is the main page for the whole AiiDAlab-openBIS interface.
+* `import_export_simulations.ipynb` is the interface to import and export simulations from/to openBIS.
+* `openbis_chatbot.ipynb` is the interface to interact with the openBIS chatbot.
+* `sample_measurement.ipynb` is the interface to start measurement uploader watchdogs.
+* `sample_preparation.ipynb` is the interface to create samples, register preparations, and register template processes.
+* `upload_substances.ipynb` is the interface to upload the information about new substances into openBIS.
+* `create_analysis.ipynb` uploads the information about data analysis into openBIS.
+* `create_results.ipynb` uploads the information about results into openBIS.
+* `create_drafts.ipynb` uploads the information about publication drafts into openBIS.
+* `src` contains tools necessary to run the interfaces.
+* `schema` contains schema-related files based on [Pydantic](https://docs.pydantic.dev/latest/) classes.
+* `ai_agent` contains agentic AI tools.
+* `data` contains some examples of SPM measurements.
+* `deprecated` contains deprecated files that are to be removed.
+* `logs` contains log files.
+* `metadata` contains metadata files needed for the interfaces.
+* `nanonis_importer` contains NANONIS importer files.
+* `tests` contains some test notebooks.
 
 ## Achievement
-This repository contains all the files needed for setting up the openBIS instance.
+This repository contains all the files needed for setting up and interact with the openBIS instance.
 
 ## External links
 - https://www.ebi.ac.uk/ols4/
