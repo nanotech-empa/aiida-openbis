@@ -180,7 +180,7 @@ if __name__ == "__main__":
         "--config_filepath",
         type=str,
         help="File that contains the spaces, projects, and collections configuration",
-        default="/home/jovyan/aiida-openbis/schema/collections_config.json",
+        default="/home/jovyan/aiida-openbis/config/collections_config.json",
     )
 
     args = parser.parse_args()
@@ -226,7 +226,7 @@ if __name__ == "__main__":
                     property_type_dict = {
                         "code": name,
                         "label": field.title,
-                        "description": " ",
+                        "description": field.title,
                     }
                     field_metadata = field.json_schema_extra.get("metadata", {})
                     create_property_type = True

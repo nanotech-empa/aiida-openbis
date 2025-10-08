@@ -36,6 +36,7 @@
                 "<div style='display: flex;'>",
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='openbis_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Open openBIS chatbot</a></li>",
+                "<li><a href='setup_chatbot.ipynb' target='_blank' style='font-size: 13px;'>Setup openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]
@@ -76,6 +77,7 @@
                 "<div id='box' style='display: flex; pointer-events: none;'>",
                 "<div style='flex: 1; padding: 10px;'>",
                 "<li><a href='openbis_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Open openBIS chatbot</a></li>",
+                "<li><a href='setup_chatbot.ipynb' style='color: gray; font-size: 13px;' target='_blank'>Setup openBIS chatbot</a></li>",
                 "</div>",
                 "</div>"
             ]

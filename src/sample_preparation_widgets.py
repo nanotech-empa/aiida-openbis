@@ -237,6 +237,8 @@ class CreateSampleWidget(ipw.VBox):
                                 value = table_html
 
                             obj_details_string += f"<p><b>{prop_label}:</b> {value}</p>"
+                        else:
+                            logger.info(f"{key} has no value.")
 
                     obj_details_string += "</div>"
 
@@ -304,15 +306,15 @@ class SampleHistoryWidget(ipw.VBox):
             for parent in sample_parents:
                 parent_code = parent.split("/")[-1]
                 if (
-                    OPENBIS_OBJECT_CODES["Process Step"] in parent_code
-                    or OPENBIS_OBJECT_CODES["Sample"] in parent_code
+                    OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:5]
+                    or OPENBIS_OBJECT_CODES["Sample"] == parent_code[0:5]
                 ):
                     parent_object = utils.get_openbis_object(
                         self.openbis_session, sample_ident=parent
                     )
                     next_parents.extend(parent_object.parents)
 
-                    if OPENBIS_OBJECT_CODES["Process Step"] in parent_code:
+                    if OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:5]:
                         process_steps.append(parent_object)
             sample_parents = next_parents
 

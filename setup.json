@@ -23,6 +23,7 @@
         "langgraph",
         "langchain-openai",
         "langchain-google-genai",
+        "langchain-anthropic",
         "langchain-ollama",
         "langchain-text-splitters",
         "langchain-chroma"
