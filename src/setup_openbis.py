@@ -194,7 +194,10 @@ if __name__ == "__main__":
     # Connect to openBIS
     session = log_in(openbis_url, openbis_token)
 
-    if session and config_filepath:
+    # Check if config file exists
+    config_file = os.path.isfile(config_filepath)
+
+    if session and config_file:
         # Get all classes defined in the openbis_objects module (not ones imported into it)
         openbis_classes = [
             cls
@@ -338,3 +341,10 @@ if __name__ == "__main__":
                                 experiment_code,
                                 experiment_info,
                             )
+    else:
+        if not session:
+            print("Could not connect to openBIS. Please check the URL and token.")
+        if not config_file:
+            print(
+                f"Config file {config_filepath} does not exist. Please check the path."
+            )

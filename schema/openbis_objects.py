@@ -1704,6 +1704,18 @@ class Component(OpenBISObject):
         description="Date when component was received",
         metadata={"type": "DATE"},
     )
+    ilog: bool = Field(
+        default=False,
+        title="iLog",
+        description="This is the iLog identifier",
+        metadata={"type": "BOOLEAN"},
+    )
+    valid_from: str = Field(
+        default="",
+        title="Valid From",
+        description="Valid From",
+        metadata={"type": "VARCHAR"},
+    )
 
     @classmethod
     def get_code(cls) -> str:
@@ -2093,6 +2105,18 @@ class Instrument(OpenBISObject):
         title="Receive date",
         description="Date when the instrument was received",
         metadata={"type": "DATE"},
+    )
+    ilog: bool = Field(
+        default=False,
+        title="iLog",
+        description="This is the iLog identifier",
+        metadata={"type": "BOOLEAN"},
+    )
+    valid_from: str = Field(
+        default="",
+        title="ValidFrom",
+        description="ValidFrom",
+        metadata={"type": "VARCHAR"},
     )
 
     @classmethod

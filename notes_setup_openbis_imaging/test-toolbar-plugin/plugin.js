@@ -15,12 +15,12 @@ function fetchOptionsToDepth(depth, initialOptions){
 
 function getObjectPropertiesJson(sample){
     var jsonObj = {
-        "molecule_name": sample.properties['$NAME'],
-        "molecule_smiles":sample.properties['SMILES'],
+        "name": sample.properties['$NAME'],
+        "smiles":sample.properties['SMILES'],
         "@context": {
             "schema": "http://schema.org/",
-            "molecule_name": "schema:name",
-            "molecule_smiles": "schema:smiles",
+            "name": "schema:name",
+            "smiles": "schema:smiles",
             "Molecule": "schema:MolecularEntity"
         }
     };
@@ -121,7 +121,7 @@ $.extend(CustomToolbarPluginViewTechnology.prototype, ELNLIMSPlugin.prototype, {
                 var toolbarModel = [];
                 if(mode === FormMode.VIEW) {
                     var $demoButton = FormUtil.getButtonWithIcon("fa fa-info-circle", function () {
-                        var src = getWFMSConnectionURL("", sample, "smiles");
+                        var src = getWFMSConnectionURL("", sample, "MOLECULE");
                         var win = window.open(src, '_blank');
                         win.focus();
 
@@ -131,12 +131,12 @@ $.extend(CustomToolbarPluginViewTechnology.prototype, ELNLIMSPlugin.prototype, {
                 return toolbarModel;
             }
         },
-        "REACTION_PRODUCT" : {
+        "REACTION_PRODUCT_CONCEPT" : {
             extraToolbar : function(mode, sample) {
                 var toolbarModel = [];
                 if(mode === FormMode.VIEW) {
                     var $demoButton = FormUtil.getButtonWithIcon("fa fa-info-circle", function () {
-                        var src = getWFMSConnectionURL("", sample, "cdxml");
+                        var src = getWFMSConnectionURL("", sample, "REACTION_PRODUCT_CONCEPT");
                         var win = window.open(src, '_blank');
                         win.focus();
 

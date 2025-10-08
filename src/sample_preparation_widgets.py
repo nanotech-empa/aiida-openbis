@@ -403,12 +403,13 @@ class ProcessStepHistoryWidget(ipw.VBox):
 
         self.registration_date = self.openbis_object.registrationDate
 
-        instrument_id = openbis_object_props["instrument"]
+        if openbis_object_props["instrument"]:
+            instrument_id = openbis_object_props["instrument"]
 
-        if instrument_id:
             instrument_object = utils.get_openbis_object(
                 self.openbis_session, sample_ident=instrument_id
             )
+
             self.instrument_html.value = instrument_object.props["name"]
 
         self.load_actions()
@@ -2077,6 +2078,7 @@ class RegisterProcessStepWidget(ipw.VBox):
         self.add_action_button.on_click(self.add_action)
         self.add_observable_button.on_click(self.add_observable)
 
+        # Load process step settings if provided
         if step_settings:
             self.load_process_step(step_settings)
 
@@ -2248,11 +2250,14 @@ class RegisterActionWidget(ipw.VBox):
         substances_names_ids = []
         for obj in substances_list:
             obj_props = obj.props.all()
-            name = obj_props["empa_number"] + obj_props["batch"]
-            if "vial" in obj_props:
-                if obj_props["vial"]:
-                    name += obj_props["vial"]
-            substances_names_ids.append((name, obj.permId))
+            if "empa_number" in obj_props and "batch" in obj_props:
+                name = obj_props["empa_number"] + obj_props["batch"]
+                if "vial" in obj_props:
+                    if obj_props["vial"]:
+                        name += obj_props["vial"]
+                substances_names_ids.append((name, obj.permId))
+            else:
+                logging.info(f"Substance {obj.permId} is missing EMPA number or batch.")
 
         substance_options = substances_names_ids
         substance_options.insert(0, ("Select a substance...", "-1"))
@@ -2328,7 +2333,7 @@ class RegisterActionWidget(ipw.VBox):
 
         self.current_label = ipw.Label("Current")
         self.current_value_textbox = ipw.Text()
-        self.current_unit_dropdown = ipw.Dropdown(options=["A"], value="A")
+        self.current_unit_dropdown = ipw.Dropdown(options=["A", "mA"], value="A")
         self.current_hbox = ipw.HBox(
             children=[
                 self.current_label,
@@ -2383,7 +2388,7 @@ class RegisterActionWidget(ipw.VBox):
         # BEGIN - Widgets for component properties
         self.bias_voltage_label = ipw.Label("Bias voltage")
         self.bias_voltage_value_textbox = ipw.Text()
-        self.bias_voltage_unit_dropdown = ipw.Dropdown(options=["V"], value="V")
+        self.bias_voltage_unit_dropdown = ipw.Dropdown(options=["V", "mV"], value="V")
         self.bias_voltage_hbox = ipw.HBox(
             children=[
                 self.bias_voltage_label,
@@ -2407,7 +2412,9 @@ class RegisterActionWidget(ipw.VBox):
 
         self.discharge_current_label = ipw.Label("Discharge current")
         self.discharge_current_value_textbox = ipw.Text()
-        self.discharge_current_unit_dropdown = ipw.Dropdown(options=["A"], value="A")
+        self.discharge_current_unit_dropdown = ipw.Dropdown(
+            options=["A", "mA"], value="A"
+        )
         self.discharge_current_hbox = ipw.HBox(
             children=[
                 self.discharge_current_label,
@@ -2579,11 +2586,11 @@ class RegisterActionWidget(ipw.VBox):
         if action_substance:
             self.substance_dropdown.value = action_substance
 
-        try:
+        component_permid = action_props.get("component", "")
+        if component_permid:
             component_settings = action_props.get("component_settings", {})
-            component_settings = json.loads(component_settings)
-            component_permid = action_props.get("component", {})
             if component_settings:
+                component_settings = json.loads(component_settings)
                 self.component_dropdown.value = component_permid
                 if "target_temperature" in component_settings:
                     self.target_temperature_value_comp_textbox.value = str(
@@ -2626,8 +2633,10 @@ class RegisterActionWidget(ipw.VBox):
                 self.ep_percentage_textbox.value = str(
                     component_settings.get("ep_percentage", "")
                 )
-        except (KeyError, AttributeError, TypeError):
-            pass
+            else:
+                logging.info(f"No component settings found for action {action_permid}.")
+        else:
+            logging.info(f"No component associated with action {action_permid}.")
 
         action_substrate_temperature = action_props.get("substrate_temperature", "")
         if action_substrate_temperature:
@@ -2718,7 +2727,7 @@ class RegisterActionWidget(ipw.VBox):
             instrument_object = utils.get_openbis_object(
                 self.openbis_session, sample_ident=instrument_permid
             )
-            instrument_type = str(instrument_object.type)
+            instrument_type = instrument_object.type.code
             instrument_components_properties = (
                 self.instrument_type_components_dictionary[instrument_type]
             )
