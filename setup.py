@@ -1,20 +1,21 @@
-# -*- coding: utf-8 -*-
 """Setting up CP2K plugin for AiiDA"""
+
 import json
 
-from io import open  # pylint: disable=redefined-builtin
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 
 def run_setup():
-    with open('setup.json', 'r', encoding='utf-8') as info:
+    with open("setup.json", encoding="utf-8") as info:
         kwargs = json.load(info)
-    setup(include_package_data=True,
-          packages=find_packages(),
-          long_description=open('README.md', encoding='utf-8').read(),
-          long_description_content_type='text/markdown',
-          **kwargs)
+    setup(
+        include_package_data=True,
+        packages=find_packages(),
+        long_description=open("README.md", encoding="utf-8").read(),
+        long_description_content_type="text/markdown",
+        **kwargs,
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_setup()

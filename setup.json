@@ -1,6 +1,6 @@
 {
     "version": "0.1.0",
-    "name": "aiida-openpis",
+    "name": "aiida-openbis",
     "license": "MIT License",
     "author": "nanotech@surfaces laboratory, Empa",
     "author_email": "carlo.pignedoli@empa.ch",
@@ -15,7 +15,18 @@
         "ase",
         "scikit-learn",
         "pybis",
-        "rdkit"
+        "rdkit",
+        "SPIEPy",
+        "ipyfilechooser",
+        "langchain",
+        "langchain-core",
+        "langgraph",
+        "langchain-openai",
+        "langchain-google-genai",
+        "langchain-anthropic",
+        "langchain-ollama",
+        "langchain-text-splitters",
+        "langchain-chroma"
     ],
     "data_files": [
         [

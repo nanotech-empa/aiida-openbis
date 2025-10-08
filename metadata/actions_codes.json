@@ -1,0 +1,15 @@
+{
+    "ANNEALING": "HEAT",
+    "COOLDOWN": "COOL",
+    "SPUTTERING": "IONB",
+    "DOSING": "GASD",
+    "DEPOSITION": "DEPO",
+    "MECHANICAL_PRESSING": "MEPR",
+    "FIELD_EMISSION": "FIEM",
+    "ETCHING": "ETCH",
+    "LIGHT_IRRADIATION": "LITE",
+    "DELAMINATION": "DELA",
+    "FISHING": "FISH",
+    "COATING": "COAT",
+    "RINSE": "RINS"
+}
