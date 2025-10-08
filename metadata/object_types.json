@@ -49,5 +49,7 @@
     "Speed": "SPEED_OBSERVABLE",
     "Force": "FORCE_OBSERVABLE",
     "Flux": "FLUX_OBSERVABLE",
-    "Observable": "OBSERVABLE"
+    "Observable": "OBSERVABLE",
+    "AiiDA Node": "AIIDA_NODE",
+    "Draft": "DRAFT"
 }

@@ -1311,7 +1311,7 @@ class RegisterProcessWidget(ipw.VBox):
 
             new_process_object = utils.create_openbis_object(
                 self.openbis_session,
-                type="PROCESS",
+                type=OPENBIS_OBJECT_TYPES["Process"],
                 experiment=collection_id,
                 props=process_properties,
             )
@@ -1498,7 +1498,7 @@ class RegisterPreparationWidget(ipw.VBox):
 
     def load_process(self, b):
         openbis_processes = utils.get_openbis_objects(
-            self.openbis_session, type="PROCESS"
+            self.openbis_session, type=OPENBIS_OBJECT_TYPES["Process"]
         )
         processes_options = []
         for obj in openbis_processes:
