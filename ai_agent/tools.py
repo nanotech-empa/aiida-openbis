@@ -1305,10 +1305,6 @@ def get_processes_documents(query):
             model="text-embedding-3-small",
             openai_api_key=LLM_CONFIG["api_key"],
         )
-    elif LLM_CONFIG["llm_provider"] == "Anthropic":
-        embedding_model = AnthropicEmbeddings(
-            model="claude-2", anthropic_api_key=LLM_CONFIG["api_key"]
-        )
     else:
         raise ValueError("LLM provider not supported")
 

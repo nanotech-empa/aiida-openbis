@@ -7,6 +7,7 @@ from collections import Counter
 import shutil
 import base64
 import io
+import os
 import matplotlib.pyplot as plt
 import logging
 
@@ -17,6 +18,9 @@ OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
 MATERIALS_TYPES = utils.read_json("metadata/materials_types.json")
 OPENBIS_OBJECT_CODES = utils.read_json("metadata/object_codes.json")
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
+
+if not os.path.exists("logs"):
+    os.mkdir("logs")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(

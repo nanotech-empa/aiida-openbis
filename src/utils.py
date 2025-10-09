@@ -6,6 +6,10 @@ import datetime
 import os
 from functools import lru_cache
 import ipywidgets as ipw
+import io
+import contextlib
+
+string_io = io.StringIO()
 
 # OpenBIS-AiiDAlab functions
 
@@ -73,13 +77,14 @@ def find_openbis_simulations(ob_session, root_obj, simulation_types):
 
 
 def upload_datasets(ob_session, ob_object, files_widget, dataset_type):
-    for filename in files_widget.value:
-        file_info = files_widget.value[filename]
-        write_file(file_info["content"], filename)
-        create_openbis_dataset(
-            ob_session, type=dataset_type, sample=ob_object, files=[filename]
-        )
-        os.remove(filename)
+    with contextlib.redirect_stdout(string_io):
+        for filename in files_widget.value:
+            file_info = files_widget.value[filename]
+            write_file(file_info["content"], filename)
+            create_openbis_dataset(
+                ob_session, type=dataset_type, sample=ob_object, files=[filename]
+            )
+            os.remove(filename)
 
 
 def connect_openbis_aiida(eln_url="https://local.openbis.ch"):
@@ -117,26 +122,29 @@ def get_next_collection_code(openbis_session, collection_type):
 
 
 def create_openbis_dataset(openbis_session, **kwargs):
-    openbis_ds = openbis_session.new_dataset(**kwargs)
-    openbis_ds.save()
+    with contextlib.redirect_stdout(string_io):
+        openbis_ds = openbis_session.new_dataset(**kwargs)
+        openbis_ds.save()
 
 
 def create_openbis_object(openbis_session, **kwargs):
-    openbis_object = openbis_session.new_object(**kwargs)
-    openbis_object.save()
-    return openbis_object
+    with contextlib.redirect_stdout(string_io):
+        openbis_object = openbis_session.new_object(**kwargs)
+        openbis_object.save()
+        return openbis_object
 
 
 def create_openbis_collection(openbis_session, **kwargs):
-    collection_type = kwargs.get("type", "")
-    collection_code = kwargs.get("code", "")
-    if collection_code == "":
-        collection_code = get_next_collection_code(openbis_session, collection_type)
-        kwargs["code"] = collection_code
+    with contextlib.redirect_stdout(string_io):
+        collection_type = kwargs.get("type", "")
+        collection_code = kwargs.get("code", "")
+        if collection_code == "":
+            collection_code = get_next_collection_code(openbis_session, collection_type)
+            kwargs["code"] = collection_code
 
-    collection = openbis_session.new_collection(**kwargs)
-    collection.save()
-    return collection
+        collection = openbis_session.new_collection(**kwargs)
+        collection.save()
+        return collection
 
 
 # General functions

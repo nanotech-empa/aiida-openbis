@@ -1,5 +1,5 @@
 from .analysis import fit_parabola, kpfm, relative_position
-from .plotting import ref_spec_plotting, specs_plot
+from .plotting import specs_plot
 from .spm import Spm
 
 __all__ = [
@@ -7,6 +7,5 @@ __all__ = [
     "fit_parabola",
     "kpfm",
     "relative_position",
-    "ref_spec_plotting",
     "specs_plot",
 ]

@@ -6,6 +6,10 @@ import shutil
 import pandas as pd
 import json
 from IPython.display import display, Javascript
+import io
+import contextlib
+
+string_io = io.StringIO()
 
 MATERIALS_CONCEPTS_TYPES = utils.read_json("metadata/materials_concepts_types.json")
 SIMULATION_TYPES = utils.read_json("metadata/simulation_types.json")
@@ -754,29 +758,32 @@ class ExportSimulationsWidget(ipw.VBox):
 
                     simulation_parents = selected_atom_model_id
 
-                    simulation_obj = utils.create_openbis_object(
-                        self.openbis_session,
-                        type=simulation_type,
-                        collection=selected_experiment_id,
-                        parents=simulation_parents,
-                        props=simulation_props,
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        simulation_obj = utils.create_openbis_object(
+                            self.openbis_session,
+                            type=simulation_type,
+                            collection=selected_experiment_id,
+                            parents=simulation_parents,
+                            props=simulation_props,
+                        )
 
                     # Simulation preview
-                    utils.upload_datasets(
-                        self.openbis_session,
-                        simulation_obj,
-                        self.simulation_details_vbox.upload_image_preview_uploader,
-                        "ELN_PREVIEW",
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        utils.upload_datasets(
+                            self.openbis_session,
+                            simulation_obj,
+                            self.simulation_details_vbox.upload_image_preview_uploader,
+                            "ELN_PREVIEW",
+                        )
 
                     # Simulation datasets
-                    utils.upload_datasets(
-                        self.openbis_session,
-                        simulation_obj,
-                        self.simulation_details_vbox.upload_datasets_uploader,
-                        "ATTACHMENT",
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        utils.upload_datasets(
+                            self.openbis_session,
+                            simulation_obj,
+                            self.simulation_details_vbox.upload_datasets_uploader,
+                            "ATTACHMENT",
+                        )
 
 
 class SimulationDetailsWidget(ipw.VBox):
