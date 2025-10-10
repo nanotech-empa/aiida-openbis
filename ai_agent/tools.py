@@ -10,7 +10,8 @@ from langchain.schema import Document
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_openai import OpenAIEmbeddings
-from langchain_anthropic import AnthropicEmbeddings
+
+# from langchain_anthropic import AnthropicEmbeddings
 import json
 from langchain_chroma import Chroma
 import os
@@ -369,7 +370,7 @@ SIMULATION_TYPES = [
     "ATOMISTIC_MODEL",
     "BAND_STRUCTURE",
     "GEOMETRY_OPTIMISATION",
-    "MEASUREMENT_SESSION",
+    "STM_SIMULATION",
     "MINIMUM_ENERGY_POTENTIAL",
     "PDOS",
     "POTENTIAL_ENERGY_CALCULATION",

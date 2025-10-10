@@ -1544,10 +1544,7 @@ class CreateResultsWidget(ipw.VBox):
 
             for measurement in measurements:
                 measurement_details = (measurement.props["name"], measurement.permId)
-                if measurement.props["wfms_uuid"]:
-                    simulations_objects.append(measurement_details)
-                else:
-                    measurements_objects.append(measurement_details)
+                measurements_objects.append(measurement_details)
 
             analysis = utils.get_openbis_objects(
                 self.openbis_session,
@@ -1640,12 +1637,6 @@ class CreateSubstanceWidget(ipw.VBox):
         self.amount_unit_dropdown = ipw.Dropdown(options=["g", "mg", "ug", "ml", "ul"])
         self.amount_hbox = ipw.HBox(
             [self.amount_label, self.amount_value_textbox, self.amount_unit_dropdown]
-        )
-
-        self.chemist_own_name_label = ipw.Label(value="Chemist own name")
-        self.chemist_own_name_textbox = ipw.Text()
-        self.chemist_own_name_hbox = ipw.HBox(
-            [self.chemist_own_name_label, self.chemist_own_name_textbox]
         )
 
         self.location_label = ipw.Label(value="Location")
@@ -1750,7 +1741,6 @@ class CreateSubstanceWidget(ipw.VBox):
             self.purity_hbox,
             self.substance_type_hbox,
             self.amount_hbox,
-            self.chemist_own_name_hbox,
             self.location_hbox,
             self.storage_conditions_hbox,
             self.package_opening_date_hbox,
@@ -1986,7 +1976,6 @@ class CreateSubstanceWidget(ipw.VBox):
         self.vial_textbox.value = ""
         self.purity_textbox.value = 0
         self.substance_type_textbox.value = ""
-        self.chemist_own_name_textbox.value = ""
         self.storage_conditions_selector.value = []
         self.object_status_dropdown.value = "Active"
         self.synthesised_by_selector.value = []

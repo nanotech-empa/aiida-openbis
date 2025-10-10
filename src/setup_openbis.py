@@ -216,7 +216,8 @@ if __name__ == "__main__":
                 # Create object type
                 object_type = create_object_type_in_openbis(session, object_type_dict)
 
-                if object_code.upper() == "MEASUREMENT_SESSION":
+                # Remove this code when deploying in the official openBIS instance
+                if object_code.upper() in ["MEASUREMENT_SESSION", "STM_SIMULATION"]:
                     try:
                         property_type = session.get_property_type("default_object_view")
                         assign_property_to_object_type_in_openbis(

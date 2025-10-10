@@ -51,5 +51,6 @@
     "Flux": "FLUX_OBSERVABLE",
     "Observable": "OBSERVABLE",
     "AiiDA Node": "AIIDA_NODE",
-    "Draft": "DRAFT"
+    "Draft": "DRAFT",
+    "STM Simulation": "STM_SIMULATION"
 }

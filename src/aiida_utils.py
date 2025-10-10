@@ -698,7 +698,7 @@ def PwRelaxWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     geoopt_obobject.add_parents(input_structure)
-    geoopt_obobject.save()
+    utils.update_openbis_object(geoopt_obobject)
 
     # if missing create oBIS object and obtain uuid
     output_structure = workchain.outputs.output_structure
@@ -706,7 +706,7 @@ def PwRelaxWorkChain_export(
         openbis_session, output_structure.uuid, uuids
     )
     output_structure.add_parents(geoopt_obobject)
-    output_structure.save()
+    utils.update_openbis_object(output_structure)
     geoopt_obobject.add_children(output_structure)
 
     return geoopt_obobject
@@ -791,7 +791,7 @@ def BandsWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     bands_obobject.add_parents(input_structure)
-    bands_obobject.save()
+    utils.update_openbis_object(bands_obobject)
 
     return bands_obobject
 
@@ -856,7 +856,7 @@ def PdosWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     pdos_obobject.add_parents(input_structure)
-    pdos_obobject.save()
+    utils.update_openbis_object(pdos_obobject)
 
     return pdos_obobject
 
@@ -930,7 +930,7 @@ def VibroWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     vibro_spec_obobject.add_parents(input_structure)
-    vibro_spec_obobject.save()
+    utils.update_openbis_object(vibro_spec_obobject)
 
     return vibro_spec_obobject
 
@@ -1017,7 +1017,7 @@ def Cp2kGeoOptWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     geoopt_obobject.add_parents(input_structure)
-    geoopt_obobject.save()
+    utils.update_openbis_object(geoopt_obobject)
 
     # if missing create oBIS object and obtain uuid
     output_structure = workchain.outputs.output_structure
@@ -1025,7 +1025,7 @@ def Cp2kGeoOptWorkChain_export(
         openbis_session, output_structure.uuid, uuids
     )
     output_structure.add_parents(geoopt_obobject)
-    output_structure.save()
+    utils.update_openbis_object(output_structure)
 
     geoopt_obobject.add_children(output_structure)
 
@@ -1083,7 +1083,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         for i in spm_params["--heights"]
     ]
 
-    measurement_type = OPENBIS_OBJECT_TYPES["Measurement Session"]
+    measurement_type = OPENBIS_OBJECT_TYPES["STM Simulation"]
 
     dictionary = {
         "wfms_uuid": workchain.uuid,
@@ -1091,10 +1091,11 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         "level_theory_parameters": json.dumps(
             dft_object_parameters
         ),  # link/incorporate DFT object
-        "bias_voltages": bias_voltages_json,
-        "isovalues": isovalues_json,
-        "heights": heights_json,
-        "p_tip": spm_params["--p_tip_ratios"],
+        "bias_voltages": json.dumps(bias_voltages_json),
+        "isovalues": json.dumps(isovalues_json),
+        "heights": json.dumps(heights_json),
+        # TODO: Uncomment this as long as I reset openBIS schema
+        # "p_tip": spm_params["--p_tip_ratios"],
         "output_parameters": json.dumps(output_parameters),
         "input_parameters": json.dumps(input_parameters),
     }
@@ -1124,7 +1125,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     )
 
     obobject.add_parents(input_structure)
-    obobject.save()
+    utils.update_openbis_object(obobject)
 
     return obobject
 
@@ -1218,7 +1219,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                         simulation_uuids_oBIS["structure_uuids"],
                     )
                     export.props["aiida_node"] = AiiDA_archive.permId
-                    export.save()
+                    utils.update_openbis_object(export)
 
                     # Update current status of openBIS simulations
                     simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
@@ -1239,7 +1240,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                             )
 
                             export.props["aiida_node"] = AiiDA_archive.permId
-                            export.save()
+                            utils.update_openbis_object(export)
 
                             # Update current status of openBIS simulations
                             simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
