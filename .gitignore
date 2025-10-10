@@ -16,8 +16,9 @@ pip-wheel-metadata/
 .*.ipynb
 /logs/
 
-openbis_app/ai_agent/chroma_db/
-openbis_app/structures/
-openbis_app/data/
-openbis_app/images/
-openbis_app/logs/
+ai_agent/chroma_db/
+structures/
+data/
+images/
+logs/
+chroma_db/
