@@ -7,7 +7,6 @@ import ipyfilechooser
 import atexit
 import shutil
 import subprocess
-import os
 import logging
 
 OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
@@ -22,6 +21,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
 )
+
 
 class RunningMeasurementWatchdogsWidget(ipw.VBox):
     def __init__(self, openbis_session, session_data):
@@ -206,11 +206,13 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
             props={
                 "name": f"Measurement Session on Sample {sample_name}",
                 "default_object_view": "IMAGING_GALLERY_VIEW",
-                "measurement_folder_path": self.select_measurements_folder_widget.selected_path
+                "measurement_folder_path": self.select_measurements_folder_widget.selected_path,
             },
         )
-        logging.info(f"Measurement Session {measurement_session_object.permId} created.")
-        
+        logging.info(
+            f"Measurement Session {measurement_session_object.permId} created."
+        )
+
         measurement_session_id = measurement_session_object.permId
         measurements_directory = self.select_measurements_folder_widget.selected_path
         watchdog_file = "src/measurements_uploader.py"
