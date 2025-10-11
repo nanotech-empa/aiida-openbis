@@ -482,6 +482,16 @@ def get_uuids_from_oBIS(openbis_session):
 def aiida_data_to_json(data_uuid):
     """Exports AiiDA xxData object as .json. Does not work for StructureData"""
     data = orm.load_node(data_uuid)
+    
+    # temporary fix waiting for https://github.com/aiidateam/aiida-quantumespresso/pull/1188
+    # projwfc creates BandsData with U8 instead of floats
+    if data.__class__.__name__ == "BandsData":
+        if data.get_bands().dtype != np.dtype('float64'):
+            new = data.clone()
+            new.set_bands(new.get_bands().astype(float))
+            data = new.clone()
+    # end temporary fix
+    
     # Create a temporary file path
     temp_file = tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False)
     try:
