@@ -166,21 +166,21 @@ if __name__ == "__main__":
         "--openbis_url",
         type=str,
         help="OpenBIS URL",
-        default="https://local.openbis.ch/openbis",
+        default="",
     )
     parser.add_argument(
         "-t",
         "--openbis_token",
         type=str,
-        help="OpenBIS User",
-        default="$pat-admin-250922090724661x119C50E3D96C78FB49811744BFCD86B8",
+        help="OpenBIS Token",
+        default="",
     )
     parser.add_argument(
         "-p",
         "--config_filepath",
         type=str,
         help="File that contains the spaces, projects, and collections configuration",
-        default="/home/jovyan/aiida-openbis/config/collections_config.json",
+        default="/home/jovyan/apps/aiida-openbis/config/collections_config.json",
     )
 
     args = parser.parse_args()

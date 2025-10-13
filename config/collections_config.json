@@ -1,24 +1,24 @@
 {
     "spaces": {
-        "CARBON_NANOMATERIALS": {
+        "LAB205_CARBON_NANOMATERIALS": {
             "description": "Carbon Nanomaterials"
         },
-        "MATERIALS_TO_DEVICES": {
+        "LAB205_MATERIALS_TO_DEVICES": {
             "description": "Materials to Devices"
         },
-        "2D_QUANTUM_MATERIALS":{
+        "LAB205_2D_QUANTUM_MATERIALS":{
             "description": "2D Quantum Materials"
         },
-        "QUANTUM_MAGNETISM": {
+        "LAB205_QUANTUM_MAGNETISM": {
             "description": "Quantum Magnetism"
         },
-        "CHIRAL_SURFACES": {
+        "LAB205_CHIRAL_SURFACES": {
             "description": "Chiral Surfaces"
         },
-        "ATOMISTIC_SIMULATIONS":{
+        "LAB205_ATOMISTIC_SIMULATIONS":{
             "description": "Atomistic Simulations"
         },
-        "EQUIPMENT": {
+        "LAB205_EQUIPMENT": {
             "description": "Equipment",
             "projects": {
                 "ILOG": {
@@ -51,7 +51,7 @@
                 }
             }
         },
-        "MATERIALS": {
+        "LAB205_MATERIALS": {
             "description": "Materials",
             "projects": {
                 "SINGLE_CRYSTALS": {
@@ -138,7 +138,7 @@
                 }
             }
         },
-        "ADMINISTRATIVE":{
+        "LAB205_ADMINISTRATIVE":{
             "description": "Administrative",
             "projects": {
                 "FUNDING": {
@@ -196,7 +196,7 @@
                 }
             }
         },
-        "METHODS":{
+        "LAB205_METHODS":{
             "description": "Methods",
             "projects": {
                 "PROTOCOLS": {
@@ -234,12 +234,15 @@
                     "experiments": {
                         "AUTHOR_COLLECTION": {
                             "name": "Authors"
+                        },
+                        "PUBLICATIONS_COLLECTION": {
+                            "name": "Publications"
                         }
                     }
                 }
             }
         },
-        "SOFTWARE":{
+        "LAB205_SOFTWARE":{
             "description": "Software",
             "projects": {
                 "DATA_PROCESSING_AND_CONTROL": {

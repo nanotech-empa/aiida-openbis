@@ -19,6 +19,8 @@ MATERIALS_TYPES = utils.read_json("metadata/materials_types.json")
 OPENBIS_OBJECT_CODES = utils.read_json("metadata/object_codes.json")
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
 
+processes_project = "/LAB205_METHODS/PROCESSES"
+
 if not os.path.exists("logs"):
     os.mkdir("logs")
 
@@ -949,7 +951,7 @@ class RegisterProcessWidget(ipw.VBox):
 
     def load_collections(self):
         collections = utils.get_openbis_collections(
-            self.openbis_session, type="COLLECTION", project="/METHODS/PROCESSES"
+            self.openbis_session, type="COLLECTION", project=processes_project
         )
         collection_options = []
         for col in collections:
@@ -2740,7 +2742,7 @@ class RegisterActionWidget(ipw.VBox):
                 action_properties.append(self.angle_hbox)
                 action_properties.append(self.substrate_temperature_hbox)
                 action_properties.append(self.sputter_ion_hbox)
-                self.action_icon = "🌫️"
+                self.action_icon = "🔫"
 
             elif action_type == OPENBIS_OBJECT_TYPES["Coating"]:
                 self.action_icon = "🧥"
@@ -3108,12 +3110,12 @@ class RegisterObservableWidget(ipw.VBox):
         self.ch_name_textbox.value = observable_props["channel_name"] or ""
         self.comments_textarea.value = observable_props["comments"] or ""
 
-        try:
+        component_permid = observable_props.get("component", {})
+        if component_permid:
             component_settings = observable_props.get("component_settings", {})
-            component_settings = json.loads(component_settings)
-            component_permid = observable_props.get("component", {})
-            self.component_dropdown.value = component_permid
             if component_settings:
+                component_settings = json.loads(component_settings)
+                self.component_dropdown.value = component_permid
                 if "density" in component_settings:
                     self.density_value_textbox.value = str(
                         component_settings["density"]["value"]
@@ -3132,9 +3134,14 @@ class RegisterObservableWidget(ipw.VBox):
                 self.filament_textbox.value = str(
                     component_settings.get("filament", "")
                 )
-
-        except (KeyError, AttributeError, TypeError):
-            pass
+            else:
+                logging.info(
+                    f"No component settings found for observable {observable_permid}."
+                )
+        else:
+            logging.info(
+                f"No component associated with observable {observable_permid}."
+            )
 
     def load_observable_properties(self, change):
         observable_type = self.observable_type_dropdown.value
