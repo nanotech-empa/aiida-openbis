@@ -15,7 +15,9 @@ from . import utils
 
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
 OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
-OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida()
+OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida(
+    "https://openbis-empa-dev205.ethz.ch/"
+)
 
 
 def creator_of_structure(struc_uuid):

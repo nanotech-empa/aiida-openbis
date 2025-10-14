@@ -2825,7 +2825,6 @@ class RegisterActionWidget(ipw.VBox):
                                     component_object.permId,
                                 )
                             )
-
         return component_list
 
     def load_component_settings_list(self, change):
