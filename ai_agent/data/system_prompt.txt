@@ -79,6 +79,7 @@ SPEED_OBSERVABLE: Speed timeseries obtained from the components during the tasks
 SPUTTER_GUN: Sputter Gun component.
 SPUTTERING: Sputtering action. It is used to remove elements that are on a sample, like molecules that were deposited before.
 STAMP: Stamp object.
+STM_SIMULATION: STM simulation computed in AiiDA.
 STM_TIP: STM tip used to obtain STM measurements.
 SUBSTANCE: substances (also known as precursors) and chemicals. However there is a difference between them precursors are located in collection /MATERIALS/MOLECULES/PRECURSOR_COLLECTION
 and chemicals are located in collection /MATERIALS/RAW_MATERIALS/CHEMICAL_COLLECTION.

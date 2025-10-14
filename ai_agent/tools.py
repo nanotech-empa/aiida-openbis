@@ -9,6 +9,9 @@ import shutil
 from langchain.schema import Document
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_openai import OpenAIEmbeddings
+
+# from langchain_anthropic import AnthropicEmbeddings
 import json
 from langchain_chroma import Chroma
 import os
@@ -361,13 +364,13 @@ def create_vectorDB(db_path, embedding_model, chunks):
     return vectordb
 
 
-LLM_API_KEY = read_json("/home/jovyan/api_keys/gemini_api.json")["api_key"]
+LLM_CONFIG = read_json("/home/jovyan/api_keys/llm_config.json")
 
 SIMULATION_TYPES = [
     "ATOMISTIC_MODEL",
     "BAND_STRUCTURE",
     "GEOMETRY_OPTIMISATION",
-    "MEASUREMENT_SESSION",
+    "STM_SIMULATION",
     "MINIMUM_ENERGY_POTENTIAL",
     "PDOS",
     "POTENTIAL_ENERGY_CALCULATION",
@@ -1294,9 +1297,17 @@ def get_processes_documents(query):
     )
 
     # Embedding model
-    embedding_model = GoogleGenerativeAIEmbeddings(
-        model="gemini-embedding-001", google_api_key=LLM_API_KEY
-    )
+    if LLM_CONFIG["llm_provider"] == "Google Gemini":
+        embedding_model = GoogleGenerativeAIEmbeddings(
+            model="gemini-embedding-001", google_api_key=LLM_CONFIG["api_key"]
+        )
+    elif LLM_CONFIG["llm_provider"] == "OpenAI":
+        embedding_model = OpenAIEmbeddings(
+            model="text-embedding-3-small",
+            openai_api_key=LLM_CONFIG["api_key"],
+        )
+    else:
+        raise ValueError("LLM provider not supported")
 
     # Text splitter to divide documents into smaller chunks
     text_splitter = RecursiveCharacterTextSplitter(

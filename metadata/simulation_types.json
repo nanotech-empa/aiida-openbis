@@ -4,5 +4,6 @@
     "Measurement session": "MEASUREMENT_SESSION",
     "PDOS": "PDOS",
     "Vibrational spectroscopy": "VIBRATIONAL_SPECTROSCOPY",
-    "Unclassified simulation": "UNCLASSIFIED_SIMULATION"
+    "Unclassified simulation": "UNCLASSIFIED_SIMULATION",
+    "STM simulation": "STM_SIMULATION"
 }

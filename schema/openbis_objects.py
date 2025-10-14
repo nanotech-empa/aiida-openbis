@@ -749,12 +749,6 @@ class Substance(OpenBISObject):
         description="Amount of substance",
         metadata={"type": "JSON"},
     )
-    chemist_own_name: str = Field(
-        default="",
-        title="Chemist own name",
-        description="Chemist's own name for the substance",
-        metadata={"type": "VARCHAR"},
-    )
     location: Optional[Union["Instrument", "InstrumentSTM", "Room"]] = Field(
         default=None,
         title="Location",
@@ -1765,6 +1759,13 @@ class Chamber(Component):
 
 
 class Cryostat(Component):
+    target_temperature: TemperatureValue = Field(
+        default=None,
+        title="Target temperature",
+        description="Target temperature",
+        metadata={"type": "JSON"},
+    )
+
     @classmethod
     def get_code(cls) -> str:
         return "CRYO"
@@ -3380,6 +3381,77 @@ class VoltageObservable(Observable):
         return "Voltage Observable"
 
 
+class STMSimulation(Simulation):
+    level_theory_method: str = Field(
+        default="",
+        title="Level of theory (method)",
+        description="Method used for level of theory calculations",
+        metadata={"type": "VARCHAR"},
+    )
+    level_theory_parameters: Dict = Field(
+        default_factory=dict,
+        title="Level of theory (parameters)",
+        description="Parameters for the level of theory method",
+        metadata={"type": "JSON"},
+    )
+    input_parameters: Dict = Field(
+        default_factory=dict,
+        title="Input parameters",
+        description="Input parameters for the simulation",
+        metadata={"type": "JSON"},
+    )
+    output_parameters: Dict = Field(
+        default_factory=dict,
+        title="Output parameters",
+        description="Output parameters from the simulation",
+        metadata={"type": "JSON"},
+    )
+    codes: List[Code] = Field(
+        default_factory=list,
+        title="Code(s)",
+        description="List of codes used in the band structure calculation",
+        metadata={"type": "SAMPLE", "multivalue": True},
+    )
+    aiida_node: "AiidaNode" = Field(
+        default_factory=list,
+        title="AiiDA archive",
+        description="Main AiiDA node containing AiiDA archive file",
+        metadata={"type": "SAMPLE", "multivalue": False},
+    )
+    p_tip: str = Field(
+        default=None,
+        title="P-tip",
+        description="P-tip",
+        metadata={"type": "REAL"},
+    )
+    bias_voltages: Dict = Field(
+        default_factory=dict,
+        title="Bias voltage",
+        description="Bias voltage",
+        metadata={"type": "JSON"},
+    )
+    isovalues: Dict = Field(
+        default_factory=dict,
+        title="Isovalues",
+        description="Isovalues",
+        metadata={"type": "JSON"},
+    )
+    heights: Dict = Field(
+        default_factory=dict,
+        title="Heights",
+        description="Heights",
+        metadata={"type": "JSON"},
+    )
+
+    @classmethod
+    def get_code(cls) -> str:
+        return "STMS"
+
+    @classmethod
+    def get_label(cls) -> str:
+        return "STM Simulation"
+
+
 class MeasurementSession(OpenBISObject):
     measurement_folder_path: str = Field(
         default=None,
@@ -3447,54 +3519,54 @@ class OpticalMicroscopy(OpenBISObject):
     #     return "Optical Microscopy"
 
 
-class Maintenance(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "MAIN"
+# class Maintenance(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "MAIN"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Maintenance"
-
-
-class ErrorsProblems(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "ERRO"
-
-    @classmethod
-    def get_label(cls) -> str:
-        return "Errors and Problems"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Maintenance"
 
 
-class Status(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "STAT"
+# class ErrorsProblems(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "ERRO"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Status"
-
-
-class CalibrationOptimisaton(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "CALI"
-
-    @classmethod
-    def get_label(cls) -> str:
-        return "Calibration Optimisation"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Errors and Problems"
 
 
-class CryogenFilling(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "CRYF"
+# class Status(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "STAT"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Cryostat Filling"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Status"
+
+
+# class CalibrationOptimisaton(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "CALI"
+
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Calibration Optimisation"
+
+
+# class CryogenFilling(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "CRYF"
+
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Cryostat Filling"
 
 
 # class ChangeLocation(OpenBISObject):
@@ -3516,24 +3588,24 @@ class CryogenFilling(OpenBISObject):
 #         return "Change Property"
 
 
-class Degasing(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "DEGA"
+# class Degasing(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "DEGA"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Degasing"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Degasing"
 
 
-class Bakeout(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "BAKE"
+# class Bakeout(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "BAKE"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Bakeout"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Bakeout"
 
 
 # class Comment(OpenBISObject):
@@ -3546,14 +3618,14 @@ class Bakeout(OpenBISObject):
 #         return "Comment"
 
 
-class Cleaning(OpenBISObject):
-    @classmethod
-    def get_code(cls) -> str:
-        return "CLEA"
+# class Cleaning(OpenBISObject):
+#     @classmethod
+#     def get_code(cls) -> str:
+#         return "CLEA"
 
-    @classmethod
-    def get_label(cls) -> str:
-        return "Cleaning"
+#     @classmethod
+#     def get_label(cls) -> str:
+#         return "Cleaning"
 
 
 class Process(OpenBISObject):

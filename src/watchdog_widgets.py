@@ -7,8 +7,20 @@ import ipyfilechooser
 import atexit
 import shutil
 import subprocess
+import logging
 
 OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
+
+if not os.path.exists("logs"):
+    os.mkdir("logs")
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="logs/aiidalab_openbis_interface.log",
+    encoding="utf-8",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
+)
 
 
 class RunningMeasurementWatchdogsWidget(ipw.VBox):
@@ -45,7 +57,8 @@ class RunningMeasurementWatchdogsWidget(ipw.VBox):
         if selected_pids:
             for pid in selected_pids:
                 os.kill(pid, signal.SIGTERM)
-                print("Watchdog stopped.")
+                logging.info(f"Terminating watchdog process with PID: {pid}")
+                display(Javascript(data="alert('Watchdog stopped.')"))
 
             self.running_watchdogs_widget.options = [
                 (directory, pid)
@@ -55,6 +68,7 @@ class RunningMeasurementWatchdogsWidget(ipw.VBox):
 
         else:
             display(Javascript(data="alert('Select at least one directory.')"))
+            logging.info("No directory selected.")
 
 
 class GenerateMeasurementsWatchdogWidget(ipw.VBox):
@@ -128,6 +142,7 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
     def load_sample_data(self, change):
         sample_id = self.select_sample_widget.sample_dropdown.value
         if sample_id == "-1":
+            logging.info("No sample selected.")
             return
 
         sample_object = utils.get_openbis_object(
@@ -160,14 +175,17 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
                     most_recent_parent.experiment.permId
                 )
                 display(Javascript(data="alert('Experiment was changed!')"))
+                logging.info("Experiment was changed.")
 
     def generate_watchdog(self, b):
         experiment_id = self.select_experiment_widget.experiment_dropdown.value
         if experiment_id == "-1":
+            logging.info("No experiment selected.")
             return
 
         sample_id = self.select_sample_widget.sample_dropdown.value
         if sample_id == "-1":
+            logging.info("No sample selected.")
             return
 
         sample_object = utils.get_openbis_object(
@@ -177,6 +195,7 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
 
         instrument_id = self.select_instrument_widget.instrument_dropdown.value
         if instrument_id == "-1":
+            logging.info("No instrument selected.")
             return
 
         measurement_session_object = utils.create_openbis_object(
@@ -187,11 +206,16 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
             props={
                 "name": f"Measurement Session on Sample {sample_name}",
                 "default_object_view": "IMAGING_GALLERY_VIEW",
+                "measurement_folder_path": self.select_measurements_folder_widget.selected_path,
             },
         )
+        logging.info(
+            f"Measurement Session {measurement_session_object.permId} created."
+        )
+
         measurement_session_id = measurement_session_object.permId
         measurements_directory = self.select_measurements_folder_widget.selected_path
-        watchdog_file = "/home/jovyan/aiida-openbis/src/measurements_uploader.py"
+        watchdog_file = "src/measurements_uploader.py"
         shutil.copy(watchdog_file, measurements_directory)
 
         watchdog_process = subprocess.Popen(
@@ -208,7 +232,9 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
                 measurements_directory,
             ]
         )
-        print("Watchdog process started with PID:", watchdog_process.pid)
+
+        display(Javascript(data="alert('Watchdog process started!')"))
+        logging.info(f"Watchdog process started with PID: {watchdog_process.pid}")
 
         self.watchdog_processes.append(watchdog_process)
         running_watchdogs = (
@@ -223,6 +249,6 @@ class GenerateMeasurementsWatchdogWidget(ipw.VBox):
     def cleanup_watchdog(self):
         if self.watchdog_processes:
             for process in self.watchdog_processes:
-                print(f"Terminating watchdog process with PID: {process.pid}")
+                logging.info(f"Terminating watchdog process with PID: {process.pid}")
                 process.terminate()
                 self.watchdog_processes = []

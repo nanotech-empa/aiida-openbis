@@ -1,13 +1,6 @@
 {
     "eln_url": "https://local.openbis.ch",
     "eln_token": "$pat-admin-250922090724661x119C50E3D96C78FB49811744BFCD86B8",
-    "measurement_session_id": "20251006073323513-4166",
-    "processed_files": [
-        "/home/jovyan/aiida-openbis/data/img_0001.sxm",
-        "/home/jovyan/aiida-openbis/data/didv_00003.dat",
-        "/home/jovyan/aiida-openbis/data/didv_00004.dat",
-        "/home/jovyan/aiida-openbis/data/didv_00005.dat",
-        "/home/jovyan/aiida-openbis/data/img_0027.sxm",
-        "/home/jovyan/aiida-openbis/data/img_0068.sxm"
-    ]
+    "measurement_session_id": "20251010070901996-4474",
+    "processed_files": []
 }

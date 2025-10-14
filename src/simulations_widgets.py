@@ -6,6 +6,10 @@ import shutil
 import pandas as pd
 import json
 from IPython.display import display, Javascript
+import io
+import contextlib
+
+string_io = io.StringIO()
 
 MATERIALS_CONCEPTS_TYPES = utils.read_json("metadata/materials_concepts_types.json")
 SIMULATION_TYPES = utils.read_json("metadata/simulation_types.json")
@@ -176,27 +180,7 @@ class ImportSimulationsWidget(ipw.VBox):
 
                 for simulation_object in simulation_objects_children:
                     simulation_permid = simulation_object.permId
-                    # Measurement Session is used for both simulation and experiments
-                    if (
-                        simulation_object.type
-                        == OPENBIS_OBJECT_TYPES["Measurement Session"]
-                    ):
-                        simulation_measurement = False
-                        for parent in simulation_object.parents:
-                            parent_object = utils.get_openbis_object(
-                                self.openbis_session, sample_ident=parent
-                            )
-                            if (
-                                parent_object.type
-                                == OPENBIS_OBJECT_TYPES["Atomistic Model"]
-                            ):
-                                simulation_measurement = True
-                                break
-
-                        if simulation_measurement:
-                            simulation_permid_set.add(simulation_permid)
-                    else:
-                        simulation_permid_set.add(simulation_permid)
+                    simulation_permid_set.add(simulation_permid)
 
         else:  # In AND, only the simulations that appear in all selected materials are added to the list
             for idx, parent in enumerate(parents_permid_list):
@@ -210,26 +194,7 @@ class ImportSimulationsWidget(ipw.VBox):
                 parent_simulation_permid_list = []
                 for simulation_object in simulation_objects_children:
                     simulation_permid = simulation_object.permId
-                    if (
-                        simulation_object.type
-                        == OPENBIS_OBJECT_TYPES["Measurement Session"]
-                    ):  # 2D Measurement is used for both simulation and experiments
-                        simulation_measurement = False
-                        for parent in simulation_object.parents:
-                            parent_object = utils.get_openbis_object(
-                                self.openbis_session, sample_ident=parent
-                            )
-                            if (
-                                parent_object.type
-                                == OPENBIS_OBJECT_TYPES["Atomistic Model"]
-                            ):
-                                simulation_measurement = True
-                                break
-
-                        if simulation_measurement:
-                            parent_simulation_permid_list.append(simulation_permid)
-                    else:
-                        parent_simulation_permid_list.append(simulation_permid)
+                    parent_simulation_permid_list.append(simulation_permid)
 
                 if idx == 0:
                     simulation_permid_set = set(parent_simulation_permid_list)
@@ -637,7 +602,7 @@ class ExportSimulationsWidget(ipw.VBox):
 
                         if len(first_atom_model.parents) == 0:
                             first_atom_model.parents = atom_model_parents
-                            first_atom_model.save()
+                            utils.update_openbis_object(first_atom_model)
                         display(Javascript(data="alert('Upload successful!')"))
                     else:
                         display(
@@ -754,29 +719,32 @@ class ExportSimulationsWidget(ipw.VBox):
 
                     simulation_parents = selected_atom_model_id
 
-                    simulation_obj = utils.create_openbis_object(
-                        self.openbis_session,
-                        type=simulation_type,
-                        collection=selected_experiment_id,
-                        parents=simulation_parents,
-                        props=simulation_props,
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        simulation_obj = utils.create_openbis_object(
+                            self.openbis_session,
+                            type=simulation_type,
+                            collection=selected_experiment_id,
+                            parents=simulation_parents,
+                            props=simulation_props,
+                        )
 
                     # Simulation preview
-                    utils.upload_datasets(
-                        self.openbis_session,
-                        simulation_obj,
-                        self.simulation_details_vbox.upload_image_preview_uploader,
-                        "ELN_PREVIEW",
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        utils.upload_datasets(
+                            self.openbis_session,
+                            simulation_obj,
+                            self.simulation_details_vbox.upload_image_preview_uploader,
+                            "ELN_PREVIEW",
+                        )
 
                     # Simulation datasets
-                    utils.upload_datasets(
-                        self.openbis_session,
-                        simulation_obj,
-                        self.simulation_details_vbox.upload_datasets_uploader,
-                        "ATTACHMENT",
-                    )
+                    with contextlib.redirect_stdout(string_io):
+                        utils.upload_datasets(
+                            self.openbis_session,
+                            simulation_obj,
+                            self.simulation_details_vbox.upload_datasets_uploader,
+                            "ATTACHMENT",
+                        )
 
 
 class SimulationDetailsWidget(ipw.VBox):

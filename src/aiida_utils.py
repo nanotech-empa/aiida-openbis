@@ -13,7 +13,11 @@ from aiida.common.exceptions import NotExistentAttributeError
 import random
 from . import utils
 
-OPENBIS_URL = "local.openbis.ch"
+OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
+OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
+OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida(
+    "https://openbis-empa-dev205.ethz.ch/"
+)
 
 
 def creator_of_structure(struc_uuid):
@@ -458,8 +462,8 @@ def is_structure_optimized(structure_uuid):
 
 
 def get_uuids_from_oBIS(openbis_session):
-    aiida_node_type = "AIIDA_NODE"
-    atom_model_type = "ATOMISTIC_MODEL"
+    aiida_node_type = OPENBIS_OBJECT_TYPES["AiiDA Node"]
+    atom_model_type = OPENBIS_OBJECT_TYPES["Atomistic Model"]
     aiida_nodes_oBIS = utils.get_openbis_objects(openbis_session, type=aiida_node_type)
     atom_mods_oBIS = utils.get_openbis_objects(openbis_session, type=atom_model_type)
 
@@ -517,7 +521,7 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
     uuid = structure_uuid
     structure = orm.load_node(uuid)
 
-    atom_model_type = "ATOMISTIC_MODEL"
+    atom_model_type = OPENBIS_OBJECT_TYPES["Atomistic Model"]
 
     # check if the atomistic model is already in oBIS
     if uuid in uuids:
@@ -548,15 +552,19 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
         openbis_session,
         type=atom_model_type,
         props=dictionary,
-        collection="/LAB205_MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
+        collection=OPENBIS_COLLECTIONS_PATHS["Atomistic Model"],
     )
+
+    geo_png_filename = geo_to_png(ase_geo)
 
     utils.create_openbis_dataset(
         openbis_session,
         type="ELN_PREVIEW",
         sample=obobject,
-        files=[geo_to_png(ase_geo)],
+        files=[geo_png_filename],
     )
+
+    os.remove(geo_png_filename)
 
     structure_json = encode(ase_geo)
     utils.write_json(structure_json, "structure_json.json")
@@ -599,7 +607,7 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
         uuid,
     ]
 
-    aiida_node_type = "AIIDA_NODE"
+    aiida_node_type = OPENBIS_OBJECT_TYPES["AiiDA Node"]
 
     try:
         # Execute the command
@@ -618,7 +626,7 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
                 openbis_session,
                 type=aiida_node_type,
                 props=object_props,
-                collection="/LAB205_MATERIALS/AIIDA_NODES/AIIDA_NODE_COLLECTION",
+                collection=OPENBIS_COLLECTIONS_PATHS["AiiDA Node"],
             )
 
             utils.create_openbis_dataset(
@@ -654,7 +662,7 @@ def PwRelaxWorkChain_export(
         {"value": pw_input_parameters["CONTROL"]["forc_conv_thr"], "unit": "eV/Bohr**3"}
     )
 
-    geo_opt_type = "GEOMETRY_OPTIMISATION"
+    geo_opt_type = OPENBIS_OBJECT_TYPES["Geometry Optimisation"]
 
     geoopt_object_parameters = {
         "wfms_uuid": workchain_uuid,
@@ -702,7 +710,7 @@ def PwRelaxWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     geoopt_obobject.add_parents(input_structure)
-    geoopt_obobject.save()
+    utils.update_openbis_object(geoopt_obobject)
 
     # if missing create oBIS object and obtain uuid
     output_structure = workchain.outputs.output_structure
@@ -710,7 +718,7 @@ def PwRelaxWorkChain_export(
         openbis_session, output_structure.uuid, uuids
     )
     output_structure.add_parents(geoopt_obobject)
-    output_structure.save()
+    utils.update_openbis_object(output_structure)
     geoopt_obobject.add_children(output_structure)
 
     return geoopt_obobject
@@ -731,7 +739,7 @@ def BandsWorkChain_export(
         root_in.bands, root_out.scf_parameters.get_dict()
     )
 
-    bands_type = "BAND_STRUCTURE"
+    bands_type = OPENBIS_OBJECT_TYPES["Band Structure"]
 
     output_parameters = get_qe_output_parameters(root_out.scf_parameters.get_dict())
     input_parameters = get_qe_input_parameters(root_out.scf_parameters.get_dict())
@@ -795,7 +803,7 @@ def BandsWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     bands_obobject.add_parents(input_structure)
-    bands_obobject.save()
+    utils.update_openbis_object(bands_obobject)
 
     return bands_obobject
 
@@ -811,7 +819,7 @@ def PdosWorkChain_export(
         root_in.scf, root_out.nscf.output_parameters.get_dict()
     )
 
-    pdos_type = "PDOS"
+    pdos_type = OPENBIS_OBJECT_TYPES["PDOS"]
 
     dictionary = {
         "wfms_uuid": workchain_uuid,
@@ -860,7 +868,7 @@ def PdosWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     pdos_obobject.add_parents(input_structure)
-    pdos_obobject.save()
+    utils.update_openbis_object(pdos_obobject)
 
     return pdos_obobject
 
@@ -880,7 +888,7 @@ def VibroWorkChain_export(
         root_in, root_out.output_parameters.get_dict()
     )
 
-    vibro_spec_type = "VIBRATIONAL_SPECTROSCOPY"
+    vibro_spec_type = OPENBIS_OBJECT_TYPES["Vibrational Spectroscopy"]
 
     dictionary = {
         "wfms_uuid": workchain_uuid,
@@ -934,7 +942,7 @@ def VibroWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     vibro_spec_obobject.add_parents(input_structure)
-    vibro_spec_obobject.save()
+    utils.update_openbis_object(vibro_spec_obobject)
 
     return vibro_spec_obobject
 
@@ -980,7 +988,7 @@ def Cp2kGeoOptWorkChain_export(
     if dft_object_parameters["vdw_corr"]:
         dft_object_parameters["vdw_corr"] = "DFT-D3"
 
-    geo_opt_type = "GEOMETRY_OPTIMISATION"
+    geo_opt_type = OPENBIS_OBJECT_TYPES["Geometry Optimisation"]
 
     geoopt_object_parameters = {
         "wfms_uuid": workchain_uuid,
@@ -1021,7 +1029,7 @@ def Cp2kGeoOptWorkChain_export(
         openbis_session, input_structure.uuid, uuids
     )
     geoopt_obobject.add_parents(input_structure)
-    geoopt_obobject.save()
+    utils.update_openbis_object(geoopt_obobject)
 
     # if missing create oBIS object and obtain uuid
     output_structure = workchain.outputs.output_structure
@@ -1029,7 +1037,7 @@ def Cp2kGeoOptWorkChain_export(
         openbis_session, output_structure.uuid, uuids
     )
     output_structure.add_parents(geoopt_obobject)
-    output_structure.save()
+    utils.update_openbis_object(output_structure)
 
     geoopt_obobject.add_children(output_structure)
 
@@ -1087,7 +1095,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         for i in spm_params["--heights"]
     ]
 
-    measurement_type = "MEASUREMENT_SESSION"
+    measurement_type = OPENBIS_OBJECT_TYPES["STM Simulation"]
 
     dictionary = {
         "wfms_uuid": workchain.uuid,
@@ -1095,10 +1103,11 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
         "level_theory_parameters": json.dumps(
             dft_object_parameters
         ),  # link/incorporate DFT object
-        "bias_voltages": bias_voltages_json,
-        "isovalues": isovalues_json,
-        "heights": heights_json,
-        "p_tip": spm_params["--p_tip_ratios"],
+        "bias_voltages": json.dumps(bias_voltages_json),
+        "isovalues": json.dumps(isovalues_json),
+        "heights": json.dumps(heights_json),
+        # TODO: Uncomment this as long as I reset openBIS schema
+        # "p_tip": spm_params["--p_tip_ratios"],
         "output_parameters": json.dumps(output_parameters),
         "input_parameters": json.dumps(input_parameters),
     }
@@ -1119,7 +1128,7 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     obobject = set_simulation_codes(openbis_session, obobject, workchain_uuid)
 
     workchain.base.extras.set(
-        "eln", {"url": OPENBIS_URL, "object_uuid": obobject.permId}
+        "eln", {"url": OPENBIS_SESSION.url, "object_uuid": obobject.permId}
     )
 
     input_structure = workchain.inputs.structure
@@ -1128,13 +1137,13 @@ def Cp2kStmWorkChain_export(openbis_session, experiment_id, workchain_uuid, uuid
     )
 
     obobject.add_parents(input_structure)
-    obobject.save()
+    utils.update_openbis_object(obobject)
 
     return obobject
 
 
 def set_simulation_codes(openbis_session, obis_object, workchain_uuid):
-    code_type = "CODE"
+    code_type = OPENBIS_OBJECT_TYPES["Code"]
     openbis_codes_filepaths = {
         code_object.props["filepath_executable"]: code_object
         for code_object in utils.get_openbis_objects(openbis_session, type=code_type)
@@ -1151,7 +1160,7 @@ def set_simulation_codes(openbis_session, obis_object, workchain_uuid):
                 openbis_session,
                 type=code_type,
                 props=code_info,
-                collection="/LAB205_SOFTWARE/COMPUTATIONAL_SIMULATIONS/OPEN_SOURCE_SOFTWARE_COLLECTION",
+                collection=OPENBIS_COLLECTIONS_PATHS["Open Source Code"],
             )
 
         simulations_codes.append(code_object.permId)
@@ -1222,7 +1231,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                         simulation_uuids_oBIS["structure_uuids"],
                     )
                     export.props["aiida_node"] = AiiDA_archive.permId
-                    export.save()
+                    utils.update_openbis_object(export)
 
                     # Update current status of openBIS simulations
                     simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
@@ -1243,7 +1252,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                             )
 
                             export.props["aiida_node"] = AiiDA_archive.permId
-                            export.save()
+                            utils.update_openbis_object(export)
 
                             # Update current status of openBIS simulations
                             simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)

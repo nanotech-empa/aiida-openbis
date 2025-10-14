@@ -4,9 +4,7 @@ from zoneinfo import ZoneInfo
 from datetime import datetime
 from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.prebuilt import ToolNode, tools_condition
-from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
-from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
 from typing import Annotated
 from typing_extensions import TypedDict
@@ -55,27 +53,11 @@ class OpenBISAgent:
     def __init__(self, llm_config):
         self.messages = {"messages": []}
 
-        if llm_config["llm_provider"] == "Ollama":
-            self.llm_base_url = llm_config["llm_url"]
-            self.llm_model = ChatOllama(
-                model=llm_config["llm_model"],
-                base_url=self.llm_base_url,
-                temperature=0.5,
-                max_retries=3,
-            )
-        elif llm_config["llm_provider"] == "OpenAI":
+        if llm_config["llm_provider"] == "OpenAI":
             self.llm_api_key = llm_config["api_key"]
             self.llm_model = ChatOpenAI(
                 model=llm_config["llm_model"],
                 openai_api_key=self.llm_api_key,
-                temperature=0.5,
-                max_retries=3,
-            )
-        elif llm_config["llm_provider"] == "Anthropic":
-            self.llm_api_key = llm_config["api_key"]
-            self.llm_model = ChatAnthropic(
-                model=llm_config["llm_model"],
-                anthropic_api_key=self.llm_api_key,
                 temperature=0.5,
                 max_retries=3,
             )

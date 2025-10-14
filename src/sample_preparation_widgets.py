@@ -7,6 +7,7 @@ from collections import Counter
 import shutil
 import base64
 import io
+import os
 import matplotlib.pyplot as plt
 import logging
 
@@ -17,6 +18,11 @@ OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
 MATERIALS_TYPES = utils.read_json("metadata/materials_types.json")
 OPENBIS_OBJECT_CODES = utils.read_json("metadata/object_codes.json")
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
+
+processes_project = "/LAB205_METHODS/PROCESSES"
+
+if not os.path.exists("logs"):
+    os.mkdir("logs")
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -265,9 +271,55 @@ class CreateSampleWidget(ipw.VBox):
                 logger.info("Material is not selected.")
                 return
             else:
-                material_object = (
-                    self.material_details_vbox.children[0].children[0].value
+                material_id = self.material_details_vbox.children[0].children[0].value
+
+                material_object = utils.get_openbis_object(
+                    self.openbis_session, sample_ident=material_id
                 )
+
+                # Check samples that use this material which are still active
+                sample_objects = utils.get_openbis_objects(
+                    self.openbis_session,
+                    type=OPENBIS_OBJECT_TYPES["Sample"],
+                    where={"object_status": "ACTIVE"},
+                    attrs=["parents"],
+                )
+
+                for sample in sample_objects:
+                    obj = sample
+                    while obj:
+                        parents = obj.parents
+                        found_parent = False
+
+                        for parent_id in parents:
+                            parent = utils.get_openbis_object(
+                                self.openbis_session, sample_ident=parent_id
+                            )
+                            parent_type = parent.type.code
+
+                            if parent_type in [
+                                OPENBIS_OBJECT_TYPES["Process Step"],
+                                OPENBIS_OBJECT_TYPES["Sample"],
+                            ]:
+                                obj = parent
+                                found_parent = True
+                                break
+
+                            elif (
+                                parent_type == material_object.type.code
+                                and parent.permId == material_object.permId
+                            ):
+                                sample.props["object_status"] = "DISPOSED"
+                                utils.update_openbis_object(sample)
+                                found_parent = True
+                                break
+
+                        if not found_parent:
+                            obj = None
+
+                        if sample.props["object_status"] == "DISPOSED":
+                            break
+
                 sample_name = self.sample_name_textbox.value
                 sample_type = OPENBIS_OBJECT_TYPES["Sample"]
                 sample_props = {"name": sample_name, "object_status": "ACTIVE"}
@@ -306,18 +358,17 @@ class SampleHistoryWidget(ipw.VBox):
             for parent in sample_parents:
                 parent_code = parent.split("/")[-1]
                 if (
-                    OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:5]
-                    or OPENBIS_OBJECT_CODES["Sample"] == parent_code[0:5]
+                    OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:4]
+                    or OPENBIS_OBJECT_CODES["Sample"] == parent_code[0:4]
                 ):
                     parent_object = utils.get_openbis_object(
                         self.openbis_session, sample_ident=parent
                     )
                     next_parents.extend(parent_object.parents)
 
-                    if OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:5]:
+                    if OPENBIS_OBJECT_CODES["Process Step"] == parent_code[0:4]:
                         process_steps.append(parent_object)
             sample_parents = next_parents
-
         sample_history_children = []
         for i, process_step in enumerate(process_steps):
             process_step_widget = ProcessStepHistoryWidget(
@@ -900,7 +951,7 @@ class RegisterProcessWidget(ipw.VBox):
 
     def load_collections(self):
         collections = utils.get_openbis_collections(
-            self.openbis_session, type="COLLECTION", project="/METHODS/PROCESSES"
+            self.openbis_session, type="COLLECTION", project=processes_project
         )
         collection_options = []
         for col in collections:
@@ -1139,7 +1190,7 @@ class RegisterProcessWidget(ipw.VBox):
                                         component_object.props[setting_key] = (
                                             setting_value
                                         )
-                                component_object.save()
+                                utils.update_openbis_object(component_object)
                                 logger.info(
                                     f"Component {component_object.permId} properties changed successfully."
                                 )
@@ -1243,7 +1294,7 @@ class RegisterProcessWidget(ipw.VBox):
                                         component_object.props[setting_key] = (
                                             setting_value
                                         )
-                                component_object.save()
+                                utils.update_openbis_object(component_object)
                                 logger.info(
                                     f"Component {component_object.permId} properties changed successfully."
                                 )
@@ -1311,7 +1362,7 @@ class RegisterProcessWidget(ipw.VBox):
 
             new_process_object = utils.create_openbis_object(
                 self.openbis_session,
-                type="PROCESS",
+                type=OPENBIS_OBJECT_TYPES["Process"],
                 experiment=collection_id,
                 props=process_properties,
             )
@@ -1498,7 +1549,7 @@ class RegisterPreparationWidget(ipw.VBox):
 
     def load_process(self, b):
         openbis_processes = utils.get_openbis_objects(
-            self.openbis_session, type="PROCESS"
+            self.openbis_session, type=OPENBIS_OBJECT_TYPES["Process"]
         )
         processes_options = []
         for obj in openbis_processes:
@@ -1543,6 +1594,11 @@ class RegisterPreparationWidget(ipw.VBox):
             display(Javascript(data="alert('Select an experiment.')"))
             return
 
+        current_sample_id = self.select_sample_dropdown.sample_dropdown.value
+        if current_sample_id == "-1":
+            display(Javascript(data="alert('Select a sample.')"))
+            return
+
         processes_widgets = self.new_processes_accordion.children
         if processes_widgets:
             openbis_transaction_objects = []
@@ -1551,7 +1607,6 @@ class RegisterPreparationWidget(ipw.VBox):
             )
             experiment_project_code = experiment_object.project.identifier
 
-            current_sample_id = self.select_sample_dropdown.sample_dropdown.value
             current_sample = utils.get_openbis_object(
                 self.openbis_session, sample_ident=current_sample_id
             )
@@ -1575,7 +1630,7 @@ class RegisterPreparationWidget(ipw.VBox):
                 process_code = ""
                 current_sample.props["object_status"] = "INACTIVE"
                 current_sample_name = current_sample.props["name"]
-                current_sample.save()
+                utils.update_openbis_object(current_sample)
 
                 process_step_type = OPENBIS_OBJECT_TYPES["Process Step"]
                 new_process_object = utils.create_openbis_object(
@@ -1762,7 +1817,7 @@ class RegisterPreparationWidget(ipw.VBox):
                                         component_object.props[setting_key] = (
                                             setting_value
                                         )
-                                component_object.save()
+                                utils.update_openbis_object(component_object)
 
                                 action_properties["component_settings"] = json.dumps(
                                     component_settings
@@ -1872,7 +1927,7 @@ class RegisterPreparationWidget(ipw.VBox):
                                         component_object.props[setting_key] = (
                                             setting_value
                                         )
-                                component_object.save()
+                                utils.update_openbis_object(component_object)
 
                                 observable_properties["component_settings"] = (
                                     json.dumps(component_settings)
@@ -1957,14 +2012,14 @@ class RegisterPreparationWidget(ipw.VBox):
 
                 new_sample_name = f"{current_sample_name}:{process_code}"
                 self.sample_preparation_object.props["name"] = f"PREP_{new_sample_name}"
-                self.sample_preparation_object.save()
+                utils.update_openbis_object(self.sample_preparation_object)
 
                 new_process_object.props = process_properties
                 new_process_object.parents = [
                     self.sample_preparation_object,
                     current_sample,
                 ]
-                new_process_object.save()
+                utils.update_openbis_object(new_process_object)
 
                 new_sample = utils.create_openbis_object(
                     self.openbis_session,
@@ -2687,7 +2742,7 @@ class RegisterActionWidget(ipw.VBox):
                 action_properties.append(self.angle_hbox)
                 action_properties.append(self.substrate_temperature_hbox)
                 action_properties.append(self.sputter_ion_hbox)
-                self.action_icon = "🌫️"
+                self.action_icon = "🔫"
 
             elif action_type == OPENBIS_OBJECT_TYPES["Coating"]:
                 self.action_icon = "🧥"
@@ -3054,12 +3109,12 @@ class RegisterObservableWidget(ipw.VBox):
         self.ch_name_textbox.value = observable_props["channel_name"] or ""
         self.comments_textarea.value = observable_props["comments"] or ""
 
-        try:
+        component_permid = observable_props.get("component", {})
+        if component_permid:
             component_settings = observable_props.get("component_settings", {})
-            component_settings = json.loads(component_settings)
-            component_permid = observable_props.get("component", {})
-            self.component_dropdown.value = component_permid
             if component_settings:
+                component_settings = json.loads(component_settings)
+                self.component_dropdown.value = component_permid
                 if "density" in component_settings:
                     self.density_value_textbox.value = str(
                         component_settings["density"]["value"]
@@ -3075,9 +3130,17 @@ class RegisterObservableWidget(ipw.VBox):
                         "filament_current"
                     ]["unit"]
 
-                self.filament_textbox.value = component_settings.get("filament", "")
-        except (KeyError, AttributeError, TypeError):
-            pass
+                self.filament_textbox.value = str(
+                    component_settings.get("filament", "")
+                )
+            else:
+                logging.info(
+                    f"No component settings found for observable {observable_permid}."
+                )
+        else:
+            logging.info(
+                f"No component associated with observable {observable_permid}."
+            )
 
     def load_observable_properties(self, change):
         observable_type = self.observable_type_dropdown.value
