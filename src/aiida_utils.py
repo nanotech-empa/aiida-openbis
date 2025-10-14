@@ -482,6 +482,16 @@ def get_uuids_from_oBIS(openbis_session):
 def aiida_data_to_json(data_uuid):
     """Exports AiiDA xxData object as .json. Does not work for StructureData"""
     data = orm.load_node(data_uuid)
+
+    # temporary fix waiting for https://github.com/aiidateam/aiida-quantumespresso/pull/1188
+    # projwfc creates BandsData with U8 instead of floats
+    if data.__class__.__name__ == "BandsData":
+        if data.get_bands().dtype != np.dtype("float64"):
+            new = data.clone()
+            new.set_bands(new.get_bands().astype(float))
+            data = new.clone()
+    # end temporary fix
+
     # Create a temporary file path
     temp_file = tempfile.NamedTemporaryFile(mode="w+", suffix=".json", delete=False)
     try:
@@ -538,7 +548,7 @@ def structure_to_atomistic_model(openbis_session, structure_uuid, uuids):
         openbis_session,
         type=atom_model_type,
         props=dictionary,
-        collection="/MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
+        collection="/LAB205_MATERIALS/ATOMISTIC_MODELS/ATOMISTIC_MODEL_COLLECTION",
     )
 
     utils.create_openbis_dataset(
@@ -608,7 +618,7 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
                 openbis_session,
                 type=aiida_node_type,
                 props=object_props,
-                collection="/MATERIALS/AIIDA_NODES/AIIDA_NODE_COLLECTION",
+                collection="/LAB205_MATERIALS/AIIDA_NODES/AIIDA_NODE_COLLECTION",
             )
 
             utils.create_openbis_dataset(
@@ -1141,7 +1151,7 @@ def set_simulation_codes(openbis_session, obis_object, workchain_uuid):
                 openbis_session,
                 type=code_type,
                 props=code_info,
-                collection="/SOFTWARE/COMPUTATIONAL_SIMULATIONS/OPEN_SOURCE_SOFTWARE_COLLECTION",
+                collection="/LAB205_SOFTWARE/COMPUTATIONAL_SIMULATIONS/OPEN_SOURCE_SOFTWARE_COLLECTION",
             )
 
         simulations_codes.append(code_object.permId)
