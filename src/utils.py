@@ -96,7 +96,7 @@ def connect_openbis_aiida(eln_url="https://local.openbis.ch"):
         config = read_json(eln_config)
         eln_token = config[eln_url]["token"]
         openbis_session, session_data = connect_openbis(eln_url, eln_token)
-    except Exception:
+    except KeyError:
         eln_token = ""
         openbis_session, session_data = None, None
     return openbis_session, session_data
