@@ -12,10 +12,20 @@ from ase.io.jsonio import encode
 from aiida.common.exceptions import NotExistentAttributeError
 import random
 from . import utils
+import logging
 
 OPENBIS_COLLECTIONS_PATHS = utils.read_json("metadata/collection_paths.json")
 OPENBIS_OBJECT_TYPES = utils.read_json("metadata/object_types.json")
 OPENBIS_SESSION, SESSION_DATA = utils.connect_openbis_aiida()
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="logs/aiidalab_openbis_interface.log",
+    encoding="utf-8",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s",
+)
 
 
 def creator_of_structure(struc_uuid):
@@ -613,7 +623,7 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
 
         # Check for errors
         if result.returncode != 0:
-            print(f"An error occurred: {result.stderr}")
+            logging.info(f"An error occurred: {result.stderr}")
         else:
             # Capture the absolute path to the created file
             created_file_path = Path(output_file).resolve()
@@ -639,9 +649,9 @@ def create_and_export_AiiDA_archive(openbis_session, uuid):
         file_to_delete = Path(output_file)
         if file_to_delete.exists():
             file_to_delete.unlink()  # Delete the file
-            print(f"File {file_to_delete} has been deleted.")
+            logging.info(f"File {file_to_delete} has been deleted.")
         else:
-            print(f"File {file_to_delete} does not exist, nothing to delete.")
+            logging.info(f"File {file_to_delete} does not exist, nothing to delete.")
     return obobject
 
 
@@ -1212,7 +1222,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
             main_wc.is_finished_ok
         ):  # if not we do not parse it but it will still be in the AiiDA archive
             if main_wc_uuid not in simulation_uuids_oBIS["wc_uuids"]:
-                print(f"dealing with main WC {main_wc.pk}")
+                logging.info(f"dealing with main WC {main_wc.pk}")
 
                 # create global .aiida for main_wc and AiiDA_nodes openBIS object with the archive as dataset
                 AiiDA_archive = create_and_export_AiiDA_archive(
@@ -1234,7 +1244,7 @@ def export_workchain(openbis_session, experiment_id, workchain_uuid):
                     # Update current status of openBIS simulations
                     simulation_uuids_oBIS = get_uuids_from_oBIS(openbis_session)
                 else:
-                    print(main_wc.process_label, " checking sub_workchains")
+                    logging.info(main_wc.process_label, " checking sub_workchains")
                     # all workchains called by teh main workchain
                     wc_tree = main_wc.called_descendants
                     for wc in wc_tree:
