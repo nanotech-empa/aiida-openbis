@@ -88,12 +88,17 @@ def upload_datasets(ob_session, ob_object, files_widget, dataset_type):
 
 
 def connect_openbis_aiida(eln_url="https://local.openbis.ch"):
-    eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
-    eln_config.parent.mkdir(
-        parents=True, exist_ok=True
-    )  # making sure that the folder exists.
-    config = read_json(eln_config)
-    eln_token = config[eln_url]["token"]
+    try:
+        eln_config = Path.home() / ".aiidalab" / "aiidalab-eln-config.json"
+        eln_config.parent.mkdir(
+            parents=True, exist_ok=True
+        )  # making sure that the folder exists.
+        config = read_json(eln_config)
+        eln_token = config[eln_url]["token"]
+    except Exception:
+        print(
+            f"Could not find the AiiDAlab ELN configuration file or the URL {eln_url} is not configured. Please set up the ELN connection first."
+        )
     openbis_session, session_data = connect_openbis(eln_url, eln_token)
     return openbis_session, session_data
 
