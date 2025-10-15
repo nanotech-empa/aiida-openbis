@@ -95,11 +95,10 @@ def connect_openbis_aiida(eln_url="https://local.openbis.ch"):
         )  # making sure that the folder exists.
         config = read_json(eln_config)
         eln_token = config[eln_url]["token"]
+        openbis_session, session_data = connect_openbis(eln_url, eln_token)
     except Exception:
-        print(
-            f"Could not find the AiiDAlab ELN configuration file or the URL {eln_url} is not configured. Please set up the ELN connection first."
-        )
-    openbis_session, session_data = connect_openbis(eln_url, eln_token)
+        eln_token = ""
+        openbis_session, session_data = None, None
     return openbis_session, session_data
 
 
